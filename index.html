@@ -36,6 +36,11 @@
       body { background-color: #ffffff !important; }
       .print-only { display: block !important; }
     }
+    #sjsAiFab { position: fixed; bottom: 24px; right: 24px; z-index: 99999; }
+    #sjsAiFab button { background: #2563eb; color: #fff; width: 60px; height: 60px; border-radius: 50%; border: 3px solid #f59e0b; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: transform 0.2s; }
+    #sjsAiFab button:hover { transform: scale(1.08); }
+    #sjsAiBox { position: fixed; bottom: 96px; right: 24px; width: 380px; max-width: calc(100vw - 32px); height: 540px; max-height: calc(100vh - 120px); background: #ffffff; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); border: 2px solid #cbd5e1; display: flex; flex-direction: column; overflow: hidden; z-index: 99999; }
+    #sjsAiBox.hidden { display: none !important; }
   </style>
 </head>
 <body class="text-slate-900 antialiased min-h-screen flex flex-col">
@@ -815,6 +820,46 @@
     <span id="toastMessage"></span>
   </div>
 
+  <!-- ASISTEN AI TERINTEGRASI -->
+  <div id="sjsAiFab" class="no-print">
+    <button type="button" id="sjsAiToggleBtn" title="Buka Asisten Toko"><i class="fa-solid fa-robot"></i></button>
+  </div>
+
+  <div id="sjsAiBox" class="hidden no-print">
+    <div style="background: linear-gradient(to right, #1e3a8a, #1d4ed8); color: white; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="width: 36px; height: 36px; background: #f59e0b; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #1e3a8a; font-weight: bold;"><i class="fa-solid fa-robot"></i></div>
+        <div>
+          <h4 style="font-weight: 800; font-size: 15px; margin: 0;">Asisten Toko Surya Jaya</h4>
+          <p id="sjsAiStatusSub" style="font-size: 11px; opacity: 0.9; margin: 0;">Online • Siap Bantu Catat &amp; Stok</p>
+        </div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <button type="button" id="sjsAiKeyBtn" title="Atur API Key Gemini" style="background: rgba(255,255,255,0.2); border: none; color: #fde047; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold;"><i class="fa-solid fa-key"></i></button>
+        <button type="button" id="sjsAiCloseBtn" style="background: rgba(255,255,255,0.2); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+    </div>
+
+    <div id="sjsAiKeyPanel" class="hidden" style="background: #fef3c7; padding: 10px 14px; border-bottom: 2px solid #f59e0b; display: flex; flex-direction: column; gap: 6px;">
+      <label style="font-size: 11px; font-weight: 800; color: #78350f;">Masukkan Gemini API Key (AIzaSy...):</label>
+      <div style="display: flex; gap: 6px;">
+        <input type="password" id="sjsAiKeyInput" placeholder="Tempel API Key di sini..." style="flex: 1; padding: 6px 10px; border: 1px solid #d97706; border-radius: 8px; font-size: 12px !important;">
+        <button type="button" id="sjsAiSaveKeyBtn" style="background: #d97706; color: #fff; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer;">Simpan</button>
+      </div>
+    </div>
+
+    <div id="sjsAiChatLog" style="flex: 1; padding: 14px; overflow-y: auto; background: #f8fafc; font-size: 13px; display: flex; flex-direction: column; gap: 10px;">
+      <div style="background: #e2e8f0; color: #0f172a; padding: 10px 14px; border-radius: 14px; max-width: 85%;">
+        Halo Bos! Ada yang bisa saya bantu cek hari ini? (Contoh: <em>"Berapa omset dan untung hari ini?"</em> atau <em>"Sisa stok kok berapa?"</em>). Jika belum mengatur API Key, klik ikon <strong>Kunci (🔑)</strong> di pojok kanan atas chat ini.
+      </div>
+    </div>
+
+    <div style="padding: 10px; background: #ffffff; border-top: 2px solid #e2e8f0; display: flex; gap: 8px;">
+      <input type="text" id="sjsAiInput" placeholder="Ketik pertanyaan untuk asisten..." style="flex: 1; padding: 10px 14px; border: 2px solid #cbd5e1; border-radius: 12px; font-size: 13px !important; outline: none;">
+      <button type="button" id="sjsAiSendBtn" style="background: #2563eb; color: #fff; border: none; padding: 0 16px; border-radius: 12px; font-weight: bold; cursor: pointer;"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+  </div>
+
   <script type="module">
     let initializeApp, getApps, getAuth, signInAnonymously, getFirestore;
     let doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc;
@@ -889,6 +934,30 @@
     function paths(...segments) {
       return ["artifacts", APP_ID, "public", "data", ...segments];
     }
+
+    // Ekspos data toko untuk Asisten AI
+    window.sjsGetContext = function () {
+      const todayTx = transactions.filter(t => t.date === todayStr());
+      return {
+        tanggalHariIni: todayStr(),
+        transaksiHariIni: todayTx.map(t => ({
+          bayar: t.paymentMethod,
+          omset: t.totalOmset,
+          untung: t.totalProfit,
+          barang: (t.items || []).map(i => `${i.name} (${i.qty} pcs @ ${i.price})`)
+        })),
+        totalTransaksiSemuaHari: transactions.length,
+        daftarStok: inventory.map(i => ({
+          kode: i.code,
+          nama: i.name,
+          ukuran: i.size,
+          warna: i.color,
+          stok: i.stock,
+          modal: i.cost,
+          hargaJual: i.price
+        }))
+      };
+    };
 
     async function initFirebase() {
       try {
@@ -1361,8 +1430,12 @@
     function renderInventory() {
       const tbody = document.getElementById("inventoryTableBody");
       const listDiv = document.getElementById("inventoryMobileList");
+      const datalist = document.getElementById("inventoryDatalist");
       tbody.innerHTML = "";
       listDiv.innerHTML = "";
+      if (datalist) {
+        datalist.innerHTML = inventory.map(i => `<option value="${esc(i.name)}">${esc(i.code || "")} - ${rp(i.price)}</option>`).join("");
+      }
 
       const q = document.getElementById("invSearchInput").value.toLowerCase();
       const filteredInv = inventory.filter(i => !q || (i.name && i.name.toLowerCase().includes(q)) || (i.code && i.code.toLowerCase().includes(q)));
@@ -1569,6 +1642,52 @@
         document.getElementById("adminPinInput").value = "";
       }
     }
+
+    async function saveRestock() {
+      const invId = document.getElementById("restockItem").value;
+      const qty = parseInt(document.getElementById("restockQty").value) || 0;
+      const total = parseFloat(document.getElementById("restockTotal").value) || 0;
+      const date = document.getElementById("restockDate").value || todayStr();
+      const item = inventory.find(i => i.id === invId);
+
+      if (!item) { showToast("Pilih barang terlebih dahulu."); return; }
+      if (qty <= 0) { showToast("Jumlah pembelian harus lebih dari 0."); return; }
+
+      const unitCost = Math.round(total / qty);
+      const purchase = {
+        date, inventoryId: invId, name: item.name, code: item.code || "", qty, totalCost: total, unitCost, createdAt: new Date().toISOString()
+      };
+      try {
+        if (db) await addDoc(collection(db, ...paths("purchases")), purchase);
+        else purchases.push({ id: "local-p-" + Date.now(), ...purchase });
+
+        await adjustStock(invId, qty);
+        if (unitCost > 0) {
+          if (db) await setDoc(doc(db, ...paths("inventory", invId)), { cost: unitCost }, { merge: true });
+          else item.cost = unitCost;
+        }
+
+        document.getElementById("restockQty").value = "";
+        document.getElementById("restockTotal").value = "";
+        showToast(`Pembelian dicatat. Stok bertambah.`);
+        renderApp();
+      } catch (err) {
+        showToast("Gagal mencatat pembelian.");
+      }
+    }
+
+    window.promptDeleteTx = function (id) {
+      deleteTargetId = id;
+      deleteTargetType = "tx";
+      document.getElementById("deleteModalDesc").textContent = "Stok barang dari transaksi ini akan dikembalikan.";
+      document.getElementById("deleteConfirmModal").classList.remove("hidden");
+    };
+    window.promptDeleteInventory = function (id) {
+      deleteTargetId = id;
+      deleteTargetType = "inventory";
+      document.getElementById("deleteModalDesc").textContent = "Data yang dihapus tidak dapat dikembalikan.";
+      document.getElementById("deleteConfirmModal").classList.remove("hidden");
+    };
 
     function wire() {
       document.getElementById("currentDateStr").textContent = new Date().toLocaleDateString("id-ID", { dateStyle: "full" });
@@ -1873,119 +1992,53 @@
       document.getElementById("btnPrintSticker").addEventListener("click", () => window.print());
     }
 
-    async function saveRestock() {
-      const invId = document.getElementById("restockItem").value;
-      const qty = parseInt(document.getElementById("restockQty").value) || 0;
-      const total = parseFloat(document.getElementById("restockTotal").value) || 0;
-      const date = document.getElementById("restockDate").value || todayStr();
-      const item = inventory.find(i => i.id === invId);
+    // Jalankan aplikasi utama
+    wire();
+    initFirebase();
+  </script>
 
-      if (!item) { showToast("Pilih barang terlebih dahulu."); return; }
-      if (qty <= 0) { showToast("Jumlah pembelian harus lebih dari 0."); return; }
-
-      const unitCost = Math.round(total / qty);
-      const purchase = {
-        date, inventoryId: invId, name: item.name, code: item.code || "", qty, totalCost: total, unitCost, createdAt: new Date().toISOString()
-      };
-      try {
-        if (db) await addDoc(collection(db, ...paths("purchases")), purchase);
-        else purchases.push({ id: "local-p-" + Date.now(), ...purchase });
-
-        await adjustStock(invId, qty);
-        if (unitCost > 0) {
-          if (db) await setDoc(doc(db, ...paths("inventory", invId)), { cost: unitCost }, { merge: true });
-          else item.cost = unitCost;
-        }
-
-        document.getElementById("restockQty").value = "";
-        document.getElementById("restockTotal").value = "";
-        showToast(`Pembelian dicatat. Stok bertambah.`);
-        renderApp();
-      } catch (err) {
-        showToast("Gagal mencatat pembelian.");
-      }
-    }
-
-    window.promptDeleteTx = function (id) {
-      deleteTargetId = id;
-      deleteTargetType = "tx";
-      document.getElementById("deleteModalDesc").textContent = "Stok barang dari transaksi ini akan dikembalikan.";
-      document.getElementById("deleteConfirmModal").classList.remove("hidden");
-    };
-    window.promptDeleteInventory = function (id) {
-      deleteTargetId = id;
-      deleteTargetType = "inventory";
-      document.getElementById("deleteModalDesc").textContent = "Data yang dihapus tidak dapat dikembalikan.";
-      document.getElementById("deleteConfirmModal").classList.remove("hidden");
-    };
-
-document.addEventListener("DOMContentLoaded", () => {
-  let apiKey = localStorage.getItem("sjs_gemini_api_key");
-  if (!apiKey) {
-    apiKey = prompt("Masukkan Gemini API Key Anda untuk mengaktifkan Asisten Toko:");
-    if (apiKey) {
-      localStorage.setItem("sjs_gemini_api_key", apiKey.trim());
-      location.reload();
-    }
-  }
-});
-
-  <!-- ASISTEN AI TERINTEGRASI LANGSUNG (TANPA FILE EXTERNAL) -->
-  <style>
-    #sjsAiFab { position: fixed; bottom: 24px; right: 24px; z-index: 99999; }
-    #sjsAiFab button { background: #2563eb; color: #fff; width: 60px; height: 60px; border-radius: 50%; border: 3px solid #f59e0b; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: transform 0.2s; }
-    #sjsAiFab button:hover { transform: scale(1.08); }
-    #sjsAiBox { position: fixed; bottom: 96px; right: 24px; width: 380px; max-width: calc(100vw - 32px); height: 540px; max-height: calc(100vh - 120px); background: #ffffff; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); border: 2px solid #cbd5e1; display: flex; flex-direction: column; overflow: hidden; z-index: 99999; }
-    #sjsAiBox.hidden { display: none !important; }
-  </style>
-
-  <div id="sjsAiFab" class="no-print">
-    <button type="button" id="sjsAiToggleBtn" title="Buka Asisten Toko"><i class="fa-solid fa-robot"></i></button>
-  </div>
-
-  <div id="sjsAiBox" class="hidden no-print">
-    <div style="background: linear-gradient(to right, #1e3a8a, #1d4ed8); color: white; padding: 14px 18px; display: flex; align-items: center; justify-content: between;">
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <div style="width: 36px; height: 36px; background: #f59e0b; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #1e3a8a; font-weight: bold;"><i class="fa-solid fa-robot"></i></div>
-        <div>
-          <h4 style="font-weight: 800; font-size: 15px; margin: 0;">Asisten Toko Surya Jaya</h4>
-          <p style="font-size: 11px; opacity: 0.9; margin: 0;">Online • Siap Bantu Catat &amp; Stok</p>
-        </div>
-      </div>
-      <button type="button" id="sjsAiCloseBtn" style="background: rgba(255,255,255,0.2); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold;"><i class="fa-solid fa-xmark"></i></button>
-    </div>
-
-    <div id="sjsAiChatLog" style="flex: 1; padding: 14px; overflow-y: auto; background: #f8fafc; font-size: 13px; display: flex; flex-direction: column; gap: 10px;">
-      <div style="background: #e2e8f0; color: #0f172a; padding: 10px 14px; border-radius: 14px; max-width: 85%;">
-        Halo Bos! Ada yang bisa saya bantu catat hari ini? (Contoh: <em>"Catat penjualan raket 1 pcs"</em> atau <em>"Berapa omset hari ini?"</em>)
-      </div>
-    </div>
-
-    <div style="padding: 10px; background: #ffffff; border-top: 2px solid #e2e8f0; display: flex; gap: 8px;">
-      <input type="text" id="sjsAiInput" placeholder="Ketik perintah untuk asisten..." style="flex: 1; padding: 10px 14px; border: 2px solid #cbd5e1; border-radius: 12px; font-size: 13px; outline: none;">
-      <button type="button" id="sjsAiSendBtn" style="background: #2563eb; color: #fff; border: none; padding: 0 16px; border-radius: 12px; font-weight: bold; cursor: pointer;"><i class="fa-solid fa-paper-plane"></i></button>
-    </div>
-  </div>
-
+  <!-- SCRIPT ASISTEN AI -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const toggleBtn = document.getElementById("sjsAiToggleBtn");
       const closeBtn = document.getElementById("sjsAiCloseBtn");
+      const keyBtn = document.getElementById("sjsAiKeyBtn");
+      const keyPanel = document.getElementById("sjsAiKeyPanel");
+      const keyInput = document.getElementById("sjsAiKeyInput");
+      const saveKeyBtn = document.getElementById("sjsAiSaveKeyBtn");
       const box = document.getElementById("sjsAiBox");
       const sendBtn = document.getElementById("sjsAiSendBtn");
       const input = document.getElementById("sjsAiInput");
       const log = document.getElementById("sjsAiChatLog");
 
       if (toggleBtn && box) {
-        toggleBtn.addEventListener("click", () => box.classList.toggle("hidden"));
+        toggleBtn.addEventListener("click", () => {
+          box.classList.toggle("hidden");
+          const saved = localStorage.getItem("sjs_gemini_api_key");
+          if (!saved && keyPanel) keyPanel.classList.remove("hidden");
+        });
         closeBtn.addEventListener("click", () => box.classList.add("hidden"));
+      }
+
+      if (keyBtn && keyPanel) {
+        keyBtn.addEventListener("click", () => {
+          keyInput.value = localStorage.getItem("sjs_gemini_api_key") || "";
+          keyPanel.classList.toggle("hidden");
+        });
+        saveKeyBtn.addEventListener("click", () => {
+          const val = keyInput.value.trim();
+          if (!val) return;
+          localStorage.setItem("sjs_gemini_api_key", val);
+          keyPanel.classList.add("hidden");
+          addBubble("API Key berhasil disimpan! Silakan tanya asisten toko sekarang.", "ai");
+        });
       }
 
       function addBubble(text, sender) {
         const div = document.createElement("div");
         div.style.cssText = sender === 'user' 
           ? "background: #2563eb; color: white; padding: 10px 14px; border-radius: 14px; max-width: 85%; align-self: flex-end; word-break: break-word;"
-          : "background: #e2e8f0; color: #0f172a; padding: 10px 14px; border-radius: 14px; max-width: 85%; align-self: flex-start; word-break: break-word;";
+          : "background: #e2e8f0; color: #0f172a; padding: 10px 14px; border-radius: 14px; max-width: 85%; align-self: flex-start; word-break: break-word; white-space: pre-wrap;";
         div.textContent = text;
         log.appendChild(div);
         log.scrollTop = log.scrollHeight;
@@ -1999,7 +2052,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const apiKey = localStorage.getItem("sjs_gemini_api_key");
         if (!apiKey) {
-          addBubble("Gemini API Key belum dimasukkan. Ketik API Key Anda melalui konsol browser (F12) atau simpan di localStorage.", 'ai');
+          if (keyPanel) keyPanel.classList.remove("hidden");
+          addBubble("API Key belum diisi. Silakan tempel Gemini API Key Anda di kotak kuning di atas lalu klik Simpan.", 'ai');
           return;
         }
 
@@ -2007,24 +2061,28 @@ document.addEventListener("DOMContentLoaded", () => {
         const contextData = typeof window.sjsGetContext === "function" ? window.sjsGetContext() : {};
 
         try {
-          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               contents: [{
                 parts: [
-                  { text: `Anda adalah asisten toko Surya Jaya Sport. Data toko saat ini: ${JSON.stringify(contextData)}. Pertanyaan/Perintah user: "${query}". Jawab dengan ringkas dan to the point.` }
+                  { text: `Anda adalah asisten toko Surya Jaya Sport (Jl. Jendral Ahmad Yani No. 37, Berau). Data toko real-time saat ini: ${JSON.stringify(contextData)}. Pertanyaan user: "${query}". Jawab dalam Bahasa Indonesia yang ringkas, jelas, dan langsung ke inti.` }
                 ]
               }]
             })
           });
           const data = await res.json();
-          const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Maaf, tidak ada respons.";
-          log.lastChild.remove(); // Hapus pesan "Sedang memproses..."
+          log.lastChild.remove();
+          if (data.error) {
+            addBubble(`Error API: ${data.error.message}`, 'ai');
+            return;
+          }
+          const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Maaf, tidak ada respons dari AI.";
           addBubble(reply, 'ai');
         } catch (e) {
           log.lastChild.remove();
-          addBubble("Gagal terhubung ke server AI Gemini.", 'ai');
+          addBubble("Gagal terhubung ke server AI Gemini. Periksa koneksi internet Anda.", 'ai');
         }
       }
 
