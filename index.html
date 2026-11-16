@@ -25,6 +25,7 @@
   </script>
 
   <style>
+    *, *::before, *::after { box-sizing: border-box; }
     html, body { max-width: 100%; overflow-x: hidden; }
     html.large-text-mode { font-size: 18px; }
     body { font-family: 'Inter', sans-serif; background-color: #eef2f6; color: #0f172a; }
@@ -35,20 +36,22 @@
     #receiptPrintSheet { display: none; }
 
     @media print {
+      @page {
+        margin: 0 !important;
+      }
       .no-print { display: none !important; }
       body { background-color: #ffffff !important; margin: 0 !important; padding: 0 !important; }
       .print-only { display: block !important; }
 
-      /* Mode Cetak Nota Pelanggan (1/2 A4 / Canon E470) */
       body.printing-receipt > *:not(#receiptPrintSheet) {
         display: none !important;
       }
       body.printing-receipt #receiptPrintSheet {
         display: block !important;
         width: 100%;
-        max-width: 148mm; /* Lebar 1/2 A4 / A5 */
+        max-width: 148mm;
         margin: 0 auto;
-        padding: 8mm;
+        padding: 10mm 8mm;
         font-family: 'Inter', Arial, sans-serif;
         color: #000000 !important;
         background: #ffffff !important;
@@ -59,7 +62,7 @@
     #sjsAiFab { position: fixed; bottom: 24px; right: 24px; z-index: 99999; }
     #sjsAiFab button { background: #2563eb; color: #fff; width: 60px; height: 60px; border-radius: 50%; border: 3px solid #f59e0b; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: transform 0.2s; }
     #sjsAiFab button:hover { transform: scale(1.08); }
-    #sjsAiBox { position: fixed; bottom: 96px; right: 24px; width: 380px; max-width: calc(100vw - 32px); height: 540px; max-height: calc(100vh - 120px); background: #ffffff; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); border: 2px solid #cbd5e1; display: flex; flex-direction: column; overflow: hidden; z-index: 99999; }
+    #sjsAiBox { position: fixed; bottom: 96px; right: 24px; width: 400px; max-width: calc(100vw - 32px); height: 560px; max-height: calc(100vh - 120px); background: #ffffff; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); border: 2px solid #cbd5e1; display: flex; flex-direction: column; overflow: hidden; z-index: 99999; }
     #sjsAiBox.hidden { display: none !important; }
   </style>
 </head>
@@ -83,7 +86,7 @@
                 <i class="fa-solid fa-pen mr-1"></i>Ubah
               </span>
             </div>
-            <p class="text-sm sm:text-base text-blue-100 font-medium mt-0.5">Jl. Jendral Ahmad Yani No. 37, Berau &bull; 0818.566.999</p>
+            <p class="text-sm sm:text-base text-blue-100 font-medium mt-0.5">Jl. Jendral Ahmad Yani No. 37, Berau &bull; 0823.200.33333</p>
           </div>
         </div>
 
@@ -141,7 +144,7 @@
           <div>
             <p class="text-base sm:text-lg font-extrabold text-slate-900">Layar Sedang dalam Mode Lihat Laporan</p>
             <p class="text-sm sm:text-base text-slate-700 mt-0.5 leading-relaxed">
-              Anda bebas melihat hasil penjualan, <strong>mencetak ulang nota</strong>, dan cek sisa stok. Untuk mencatat penjualan baru, buka kunci admin di samping.
+              Anda bebas melihat hasil penjualan, <strong>mencetak ulang nota</strong>, dan cek sisa stok. Untuk mencatat penjualan baru (manual maupun via AI), buka kunci admin di samping.
             </p>
           </div>
         </div>
@@ -658,7 +661,7 @@
       <div id="adminActivePanel" class="hidden p-5 space-y-4">
         <div class="bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-4 text-sm text-emerald-950">
           <p class="font-extrabold text-base"><i class="fa-solid fa-circle-check text-emerald-600 mr-1.5"></i> Mode Admin Sedang Aktif</p>
-          <p class="mt-1">Anda bebas mencatat penjualan, mengubah stok, dan menghapus transaksi.</p>
+          <p class="mt-1">Anda bebas mencatat penjualan (manual maupun lewat chat AI), mengubah stok, dan menghapus transaksi.</p>
         </div>
         <div class="space-y-2 pt-2 border-t border-slate-200">
           <label class="block text-sm font-extrabold text-slate-800">Ganti PIN Admin Baru (Tersimpan ke Cloud):</label>
@@ -825,7 +828,7 @@
       <div class="p-5 space-y-4">
         <div id="cloudStatusBox" class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 text-xs text-emerald-900 space-y-1">
           <p class="font-extrabold"><i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> <span id="cloudStatusLine">Memeriksa koneksi...</span></p>
-          <p>Seluruh data transaksi, stok barang, PIN Admin, dan Kode QRIS otomatis tersinkronisasi antara HP dan Windows.</p>
+          <p>Seluruh data transaksi, stok barang, PIN Admin, API Key Gemini, dan Kode QRIS otomatis tersinkronisasi antara HP dan Windows.</p>
         </div>
         <button type="button" id="btnDownloadConfiguredHtml" class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer">
           <i class="fa-solid fa-file-arrow-down"></i><span>Unduh File HTML Terbaru</span>
@@ -869,7 +872,7 @@
     <span id="toastMessage"></span>
   </div>
 
-  <!-- ASISTEN AI TERINTEGRASI -->
+  <!-- ASISTEN AI TERINTEGRASI (INPUT TRANSAKSI & CLOUD API KEY) -->
   <div id="sjsAiFab" class="no-print">
     <button type="button" id="sjsAiToggleBtn" title="Buka Asisten Toko"><i class="fa-solid fa-robot"></i></button>
   </div>
@@ -884,27 +887,30 @@
         </div>
       </div>
       <div style="display: flex; align-items: center; gap: 6px;">
-        <button type="button" id="sjsAiKeyBtn" title="Atur API Key Gemini" style="background: rgba(255,255,255,0.2); border: none; color: #fde047; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold;"><i class="fa-solid fa-key"></i></button>
+        <button type="button" id="sjsAiKeyBtn" title="Atur API Key Gemini (Tersimpan Cloud)" style="background: rgba(255,255,255,0.2); border: none; color: #fde047; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold;"><i class="fa-solid fa-key"></i></button>
         <button type="button" id="sjsAiCloseBtn" style="background: rgba(255,255,255,0.2); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold;"><i class="fa-solid fa-xmark"></i></button>
       </div>
     </div>
 
     <div id="sjsAiKeyPanel" class="hidden" style="background: #fef3c7; padding: 10px 14px; border-bottom: 2px solid #f59e0b; display: flex; flex-direction: column; gap: 6px;">
-      <label style="font-size: 11px; font-weight: 800; color: #78350f;">Masukkan Gemini API Key (AIzaSy...):</label>
+      <label style="font-size: 11px; font-weight: 800; color: #78350f;">Masukkan Gemini API Key (Otomatis sinkron ke semua HP/PC):</label>
       <div style="display: flex; gap: 6px;">
-        <input type="password" id="sjsAiKeyInput" placeholder="Tempel API Key di sini..." style="flex: 1; padding: 6px 10px; border: 1px solid #d97706; border-radius: 8px; font-size: 12px !important;">
+        <input type="password" id="sjsAiKeyInput" placeholder="Tempel AIzaSy... di sini" style="flex: 1; padding: 6px 10px; border: 1px solid #d97706; border-radius: 8px; font-size: 12px !important;">
         <button type="button" id="sjsAiSaveKeyBtn" style="background: #d97706; color: #fff; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer;">Simpan</button>
       </div>
     </div>
 
     <div id="sjsAiChatLog" style="flex: 1; padding: 14px; overflow-y: auto; background: #f8fafc; font-size: 13px; display: flex; flex-direction: column; gap: 10px;">
-      <div style="background: #e2e8f0; color: #0f172a; padding: 10px 14px; border-radius: 14px; max-width: 85%;">
-        Halo Bos! Ada yang bisa saya bantu cek hari ini? (Contoh: <em>"Berapa omset dan untung hari ini?"</em> atau <em>"Sisa stok kok berapa?"</em>). Jika belum mengatur API Key, klik ikon <strong>Kunci (🔑)</strong> di pojok kanan atas chat ini.
+      <div style="background: #e2e8f0; color: #0f172a; padding: 10px 14px; border-radius: 14px; max-width: 88%; line-height: 1.45;">
+        Halo Bos! Saya siap bantu cek laporan maupun <strong>catat penjualan langsung</strong>.<br><br>
+        <strong>Contoh perintah catat jualan:</strong><br>
+        &bull; <em>"Catat jual 2 slop kok bayar QRIS"</em><br>
+        &bull; <em>"Laku 1 raket Yonex 499000 pembeli Budi bayar cash"</em>
       </div>
     </div>
 
     <div style="padding: 10px; background: #ffffff; border-top: 2px solid #e2e8f0; display: flex; gap: 8px;">
-      <input type="text" id="sjsAiInput" placeholder="Ketik pertanyaan untuk asisten..." style="flex: 1; padding: 10px 14px; border: 2px solid #cbd5e1; border-radius: 12px; font-size: 13px !important; outline: none;">
+      <input type="text" id="sjsAiInput" placeholder="Ketik perintah transaksi atau pertanyaan..." style="flex: 1; padding: 10px 14px; border: 2px solid #cbd5e1; border-radius: 12px; font-size: 13px !important; outline: none;">
       <button type="button" id="sjsAiSendBtn" style="background: #2563eb; color: #fff; border: none; padding: 0 16px; border-radius: 12px; font-weight: bold; cursor: pointer;"><i class="fa-solid fa-paper-plane"></i></button>
     </div>
   </div>
@@ -933,6 +939,7 @@
     let isAdmin = false;
     let adminPin = null;
     let savedQrisPayload = QRIS_DEFAULT_PAYLOAD;
+    let cloudGeminiApiKey = localStorage.getItem("sjs_gemini_api_key") || "";
 
     let transactions = [];
     let inventory = [];
@@ -984,11 +991,27 @@
       return ["artifacts", APP_ID, "public", "data", ...segments];
     }
 
+    // --- JEMBATAN DATA & AKSI UNTUK ASISTEN AI ---
+    window.sjsGetApiKey = function () {
+      return cloudGeminiApiKey || localStorage.getItem("sjs_gemini_api_key") || "";
+    };
+
+    window.sjsSaveApiKey = async function (newKey) {
+      const clean = String(newKey || "").trim();
+      if (!clean) return false;
+      cloudGeminiApiKey = clean;
+      localStorage.setItem("sjs_gemini_api_key", clean);
+      await saveConfig({ geminiApiKey: clean });
+      return true;
+    };
+
     window.sjsGetContext = function () {
       const todayTx = transactions.filter(t => t.date === todayStr());
       return {
+        isAdminActive: isAdmin,
         tanggalHariIni: todayStr(),
         transaksiHariIni: todayTx.map(t => ({
+          pembeli: t.customer || "Umum",
           bayar: t.paymentMethod,
           omset: t.totalOmset,
           untung: t.totalProfit,
@@ -996,6 +1019,7 @@
         })),
         totalTransaksiSemuaHari: transactions.length,
         daftarStok: inventory.map(i => ({
+          id: i.id,
           kode: i.code,
           nama: i.name,
           ukuran: i.size,
@@ -1007,7 +1031,86 @@
       };
     };
 
-    // --- FUNGSI NOTA PENJUALAN (CANON E470 - 1/2 A4) ---
+    window.sjsRecordSaleFromAi = async function (payload) {
+      if (!isAdmin) {
+        return {
+          ok: false,
+          message: "Mode Admin belum dibuka. Silakan klik tombol 'Buka Kunci Admin' di bagian atas layar terlebih dahulu agar saya bisa menyimpan transaksi ke pembukuan."
+        };
+      }
+      const rawItems = Array.isArray(payload.items) ? payload.items : [];
+      if (rawItems.length === 0) {
+        return { ok: false, message: "Daftar barang tidak terbaca." };
+      }
+
+      const itemsToSave = [];
+      let totalOmset = 0, totalModal = 0;
+
+      for (const it of rawItems) {
+        const qName = String(it.name || "").trim();
+        if (!qName) continue;
+        const invMatch = inventory.find(inv => inv.id === it.inventoryId)
+          || inventory.find(inv => inv.name && inv.name.toLowerCase() === qName.toLowerCase())
+          || inventory.find(inv => inv.name && inv.name.toLowerCase().includes(qName.toLowerCase()));
+
+        const qty = Math.max(1, parseInt(it.qty) || 1);
+        const price = Number(it.price) > 0 ? Number(it.price) : (invMatch ? Number(invMatch.price || 0) : 0);
+        const cost = Number(it.cost) > 0 ? Number(it.cost) : (invMatch ? Number(invMatch.cost || 0) : 0);
+        const finalName = invMatch ? invMatch.name : qName;
+        const invId = invMatch ? invMatch.id : "";
+        const subtotal = price * qty;
+
+        totalOmset += subtotal;
+        totalModal += cost * qty;
+        itemsToSave.push({ inventoryId: invId, name: finalName, qty, price, cost, subtotal });
+      }
+
+      if (itemsToSave.length === 0) {
+        return { ok: false, message: "Tidak ada item valid untuk disimpan." };
+      }
+
+      const validMethods = ["Cash", "QRIS", "Kartu", "Transfer"];
+      const matchedMethod = validMethods.find(m => m.toLowerCase() === String(payload.paymentMethod || "").toLowerCase()) || "Cash";
+      const txDate = payload.date && /^\d{4}-\d{2}-\d{2}$/.test(payload.date) ? payload.date : todayStr();
+      const customerName = String(payload.customer || "").trim() || "Pelanggan Umum";
+
+      const txData = {
+        date: txDate,
+        customer: customerName,
+        paymentMethod: matchedMethod,
+        items: itemsToSave,
+        totalOmset,
+        totalModal,
+        totalProfit: totalOmset - totalModal,
+        createdAt: new Date().toISOString()
+      };
+
+      try {
+        let savedId = "local-" + Date.now();
+        if (db) {
+          const docRef = await addDoc(collection(db, ...paths("transactions")), txData);
+          savedId = docRef.id;
+        } else {
+          transactions.push({ id: savedId, ...txData });
+        }
+        for (const itm of itemsToSave) {
+          if (itm.inventoryId) await adjustStock(itm.inventoryId, -itm.qty);
+        }
+        selectedDateStr = txDate;
+        document.getElementById("bookDatePicker").value = txDate;
+        renderApp();
+        showToast("Transaksi dari AI berhasil dicatat!");
+        return {
+          ok: true,
+          txId: savedId,
+          summary: `${itemsToSave.map(i => `${i.name} (${i.qty}x)`).join(", ")} | Total: ${rp(totalOmset)} | Bayar: ${matchedMethod} | Pembeli: ${customerName}`
+        };
+      } catch (e) {
+        return { ok: false, message: "Terjadi kesalahan saat menyimpan ke database." };
+      }
+    };
+
+    // --- FUNGSI NOTA PENJUALAN (CANON E470 - 1/2 A4, BERSIH TANPA URL) ---
     function buildReceiptHtml(tx) {
       const noNota = "SJS-" + String(tx.id || Date.now()).slice(-6).toUpperCase();
       const customer = esc(tx.customer || "Pelanggan Umum");
@@ -1015,8 +1118,8 @@
         <tr style="border-bottom: 1px dashed #94a3b8;">
           <td style="padding: 6px 4px; text-align: left;">${idx + 1}. ${esc(it.name)}</td>
           <td style="padding: 6px 4px; text-align: center;">${Number(it.qty || 1)}</td>
-          <td style="padding: 6px 4px; text-align: right;">${rp(it.price)}</td>
-          <td style="padding: 6px 4px; text-align: right; font-weight: 700;">${rp(it.subtotal || (it.price * it.qty))}</td>
+          <td style="padding: 6px 4px; text-align: right; white-space: nowrap;">${rp(it.price)}</td>
+          <td style="padding: 6px 4px; text-align: right; font-weight: 700; white-space: nowrap;">${rp(it.subtotal || (it.price * it.qty))}</td>
         </tr>
       `).join("");
 
@@ -1025,7 +1128,7 @@
           <div style="text-align: center; border-bottom: 2px solid #0f172a; padding-bottom: 10px; margin-bottom: 10px;">
             <div style="font-size: 20px; font-weight: 800; letter-spacing: 0.5px;">${esc(shopName.toUpperCase())}</div>
             <div style="font-size: 12px; margin-top: 2px;">Jl. Jendral Ahmad Yani No. 37, Tanjung Redeb, Berau</div>
-            <div style="font-size: 12px; font-weight: 700;">Telp / WA: 0818.566.999</div>
+            <div style="font-size: 12px; font-weight: 700;">Telp / WA: 0823.200.33333</div>
           </div>
 
           <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 10px;">
@@ -1053,15 +1156,15 @@
             </tbody>
           </table>
 
-          <div style="border-top: 2px solid #0f172a; padding-top: 8px; display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 12px; font-style: italic;">Barang yang sudah dibeli tidak dapat ditukar/dikembalikan.</span>
-            <div style="text-align: right;">
+          <div style="border-top: 2px solid #0f172a; padding-top: 8px; display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+            <span style="font-size: 11px; font-style: italic; flex: 1;">Barang yang sudah dibeli tidak dapat ditukar/dikembalikan.</span>
+            <div style="text-align: right; white-space: nowrap;">
               <span style="font-size: 13px; font-weight: 700;">TOTAL BAYAR:</span>
-              <span style="font-size: 18px; font-weight: 800; margin-left: 8px;">${rp(tx.totalOmset)}</span>
+              <span style="font-size: 18px; font-weight: 800; margin-left: 6px;">${rp(tx.totalOmset)}</span>
             </div>
           </div>
 
-          <div style="margin-top: 14px; display: flex; justify-content: space-between; font-size: 12px; text-align: center;">
+          <div style="margin-top: 16px; display: flex; justify-content: space-between; font-size: 12px; text-align: center;">
             <div style="width: 40%;">
               <div>Penerima,</div>
               <div style="margin-top: 32px; border-top: 1px solid #0f172a; padding-top: 2px;">( ${customer} )</div>
@@ -1079,10 +1182,13 @@
       const sheet = document.getElementById("receiptPrintSheet");
       sheet.innerHTML = buildReceiptHtml(tx);
       document.body.classList.add("printing-receipt");
+      const prevTitle = document.title;
+      document.title = " ";
       setTimeout(() => {
         window.print();
         setTimeout(() => {
           document.body.classList.remove("printing-receipt");
+          document.title = prevTitle;
         }, 500);
       }, 150);
     }
@@ -1148,6 +1254,10 @@
       if (data.adminPin) adminPin = String(data.adminPin);
       if (data.shopName) setShopName(data.shopName);
       if (data.qrisPayload) savedQrisPayload = data.qrisPayload;
+      if (data.geminiApiKey) {
+        cloudGeminiApiKey = String(data.geminiApiKey);
+        localStorage.setItem("sjs_gemini_api_key", cloudGeminiApiKey);
+      }
       if (!document.getElementById("qrisPayModal").classList.contains("hidden")) renderQrisPaymentScreen();
     }
 
@@ -1176,30 +1286,30 @@
       rowDiv.innerHTML = `
         <div class="flex items-center justify-between gap-2">
           <span class="text-xs font-extrabold uppercase text-blue-900">Rincian Barang Terjual</span>
-          <button type="button" class="btn-remove-row text-rose-600 hover:text-rose-800 font-extrabold text-xs flex items-center gap-1 cursor-pointer">
+          <button type="button" class="btn-remove-row text-rose-600 hover:text-rose-800 font-extrabold text-xs flex items-center gap-1 cursor-pointer shrink-0">
             <i class="fa-solid fa-trash"></i> Hapus Baris
           </button>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
-          <div class="sm:col-span-5">
+          <div class="sm:col-span-4">
             <label class="block text-xs font-bold text-slate-600 mb-1">Nama Barang:</label>
-            <input type="text" list="inventoryDatalist" class="item-name-input w-full px-3.5 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-blue-600"
+            <input type="text" list="inventoryDatalist" class="item-name-input w-full px-3 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-blue-600"
               placeholder="Contoh: Raket / Kok / Sepatu" value="${esc(prefill?.name || "")}">
           </div>
           <div class="sm:col-span-2">
             <label class="block text-xs font-bold text-slate-600 mb-1">Modal (Rp):</label>
-            <input type="number" min="0" class="item-cost-input w-full px-3 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-800" placeholder="0" value="${prefill ? (prefill.cost || 0) : ""}">
+            <input type="number" min="0" class="item-cost-input w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-800" placeholder="0" value="${prefill ? (prefill.cost || 0) : ""}">
           </div>
           <div class="sm:col-span-3">
             <label class="block text-xs font-bold text-slate-600 mb-1">Harga Jual (Rp):</label>
-            <input type="number" min="0" class="item-price-input w-full px-3 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-extrabold text-emerald-800" placeholder="0" value="${prefill ? (prefill.price || 0) : ""}">
+            <input type="number" min="0" class="item-price-input w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-extrabold text-emerald-800" placeholder="0" value="${prefill ? (prefill.price || 0) : ""}">
           </div>
-          <div class="sm:col-span-2">
+          <div class="sm:col-span-3">
             <label class="block text-xs font-bold text-slate-600 mb-1">Jumlah:</label>
             <div class="flex items-center gap-1">
-              <button type="button" class="btn-qty-minus w-9 h-11 rounded-xl bg-slate-200 hover:bg-slate-300 font-extrabold text-lg text-slate-800 flex items-center justify-center cursor-pointer">-</button>
-              <input type="number" min="1" value="1" class="item-qty w-full px-2 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-extrabold text-center text-slate-900">
-              <button type="button" class="btn-qty-plus w-9 h-11 rounded-xl bg-blue-100 hover:bg-blue-200 font-extrabold text-lg text-blue-900 flex items-center justify-center cursor-pointer">+</button>
+              <button type="button" class="btn-qty-minus w-9 h-11 shrink-0 rounded-xl bg-slate-200 hover:bg-slate-300 font-extrabold text-lg text-slate-800 flex items-center justify-center cursor-pointer">-</button>
+              <input type="number" min="1" value="1" class="item-qty min-w-0 flex-1 px-1 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-extrabold text-center text-slate-900">
+              <button type="button" class="btn-qty-plus w-9 h-11 shrink-0 rounded-xl bg-blue-100 hover:bg-blue-200 font-extrabold text-lg text-blue-900 flex items-center justify-center cursor-pointer">+</button>
             </div>
           </div>
         </div>
@@ -1915,9 +2025,14 @@
       document.getElementById("btnTriggerPrintReceipt").addEventListener("click", () => {
         document.getElementById("receiptPreviewModal").classList.add("hidden");
         document.body.classList.add("printing-receipt");
+        const prevTitle = document.title;
+        document.title = " ";
         setTimeout(() => {
           window.print();
-          setTimeout(() => document.body.classList.remove("printing-receipt"), 500);
+          setTimeout(() => {
+            document.body.classList.remove("printing-receipt");
+            document.title = prevTitle;
+          }, 500);
         }, 150);
       });
 
@@ -2167,7 +2282,7 @@
     initFirebase();
   </script>
 
-  <!-- SCRIPT ASISTEN AI (gemini-4-hydrogen) -->
+  <!-- SCRIPT ASISTEN AI (gemini-4-hydrogen + AUTO INPUT TRANSAKSI + CLOUD KEY) -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const GEMINI_MODEL = "gemini-4-hydrogen";
@@ -2186,35 +2301,56 @@
       const statusSub = document.getElementById("sjsAiStatusSub");
       if (statusSub) statusSub.textContent = `Online • ${GEMINI_MODEL}`;
 
+      function getSavedKey() {
+        return typeof window.sjsGetApiKey === "function"
+          ? window.sjsGetApiKey()
+          : (localStorage.getItem("sjs_gemini_api_key") || "");
+      }
+
       if (toggleBtn && box) {
         toggleBtn.addEventListener("click", () => {
           box.classList.toggle("hidden");
-          const saved = localStorage.getItem("sjs_gemini_api_key");
+          const saved = getSavedKey();
           if (!saved && keyPanel) keyPanel.classList.remove("hidden");
+          else if (keyPanel) keyPanel.classList.add("hidden");
         });
         closeBtn.addEventListener("click", () => box.classList.add("hidden"));
       }
 
       if (keyBtn && keyPanel) {
         keyBtn.addEventListener("click", () => {
-          keyInput.value = localStorage.getItem("sjs_gemini_api_key") || "";
+          keyInput.value = getSavedKey();
           keyPanel.classList.toggle("hidden");
         });
-        saveKeyBtn.addEventListener("click", () => {
+        saveKeyBtn.addEventListener("click", async () => {
           const val = keyInput.value.trim();
           if (!val) return;
-          localStorage.setItem("sjs_gemini_api_key", val);
+          if (typeof window.sjsSaveApiKey === "function") {
+            await window.sjsSaveApiKey(val);
+          } else {
+            localStorage.setItem("sjs_gemini_api_key", val);
+          }
           keyPanel.classList.add("hidden");
-          addBubble(`API Key berhasil disimpan! Asisten aktif menggunakan ${GEMINI_MODEL}.`, "ai");
+          addBubble(`API Key tersimpan permanen di Cloud & Browser! Tidak perlu dimasukkan lagi di perangkat lain.`, "ai");
         });
       }
 
-      function addBubble(text, sender) {
+      function addBubble(text, sender, txIdToPrint = null) {
         const div = document.createElement("div");
         div.style.cssText = sender === 'user' 
-          ? "background: #2563eb; color: white; padding: 10px 14px; border-radius: 14px; max-width: 85%; align-self: flex-end; word-break: break-word;"
-          : "background: #e2e8f0; color: #0f172a; padding: 10px 14px; border-radius: 14px; max-width: 85%; align-self: flex-start; word-break: break-word; white-space: pre-wrap;";
+          ? "background: #2563eb; color: white; padding: 10px 14px; border-radius: 14px; max-width: 88%; align-self: flex-end; word-break: break-word;"
+          : "background: #e2e8f0; color: #0f172a; padding: 10px 14px; border-radius: 14px; max-width: 88%; align-self: flex-start; word-break: break-word; white-space: pre-wrap; line-height: 1.45;";
         div.textContent = text;
+
+        if (txIdToPrint && typeof window.openReceiptModal === "function") {
+          const printBtn = document.createElement("button");
+          printBtn.type = "button";
+          printBtn.textContent = "🖨️ Cetak Nota Transaksi Ini";
+          printBtn.style.cssText = "display: block; margin-top: 8px; background: #1e40af; color: #fff; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer;";
+          printBtn.addEventListener("click", () => window.openReceiptModal(txIdToPrint));
+          div.appendChild(printBtn);
+        }
+
         log.appendChild(div);
         log.scrollTop = log.scrollHeight;
       }
@@ -2225,15 +2361,26 @@
         addBubble(query, 'user');
         input.value = "";
 
-        const apiKey = localStorage.getItem("sjs_gemini_api_key");
+        const apiKey = getSavedKey();
         if (!apiKey) {
           if (keyPanel) keyPanel.classList.remove("hidden");
-          addBubble("API Key belum diisi. Silakan tempel Gemini API Key Anda di kotak kuning di atas lalu klik Simpan.", 'ai');
+          addBubble("API Key belum diisi. Silakan tempel Gemini API Key Anda di kotak kuning di atas lalu klik Simpan (cukup sekali saja).", 'ai');
           return;
         }
 
         addBubble("Sedang memproses...", 'ai');
         const contextData = typeof window.sjsGetContext === "function" ? window.sjsGetContext() : {};
+
+        const systemPrompt = `Anda adalah asisten kasir & pembukuan toko Surya Jaya Sport (Jl. Jendral Ahmad Yani No. 37, Berau, Telp/WA: 0823.200.33333).
+Data toko real-time saat ini: ${JSON.stringify(contextData)}
+
+TUGAS ANDA:
+1. Jika user MEMERINTAHKAN untuk MENCATAT / INPUT TRANSAKSI PENJUALAN (contoh: "catat jual 2 kok", "laku 1 raket", "input penjualan..."), Anda WAJIB membalas HANYA dengan format JSON murni tanpa markdown (\`\`\`json) seperti berikut:
+{"action":"ADD_SALE","customer":"Nama Pembeli atau Umum","paymentMethod":"Cash","items":[{"inventoryId":"id_stok_jika_cocok_atau_kosong","name":"Nama Barang","qty":1,"price":100000,"cost":80000}]}
+- Cocokkan nama barang dengan daftarStok jika tersedia untuk mengambil inventoryId, price, dan cost. Jika user menyebut harga khusus, gunakan harga dari user.
+- paymentMethod hanya boleh salah satu dari: "Cash", "QRIS", "Kartu", "Transfer" (default "Cash").
+
+2. Jika user hanya BERTANYA (cek omset, untung, sisa stok, laporan, saran), balas dengan teks biasa dalam Bahasa Indonesia yang ringkas, jelas, dan langsung ke inti.`;
 
         try {
           const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`, {
@@ -2242,7 +2389,7 @@
             body: JSON.stringify({
               contents: [{
                 parts: [
-                  { text: `Anda adalah asisten toko Surya Jaya Sport (Jl. Jendral Ahmad Yani No. 37, Berau). Data toko real-time saat ini: ${JSON.stringify(contextData)}. Pertanyaan user: "${query}". Jawab dalam Bahasa Indonesia yang ringkas, jelas, dan langsung ke inti.` }
+                  { text: `${systemPrompt}\n\nPesan user: "${query}"` }
                 ]
               }]
             })
@@ -2253,8 +2400,26 @@
             addBubble(`Error API (${GEMINI_MODEL}): ${data.error.message}`, 'ai');
             return;
           }
-          const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Maaf, tidak ada respons dari AI.";
-          addBubble(reply, 'ai');
+          const rawReply = (data.candidates?.[0]?.content?.parts?.[0]?.text || "").trim();
+
+          const cleanJson = rawReply.replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
+          if (cleanJson.startsWith("{") && cleanJson.includes('"ADD_SALE"')) {
+            try {
+              const parsed = JSON.parse(cleanJson);
+              if (parsed.action === "ADD_SALE" && typeof window.sjsRecordSaleFromAi === "function") {
+                const result = await window.sjsRecordSaleFromAi(parsed);
+                if (result.ok) {
+                  addBubble(`✅ Transaksi berhasil dicatat!\n${result.summary}`, 'ai', result.txId);
+                } else {
+                  addBubble(`⚠️ ${result.message}`, 'ai');
+                }
+                return;
+              }
+            } catch (parseErr) {
+            }
+          }
+
+          addBubble(rawReply || "Maaf, tidak ada respons dari AI.", 'ai');
         } catch (e) {
           log.lastChild.remove();
           addBubble("Gagal terhubung ke server AI Gemini. Periksa koneksi internet Anda.", 'ai');
