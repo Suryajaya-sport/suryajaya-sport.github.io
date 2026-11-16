@@ -1,0 +1,159 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name=claude:viewport-fit-sides content=cover><style>:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-right:env(safe-area-inset-right,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}</style><style>.md-table{overflow-x:auto}@media print{.md-table{overflow-x:visible}}</style><style>:root{color-scheme:light dark;--md-bg:#fff;--md-text:rgba(0,0,0,.8);--md-muted:rgba(0,0,0,.6);--md-fill:rgba(0,0,0,.04);--md-fill-strong:rgba(0,0,0,.06);--md-rule:rgba(0,0,0,.1);--md-rule-strong:rgba(0,0,0,.16);--md-link:hsl(210 100% 45%)}@media (prefers-color-scheme:dark){:root:where(:not([data-theme="light"])){--md-bg:#0d0d0d;--md-text:rgba(255,255,255,.85);--md-muted:rgba(255,255,255,.6);--md-fill:rgba(255,255,255,.06);--md-fill-strong:rgba(255,255,255,.09);--md-rule:rgba(255,255,255,.14);--md-rule-strong:rgba(255,255,255,.22);--md-link:hsl(210 100% 72%)}}:root[data-theme="dark"]{color-scheme:dark;--md-bg:#0d0d0d;--md-text:rgba(255,255,255,.85);--md-muted:rgba(255,255,255,.6);--md-fill:rgba(255,255,255,.06);--md-fill-strong:rgba(255,255,255,.09);--md-rule:rgba(255,255,255,.14);--md-rule-strong:rgba(255,255,255,.22);--md-link:hsl(210 100% 72%)}:root[data-theme="light"]{color-scheme:light}@media print{:root,:root[data-theme="dark"]{color-scheme:light;--md-bg:#fff;--md-text:rgba(0,0,0,.8);--md-muted:rgba(0,0,0,.6);--md-fill:rgba(0,0,0,.04);--md-fill-strong:rgba(0,0,0,.06);--md-rule:rgba(0,0,0,.1);--md-rule-strong:rgba(0,0,0,.16);--md-link:hsl(210 100% 45%)}}body{background:var(--md-bg);color:var(--md-text);max-width:720px;margin:0 auto;padding:32px;display:flex;flex-direction:column;gap:10px;font:14px/1.55 -apple-system,BlinkMacSystemFont,'SF Pro','Segoe UI',sans-serif;overflow-wrap:break-word}body>:first-child{margin-top:0}h1,h2,h3,h4,h5,h6{margin:6px 0 0;line-height:1.25;font-weight:600;text-wrap:balance}h1{font-size:1.35em}h2{font-size:1.15em;color:var(--md-muted)}h3,h4,h5,h6{font-size:1em}p,ul,ol,blockquote,table,pre,hr{margin:0}strong{font-weight:600}a{color:var(--md-link);text-decoration:none}a:hover{text-decoration:underline}ul,ol{display:flex;flex-direction:column;gap:6px;padding-left:22px}ul{list-style:disc}ol{list-style:decimal}:is(li,td,th)>*+:is(p,ul,ol,blockquote){margin-top:6px}blockquote{display:flex;flex-direction:column;gap:10px;border-left:2px solid var(--md-rule);padding-left:10px;color:var(--md-muted)}:not(pre)>code{background:var(--md-fill);padding:1px 3px;border-radius:4px;font:.92em 'SF Mono',ui-monospace,Menlo,Consolas,monospace}a>code{background:none;color:inherit}pre{background:var(--md-fill);padding:10px 12px;border-radius:6px;overflow-x:auto;font:12px/1.5 'SF Mono',ui-monospace,Menlo,Consolas,monospace;margin-block:4px}pre code{background:none;padding:0;font:inherit}table{width:100%;border-collapse:separate;border-spacing:2px;font:inherit}th,td{padding:6px 8px;border-radius:3px;text-align:left;vertical-align:top}th{background:var(--md-fill-strong);font-weight:600}td{background:var(--md-fill)}:is(th,td) :not(pre)>code{background:transparent}hr{border:0;border-top:1px solid var(--md-rule-strong);margin-block:10px}img{max-width:100%;height:auto;border-radius:4px}</style>
+</head><body>
+<pre><code>(function () {
+  const AI_ENDPOINT = &#34;/api/gemini&#34;;
+  const style = document.createElement(&#34;style&#34;);
+  style.textContent = `
+    #sjs-ai-btn {
+      display: none;
+      position: fixed; bottom: 22px; right: 22px; z-index: 9999;
+      background: #0f172a; color: #fff; border: none; border-radius: 50px;
+      padding: 13px 20px; font: 600 14px system-ui, -apple-system, sans-serif;
+      cursor: pointer; box-shadow: 0 8px 24px rgba(15,23,42,.28);
+      align-items: center; gap: 8px; transition: transform .2s ease;
+    }
+    body.sjs-admin #sjs-ai-btn { display: flex; }
+    #sjs-ai-btn:hover { transform: translateY(-2px); }
+    #sjs-ai-box {
+      position: fixed; bottom: 82px; right: 22px; width: 360px; max-width: calc(100vw - 32px);
+      height: 470px; background: #fff; border: 1px solid #e2e8f0; border-radius: 16px;
+      box-shadow: 0 16px 40px rgba(15,23,42,.2); z-index: 9999; display: none;
+      flex-direction: column; overflow: hidden; font: 13px system-ui, -apple-system, sans-serif;
+    }
+    body:not(.sjs-admin) #sjs-ai-box { display: none !important; }
+    #sjs-ai-header { background: #0f172a; color: #fff; padding: 14px 16px; display: flex;
+      justify-content: space-between; align-items: center; font-size: 14px; font-weight: 600; }
+    #sjs-ai-close { background: transparent; border: none; color: #cbd5e1; font-size: 20px; cursor: pointer; }
+    #sjs-ai-messages { flex: 1; padding: 14px; overflow-y: auto; display: flex; flex-direction: column;
+      gap: 10px; background: #f8fafc; }
+    .sjs-msg { padding: 10px 12px; border-radius: 12px; max-width: 85%; line-height: 1.45; white-space: pre-wrap; }
+    .sjs-msg-bot { background: #fff; color: #1e293b; border: 1px solid #e2e8f0; align-self: flex-start; }
+    .sjs-msg-user { background: #2563eb; color: #fff; align-self: flex-end; }
+    .sjs-msg-err { background: #fff1f2; color: #9f1239; border: 1px solid #fecdd3; align-self: flex-start; }
+    .sjs-confirm-btn { margin-top: 8px; background: #16a34a; color: #fff; border: none; padding: 7px 12px;
+      border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; display: block; }
+    .sjs-confirm-btn:disabled { background: #94a3b8; cursor: default; }
+    #sjs-ai-form { display: flex; padding: 10px; border-top: 1px solid #e2e8f0; background: #fff; gap: 6px; }
+    #sjs-ai-input { flex: 1; min-width: 0; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 10px; font-size: 13px; outline: none; }
+    #sjs-ai-send { background: #2563eb; color: #fff; border: none; border-radius: 8px; padding: 0 14px; font-weight: 600; font-size: 13px; cursor: pointer; }
+    #sjs-ai-send:disabled { opacity: .6; cursor: default; }
+  `;
+  document.head.appendChild(style);
+
+  const btn = document.createElement(&#34;button&#34;);
+  btn.id = &#34;sjs-ai-btn&#34;;
+  btn.type = &#34;button&#34;;
+  btn.innerHTML = &#34;&lt;span&gt;Asisten AI Kasir&lt;/span&gt;&#34;;
+
+  const box = document.createElement(&#34;div&#34;);
+  box.id = &#34;sjs-ai-box&#34;;
+  box.innerHTML = `
+    &lt;div id=&#34;sjs-ai-header&#34;&gt;
+      &lt;span&gt;Asisten AI Surya Jaya Sport&lt;/span&gt;
+      &lt;button id=&#34;sjs-ai-close&#34; type=&#34;button&#34; title=&#34;Tutup&#34;&gt;&amp;times;&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div id=&#34;sjs-ai-messages&#34;&gt;
+      &lt;div class=&#34;sjs-msg sjs-msg-bot&#34;&gt;Halo! Saya bisa mencatat penjualan, menambah produk, mengubah stok, atau menjawab pertanyaan soal data toko.
+
+Contoh:
+• &#34;Jual 2 Raket Yonex bayar QRIS&#34;
+• &#34;Tambah produk Bola Futsal kategori Bola harga 150000 stok 10&#34;
+• &#34;Stok Kok Yonex sekarang 20&#34;
+• &#34;Penjualan hari ini berapa?&#34;
+
+Setiap perubahan data perlu Anda tekan tombol &#34;Terapkan&#34; dulu.&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;form id=&#34;sjs-ai-form&#34;&gt;
+      &lt;input id=&#34;sjs-ai-input&#34; type=&#34;text&#34; placeholder=&#34;Ketik perintah...&#34; autocomplete=&#34;off&#34; required /&gt;
+      &lt;button id=&#34;sjs-ai-send&#34; type=&#34;submit&#34;&gt;Kirim&lt;/button&gt;
+    &lt;/form&gt;`;
+
+  document.body.appendChild(btn);
+  document.body.appendChild(box);
+
+  const messagesEl = document.getElementById(&#34;sjs-ai-messages&#34;);
+  const inputEl = document.getElementById(&#34;sjs-ai-input&#34;);
+  const sendEl = document.getElementById(&#34;sjs-ai-send&#34;);
+  const formEl = document.getElementById(&#34;sjs-ai-form&#34;);
+
+  btn.onclick = () =&gt; {
+    const open = box.style.display === &#34;flex&#34;;
+    box.style.display = open ? &#34;none&#34; : &#34;flex&#34;;
+    if (!open) inputEl.focus();
+  };
+  document.getElementById(&#34;sjs-ai-close&#34;).onclick = () =&gt; { box.style.display = &#34;none&#34;; };
+
+  function addMessage(text, kind, actionData) {
+    const div = document.createElement(&#34;div&#34;);
+    div.className = &#34;sjs-msg &#34; + (kind === &#34;user&#34; ? &#34;sjs-msg-user&#34; : kind === &#34;err&#34; ? &#34;sjs-msg-err&#34; : &#34;sjs-msg-bot&#34;);
+    div.textContent = text;
+
+    if (actionData &amp;&amp; actionData.aksi &amp;&amp; actionData.aksi !== &#34;tanya_jawab&#34;) {
+      const confirmBtn = document.createElement(&#34;button&#34;);
+      confirmBtn.type = &#34;button&#34;;
+      confirmBtn.className = &#34;sjs-confirm-btn&#34;;
+      confirmBtn.textContent = &#34;Terapkan&#34;;
+      confirmBtn.onclick = () =&gt; {
+        confirmBtn.disabled = true;
+        confirmBtn.textContent = &#34;Memproses...&#34;;
+        window.dispatchEvent(new CustomEvent(&#34;sjs-ai-command&#34;, { detail: actionData }));
+        confirmBtn.textContent = &#34;Sudah diproses&#34;;
+      };
+      div.appendChild(confirmBtn);
+    }
+    messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function ambilKonteks() {
+    try {
+      if (typeof window.sjsGetContext === &#34;function&#34;) {
+        return JSON.stringify(window.sjsGetContext()).slice(0, 6000);
+      }
+    } catch (e) { /* lanjut ke fallback */ }
+    return (document.body.innerText || &#34;&#34;).slice(0, 3500);
+  }
+
+  formEl.onsubmit = async (e) =&gt; {
+    e.preventDefault();
+    const prompt = inputEl.value.trim();
+    if (!prompt) return;
+
+    addMessage(prompt, &#34;user&#34;);
+    inputEl.value = &#34;&#34;;
+    sendEl.disabled = true;
+
+    const loading = document.createElement(&#34;div&#34;);
+    loading.className = &#34;sjs-msg sjs-msg-bot&#34;;
+    loading.textContent = &#34;Memproses...&#34;;
+    messagesEl.appendChild(loading);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+
+    try {
+      const resp = await fetch(&#34;/api/gemini&#34;, {
+        signal: AbortSignal.timeout(60000),
+        method: &#34;POST&#34;,
+        headers: { &#34;Content-Type&#34;: &#34;application/json&#34; },
+        body: JSON.stringify({ prompt, konteks: ambilKonteks() }),
+      });
+      const data = await resp.json().catch(() =&gt; ({}));
+      loading.remove();
+
+      if (!resp.ok || data.error) {
+        addMessage(&#34;Error: &#34; + (data.error || &#34;Gagal memproses permintaan (kode &#34; + resp.status + &#34;).&#34;), &#34;err&#34;);
+        return;
+      }
+      addMessage(data.pesan_balasan || &#34;Perintah diproses.&#34;, &#34;bot&#34;, data);
+    } catch (err) {
+      loading.remove();
+      addMessage(&#34;Gagal terhubung ke server. Pastikan situs sudah di-deploy dengan fungsi Netlify.&#34;, &#34;err&#34;);
+    } finally {
+      sendEl.disabled = false;
+      inputEl.focus();
+    }
+  };
+})();
+
+</code></pre>
+
+</body></html>
