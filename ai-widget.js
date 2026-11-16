@@ -1,4 +1,5 @@
 (function () {
+  const AI_ENDPOINT = "/api/gemini";
   const style = document.createElement("style");
   style.textContent = `
     #sjs-ai-btn {
@@ -127,7 +128,7 @@ Setiap perubahan data perlu Anda tekan tombol "Terapkan" dulu.</div>
     messagesEl.scrollTop = messagesEl.scrollHeight;
 
     try {
-      const resp = await fetch("/api/gemini", {
+      const resp = await fetch(AI_ENDPOINT, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt, konteks: ambilKonteks() }),
