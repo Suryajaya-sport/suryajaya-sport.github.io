@@ -58,6 +58,7 @@ export async function onRequestPost(context) {
 
   try {
     const res = await fetch(url, {
+      signal: AbortSignal.timeout(50000),
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -82,6 +83,7 @@ export async function onRequestPost(context) {
     }
     return json(200, parsed);
   } catch (err) {
-    return json(500, { error: "Gagal menghubungi layanan AI" });
+    const timeout = err && (err.name === "TimeoutError" || err.name === "AbortError");
+    return json(504, { error: timeout ? "AI terlalu lama merespons. Coba lagi." : "Gagal menghubungi layanan AI: " + (err && err.message ? err.message : "") });
   }
 }
