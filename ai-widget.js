@@ -128,7 +128,8 @@ Setiap perubahan data perlu Anda tekan tombol "Terapkan" dulu.</div>
     messagesEl.scrollTop = messagesEl.scrollHeight;
 
     try {
-      const resp = await fetch(AI_ENDPOINT, {
+      const resp = await fetch("/api/gemini", {
+        signal: AbortSignal.timeout(40000),
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt, konteks: ambilKonteks() }),
@@ -137,7 +138,7 @@ Setiap perubahan data perlu Anda tekan tombol "Terapkan" dulu.</div>
       loading.remove();
 
       if (!resp.ok || data.error) {
-        addMessage("Error: " + (data.error || "Gagal memproses permintaan."), "err");
+        addMessage("Error: " + (data.error || "Gagal memproses permintaan (kode " + resp.status + ")."), "err");
         return;
       }
       addMessage(data.pesan_balasan || "Perintah diproses.", "bot", data);
