@@ -1,3 +1,8 @@
+
+index.html
+
+Klik di dalam kotak kode, tekan Ctrl+A lalu Ctrl+C. Simpan sebagai index.html di folder paling atas repositori.
+
 <!DOCTYPE html>
 <html lang="id" class="large-text-mode">
 <head>
@@ -816,6 +821,7 @@
   </div>
 
   <script type="module">
+    // Firebase dimuat terpisah agar halaman tetap jalan (admin & kasir) walau cloud tidak bisa diakses
     let initializeApp, getApps, getAuth, signInAnonymously, getFirestore;
     let doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc;
 
@@ -831,12 +837,13 @@
     const APP_ID = "suryajayasport-3fd5e-app";
     const LOW_STOCK_LIMIT = 5;
     const QRIS_DEFAULT_PAYLOAD = "00020101021126430015id.co.qris.www0115ID10254610182080203A015204594153033605802ID5920SURYA JAYA TOY & GAME6007JAKARTA63048E12";
-    const QRIS_MERCHANT_TITLE = "SURYA JAYA SPORT";
+    const QRIS_MERCHANT_TITLE = "SURYA JAYA - TOY & GAME";
     const QRIS_MERCHANT_NMID = "NMID: ID1025461018208 • A01";
 
     let db = null;
     let shopName = "Surya Jaya Sport";
     let isAdmin = false;
+    // PIN tidak lagi bawaan. Jika belum ada PIN, admin membuat PIN pertama kali.
     let adminPin = null;
     let savedQrisPayload = QRIS_DEFAULT_PAYLOAD;
 
@@ -855,6 +862,7 @@
     let toastTimer = null;
     let selectedPaymentMethod = "Cash";
 
+    // ---------- Utilitas ----------
     function todayStr() {
       const d = new Date();
       return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -890,6 +898,7 @@
       return ["artifacts", APP_ID, "public", "data", ...segments];
     }
 
+    // ---------- Firebase ----------
     async function initFirebase() {
       try {
         const [appM, authM, fsM] = await Promise.all([
@@ -921,6 +930,7 @@
           snap.forEach(d => transactions.push({ id: d.id, ...d.data() }));
           renderApp();
         });
+
         onSnapshot(collection(db, ...paths("purchases")), snap => {
           purchases = [];
           snap.forEach(d => purchases.push({ id: d.id, ...d.data() }));
@@ -963,6 +973,7 @@
       }
     }
 
+    // ---------- Kasir ----------
     function addSaleItemRow(prefill = null) {
       const container = document.getElementById("saleItemsContainer");
       const rowDiv = document.createElement("div");
@@ -1115,6 +1126,7 @@
       }
     }
 
+    // ---------- Stok ----------
     async function saveInventoryItem() {
       const editId = document.getElementById("editInvId").value.trim();
       const name = document.getElementById("invName").value.trim();
@@ -1184,6 +1196,7 @@
       document.getElementById("invEntryCard").scrollIntoView({ behavior: "smooth" });
     };
 
+    // ---------- Scanner ----------
     function findInventoryByCode(text) {
       const q = text.trim().toLowerCase();
       if (!q) return null;
@@ -1196,7 +1209,10 @@
       const found = findInventoryByCode(code);
       if (found) {
         addSaleItemRow(found);
-        showToast(`Berhasil scan: ${found.name}`); if (!document.getElementById("chkContinuousScan").checked) closeScanner(); } else { showToast(`Kode "${code.trim()}" tidak ditemukan di stok.`);
+        showToast(`Berhasil scan: ${found.name}`);
+        if (!document.getElementById("chkContinuousScan").checked) closeScanner();
+      } else {
+        showToast(`Kode "${code.trim()}" tidak ditemukan di stok.`);
       }
     }
 
@@ -1214,6 +1230,7 @@
       }
     }
 
+    // ---------- QRIS ----------
     function calculateCRC16(str) {
       let crc = 0xFFFF;
       for (let i = 0; i < str.length; i++) {
@@ -1262,6 +1279,7 @@
       showToast(ok ? "Kode QRIS berhasil disimpan ke Cloud!" : "QRIS dimuat di layar (tidak tersimpan ke cloud).");
     }
 
+    // ---------- Render ----------
     function renderApp() {
       renderInventory();
       renderTransactions();
@@ -1392,7 +1410,7 @@
 
       const sel = document.getElementById("restockItem");
       const cur = sel.value;
-      sel.innerHTML = inventory.map(i => `<option value="${esc(i.id)}">${esc(i.code)} - ${esc(i.name)} (sisa${Number(i.stock || 0)})</option>`).join("");
+      sel.innerHTML = inventory.map(i => `<option value="${esc(i.id)}">${esc(i.code)} - ${esc(i.name)} (sisa ${Number(i.stock || 0)})</option>`).join("");
       if (cur && inventory.some(i => i.id === cur)) sel.value = cur;
 
       const delClass = isAdmin ? "" : "hidden";
@@ -1403,7 +1421,7 @@
           ? "bg-rose-100 text-rose-900 border-rose-300"
           : (stock < LOW_STOCK_LIMIT ? "bg-amber-100 text-amber-900 border-amber-300" : "bg-emerald-100 text-emerald-900 border-emerald-300");
         const code = esc(item.code || "-"), name = esc(item.name);
-        const variant = `Uk: ${esc(item.size \vert{}\vert{} "Semua")} &bull; Warna: ${esc(item.color || "Semua")}`;
+        const variant = `Uk: ${esc(item.size || "Semua")} &bull; Warna: ${esc(item.color || "Semua")}`;
         const id = esc(item.id);
 
         const tr = document.createElement("tr");
@@ -1465,7 +1483,7 @@
           <div>
             <span class="font-mono font-bold text-xs text-blue-900">${esc(item.code)}</span>
             <p class="font-extrabold text-sm text-slate-900">${esc(item.name)}</p>
-            <p class="text-xs text-slate-600">Sisa: ${Number(item.stock \vert{}\vert{} 0)} Pcs &bull; ${rp(item.price)}</p>
+            <p class="text-xs text-slate-600">Sisa: ${Number(item.stock || 0)} Pcs &bull; ${rp(item.price)}</p>
           </div>
           <button type="button" class="px-3 py-1.5 bg-blue-800 text-white font-extrabold text-xs rounded-xl">Pilih</button>`;
         div.addEventListener("click", () => {
@@ -1476,6 +1494,7 @@
       });
     }
 
+    // ---------- Stiker QR ----------
     window.openQrModal = function (id) {
       const item = inventory.find(i => i.id === id);
       if (!item) return;
@@ -1504,7 +1523,11 @@
       ctx.font = "bold 32px Inter, sans-serif";
       ctx.fillText(activeQrProduct.name || "Barang", 30, 102, maxTextWidth);
       ctx.font = "bold 22px Inter, sans-serif";
-      ctx.fillText(`Uk: ${activeQrProduct.size || "-"} | Warna: ${activeQrProduct.color \vert{}\vert{} "-"}`, 30, 142, maxTextWidth); ctx.font = "800 40px Inter, sans-serif"; ctx.fillText(rp(activeQrProduct.price), 30, 200, maxTextWidth); ctx.font = "bold 20px monospace"; ctx.fillText(`KODE: ${activeQrProduct.code || "-"}`, 30, 238, maxTextWidth);
+      ctx.fillText(`Uk: ${activeQrProduct.size || "-"} | Warna: ${activeQrProduct.color || "-"}`, 30, 142, maxTextWidth);
+      ctx.font = "800 40px Inter, sans-serif";
+      ctx.fillText(rp(activeQrProduct.price), 30, 200, maxTextWidth);
+      ctx.font = "bold 20px monospace";
+      ctx.fillText(`KODE: ${activeQrProduct.code || "-"}`, 30, 238, maxTextWidth);
 
       const target = document.getElementById("qrCodeRenderTarget");
       target.innerHTML = "";
@@ -1518,10 +1541,598 @@
       }, 150);
     }
 
+    // ---------- Admin ----------
     function openAdminModal() {
       document.getElementById("adminAuthModal").classList.remove("hidden");
       document.getElementById("adminLoginPanel").classList.toggle("hidden", isAdmin);
       document.getElementById("adminActivePanel").classList.toggle("hidden", !isAdmin);
       document.getElementById("adminPinInput").value = "";
       document.getElementById("adminPinHint").innerHTML = adminPin === null
-        ? `<strong>Belum ada PIN Admin.</strong> Buat PIN baru
+        ? `<strong>Belum ada PIN Admin.</strong> Buat PIN baru (minimal 4 angka) untuk pertama kali.`
+        : `Masukkan <strong>PIN Admin</strong> memakai tombol angka di bawah ini:`;
+    }
+
+    function updateAdminUI() {
+      const badge = document.getElementById("adminModeBadge");
+      const icon = document.getElementById("adminModeIcon");
+      const text = document.getElementById("adminModeText");
+      document.getElementById("editShopIcon").classList.toggle("hidden", !isAdmin);
+      if (isAdmin) {
+        badge.className = "flex items-center gap-2 bg-emerald-600 text-white hover:bg-emerald-700 px-3.5 py-2.5 rounded-xl text-sm font-extrabold shadow-sm transition cursor-pointer";
+        icon.className = "fa-solid fa-lock-open text-amber-300";
+        text.textContent = "Mode Admin Aktif";
+      } else {
+        badge.className = "flex items-center gap-2 bg-amber-400 text-slate-950 hover:bg-amber-300 px-3.5 py-2.5 rounded-xl text-sm font-extrabold shadow-sm transition cursor-pointer";
+        icon.className = "fa-solid fa-lock";
+        text.textContent = "Mode Lihat Saja";
+      }
+      document.getElementById("readOnlyBannerKasir").classList.toggle("hidden", isAdmin);
+      document.getElementById("salesEntryCard").classList.toggle("hidden", !isAdmin);
+      document.getElementById("readOnlyBannerInv").classList.toggle("hidden", isAdmin);
+      document.getElementById("invEntryCard").classList.toggle("hidden", !isAdmin);
+      document.getElementById("restockCard").classList.toggle("hidden", !isAdmin);
+      document.body.classList.toggle("sjs-admin", isAdmin);
+      renderApp();
+    }
+
+    function pinKeypadPress(digit) {
+      const inp = document.getElementById("adminPinInput");
+      if (inp.value.length < 12) inp.value += digit;
+    }
+
+    async function submitPin() {
+      const val = document.getElementById("adminPinInput").value.trim();
+      if (adminPin === null) {
+        if (val.length < 4) { showToast("PIN minimal 4 angka!"); return; }
+        adminPin = val;
+        await saveConfig({ adminPin });
+        isAdmin = true;
+        document.getElementById("adminAuthModal").classList.add("hidden");
+        updateAdminUI();
+        showToast("PIN Admin dibuat. Mode Admin aktif.");
+        return;
+      }
+      if (val === adminPin) {
+        isAdmin = true;
+        document.getElementById("adminAuthModal").classList.add("hidden");
+        updateAdminUI();
+        showToast("Mode Admin berhasil dibuka");
+      } else {
+        showToast("PIN salah! Coba lagi.");
+        document.getElementById("adminPinInput").value = "";
+      }
+    }
+
+    // ---------- Event wiring ----------
+    function wire() {
+      document.getElementById("currentDateStr").textContent = new Date().toLocaleDateString("id-ID", { dateStyle: "full" });
+      document.getElementById("footerYear").textContent = new Date().getFullYear();
+      document.getElementById("inputDate").value = selectedDateStr;
+      document.getElementById("bookDatePicker").value = selectedDateStr;
+      addSaleItemRow();
+      renderApp();
+
+      // Admin
+      const openAdmin = () => openAdminModal();
+      ["adminModeBadge", "btnUnlockKasir", "btnUnlockInv"].forEach(id => document.getElementById(id).addEventListener("click", openAdmin));
+      document.getElementById("btnCloseAdminModal").addEventListener("click", () => document.getElementById("adminAuthModal").classList.add("hidden"));
+      document.querySelectorAll(".pin-keypad-btn").forEach(b => b.addEventListener("click", () => pinKeypadPress(b.dataset.digit)));
+      document.getElementById("btnPinClear").addEventListener("click", () => document.getElementById("adminPinInput").value = "");
+      document.getElementById("btnPinBackspace").addEventListener("click", () => {
+        const inp = document.getElementById("adminPinInput");
+        inp.value = inp.value.slice(0, -1);
+      });
+      document.getElementById("btnSubmitAdminPin").addEventListener("click", submitPin);
+      document.getElementById("btnChangeAdminPin").addEventListener("click", async () => {
+        const newPin = document.getElementById("newAdminPinInput").value.trim();
+        if (newPin.length < 4) { showToast("PIN baru minimal 4 angka!"); return; }
+        adminPin = newPin;
+        document.getElementById("newAdminPinInput").value = "";
+        const ok = await saveConfig({ adminPin });
+        showToast(ok ? "PIN Admin berhasil diubah!" : "PIN diubah di perangkat ini (tidak tersimpan ke cloud).");
+      });
+      document.getElementById("btnLockToReadOnly").addEventListener("click", () => {
+        isAdmin = false;
+        document.getElementById("adminAuthModal").classList.add("hidden");
+        updateAdminUI();
+        showToast("Layar dikunci ke Mode Lihat Saja");
+      });
+
+      // Shop name
+      document.getElementById("shopHeaderTrigger").addEventListener("click", () => {
+        if (!isAdmin) { openAdmin(); return; }
+        document.getElementById("shopNameInput").value = shopName;
+        document.getElementById("shopNameModal").classList.remove("hidden");
+      });
+      document.getElementById("btnCloseShopModal").addEventListener("click", () => document.getElementById("shopNameModal").classList.add("hidden"));
+      document.getElementById("btnSaveShopName").addEventListener("click", async () => {
+        const name = document.getElementById("shopNameInput").value.trim();
+        if (!name) { showToast("Nama toko tidak boleh kosong."); return; }
+        setShopName(name);
+        document.getElementById("shopNameModal").classList.add("hidden");
+        const ok = await saveConfig({ shopName: name });
+        showToast(ok ? "Nama toko disimpan." : "Nama toko diubah di perangkat ini.");
+      });
+
+      // Tabs
+      document.getElementById("tabBtnKasir").addEventListener("click", () => switchTab("kasir"));
+      document.getElementById("tabBtnInventory").addEventListener("click", () => switchTab("inventory"));
+      function switchTab(tab) {
+        const on = "py-3.5 sm:py-4 px-4 rounded-xl font-extrabold text-base sm:text-lg bg-blue-800 text-white shadow-md flex items-center justify-center gap-2.5 transition cursor-pointer";
+        const off = "py-3.5 sm:py-4 px-4 rounded-xl font-extrabold text-base sm:text-lg text-slate-700 bg-slate-100 hover:bg-slate-200 flex items-center justify-center gap-2.5 transition cursor-pointer";
+        const kasir = tab === "kasir";
+        document.getElementById("tabBtnKasir").className = kasir ? on : off;
+        document.getElementById("tabBtnInventory").className = kasir ? off : on;
+        document.getElementById("viewKasir").classList.toggle("hidden", !kasir);
+        document.getElementById("viewInventory").classList.toggle("hidden", kasir);
+        kasir ? renderTransactions() : renderInventory();
+      }
+
+      // Kasir
+      document.getElementById("btnAddItemRow").addEventListener("click", () => addSaleItemRow());
+      document.getElementById("btnResetForm").addEventListener("click", () => {
+        document.getElementById("saleItemsContainer").innerHTML = "";
+        addSaleItemRow();
+      });
+      document.getElementById("btnSaveTx").addEventListener("click", saveSale);
+      document.querySelectorAll(".pay-option-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".pay-option-btn").forEach(b => {
+            b.className = "pay-option-btn py-3.5 px-3 rounded-xl border-2 border-slate-300 bg-white text-slate-800 hover:bg-slate-100 font-bold text-base flex items-center justify-center gap-2 transition cursor-pointer";
+          });
+          btn.className = "pay-option-btn py-3.5 px-3 rounded-xl border-2 border-emerald-700 bg-emerald-600 text-white font-extrabold text-base flex items-center justify-center gap-2 shadow-xs transition cursor-pointer";
+          selectedPaymentMethod = btn.dataset.pay;
+          if (selectedPaymentMethod === "QRIS") {
+            document.getElementById("qrisPayModal").classList.remove("hidden");
+            renderQrisPaymentScreen();
+          }
+        });
+      });
+      document.getElementById("btnShowQrisPay").addEventListener("click", () => {
+        document.getElementById("qrisPayModal").classList.remove("hidden");
+        renderQrisPaymentScreen();
+      });
+      document.getElementById("btnCloseQrisModal").addEventListener("click", () => document.getElementById("qrisPayModal").classList.add("hidden"));
+      document.getElementById("qrisStandeePhotoInput").addEventListener("change", async e => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+          const decoded = await new Html5Qrcode("qrisTempDecoderBox").scanFile(file, true);
+          await saveQrisPayload(decoded);
+        } catch (err) {
+          showToast("QRIS belum terbaca dari foto. Pastikan foto tegak lurus & terang.");
+        }
+      });
+      document.getElementById("btnSaveRawQrisString").addEventListener("click", () =>
+        saveQrisPayload(document.getElementById("qrisRawStringInput").value.trim()));
+
+      // Date navigation
+      document.getElementById("bookDatePicker").addEventListener("change", e => { selectedDateStr = e.target.value; currentViewMode = "day"; renderTransactions(); });
+      document.getElementById("btnPrevDate").addEventListener("click", () => { selectedDateStr = shiftDate(selectedDateStr, -1); currentViewMode = "day"; syncDatePicker(); });
+      document.getElementById("btnNextDate").addEventListener("click", () => { selectedDateStr = shiftDate(selectedDateStr, 1); currentViewMode = "day"; syncDatePicker(); });
+      document.getElementById("btnTodayMode").addEventListener("click", () => { selectedDateStr = todayStr(); currentViewMode = "day"; syncDatePicker(); });
+      document.getElementById("btnAllDaysMode").addEventListener("click", () => { currentViewMode = "all"; renderTransactions(); });
+      function syncDatePicker() {
+        document.getElementById("bookDatePicker").value = selectedDateStr;
+        renderTransactions();
+      }
+
+      document.getElementById("searchInput").addEventListener("input", renderTransactions);
+      document.getElementById("filterPayment").addEventListener("change", renderTransactions);
+      document.getElementById("invSearchInput").addEventListener("input", renderInventory);
+
+      // Text size
+      document.getElementById("btnToggleTextSize").addEventListener("click", () => {
+        if (textSizeMode === "large") {
+          textSizeMode = "normal";
+          document.documentElement.classList.remove("large-text-mode");
+          document.getElementById("textSizeLabel").textContent = "Huruf: Normal";
+        } else {
+          textSizeMode = "large";
+          document.documentElement.classList.add("large-text-mode");
+          document.getElementById("textSizeLabel").textContent = "Huruf: Besar";
+        }
+      });
+
+      // Recap & breakdown
+      document.getElementById("btnOpenRecap").addEventListener("click", () => {
+        const list = document.getElementById("dailyRecapList");
+        document.getElementById("dailyRecapModal").classList.remove("hidden");
+        const grouped = {};
+        transactions.forEach(tx => {
+          const g = grouped[tx.date] || (grouped[tx.date] = { omset: 0, profit: 0, count: 0 });
+          g.omset += Number(tx.totalOmset || 0);
+          g.profit += Number(tx.totalProfit || 0);
+          g.count++;
+        });
+        const dates = Object.keys(grouped).sort((a, b) => b.localeCompare(a));
+        list.innerHTML = dates.length === 0
+          ? `<p class="text-sm text-slate-500 text-center py-6">Belum ada riwayat transaksi.</p>`
+          : dates.map(dt => `
+              <div class="py-3 flex items-center justify-between gap-2 hover:bg-slate-50 px-2 rounded-xl cursor-pointer" data-date="${esc(dt)}">
+                <div>
+                  <p class="font-extrabold text-slate-900">${esc(dt)}</p>
+                  <p class="text-xs text-slate-500">${grouped[dt].count} Transaksi</p>
+                </div>
+                <div class="text-right">
+                  <p class="font-extrabold text-slate-900">${rp(grouped[dt].omset)}</p>
+                  <p class="text-xs font-bold text-emerald-700">Untung: ${rp(grouped[dt].profit)}</p>
+                </div>
+              </div>`).join("");
+        list.querySelectorAll("[data-date]").forEach(el => el.addEventListener("click", () => {
+          selectedDateStr = el.dataset.date;
+          currentViewMode = "day";
+          document.getElementById("bookDatePicker").value = selectedDateStr;
+          document.getElementById("dailyRecapModal").classList.add("hidden");
+          renderTransactions();
+        }));
+      });
+      document.getElementById("btnCloseRecapModal").addEventListener("click", () => document.getElementById("dailyRecapModal").classList.add("hidden"));
+
+      document.getElementById("cardProductBreakdown").addEventListener("click", () => {
+        const list = document.getElementById("productBreakdownList");
+        document.getElementById("productBreakdownModal").classList.remove("hidden");
+        const src = currentViewMode === "day" ? transactions.filter(t => t.date === selectedDateStr) : transactions;
+        const prodMap = {};
+        src.forEach(tx => (tx.items || []).forEach(it => {
+          const p = prodMap[it.name] || (prodMap[it.name] = { qty: 0, omset: 0 });
+          p.qty += Number(it.qty || 0);
+          p.omset += Number(it.subtotal || 0);
+        }));
+        const names = Object.keys(prodMap);
+        list.innerHTML = names.length === 0
+          ? `<p class="text-sm text-slate-500 text-center py-6">Belum ada barang terjual pada periode ini.</p>`
+          : names.map(nm => `
+              <div class="py-3 flex items-center justify-between">
+                <p class="font-extrabold text-slate-900">${esc(nm)}</p>
+                <div class="text-right">
+                  <span class="px-2.5 py-1 rounded-lg bg-indigo-100 text-indigo-900 font-extrabold text-xs">${prodMap[nm].qty} Pcs</span>
+                  <p class="text-xs font-bold text-slate-700 mt-1">${rp(prodMap[nm].omset)}</p>
+                </div>
+              </div>`).join("");
+      });
+      document.getElementById("btnCloseBreakdownModal").addEventListener("click", () => document.getElementById("productBreakdownModal").classList.add("hidden"));
+
+      // Export & print
+      document.getElementById("btnPrintReport").addEventListener("click", () => window.print());
+      document.getElementById("btnExportCSV").addEventListener("click", () => {
+        const rows = [["Tanggal", "Barang", "Metode Bayar", "Modal", "Total Jual", "Untung"]];
+        transactions.forEach(tx => {
+          const itemsStr = (tx.items || []).map(i => `${i.name} (${i.qty}x)`).join("; ");
+          rows.push([tx.date, itemsStr, tx.paymentMethod, tx.totalModal, tx.totalOmset, tx.totalProfit]);
+        });
+        const csv = rows.map(r => r.map(c => `"${String(c ?? "").replace(/"/g, '""')}"`).join(",")).join("\r\n");
+        const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `Pembukuan-SuryaJayaSport-${todayStr()}.csv`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+
+      // Cloud status
+      document.getElementById("syncStatusBadge").addEventListener("click", () => document.getElementById("cloudConfigModal").classList.remove("hidden"));
+      document.getElementById("btnCloseCloudModal").addEventListener("click", () => document.getElementById("cloudConfigModal").classList.add("hidden"));
+      document.getElementById("btnDownloadConfiguredHtml").addEventListener("click", () => {
+        const blob = new Blob([document.documentElement.outerHTML], { type: "text/html" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "index.html";
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+
+      // Delete
+      document.getElementById("btnCancelDelete").addEventListener("click", () => document.getElementById("deleteConfirmModal").classList.add("hidden"));
+      document.getElementById("btnConfirmDelete").addEventListener("click", async () => {
+        if (!deleteTargetId) return;
+        try {
+          if (deleteTargetType === "inventory") {
+            if (db) await deleteDoc(doc(db, ...paths("inventory", deleteTargetId)));
+            else inventory = inventory.filter(i => i.id !== deleteTargetId);
+          } else {
+            const tx = transactions.find(t => t.id === deleteTargetId);
+            // Kembalikan stok barang yang dihapus dari transaksi
+            if (tx) for (const it of tx.items || []) if (it.inventoryId) await adjustStock(it.inventoryId, Number(it.qty || 0));
+            if (db) await deleteDoc(doc(db, ...paths("transactions", deleteTargetId)));
+            else transactions = transactions.filter(t => t.id !== deleteTargetId);
+          }
+          showToast("Data berhasil dihapus!");
+          renderApp();
+        } catch (e) {
+          console.error(e);
+          showToast("Gagal menghapus data.");
+        }
+        document.getElementById("deleteConfirmModal").classList.add("hidden");
+      });
+
+      // Scanner
+      document.getElementById("btnOpenScanner").addEventListener("click", () => {
+        document.getElementById("scannerModal").classList.remove("hidden");
+        renderQuickPickList();
+      });
+      document.getElementById("btnCloseScanner").addEventListener("click", closeScanner);
+      document.getElementById("btnToggleLiveCam").addEventListener("click", async () => {
+        const wrapper = document.getElementById("liveScannerWrapper");
+        if (!wrapper.classList.contains("hidden")) { stopLiveCamera(); return; }
+        wrapper.classList.remove("hidden");
+        document.getElementById("btnToggleLiveCam").innerHTML = `<i class="fa-solid fa-video-slash"></i> <span>Matikan Kamera Live</span>`;
+        try {
+          if (!html5QrScanner) html5QrScanner = new Html5Qrcode("qrReaderBox");
+          const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+          const onOk = decoded => handleScannedCode(decoded);
+          try {
+            await html5QrScanner.start({ facingMode: "environment" }, config, onOk, () => {});
+          } catch {
+            await html5QrScanner.start({ facingMode: "user" }, config, onOk, () => {});
+          }
+          isScannerRunning = true;
+        } catch (err) {
+          console.warn("Camera error:", err);
+          stopLiveCamera();
+          showToast("Gagal menyalakan kamera. Pastikan izin kamera diizinkan di browser.");
+        }
+      });
+      document.getElementById("qrPhotoInput").addEventListener("change", async e => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+          const decoded = await new Html5Qrcode("qrisTempDecoderBox").scanFile(file, true);
+          handleScannedCode(decoded);
+        } catch (err) {
+          showToast("QR Code / Barcode tidak terbaca dari foto.");
+        }
+      });
+      document.getElementById("btnSubmitManualScan").addEventListener("click", () => {
+        const val = document.getElementById("manualScanCodeInput").value.trim();
+        if (!val) { showToast("Masukkan kode barang terlebih dahulu!"); return; }
+        const found = findInventoryByCode(val);
+        if (found) {
+          addSaleItemRow(found);
+          document.getElementById("scannerModal").classList.add("hidden");
+          showToast(`Ditambahkan: ${found.name}`);
+        } else {
+          showToast(`Barang "${val}" tidak ditemukan di stok.`);
+        }
+      });
+
+      // Restock
+      document.getElementById("restockDate").value = todayStr();
+      document.getElementById("btnSaveRestock").addEventListener("click", saveRestock);
+
+      // Inventory form
+      document.getElementById("btnSaveInventory").addEventListener("click", saveInventoryItem);
+      document.getElementById("btnCancelInvEdit").addEventListener("click", resetInvForm);
+
+      // Stiker
+      document.getElementById("btnCloseQrModal").addEventListener("click", () => document.getElementById("productQrModal").classList.add("hidden"));
+      document.querySelectorAll(".niimbot-size-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.querySelectorAll(".niimbot-size-btn").forEach(b => {
+            b.className = "niimbot-size-btn py-2.5 px-2 rounded-xl border-2 border-slate-300 bg-white text-slate-800 hover:bg-slate-100 font-extrabold text-xs sm:text-sm cursor-pointer transition";
+          });
+          btn.className = "niimbot-size-btn py-2.5 px-2 rounded-xl border-2 border-blue-700 bg-blue-700 text-white font-extrabold text-xs sm:text-sm cursor-pointer transition";
+          generateNiimbotStickerCanvas(btn.dataset.labelSize);
+        });
+      });
+      document.getElementById("btnDownloadStickerPng").addEventListener("click", () => {
+        const a = document.createElement("a");
+        a.href = document.getElementById("niimbotPreviewCanvas").toDataURL("image/png");
+        a.download = `Stiker-QR-${activeQrProduct?.code || "niimbot"}.png`;
+        a.click();
+        showToast("Gambar stiker berhasil diunduh!");
+      });
+      document.getElementById("btnPrintSticker").addEventListener("click", () => window.print());
+    }
+
+    // ---------- Pembelian (restock) ----------
+    async function saveRestock() {
+      const invId = document.getElementById("restockItem").value;
+      const qty = parseInt(document.getElementById("restockQty").value) || 0;
+      const total = parseFloat(document.getElementById("restockTotal").value) || 0;
+      const date = document.getElementById("restockDate").value || todayStr();
+      const item = inventory.find(i => i.id === invId);
+
+      if (!item) { showToast("Pilih barang terlebih dahulu."); return; }
+      if (qty <= 0) { showToast("Jumlah pembelian harus lebih dari 0."); return; }
+
+      const unitCost = Math.round(total / qty);
+      const purchase = {
+        date,
+        inventoryId: invId,
+        name: item.name,
+        code: item.code || "",
+        qty,
+        totalCost: total,
+        unitCost,
+        createdAt: new Date().toISOString()
+      };
+      try {
+        if (db) await addDoc(collection(db, ...paths("purchases")), purchase);
+        else purchases.push({ id: "local-p-" + Date.now(), ...purchase });
+
+        await adjustStock(invId, qty);
+        if (unitCost > 0) {
+          if (db) await setDoc(doc(db, ...paths("inventory", invId)), { cost: unitCost }, { merge: true });
+          else item.cost = unitCost;
+        }
+
+        document.getElementById("restockQty").value = "";
+        document.getElementById("restockTotal").value = "";
+        showToast(`Pembelian ${qty} pcs ${item.name} dicatat. Stok bertambah.`);
+        renderApp();
+      } catch (err) {
+        console.error(err);
+        showToast("Gagal mencatat pembelian.");
+      }
+    }
+
+    // ---------- Asisten AI ----------
+    function buildAiContext() {
+      const since = shiftDate(todayStr(), -30);
+      const txs = transactions.filter(t => t.date >= since);
+      const perProduct = {};
+      const pay = {};
+      let omset = 0, modal = 0, untung = 0;
+
+      txs.forEach(tx => {
+        omset += Number(tx.totalOmset || 0);
+        modal += Number(tx.totalModal || 0);
+        untung += Number(tx.totalProfit || 0);
+        const m = tx.paymentMethod || "Cash";
+        pay[m] = (pay[m] || 0) + Number(tx.totalOmset || 0);
+        (tx.items || []).forEach(it => {
+          const p = perProduct[it.name] || (perProduct[it.name] = { terjual: 0, omset: 0, untung: 0 });
+          p.terjual += Number(it.qty || 0);
+          p.omset += Number(it.subtotal || 0);
+          p.untung += (Number(it.price || 0) - Number(it.cost || 0)) * Number(it.qty || 0);
+        });
+      });
+
+      return {
+        tanggalHariIni: todayStr(),
+        periode: `${since} s/d ${todayStr()} (30 hari)`,
+        ringkasan: { totalPenjualan: omset, totalModal: modal, untung, jumlahTransaksi: txs.length, perMetodeBayar: pay },
+        penjualanPerBarang: perProduct,
+        stok: inventory.slice(0, 300).map(i => ({
+          kode: i.code, nama: i.name, ukuran: i.size, warna: i.color,
+          stok: Number(i.stock || 0), modal: Number(i.cost || 0), hargaJual: Number(i.price || 0),
+          terjual30Hari: perProduct[i.name]?.terjual || 0
+        })),
+        pembelian: purchases.filter(p => p.date >= since).slice(0, 200).map(p => ({
+          tanggal: p.date, nama: p.name, qty: p.qty, totalBeli: p.totalCost
+        }))
+      };
+    }
+
+    // ---------- Perintah dari Asisten AI (Gemini) ----------
+    window.sjsGetContext = () => buildAiContext();
+
+    function findItemByName(name) {
+      const q = String(name || "").trim().toLowerCase();
+      if (!q) return { error: "Nama barang belum disebutkan." };
+      const exact = inventory.filter(i => i.name && i.name.toLowerCase() === q);
+      if (exact.length === 1) return { item: exact[0] };
+      if (exact.length > 1) return { error: `Ada beberapa barang bernama "${name}". Ubah nama salah satunya dulu.` };
+      const partial = inventory.filter(i => i.name && i.name.toLowerCase().includes(q));
+      if (partial.length === 1) return { item: partial[0] };
+      if (partial.length > 1) {
+        return { error: `"${name}" cocok dengan beberapa barang: ${partial.slice(0, 5).map(i => i.name).join(", ")}. Sebutkan nama lengkapnya.` };
+      }
+      return { error: `Barang "${name}" tidak ditemukan di stok.` };
+    }
+
+    function normalizeBayar(m) {
+      const s = String(m || "").toLowerCase();
+      if (s.includes("qris")) return "QRIS";
+      if (s.includes("kartu")) return "Kartu";
+      if (s.includes("transfer")) return "Transfer";
+      return "Cash";
+    }
+
+    async function runAiCommand(r) {
+      const d = r.data || {};
+      try {
+        if (r.aksi === "penjualan") {
+          const res = findItemByName(d.nama_barang);
+          if (res.error) { showToast(res.error); return; }
+          const item = res.item;
+          const qty = Math.max(1, parseInt(d.qty) || 1);
+          if (Number(item.stock || 0) < qty) { showToast(`Stok ${item.name} tidak cukup (sisa ${Number(item.stock || 0)}).`); return; }
+          // Harga selalu dari stok, bukan dari AI
+          const price = Number(item.price || 0);
+          const cost = Number(item.cost || 0);
+          const metode = normalizeBayar(d.metode_bayar);
+          const subtotal = price * qty;
+          let pesan = `Catat penjualan?\n\n${qty} x ${item.name}\nHarga: ${rp(price)} per pcs (harga dari stok)\nTotal: ${rp(subtotal)}\nBayar: ${metode}`;
+          if (cost <= 0) pesan += "\n\nPERHATIAN: harga modal produk ini belum diisi, jadi untung akan sama dengan omzet.";
+          if (Number(d.harga) > 0 && Number(d.harga) !== price) pesan += `\n\nCatatan: AI membaca harga ${rp(d.harga)}, tapi yang dipakai harga stok.`;
+          if (!window.confirm(pesan)) { showToast("Penjualan dibatalkan."); return; }
+
+          const txData = {
+            date: todayStr(),
+            paymentMethod: metode,
+            items: [{ inventoryId: item.id, name: item.name, qty, price, cost, subtotal }],
+            totalOmset: subtotal,
+            totalModal: cost * qty,
+            totalProfit: subtotal - cost * qty,
+            createdAt: new Date().toISOString()
+          };
+          if (db) await addDoc(collection(db, ...paths("transactions")), txData);
+          else transactions.push({ id: "local-" + Date.now(), ...txData });
+          await adjustStock(item.id, -qty);
+          selectedDateStr = txData.date;
+          showToast(`Penjualan dicatat: ${qty} x ${item.name}`);
+
+        } else if (r.aksi === "tambah_produk") {
+          const name = String(d.nama_barang || "").trim();
+          if (!name) { showToast("Nama barang kosong, tidak bisa ditambahkan."); return; }
+          if (inventory.some(i => i.name && i.name.toLowerCase() === name.toLowerCase())) {
+            showToast(`"${name}" sudah ada di stok. Gunakan perintah update stok.`); return;
+          }
+          const stokAwal = Math.max(0, parseInt(d.qty) || 0);
+          const harga = Number(d.harga) || 0;
+          const kategori = String(d.kategori || "").trim();
+          const pesan = `Tambah produk baru?\n\nNama: ${name}\nKategori: ${kategori || "-"}\nHarga jual: ${rp(harga)}\nStok awal: ${stokAwal}\n\nHarga modal belum diisi. Isi lewat menu Stok agar untung tercatat benar.`;
+          if (!window.confirm(pesan)) { showToast("Tambah produk dibatalkan."); return; }
+
+          const itemData = {
+            code: nextAutoCode(),
+            name,
+            size: "",
+            color: "",
+            category: kategori,
+            stock: stokAwal,
+            cost: 0,
+            price: harga,
+            updatedAt: new Date().toISOString()
+          };
+          if (db) await addDoc(collection(db, ...paths("inventory")), itemData);
+          else inventory.push({ id: "local-inv-" + Date.now(), ...itemData });
+          showToast(`Produk "${name}" ditambahkan.`);
+
+        } else if (r.aksi === "update_stok") {
+          const res = findItemByName(d.nama_barang);
+          if (res.error) { showToast(res.error); return; }
+          const item = res.item;
+          if (d.qty === null || d.qty === undefined || isNaN(parseInt(d.qty))) { showToast("Jumlah stok baru belum jelas."); return; }
+          const newStock = Math.max(0, parseInt(d.qty));
+          const oldStock = Number(item.stock || 0);
+          if (!window.confirm(`Ubah stok ${item.name} dari ${oldStock} menjadi ${newStock}?`)) { showToast("Perubahan stok dibatalkan."); return; }
+          await adjustStock(item.id, newStock - oldStock);
+          showToast(`Stok ${item.name} diubah menjadi ${newStock}.`);
+
+        } else {
+          showToast("Perintah ini tidak mengubah data.");
+          return;
+        }
+        renderApp();
+      } catch (err) {
+        console.error(err);
+        showToast("Gagal menerapkan perintah AI.");
+      }
+    }
+    window.addEventListener("sjs-ai-command", e => runAiCommand(e.detail));
+
+    window.promptDeleteTx = function (id) {
+      deleteTargetId = id;
+      deleteTargetType = "tx";
+      document.getElementById("deleteModalDesc").textContent = "Stok barang dari transaksi ini akan dikembalikan. Data yang dihapus tidak dapat dikembalikan.";
+      document.getElementById("deleteConfirmModal").classList.remove("hidden");
+    };
+    window.promptDeleteInventory = function (id) {
+      deleteTargetId = id;
+      deleteTargetType = "inventory";
+      document.getElementById("deleteModalDesc").textContent = "Data yang dihapus tidak dapat dikembalikan.";
+      document.getElementById("deleteConfirmModal").classList.remove("hidden");
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      wire();
+      initFirebase();
+    });
+  </script>
+  <script src="/ai-widget.js"></script>
+</body>
+</html>
+
