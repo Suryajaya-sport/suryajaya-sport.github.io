@@ -2000,6 +2000,8 @@
   <!-- SCRIPT ASISTEN AI -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
+      const GEMINI_MODEL = "gemini-4-hydrogen";
+
       const toggleBtn = document.getElementById("sjsAiToggleBtn");
       const closeBtn = document.getElementById("sjsAiCloseBtn");
       const keyBtn = document.getElementById("sjsAiKeyBtn");
@@ -2010,6 +2012,9 @@
       const sendBtn = document.getElementById("sjsAiSendBtn");
       const input = document.getElementById("sjsAiInput");
       const log = document.getElementById("sjsAiChatLog");
+
+      const statusSub = document.getElementById("sjsAiStatusSub");
+      if (statusSub) statusSub.textContent = `Online • ${GEMINI_MODEL}`;
 
       if (toggleBtn && box) {
         toggleBtn.addEventListener("click", () => {
@@ -2030,7 +2035,7 @@
           if (!val) return;
           localStorage.setItem("sjs_gemini_api_key", val);
           keyPanel.classList.add("hidden");
-          addBubble("API Key berhasil disimpan! Silakan tanya asisten toko sekarang.", "ai");
+          addBubble(`API Key berhasil disimpan! Asisten aktif menggunakan ${GEMINI_MODEL}.`, "ai");
         });
       }
 
@@ -2061,7 +2066,7 @@
         const contextData = typeof window.sjsGetContext === "function" ? window.sjsGetContext() : {};
 
         try {
-          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -2075,7 +2080,7 @@
           const data = await res.json();
           log.lastChild.remove();
           if (data.error) {
-            addBubble(`Error API: ${data.error.message}`, 'ai');
+            addBubble(`Error API (${GEMINI_MODEL}): ${data.error.message}`, 'ai');
             return;
           }
           const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Maaf, tidak ada respons dari AI.";
