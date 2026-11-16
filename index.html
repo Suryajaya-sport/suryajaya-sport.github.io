@@ -2009,7 +2009,6 @@
           const subtotal = price * qty;
           let pesan = `Catat penjualan?\n\n${qty} x ${item.name}\nHarga: ${rp(price)} per pcs (harga dari stok)\nTotal: ${rp(subtotal)}\nBayar: ${metode}`;
           if (cost <= 0) pesan += "\n\nPERHATIAN: harga modal produk ini belum diisi, jadi untung akan sama dengan omzet.";
-          if (Number(d.harga) > 0 && Number(d.harga) !== price) pesan += `\n\nCatatan: AI membaca harga ${rp(d.harga)}, tapi yang dipakai harga stok.`;
           if (!window.confirm(pesan)) { showToast("Penjualan dibatalkan."); return; }
 
           const txData = {
@@ -2036,7 +2035,7 @@
           const stokAwal = Math.max(0, parseInt(d.qty) || 0);
           const harga = Number(d.harga) || 0;
           const kategori = String(d.kategori || "").trim();
-          const pesan = `Tambah produk baru?\n\nNama: ${name}\nKategori: ${kategori || "-"}\nHarga jual: ${rp(harga)}\nStok awal: ${stokAwal}\n\nHarga modal belum diisi. Isi lewat menu Stok agar untung tercatat benar.`;
+          const pesan = `Tambah produk baru?\n\nNama: ${name}\nKategori: ${kategori || "-"}\nHarga jual: ${rp(harga)}\nStok awal: ${stokAwal}`;
           if (!window.confirm(pesan)) { showToast("Tambah produk dibatalkan."); return; }
 
           const itemData = {
@@ -2095,10 +2094,15 @@
       initFirebase();
     });
   </script>
-  <!-- Skrip Asisten AI Toko yang Dioptimalkan untuk EdgeOne -->
-  <script>
+
+  <!-- SKRIP ASISTEN AI TERINTEGRASI GEMINI API (VERSION 4 HYDROGEN) -->
+  <script type="module">
+    import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
+    let aiChatClient = null;
+    let chatSession = null;
+
     window.addEventListener('DOMContentLoaded', () => {
-      // Pembuatan Floating Widget Asisten AI Lokal (Bebas Error Geofencing API)
       const aiContainer = document.createElement('div');
       aiContainer.innerHTML = `
         <div id="surya-ai-widget" style="position: fixed; bottom: 20px; right: 20px; z-index: 9999; font-family: Inter, sans-serif;">
@@ -2106,28 +2110,48 @@
             <i class="fa-solid fa-robot text-amber-300 text-lg"></i>
             <span>Asisten Toko Surya Jaya</span>
           </button>
-          <div id="ai-chatbox" style="display: none; width: 340px; height: 480px; background: white; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.3); flex-direction: column; overflow: hidden; margin-bottom: 12px; border: 2px solid #cbd5e1;">
+          <div id="ai-chatbox" style="display: none; width: 360px; height: 500px; background: white; border-radius: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.3); flex-direction: column; overflow: hidden; margin-bottom: 12px; border: 2px solid #cbd5e1;">
             <div style="background: #1e40af; color: white; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center;">
               <div style="display: flex; align-items: center; gap: 8px;">
                 <i class="fa-solid fa-robot text-amber-300"></i>
-                <strong style="font-size: 14px;">AI Surya Jaya Sport</strong>
+                <strong style="font-size: 14px;">AI Surya Jaya Sport (v4)</strong>
               </div>
               <button onclick="toggleAIChat()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">✕</button>
             </div>
             <div id="ai-messages" style="flex: 1; padding: 14px; overflow-y: auto; background: #f8fafc; font-size: 13px; display: flex; flex-direction: column; gap: 10px;">
               <div style="background: #dbeafe; padding: 10px 14px; border-radius: 12px; max-width: 90%; align-self: flex-start; color: #1e3a8a; line-height: 1.4;">
-                Halo! Saya asisten pintar toko di <strong>Jl. Jendral Ahmad Yani No. 37, Berau</strong>. Ada yang bisa dibantu hari ini? (Misal: cek stok raket, rekap penjualan, atau tambah barang).
+                Halo! Saya asisten pintar toko di <strong>Jl. Jendral Ahmad Yani No. 37, Berau</strong>. Ketik perintah seperti: <em>"Catat jual raket yonex 1 pcs"</em> atau <em>"Bagaimana omset minggu ini?"</em>.
               </div>
             </div>
             <div style="padding: 12px; background: white; border-top: 1px solid #e2e8f0; display: flex; gap: 8px;">
-              <input type="text" id="ai-input" placeholder="Tanya stok, penjualan, dll..." onkeypress="handleAIPress(event)" style="flex: 1; padding: 9px 12px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 13px; outline: none;" />
-              <button onclick="sendAIMessage()" style="background: #1e40af; color: white; border: none; padding: 9px 16px; border-radius: 8px; cursor: pointer; font-weight: bold; transition;"><i class="fa-solid fa-paper-plane"></i></button>
+              <input type="text" id="ai-input" placeholder="Tanya stok, penjualan, atau perintah..." onkeypress="handleAIPress(event)" style="flex: 1; padding: 9px 12px; border: 2px solid #cbd5e1; border-radius: 8px; font-size: 13px; outline: none;" />
+              <button onclick="sendAIMessage()" style="background: #1e40af; color: white; border: none; padding: 9px 16px; border-radius: 8px; cursor: pointer; font-weight: bold;"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
           </div>
         </div>
       `;
       document.body.appendChild(aiContainer);
+      initGeminiChat();
     });
+
+    function initGeminiChat() {
+      try {
+        const apiKey = localStorage.getItem("sjs_gemini_api_key") || prompt("Masukkan Gemini API Key gratis Anda untuk mengaktifkan Asisten AI Pintar Surya Jaya Sport:", "");
+        if (apiKey) {
+          localStorage.setItem("sjs_gemini_api_key", apiKey.trim());
+          const genAI = new GoogleGenerativeAI(apiKey.trim());
+          aiChatClient = genAI.getGenerativeModel({
+            model: "gemini-2.5-flash",
+            systemInstruction: `Anda adalah Asisten AI untuk toko ritel olahraga "Surya Jaya Sport" di Jl. Jendral Ahmad Yani No. 37, Tanjung Redeb, Berau, Kalimantan Timur, milik Sunarso. 
+Anda dapat membantu menganalisis data toko, laporan omset, cek stok, atau menyiapkan format perintah tindakan. 
+Jika user ingin mencatat penjualan, menambah produk, atau mengubah stok, berikan balasan teks konfirmasi dan jika diperlukan, Anda dapat menyertakan objek JSON aksi di akhir balasan dalam format: \`\`\`json {"aksi": "penjualan|tambah_produk|update_stok", "data": {...}} \`\`\``
+          });
+          chatSession = aiChatClient.startChat({ history: [] });
+        }
+      } catch (e) {
+        console.warn("Gagal menginisialisasi Gemini API:", e);
+      }
+    }
 
     window.toggleAIChat = function() {
       const box = document.getElementById('ai-chatbox');
@@ -2148,34 +2172,41 @@
       inputEl.value = '';
       messagesEl.scrollTop = messagesEl.scrollHeight;
 
+      if (!chatSession) {
+        initGeminiChat();
+        if (!chatSession) {
+          messagesEl.innerHTML += `<div style="background: #fee2e2; color: #991b1b; padding: 10px 14px; border-radius: 12px; max-width: 90%; align-self: flex-start;">API Key belum diatur atau gagal terhubung.</div>`;
+          return;
+        }
+      }
+
       const loadingId = 'loading-' + Date.now();
-      messagesEl.innerHTML += `<div id="${loadingId}" style="background: #e2e8f0; color: #475569; padding: 10px 14px; border-radius: 12px; max-width: 80%; align-self: flex-start; font-style: italic;">Sedang memproses...</div>`;
+      messagesEl.innerHTML += `<div id="${loadingId}" style="background: #e2e8f0; color: #475569; padding: 10px 14px; border-radius: 12px; max-width: 80%; align-self: flex-start; font-style: italic;">Sedang berpikir...</div>`;
       messagesEl.scrollTop = messagesEl.scrollHeight;
 
       try {
         const ctx = typeof window.sjsGetContext === 'function' ? window.sjsGetContext() : {};
-        const query = text.toLowerCase();
-        let reply = "";
-
-        if (query.includes('alamat') || query.includes('lokasi')) {
-          reply = "Surya Jaya Sport berlokasi di Jl. Jendral Ahmad Yani No. 37, Tanjung Redeb, Berau, Kalimantan Timur. No. Telp/WA: 0818.566.999.";
-        } else if (query.includes('omset') || query.includes('penjualan') || query.includes('laporan')) {
-          const omset = ctx.ringkasan?.totalPenjualan || 0;
-          const untung = ctx.ringkasan?.untung || 0;
-          const count = ctx.ringkasan?.jumlahTransaksi || 0;
-          reply = `Laporan 30 hari terakhir:\n• Total Omset: Rp ${omset.toLocaleString('id-ID')}\n• Untung Bersih: Rp ${untung.toLocaleString('id-ID')}\n• Jumlah Transaksi: ${count} nota.`;
-        } else if (query.includes('stok') || query.includes('barang')) {
-          const listStok = (ctx.stok || []).slice(0, 5).map(s => `• ${s.nama} (Sisa: ${s.stok} pcs)`).join('\n');
-          reply = `Beberapa daftar stok di toko:\n${listStok || 'Belum ada barang.'}\n\nTotal jenis barang: ${(ctx.stok || []).length} item.`;
-        } else {
-          reply = `Terima kasih! Asisten pintar toko siap membantu mengelola pembukuan, stok, dan pencetakan stiker QR Niimbot di Surya Jaya Sport Berau.`;
-        }
+        const promptFull = `Data Toko Saat Ini: ${JSON.stringify(ctx)}\n\nPertanyaan/Perintah Pengguna: ${text}`;
+        
+        const result = await chatSession.sendMessage(promptFull);
+        const responseText = await result.response.text();
 
         document.getElementById(loadingId).remove();
-        messagesEl.innerHTML += `<div style="background: #dbeafe; color: #1e3a8a; padding: 10px 14px; border-radius: 12px; max-width: 90%; align-self: flex-start; white-space: pre-line; line-height: 1.4;">${escapeHtml(reply)}</div>`;
+        messagesEl.innerHTML += `<div style="background: #dbeafe; color: #1e3a8a; padding: 10px 14px; border-radius: 12px; max-width: 90%; align-self: flex-start; white-space: pre-line; line-height: 1.4;">${escapeHtml(responseText)}</div>`;
+
+        // Deteksi blok JSON aksi jika ada
+        const jsonMatch = responseText.match(/```json\s*({[\s\S]*?})\s*```/);
+        if (jsonMatch) {
+          try {
+            const actionObj = JSON.parse(jsonMatch[1]);
+            window.dispatchEvent(new CustomEvent('sjs-ai-command', { detail: actionObj }));
+          } catch (err) {
+            console.warn("Gagal memparsing aksi JSON dari AI:", err);
+          }
+        }
       } catch (err) {
         document.getElementById(loadingId).remove();
-        messagesEl.innerHTML += `<div style="background: #fee2e2; color: #991b1b; padding: 10px 14px; border-radius: 12px; max-width: 90%; align-self: flex-start;">Maaf, terjadi kendala saat memproses pertanyaan.</div>`;
+        messagesEl.innerHTML += `<div style="background: #fee2e2; color: #991b1b; padding: 10px 14px; border-radius: 12px; max-width: 90%; align-self: flex-start;">Maaf, terjadi kendala koneksi dengan Gemini API.</div>`;
       }
       messagesEl.scrollTop = messagesEl.scrollHeight;
     };
