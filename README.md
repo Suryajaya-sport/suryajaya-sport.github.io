@@ -1,2 +1,0 @@
-# edgenote
-edge
