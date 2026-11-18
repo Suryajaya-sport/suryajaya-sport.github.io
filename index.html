@@ -1138,7 +1138,7 @@
         <tr style="border-bottom: 1px dashed #94a3b8;">
           <td style="padding: 6px 4px; text-align: left; vertical-align: middle;">
             <div style="display:flex;align-items:center;gap:8px;">
-              ${it.imageUrl && /^https:\/\//i.test(it.imageUrl) ? `<img src="${esc(it.imageUrl)}" alt="${esc(it.name)}" style="width:42px;height:42px;object-fit:cover;border-radius:6px;border:1px solid #cbd5e1;">` : ""}
+              ${getSaleItemImageUrl(it) ? `<img src="${esc(getSaleItemImageUrl(it))}" alt="${esc(it.name)}" style="width:42px;height:42px;object-fit:cover;border-radius:6px;border:1px solid #cbd5e1;">` : ""}
               <span>${idx + 1}. ${esc(it.name)}</span>
             </div>
           </td>
@@ -1793,6 +1793,18 @@ async function saveInventoryItem() {
       renderTransactions();
     }
 
+    function getSaleItemImageUrl(item) {
+      if (!item) return "";
+      const savedUrl = typeof item.imageUrl === "string" ? item.imageUrl.trim() : "";
+      if (/^https:\/\//i.test(savedUrl)) return savedUrl;
+      const match = inventory.find(inv =>
+        (item.inventoryId && inv.id === item.inventoryId) ||
+        (inv.name && item.name && inv.name.toLowerCase() === String(item.name).toLowerCase())
+      );
+      const inventoryUrl = typeof match?.imageUrl === "string" ? match.imageUrl.trim() : "";
+      return /^https:\/\//i.test(inventoryUrl) ? inventoryUrl : "";
+    }
+
     function renderTransactions() {
       const tbody = document.getElementById("transactionTableBody");
       const listDiv = document.getElementById("transactionMobileList");
@@ -1846,7 +1858,7 @@ async function saveInventoryItem() {
       filtered.forEach(tx => {
         const itemsText = (tx.items || []).map(it => `
           <span class="inline-flex items-center gap-2 mr-2 mb-1 align-middle">
-            ${it.imageUrl && /^https:\/\//i.test(it.imageUrl) ? `<img src="${esc(it.imageUrl)}" alt="${esc(it.name)}" loading="lazy" class="w-10 h-10 rounded-lg object-cover border border-slate-200 shrink-0">` : `<span class="w-10 h-10 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center shrink-0"><i class="fa-solid fa-image"></i></span>`}
+            ${getSaleItemImageUrl(it) ? `<img src="${esc(getSaleItemImageUrl(it))}" alt="${esc(it.name)}" loading="lazy" class="w-10 h-10 rounded-lg object-cover border border-slate-200 shrink-0">` : `<span class="w-10 h-10 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center shrink-0"><i class="fa-solid fa-image"></i></span>`}
             <span>${esc(it.name)} (${Number(it.qty || 0)}x)</span>
           </span>`).join("") || "-";
         const qty = (tx.items || []).reduce((s, i) => s + Number(i.qty || 0), 0);
