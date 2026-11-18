@@ -479,7 +479,7 @@
       return `${formatItemLabel(item)}${varian ? ` (${varian})` : ""} - ${rp(item.price)}`;
     }
 
-    // Fungsi konversi dan kompres otomatis foto produk agar lancar di-upload
+    // Fungsi kompres gambar otomatis agar upload foto produk lancar
     function fileToBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -554,43 +554,6 @@
         renderApp();
       }
     }
-
-    window.sjsGetApiKey = () => cloudGeminiApiKey || localStorage.getItem("sjs_gemini_api_key") || "";
-    window.sjsGetContext = () => ({ isAdminActive: isAdmin, daftarStok: inventory });
-
-    window.sjsRecordSaleFromAi = async function(payload) {
-      if (!isAdmin) return { ok: false, message: "Mode Admin terkunci." };
-      const rawItems = Array.isArray(payload.items) ? payload.items : [];
-      let totalOmset = 0, totalModal = 0;
-      const itemsToSave = [];
-
-      for (const it of rawItems) {
-        const invMatch = inventory.find(i => i.name.toLowerCase() === (it.name || "").toLowerCase());
-        const qty = Math.max(1, parseInt(it.qty) || 1);
-        const price = Number(it.price) > 0 ? Number(it.price) : (invMatch ? Number(invMatch.price) : 0);
-        const cost = Number(it.cost) > 0 ? Number(it.cost) : (invMatch ? Number(invMatch.cost) : 0);
-        totalOmset += price * qty;
-        totalModal += cost * qty;
-        itemsToSave.push({ inventoryId: invMatch?.id || "", name: invMatch ? formatItemLabel(invMatch) : it.name, qty, price, cost, photo: invMatch?.photo || "", subtotal: price * qty });
-      }
-
-      const txData = {
-        date: todayStr(), customer: payload.customer || "Umum",
-        paymentMethod: payload.paymentMethod || "Cash",
-        items: itemsToSave, totalOmset, totalModal, totalProfit: totalOmset - totalModal,
-        createdAt: new Date().toISOString()
-      };
-
-      let savedId = "local-" + Date.now();
-      if (db) {
-        const ref = await addDoc(collection(db, ...paths("transactions")), txData);
-        savedId = ref.id;
-      } else {
-        transactions.push({ id: savedId, ...txData });
-      }
-      renderApp();
-      return { ok: true, txId: savedId, summary: `Total: ${rp(totalOmset)}` };
-    };
 
     function addSaleItemRow(prefill = null) {
       const container = document.getElementById("saleItemsContainer");
