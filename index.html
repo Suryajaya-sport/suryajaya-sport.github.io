@@ -934,7 +934,7 @@
 
   <script type="module">
     let initializeApp, getApps, getAuth, signInAnonymously, getFirestore;
-    let doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc;
+    let doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc, runTransaction;
     let getStorage, storageRef, uploadBytes, getDownloadURL, storage = null;
 
     const EMBEDDED_FIREBASE_CONFIG = {
@@ -1075,9 +1075,12 @@
       for (const it of rawItems) {
         const qName = String(it.name || "").trim();
         if (!qName) continue;
-        const invMatch = inventory.find(inv => inv.id === it.inventoryId)
+        const isManual = it.itemType === "manual" || it.manual === true;
+        const invMatch = isManual ? null : (
+          inventory.find(inv => inv.id === it.inventoryId)
           || inventory.find(inv => inv.name && inv.name.toLowerCase() === qName.toLowerCase())
-          || inventory.find(inv => inv.name && inv.name.toLowerCase().includes(qName.toLowerCase()));
+          || inventory.find(inv => inv.name && inv.name.toLowerCase().includes(qName.toLowerCase()))
+        );
 
         const qty = Math.max(1, parseInt(it.qty) || 1);
         const price = Number(it.price) > 0 ? Number(it.price) : (invMatch ? Number(invMatch.price || 0) : 0);
@@ -1112,16 +1115,7 @@
       };
 
       try {
-        let savedId = "local-" + Date.now();
-        if (db) {
-          const docRef = await addDoc(collection(db, ...paths("transactions")), txData);
-          savedId = docRef.id;
-        } else {
-          transactions.push({ id: savedId, ...txData });
-        }
-        for (const itm of itemsToSave) {
-          if (itm.inventoryId) await adjustStock(itm.inventoryId, -itm.qty);
-        }
+        const savedId = await commitSaleTransaction(txData, itemsToSave);
         selectedDateStr = txDate;
         document.getElementById("bookDatePicker").value = txDate;
         renderApp();
@@ -1132,7 +1126,7 @@
           summary: `${itemsToSave.map(i => `${i.name} (${i.qty}x)`).join(", ")} | Total: ${rp(totalOmset)} | Bayar: ${matchedMethod} | Pembeli: ${customerName}`
         };
       } catch (e) {
-        return { ok: false, message: "Terjadi kesalahan saat menyimpan ke database." };
+        return { ok: false, message: e?.message || "Terjadi kesalahan saat menyimpan transaksi." };
       }
     };
 
@@ -1238,7 +1232,7 @@
         ]);
         ({ initializeApp, getApps } = appM);
         ({ getAuth, signInAnonymously } = authM);
-        ({ getFirestore, doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc } = fsM);
+        ({ getFirestore, doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc, runTransaction } = fsM);
         ({ getStorage, ref: storageRef, uploadBytes, getDownloadURL } = storageM);
         const app = getApps().length ? getApps()[0] : initializeApp(EMBEDDED_FIREBASE_CONFIG);
         const auth = getAuth(app);
@@ -1330,6 +1324,12 @@
       rowDiv.innerHTML = `
         <div class="flex items-center justify-between gap-2">
           <span class="text-xs font-extrabold uppercase text-blue-900">Rincian Barang Terjual</span>
+          <label class="text-xs font-bold text-slate-700 flex items-center gap-2">Jenis:
+            <select class="item-mode rounded-lg border-2 border-slate-300 px-2 py-1 bg-white font-bold">
+              <option value="inventory">Barang inventaris</option>
+              <option value="manual">Barang manual</option>
+            </select>
+          </label>
           <button type="button" class="btn-remove-row text-rose-600 hover:text-rose-800 font-extrabold text-xs flex items-center gap-1 cursor-pointer shrink-0">
             <i class="fa-solid fa-trash"></i> Hapus Baris
           </button>
@@ -1367,8 +1367,14 @@
       const costInput = rowDiv.querySelector(".item-cost-input");
       const priceInput = rowDiv.querySelector(".item-price-input");
       const qtyInput = rowDiv.querySelector(".item-qty");
+      const modeInput = rowDiv.querySelector(".item-mode");
 
       const handleItemSelect = () => {
+        if (modeInput.value === "manual") {
+          rowDiv.dataset.invId = "";
+          calculateSaleTotals();
+          return;
+        }
         const match = matchInventoryFromText(nameInput.value);
         if (match) {
           rowDiv.dataset.invId = match.id;
@@ -1381,6 +1387,14 @@
         calculateSaleTotals();
       };
 
+      modeInput.addEventListener("change", () => {
+        if (modeInput.value === "manual") {
+          rowDiv.dataset.invId = "";
+        } else {
+          handleItemSelect();
+        }
+        calculateSaleTotals();
+      });
       nameInput.addEventListener("input", handleItemSelect);
       nameInput.addEventListener("change", handleItemSelect);
       [costInput, priceInput, qtyInput].forEach(el => el.addEventListener("input", calculateSaleTotals));
@@ -1417,13 +1431,68 @@
 
     async function adjustStock(invId, delta) {
       const item = inventory.find(i => i.id === invId);
-      if (!item) return;
-      const newStock = Math.max(0, Number(item.stock || 0) + delta);
+      if (!item) throw new Error("Barang inventaris tidak ditemukan.");
+      const currentStock = Number(item.stock || 0);
+      const newStock = currentStock + Number(delta || 0);
+      if (newStock < 0) throw new Error(`Stok ${item.name} tidak mencukupi. Sisa stok: ${currentStock} pcs.`);
       if (db) {
         await setDoc(doc(db, ...paths("inventory", invId)), { stock: newStock }, { merge: true });
       } else {
         item.stock = newStock;
       }
+      return newStock;
+    }
+
+    // Simpan transaksi dan kurangi stok inventaris dalam satu transaksi Firestore.
+    // Barang manual (tanpa inventoryId) tidak pernah menyentuh stok.
+    async function commitSaleTransaction(txData, items) {
+      const qtyByInventory = new Map();
+      for (const item of items) {
+        if (!item.inventoryId) continue;
+        qtyByInventory.set(item.inventoryId, (qtyByInventory.get(item.inventoryId) || 0) + Number(item.qty || 0));
+      }
+
+      if (db) {
+        const txRef = doc(collection(db, ...paths("transactions")));
+        await runTransaction(db, async firestoreTx => {
+          const stockDocs = new Map();
+          for (const [invId] of qtyByInventory) {
+            const invRef = doc(db, ...paths("inventory", invId));
+            const snap = await firestoreTx.get(invRef);
+            if (!snap.exists()) throw new Error(`Barang inventaris dengan ID ${invId} tidak ditemukan.`);
+            stockDocs.set(invId, { ref: invRef, data: snap.data() });
+          }
+          for (const [invId, qty] of qtyByInventory) {
+            const current = Number(stockDocs.get(invId).data.stock || 0);
+            if (current < qty) {
+              const item = inventory.find(i => i.id === invId);
+              throw new Error(`Stok ${item?.name || "barang"} tidak mencukupi. Stok tersedia ${current} pcs, diminta ${qty} pcs.`);
+            }
+          }
+          for (const [invId, qty] of qtyByInventory) {
+            const entry = stockDocs.get(invId);
+            firestoreTx.update(entry.ref, { stock: Number(entry.data.stock || 0) - qty });
+          }
+          firestoreTx.set(txRef, txData);
+        });
+        return txRef.id;
+      }
+
+      // Mode lokal: validasi semua stok sebelum perubahan apa pun.
+      for (const [invId, qty] of qtyByInventory) {
+        const item = inventory.find(i => i.id === invId);
+        if (!item) throw new Error("Barang inventaris tidak ditemukan.");
+        if (Number(item.stock || 0) < qty) {
+          throw new Error(`Stok ${item.name} tidak mencukupi. Stok tersedia ${Number(item.stock || 0)} pcs, diminta ${qty} pcs.`);
+        }
+      }
+      for (const [invId, qty] of qtyByInventory) {
+        const item = inventory.find(i => i.id === invId);
+        item.stock = Number(item.stock || 0) - qty;
+      }
+      const savedId = "local-" + Date.now();
+      transactions.push({ id: savedId, ...txData });
+      return savedId;
     }
 
     async function saveSale(printAfterSave = false) {
@@ -1465,16 +1534,7 @@
       };
 
       try {
-        let savedId = "local-" + Date.now();
-        if (db) {
-          const docRef = await addDoc(collection(db, ...paths("transactions")), txData);
-          savedId = docRef.id;
-        } else {
-          transactions.push({ id: savedId, ...txData });
-        }
-        for (const itm of itemsToSave) {
-          if (itm.inventoryId) await adjustStock(itm.inventoryId, -itm.qty);
-        }
+        const savedId = await commitSaleTransaction(txData, itemsToSave);
         selectedDateStr = txDate;
         document.getElementById("bookDatePicker").value = txDate;
         document.getElementById("inputCustomer").value = "";
@@ -1487,7 +1547,7 @@
           executeReceiptPrint({ id: savedId, ...txData });
         }
       } catch (err) {
-        showToast("Gagal menyimpan transaksi.");
+        showToast(err?.message || "Gagal menyimpan transaksi.");
       }
     }
 
@@ -2353,14 +2413,44 @@ async function saveInventoryItem() {
             else inventory = inventory.filter(i => i.id !== deleteTargetId);
           } else {
             const tx = transactions.find(t => t.id === deleteTargetId);
-            if (tx) for (const it of tx.items || []) if (it.inventoryId) await adjustStock(it.inventoryId, Number(it.qty || 0));
-            if (db) await deleteDoc(doc(db, ...paths("transactions", deleteTargetId)));
-            else transactions = transactions.filter(t => t.id !== deleteTargetId);
+            if (db) {
+              const txRef = doc(db, ...paths("transactions", deleteTargetId));
+              await runTransaction(db, async firestoreTx => {
+                const txSnap = await firestoreTx.get(txRef);
+                if (!txSnap.exists()) throw new Error("Transaksi tidak ditemukan.");
+                const savedTx = txSnap.data();
+                const restoreByInventory = new Map();
+                for (const it of savedTx.items || []) {
+                  if (it.inventoryId) restoreByInventory.set(it.inventoryId, (restoreByInventory.get(it.inventoryId) || 0) + Number(it.qty || 0));
+                }
+                const stockDocs = new Map();
+                for (const [invId] of restoreByInventory) {
+                  const invRef = doc(db, ...paths("inventory", invId));
+                  const snap = await firestoreTx.get(invRef);
+                  if (snap.exists()) stockDocs.set(invId, { ref: invRef, data: snap.data() });
+                }
+                for (const [invId, qty] of restoreByInventory) {
+                  const entry = stockDocs.get(invId);
+                  if (entry) firestoreTx.update(entry.ref, { stock: Number(entry.data.stock || 0) + qty });
+                }
+                firestoreTx.delete(txRef);
+              });
+            } else {
+              if (tx) {
+                const restoreByInventory = new Map();
+                for (const it of tx.items || []) if (it.inventoryId) restoreByInventory.set(it.inventoryId, (restoreByInventory.get(it.inventoryId) || 0) + Number(it.qty || 0));
+                for (const [invId, qty] of restoreByInventory) {
+                  const item = inventory.find(i => i.id === invId);
+                  if (item) item.stock = Number(item.stock || 0) + qty;
+                }
+              }
+              transactions = transactions.filter(t => t.id !== deleteTargetId);
+            }
           }
           showToast("Data berhasil dihapus!");
           renderApp();
         } catch (e) {
-          showToast("Gagal menghapus data.");
+          showToast(e?.message || "Gagal menghapus data.");
         }
         document.getElementById("deleteConfirmModal").classList.add("hidden");
       });
@@ -2539,8 +2629,9 @@ Data toko real-time saat ini: ${JSON.stringify(contextData)}
 
 TUGAS ANDA:
 1. Jika user MEMERINTAHKAN untuk MENCATAT / INPUT TRANSAKSI PENJUALAN (contoh: "catat jual 2 kok", "laku 1 raket", "input penjualan..."), Anda WAJIB membalas HANYA dengan format JSON murni tanpa markdown (\`\`\`json) seperti berikut:
-{"action":"ADD_SALE","customer":"Nama Pembeli atau Umum","paymentMethod":"Cash","items":[{"inventoryId":"id_stok_jika_cocok_atau_kosong","name":"Nama Barang","qty":1,"price":100000,"cost":80000}]}
-- Cocokkan nama barang dengan daftarStok jika tersedia untuk mengambil inventoryId, price, dan cost. Jika user menyebut harga khusus, gunakan harga dari user.
+{"action":"ADD_SALE","customer":"Nama Pembeli atau Umum","paymentMethod":"Cash","items":[{"itemType":"inventory","inventoryId":"id_stok_jika_cocok","name":"Nama Barang","qty":1,"price":100000,"cost":80000}]}
+- Jika user menyebut barang manual / bukan stok / ketik sendiri, gunakan itemType:"manual" dan kosongkan inventoryId. Barang manual tidak mengurangi stok.
+- Jika barang cocok dengan daftarStok, gunakan itemType:"inventory" dan inventoryId yang sesuai. Jika user menyebut harga khusus, gunakan harga dari user.
 - paymentMethod hanya boleh salah satu dari: "Cash", "QRIS", "Kartu", "Transfer" (default "Cash").
 
 2. Jika user hanya BERTANYA (cek omset, untung, sisa stok, laporan, saran), balas dengan teks biasa dalam Bahasa Indonesia yang ringkas, jelas, dan langsung ke inti.`;
