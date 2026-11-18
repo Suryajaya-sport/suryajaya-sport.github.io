@@ -1091,7 +1091,7 @@
 
         totalOmset += subtotal;
         totalModal += cost * qty;
-        itemsToSave.push({ inventoryId: invId, name: finalName, qty, price, cost, subtotal });
+        itemsToSave.push({ inventoryId: invId, name: finalName, qty, price, cost, subtotal, imageUrl: invMatch?.imageUrl || "" });
       }
 
       if (itemsToSave.length === 0) {
@@ -1136,7 +1136,12 @@
       const customer = esc(tx.customer || "Pelanggan Umum");
       const rowsHtml = (tx.items || []).map((it, idx) => `
         <tr style="border-bottom: 1px dashed #94a3b8;">
-          <td style="padding: 6px 4px; text-align: left;">${idx + 1}. ${esc(it.name)}</td>
+          <td style="padding: 6px 4px; text-align: left; vertical-align: middle;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              ${it.imageUrl && /^https:\/\//i.test(it.imageUrl) ? `<img src="${esc(it.imageUrl)}" alt="${esc(it.name)}" style="width:42px;height:42px;object-fit:cover;border-radius:6px;border:1px solid #cbd5e1;">` : ""}
+              <span>${idx + 1}. ${esc(it.name)}</span>
+            </div>
+          </td>
           <td style="padding: 6px 4px; text-align: center;">${Number(it.qty || 1)}</td>
           <td style="padding: 6px 4px; text-align: right; white-space: nowrap;">${rp(it.price)}</td>
           <td style="padding: 6px 4px; text-align: right; font-weight: 700; white-space: nowrap;">${rp(it.subtotal || (it.price * it.qty))}</td>
@@ -1334,6 +1339,10 @@
             <i class="fa-solid fa-trash"></i> Hapus Baris
           </button>
         </div>
+        <div class="flex items-center gap-3 rounded-xl bg-white border border-slate-200 p-2 item-photo-wrap ${prefill ? "" : "hidden"}">
+          <div class="item-photo-preview w-16 h-16 rounded-lg overflow-hidden shrink-0">${prefill ? productImageMarkup(prefill, "w-16 h-16") : ""}</div>
+          <div class="min-w-0"><p class="item-photo-name text-sm font-extrabold text-slate-800">${prefill ? esc(prefill.name || "Produk") : ""}</p><p class="text-xs text-slate-500">Foto produk</p></div>
+        </div>
         <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
           <div class="sm:col-span-4">
             <label class="block text-xs font-bold text-slate-600 mb-1">Cari Kode / Nama Barang:</label>
@@ -1381,8 +1390,15 @@
           costInput.value = match.cost || 0;
           priceInput.value = match.price || 0;
           nameInput.value = formatItemLabel(match);
+          const photoWrap = rowDiv.querySelector(".item-photo-wrap");
+          photoWrap.classList.remove("hidden");
+          rowDiv.querySelector(".item-photo-preview").innerHTML = productImageMarkup(match, "w-16 h-16");
+          rowDiv.querySelector(".item-photo-name").textContent = match.name || "Produk";
         } else {
           rowDiv.dataset.invId = "";
+          rowDiv.querySelector(".item-photo-wrap").classList.add("hidden");
+          rowDiv.querySelector(".item-photo-preview").innerHTML = "";
+          rowDiv.querySelector(".item-photo-name").textContent = "";
         }
         calculateSaleTotals();
       };
@@ -1390,6 +1406,9 @@
       modeInput.addEventListener("change", () => {
         if (modeInput.value === "manual") {
           rowDiv.dataset.invId = "";
+          rowDiv.querySelector(".item-photo-wrap").classList.add("hidden");
+          rowDiv.querySelector(".item-photo-preview").innerHTML = "";
+          rowDiv.querySelector(".item-photo-name").textContent = "";
         } else {
           handleItemSelect();
         }
@@ -1516,7 +1535,7 @@
         const subtotal = price * qty;
         totalOmset += subtotal;
         totalModal += cost * qty;
-        itemsToSave.push({ inventoryId: invId, name, qty, price, cost, subtotal });
+        itemsToSave.push({ inventoryId: invId, name, qty, price, cost, subtotal, imageUrl: invId ? (inventory.find(i => i.id === invId)?.imageUrl || "") : "" });
       }
       if (itemsToSave.length === 0) { showToast("Tambahkan minimal 1 barang penjualan!"); return; }
 
@@ -1825,7 +1844,11 @@ async function saveInventoryItem() {
       document.getElementById("emptyState").classList.toggle("hidden", filtered.length > 0);
 
       filtered.forEach(tx => {
-        const itemsText = (tx.items || []).map(it => `${esc(it.name)} (${it.qty}x)`).join(", ") || "-";
+        const itemsText = (tx.items || []).map(it => `
+          <span class="inline-flex items-center gap-2 mr-2 mb-1 align-middle">
+            ${it.imageUrl && /^https:\/\//i.test(it.imageUrl) ? `<img src="${esc(it.imageUrl)}" alt="${esc(it.name)}" loading="lazy" class="w-10 h-10 rounded-lg object-cover border border-slate-200 shrink-0">` : `<span class="w-10 h-10 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center shrink-0"><i class="fa-solid fa-image"></i></span>`}
+            <span>${esc(it.name)} (${Number(it.qty || 0)}x)</span>
+          </span>`).join("") || "-";
         const qty = (tx.items || []).reduce((s, i) => s + Number(i.qty || 0), 0);
         const unitPrices = (tx.items || []).map(it => rp(it.price)).join(", ");
         const pm = esc(tx.paymentMethod || "Cash");
