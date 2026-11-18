@@ -64,7 +64,6 @@
 </head>
 <body class="text-slate-900 antialiased min-h-screen flex flex-col">
 
-  <!-- AREA CETAK NOTA -->
   <div id="receiptPrintSheet"></div>
 
   <!-- HEADER -->
@@ -278,7 +277,7 @@
                 <th class="py-3.5 px-3 text-center">Bayar</th>
                 <th class="py-3.5 px-3 text-right">Total</th>
                 <th class="py-3.5 px-3 text-right">Untung</th>
-                <th class="py-3.5 px-3 text-center no-print">Nota</th>
+                <th class="py-3.5 px-3 text-center no-print">Nota &amp; Aksi</th>
               </tr>
             </thead>
             <tbody id="transactionTableBody" class="divide-y divide-slate-200 text-sm"></tbody>
@@ -315,7 +314,6 @@
               <input type="text" id="invName" placeholder="Contoh: Sepatu Futsal" class="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-xl font-bold">
             </div>
 
-            <!-- INPUT UPLOAD FOTO PRODUK -->
             <div class="sm:col-span-12">
               <label class="block text-sm font-bold text-slate-800 mb-1.5">Foto Produk (Opsional):</label>
               <input type="file" id="invPhotoFile" accept="image/*" class="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-900 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-blue-100 file:text-blue-900 cursor-pointer">
@@ -365,7 +363,7 @@
                 <th class="py-3.5 px-3 text-center">Sisa Stok</th>
                 <th class="py-3.5 px-3 text-right">Modal</th>
                 <th class="py-3.5 px-3 text-right">Harga Jual</th>
-                <th class="py-3.5 px-3 text-center">Aksi</th>
+                <th class="py-3.5 px-3 text-center">QR &amp; Aksi</th>
               </tr>
             </thead>
             <tbody id="inventoryTableBody" class="divide-y divide-slate-200 text-sm"></tbody>
@@ -385,6 +383,20 @@
     </div>
   </div>
 
+  <!-- MODAL NOTA -->
+  <div id="receiptPreviewModal" class="hidden fixed inset-0 z-50 bg-slate-950/75 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="bg-blue-900 px-5 py-4 text-white flex items-center justify-between">
+        <h3 class="font-extrabold text-lg">Pratinjau Nota</h3>
+        <button type="button" id="btnCloseReceiptModal" class="px-3 py-1 rounded bg-white/20 font-bold cursor-pointer">Tutup</button>
+      </div>
+      <div id="receiptPreviewBody" class="p-5 overflow-y-auto bg-slate-50 text-sm"></div>
+      <div class="p-4 bg-white border-t">
+        <button type="button" id="btnTriggerPrintReceipt" class="w-full py-3 rounded-xl bg-blue-800 text-white font-extrabold cursor-pointer">Cetak Nota</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL STIKER QR -->
   <div id="productQrModal" class="hidden fixed inset-0 z-50 bg-slate-950/75 flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-lg w-full p-5 space-y-4">
@@ -397,6 +409,26 @@
 
   <div id="toast" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-xl font-bold">
     <span id="toastMessage"></span>
+  </div>
+
+  <!-- ASISTEN AI -->
+  <div id="sjsAiFab" class="no-print">
+    <button type="button" id="sjsAiToggleBtn" title="Buka Asisten Toko"><i class="fa-solid fa-robot"></i></button>
+  </div>
+  <div id="sjsAiBox" class="hidden no-print">
+    <div style="background: linear-gradient(to right, #1e3a8a, #1d4ed8); color: white; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between;">
+      <h4 style="font-weight: 800; font-size: 15px; margin: 0;">Asisten Toko Surya Jaya</h4>
+      <button type="button" id="sjsAiCloseBtn" style="background: rgba(255,255,255,0.2); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="sjsAiChatLog" style="flex: 1; padding: 14px; overflow-y: auto; background: #f8fafc; font-size: 13px; display: flex; flex-direction: column; gap: 10px;">
+      <div style="background: #e2e8f0; color: #0f172a; padding: 10px 14px; border-radius: 14px; max-width: 88%; line-height: 1.45;">
+        Halo Bos! Silakan ketik perintah kasir atau tanya laporan.
+      </div>
+    </div>
+    <div style="padding: 10px; background: #ffffff; border-top: 2px solid #e2e8f0; display: flex; gap: 8px;">
+      <input type="text" id="sjsAiInput" placeholder="Ketik perintah..." style="flex: 1; padding: 10px 14px; border: 2px solid #cbd5e1; border-radius: 12px; font-size: 13px !important; outline: none;">
+      <button type="button" id="sjsAiSendBtn" style="background: #2563eb; color: #fff; border: none; padding: 0 16px; border-radius: 12px; font-weight: bold; cursor: pointer;"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
   </div>
 
   <script type="module">
@@ -423,6 +455,7 @@
     let currentViewMode = "day";
     let selectedPaymentMethod = "Cash";
     let activeQrProduct = null;
+    let cloudGeminiApiKey = localStorage.getItem("sjs_gemini_api_key") || "";
 
     function todayStr() {
       const d = new Date();
@@ -446,12 +479,35 @@
       return `${formatItemLabel(item)}${varian ? ` (${varian})` : ""} - ${rp(item.price)}`;
     }
 
-    // Convert uploaded image file to Base64 so it can be saved in Cloud/LocalStorage
+    // Fungsi konversi dan kompres otomatis foto produk agar lancar di-upload
     function fileToBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
+        reader.onload = event => {
+          const img = new Image();
+          img.src = event.target.result;
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            const MAX_WIDTH = 400;
+            const MAX_HEIGHT = 400;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+            } else {
+              if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL("image/jpeg", 0.7));
+          };
+          img.onerror = error => reject(error);
+        };
         reader.onerror = error => reject(error);
       });
     }
@@ -498,6 +554,43 @@
         renderApp();
       }
     }
+
+    window.sjsGetApiKey = () => cloudGeminiApiKey || localStorage.getItem("sjs_gemini_api_key") || "";
+    window.sjsGetContext = () => ({ isAdminActive: isAdmin, daftarStok: inventory });
+
+    window.sjsRecordSaleFromAi = async function(payload) {
+      if (!isAdmin) return { ok: false, message: "Mode Admin terkunci." };
+      const rawItems = Array.isArray(payload.items) ? payload.items : [];
+      let totalOmset = 0, totalModal = 0;
+      const itemsToSave = [];
+
+      for (const it of rawItems) {
+        const invMatch = inventory.find(i => i.name.toLowerCase() === (it.name || "").toLowerCase());
+        const qty = Math.max(1, parseInt(it.qty) || 1);
+        const price = Number(it.price) > 0 ? Number(it.price) : (invMatch ? Number(invMatch.price) : 0);
+        const cost = Number(it.cost) > 0 ? Number(it.cost) : (invMatch ? Number(invMatch.cost) : 0);
+        totalOmset += price * qty;
+        totalModal += cost * qty;
+        itemsToSave.push({ inventoryId: invMatch?.id || "", name: invMatch ? formatItemLabel(invMatch) : it.name, qty, price, cost, photo: invMatch?.photo || "", subtotal: price * qty });
+      }
+
+      const txData = {
+        date: todayStr(), customer: payload.customer || "Umum",
+        paymentMethod: payload.paymentMethod || "Cash",
+        items: itemsToSave, totalOmset, totalModal, totalProfit: totalOmset - totalModal,
+        createdAt: new Date().toISOString()
+      };
+
+      let savedId = "local-" + Date.now();
+      if (db) {
+        const ref = await addDoc(collection(db, ...paths("transactions")), txData);
+        savedId = ref.id;
+      } else {
+        transactions.push({ id: savedId, ...txData });
+      }
+      renderApp();
+      return { ok: true, txId: savedId, summary: `Total: ${rp(totalOmset)}` };
+    };
 
     function addSaleItemRow(prefill = null) {
       const container = document.getElementById("saleItemsContainer");
@@ -595,19 +688,20 @@
         createdAt: new Date().toISOString()
       };
 
-      if (db) await addDoc(collection(db, ...paths("transactions")), txData);
-      else transactions.push({ id: "local-" + Date.now(), ...txData });
-
-      for (const itm of itemsToSave) {
-        if (itm.inventoryId) {
-          const inv = inventory.find(i => i.id === itm.inventoryId);
-          if (inv) await setDoc(doc(db, ...paths("inventory", inv.id)), { stock: Math.max(0, inv.stock - itm.qty) }, { merge: true });
-        }
+      let savedId = "local-" + Date.now();
+      if (db) {
+        const ref = await addDoc(collection(db, ...paths("transactions")), txData);
+        savedId = ref.id;
+      } else {
+        transactions.push({ id: savedId, ...txData });
       }
+
       document.getElementById("saleItemsContainer").innerHTML = "";
       addSaleItemRow();
       showToast("Penjualan disimpan!");
       renderApp();
+
+      if (printAfterSave) openReceiptModal(savedId);
     }
 
     async function saveInventoryItem() {
@@ -639,13 +733,27 @@
         if (editId) await setDoc(doc(db, ...paths("inventory", editId)), itemData, { merge: true });
         else await addDoc(collection(db, ...paths("inventory")), itemData);
       } else {
-        inventory.push({ id: "local-" + Date.now(), ...itemData });
+        if (editId) {
+          const idx = inventory.findIndex(i => i.id === editId);
+          if (idx !== -1) inventory[idx] = { id: editId, ...itemData };
+        } else {
+          inventory.push({ id: "local-" + Date.now(), ...itemData });
+        }
       }
       document.getElementById("invName").value = "";
       document.getElementById("invPhotoFile").value = "";
+      document.getElementById("editInvId").value = "";
       showToast("Barang & Foto berhasil disimpan!");
       renderApp();
     }
+
+    window.openReceiptModal = function(id) {
+      const tx = transactions.find(t => t.id === id);
+      if (!tx) return;
+      const html = `<div style="border:2px solid #000; padding:12px; background:#fff"><h3>${shopName}</h3><p>Tanggal: ${tx.date}</p><p>Pembeli: ${tx.customer}</p><hr><p><b>Total: ${rp(tx.totalOmset)}</b></p></div>`;
+      document.getElementById("receiptPreviewBody").innerHTML = html;
+      document.getElementById("receiptPreviewModal").classList.remove("hidden");
+    };
 
     function renderApp() {
       renderInventory();
@@ -655,8 +763,15 @@
     function renderTransactions() {
       const tbody = document.getElementById("transactionTableBody");
       tbody.innerHTML = "";
+      let sumOmset = 0, sumModal = 0, sumProfit = 0, sumTerjual = 0;
       const dayTx = transactions.filter(tx => tx.date === selectedDateStr);
+
       dayTx.forEach(tx => {
+        sumOmset += Number(tx.totalOmset || 0);
+        sumModal += Number(tx.totalModal || 0);
+        sumProfit += Number(tx.totalProfit || 0);
+        (tx.items || []).forEach(it => sumTerjual += Number(it.qty || 0));
+
         const item = tx.items?.[0] || {};
         const photoHtml = item.photo ? `<img src="${item.photo}" class="w-10 h-10 object-cover rounded-lg border">` : `<div class="w-10 h-10 bg-slate-200 rounded-lg flex items-center justify-center text-xs">📦</div>`;
         const tr = document.createElement("tr");
@@ -665,15 +780,22 @@
           <td class="py-3 px-3">${esc(tx.date)}</td>
           <td class="py-3 px-3 flex items-center gap-3">
             ${photoHtml}
-            <div><p class="font-extrabold">${esc(item.name)}</p><p class="text-xs text-slate-500">${tx.customer}</p></div>
+            <div><p class="font-extrabold">${esc(item.name)}</p><p class="text-xs text-slate-500">${esc(tx.customer)}</p></div>
           </td>
           <td class="py-3 px-3 text-center font-bold">${item.qty || 1}</td>
-          <td class="py-3 px-3 text-center"><span class="px-2 py-1 rounded bg-blue-100 text-blue-900 font-bold text-xs">${tx.paymentMethod}</span></td>
+          <td class="py-3 px-3 text-center"><span class="px-2 py-1 rounded bg-blue-100 text-blue-900 font-bold text-xs">${esc(tx.paymentMethod)}</span></td>
           <td class="py-3 px-3 text-right font-extrabold">${rp(tx.totalOmset)}</td>
           <td class="py-3 px-3 text-right font-bold text-emerald-700">${rp(tx.totalProfit)}</td>
-          <td class="py-3 px-3 text-center"></td>`;
+          <td class="py-3 px-3 text-center">
+            <button type="button" onclick="window.openReceiptModal('${esc(tx.id)}')" class="px-3 py-1 bg-blue-100 text-blue-900 rounded font-bold text-xs cursor-pointer">Nota</button>
+          </td>`;
         tbody.appendChild(tr);
       });
+
+      document.getElementById("totalOmset").textContent = rp(sumOmset);
+      document.getElementById("totalModal").textContent = rp(sumModal);
+      document.getElementById("totalUntung").textContent = rp(sumProfit);
+      document.getElementById("totalTerjual").textContent = sumTerjual + " Pcs";
       document.getElementById("emptyState").classList.toggle("hidden", dayTx.length > 0);
     }
 
@@ -712,6 +834,7 @@
       document.getElementById("invCost").value = item.cost || 0;
       document.getElementById("invPrice").value = item.price || 0;
       document.getElementById("invEntryCard").classList.remove("hidden");
+      document.getElementById("readOnlyBannerInv").classList.add("hidden");
       document.getElementById("btnCancelInvEdit").classList.remove("hidden");
     };
 
@@ -755,11 +878,8 @@
       document.getElementById("btnSaveTx").addEventListener("click", () => saveSale(false));
       document.getElementById("btnSaveAndPrintTx").addEventListener("click", () => saveSale(true));
       document.getElementById("btnSaveInventory").addEventListener("click", saveInventoryItem);
-      document.getElementById("btnCancelInvEdit").addEventListener("click", () => {
-        document.getElementById("editInvId").value = "";
-        document.getElementById("invName").value = "";
-        document.getElementById("btnCancelInvEdit").classList.add("hidden");
-      });
+      document.getElementById("btnCloseReceiptModal").addEventListener("click", () => document.getElementById("receiptPreviewModal").classList.add("hidden"));
+      document.getElementById("btnTriggerPrintReceipt").addEventListener("click", () => window.print());
     }
 
     wire();
