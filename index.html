@@ -64,6 +64,62 @@
     #sjsAiFab button:hover { transform: scale(1.08); }
     #sjsAiBox { position: fixed; bottom: 96px; right: 24px; width: 400px; max-width: calc(100vw - 32px); height: 560px; max-height: calc(100vh - 120px); background: #ffffff; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); border: 2px solid #cbd5e1; display: flex; flex-direction: column; overflow: hidden; z-index: 99999; }
     #sjsAiBox.hidden { display: none !important; }
+
+    /* Perbaikan tampilan tabel Catatan Barang Terjual */
+    #transactionTableWrap {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    #transactionTableWrap table {
+      width: 100%;
+      min-width: 1300px;
+      table-layout: fixed;
+    }
+
+    #transactionTableBody td {
+      vertical-align: middle;
+      overflow-wrap: normal;
+    }
+
+    #transactionTableBody td:nth-child(1),
+    #transactionTableBody td:nth-child(3),
+    #transactionTableBody td:nth-child(4),
+    #transactionTableBody td:nth-child(5),
+    #transactionTableBody td:nth-child(7),
+    #transactionTableBody td:nth-child(8),
+    #transactionTableBody td:nth-child(9) {
+      white-space: nowrap;
+    }
+
+    #transactionTableBody td:nth-child(2) {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+
+    #transactionTableBody td:nth-child(6) {
+      overflow-wrap: break-word;
+      word-break: normal;
+    }
+
+    #transactionTableBody img {
+      flex-shrink: 0;
+    }
+
+    #transactionTableBody .inline-flex {
+      max-width: 100%;
+    }
+
+    @media (min-width: 1280px) {
+      #transactionTableWrap table {
+        font-size: 13px;
+      }
+
+      #transactionTableBody td {
+        padding: 12px 8px;
+      }
+    }
   </style>
 </head>
 <body class="text-slate-900 antialiased min-h-screen flex flex-col">
@@ -408,8 +464,19 @@
 
         <div id="transactionMobileList" class="xl:hidden grid grid-cols-1 lg:grid-cols-2 gap-3.5 p-3.5 sm:p-4 bg-slate-50/70 no-print"></div>
 
-        <div class="hidden xl:block print:block overflow-x-auto">
+        <div id="transactionTableWrap" class="hidden xl:block print:block">
           <table class="w-full text-left border-collapse">
+            <colgroup>
+              <col style="width: 95px">
+              <col style="width: 350px">
+              <col style="width: 55px">
+              <col style="width: 95px">
+              <col style="width: 125px">
+              <col style="width: 190px">
+              <col style="width: 115px">
+              <col style="width: 115px">
+              <col style="width: 160px">
+            </colgroup>
             <thead>
               <tr class="bg-slate-100 border-b-2 border-slate-300 text-xs font-extrabold uppercase text-slate-700">
                 <th class="py-3.5 px-3">Tanggal</th>
