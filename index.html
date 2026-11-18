@@ -99,15 +99,10 @@
     }
 
     #transactionTableBody td:nth-child(6) {
-      overflow-wrap: normal;
-      word-break: normal;
       white-space: normal;
+      overflow-wrap: break-word;
+      word-break: normal;
       line-height: 1.45;
-    }
-
-    #transactionTableBody td:nth-child(6) span {
-      display: block;
-      white-space: nowrap;
     }
 
     #transactionTableBody td:nth-child(9) {
@@ -1940,7 +1935,7 @@ async function saveInventoryItem() {
             <span>${esc(it.name)} (${Number(it.qty || 0)}x)</span>
           </span>`).join("") || "-";
         const qty = (tx.items || []).reduce((s, i) => s + Number(i.qty || 0), 0);
-        const unitPrices = (tx.items || []).map(it => `<span class="block whitespace-nowrap">${rp(it.price)}</span>`).join("");
+        const unitPrices = (tx.items || []).map(it => rp(it.price)).join(", ");
         const pm = esc(tx.paymentMethod || "Cash");
         const tOmset = Number(tx.totalOmset || 0), tModal = Number(tx.totalModal || 0), tProfit = Number(tx.totalProfit || 0);
         const delBtnClass = isAdmin ? "" : "hidden";
