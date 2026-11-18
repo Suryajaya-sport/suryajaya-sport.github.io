@@ -1514,6 +1514,7 @@
         imagePath: oldItem?.imagePath || "",
         updatedAt: new Date().toISOString()
       };
+      let photoError = "";
       try {
         let itemId = editId;
         if (db) {
@@ -1524,9 +1525,14 @@
             const safeName = imageFile.name.replace(/[^a-zA-Z0-9._-]/g, "_");
             const imagePath = `products/${itemId}/${Date.now()}_${safeName}`;
             const imageRef = storageRef(storage, imagePath);
-            await uploadBytes(imageRef, imageFile, { contentType: imageFile.type });
-            itemData.imageUrl = await getDownloadURL(imageRef);
-            itemData.imagePath = imagePath;
+            try {
+              await uploadBytes(imageRef, imageFile, { contentType: imageFile.type });
+              itemData.imageUrl = await getDownloadURL(imageRef);
+              itemData.imagePath = imagePath;
+            } catch (upErr) {
+              console.error("Upload foto gagal:", upErr);
+              photoError = upErr.code || upErr.message || "tidak diketahui";
+            }
           }
           await setDoc(doc(db, ...paths("inventory", itemId)), itemData, { merge: true });
         } else {
@@ -1537,11 +1543,12 @@
           } else inventory.push({ id: "local-inv-" + Date.now(), ...itemData });
         }
         resetInvForm();
-        showToast("Barang dan foto berhasil disimpan!");
+        if (photoError) showToast(`Barang tersimpan, tetapi foto gagal diunggah (${photoError}).`);
+        else showToast("Barang dan foto berhasil disimpan!");
         renderApp();
       } catch (err) {
         console.error("Gagal menyimpan produk:", err);
-        showToast("Gagal menyimpan. Periksa koneksi dan aturan Firebase Storage.");
+        showToast("Gagal menyimpan: " + (err.code || err.message || "error tidak diketahui"));
       }
     }
 
