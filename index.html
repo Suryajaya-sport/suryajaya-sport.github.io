@@ -99,8 +99,19 @@
     }
 
     #transactionTableBody td:nth-child(6) {
-      overflow-wrap: break-word;
+      overflow-wrap: normal;
       word-break: normal;
+      white-space: normal;
+      line-height: 1.45;
+    }
+
+    #transactionTableBody td:nth-child(6) span {
+      display: block;
+      white-space: nowrap;
+    }
+
+    #transactionTableBody td:nth-child(9) {
+      min-width: 165px;
     }
 
     #transactionTableBody img {
@@ -468,14 +479,14 @@
           <table class="w-full text-left border-collapse">
             <colgroup>
               <col style="width: 95px">
-              <col style="width: 350px">
+              <col style="width: 330px">
               <col style="width: 55px">
-              <col style="width: 95px">
+              <col style="width: 90px">
               <col style="width: 125px">
-              <col style="width: 190px">
-              <col style="width: 115px">
-              <col style="width: 115px">
-              <col style="width: 160px">
+              <col style="width: 200px">
+              <col style="width: 120px">
+              <col style="width: 120px">
+              <col style="width: 165px>
             </colgroup>
             <thead>
               <tr class="bg-slate-100 border-b-2 border-slate-300 text-xs font-extrabold uppercase text-slate-700">
@@ -1929,7 +1940,7 @@ async function saveInventoryItem() {
             <span>${esc(it.name)} (${Number(it.qty || 0)}x)</span>
           </span>`).join("") || "-";
         const qty = (tx.items || []).reduce((s, i) => s + Number(i.qty || 0), 0);
-        const unitPrices = (tx.items || []).map(it => rp(it.price)).join(", ");
+        const unitPrices = (tx.items || []).map(it => `<span class="block whitespace-nowrap">${rp(it.price)}</span>`).join("");
         const pm = esc(tx.paymentMethod || "Cash");
         const tOmset = Number(tx.totalOmset || 0), tModal = Number(tx.totalModal || 0), tProfit = Number(tx.totalProfit || 0);
         const delBtnClass = isAdmin ? "" : "hidden";
