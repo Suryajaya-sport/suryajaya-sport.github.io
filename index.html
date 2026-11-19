@@ -177,7 +177,7 @@
             <p class="text-sm sm:text-base font-extrabold text-blue-900 uppercase tracking-wide">
               Langkah 1: Pilih Tanggal, Nama Pembeli &amp; Cara Bayar
             </p>
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
               <div class="lg:col-span-3">
                 <label for="inputDate" class="block text-sm font-bold text-slate-700 mb-1.5">Tanggal Jualan:</label>
                 <input type="date" id="inputDate"
@@ -494,21 +494,21 @@
         <div class="p-4 sm:p-6 space-y-4">
           <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
             <div class="sm:col-span-6">
-              <label class="block text-sm font-bold text-slate-800 mb-1.5">Barang:</label>
+              <label class="block min-h-[2.75rem] text-sm leading-tight font-bold text-slate-800 mb-1.5">Barang:</label>
               <select id="restockItem" class="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-emerald-600"></select>
             </div>
             <div class="sm:col-span-2">
-              <label class="block text-sm font-bold text-slate-800 mb-1.5">Jumlah Dibeli (Pcs):</label>
+              <label class="block min-h-[2.75rem] text-sm leading-tight font-bold text-slate-800 mb-1.5">Jumlah Dibeli (Pcs):</label>
               <input type="number" min="1" id="restockQty" placeholder="Contoh: 10"
                 class="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-xl font-extrabold text-blue-800 focus:outline-none focus:border-emerald-600">
             </div>
             <div class="sm:col-span-2">
-              <label class="block text-sm font-bold text-slate-800 mb-1.5">Total Harga Beli (Rp):</label>
+              <label class="block min-h-[2.75rem] text-sm leading-tight font-bold text-slate-800 mb-1.5">Total Harga Beli (Rp):</label>
               <input type="number" min="0" id="restockTotal" placeholder="Contoh: 1800000"
                 class="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-emerald-600">
             </div>
             <div class="sm:col-span-2">
-              <label class="block text-sm font-bold text-slate-800 mb-1.5">Tanggal Beli:</label>
+              <label class="block min-h-[2.75rem] text-sm leading-tight font-bold text-slate-800 mb-1.5">Tanggal Beli:</label>
               <input type="date" id="restockDate"
                 class="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-emerald-600">
             </div>
@@ -530,12 +530,12 @@
           <input type="hidden" id="editInvId" value="">
           <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
             <div class="sm:col-span-4">
-              <label class="block text-sm font-bold text-slate-800 mb-1.5">Kode Barang / QR:</label>
+              <label class="block min-h-[2.75rem] text-sm leading-tight font-bold text-slate-800 mb-1.5">Kode Barang / QR:</label>
               <input type="text" id="invCode" placeholder="Otomatis (mis. SJS-001)"
                 class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-blue-600">
             </div>
             <div class="sm:col-span-8">
-              <label class="block text-sm font-bold text-slate-800 mb-1.5">Nama Barang <span class="text-rose-600">* (Wajib diisi)</span>:</label>
+              <label class="block min-h-[2.75rem] text-sm leading-tight font-bold text-slate-800 mb-1.5">Nama Barang <span class="text-rose-600">* (Wajib diisi)</span>:</label>
               <input type="text" id="invName" placeholder="Contoh: Sepatu Futsal Ortuseight"
                 class="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-blue-600">
             </div>
@@ -549,27 +549,27 @@
               </div>
             </div>
             <div class="sm:col-span-6">
-              <label class="block text-sm font-bold text-slate-800 mb-1.5">Ukuran (Jika ada):</label>
+              <label class="block min-h-[2.75rem] text-sm leading-tight font-bold text-slate-800 mb-1.5">Ukuran (Jika ada):</label>
               <input type="text" id="invSize" placeholder="Contoh: 42 / L / XL / 4U"
                 class="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-xl font-semibold text-slate-900 focus:outline-none focus:border-blue-600">
             </div>
             <div class="sm:col-span-6">
-              <label class="block text-sm font-bold text-slate-800 mb-1.5">Warna (Jika ada):</label>
+              <label class="block min-h-[2.75rem] text-sm leading-tight font-bold text-slate-800 mb-1.5">Warna (Jika ada):</label>
               <input type="text" id="invColor" placeholder="Contoh: Hitam / Putih / Merah"
                 class="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-xl font-semibold text-slate-900 focus:outline-none focus:border-blue-600">
             </div>
             <div class="sm:col-span-4">
-              <label class="block text-sm font-bold text-slate-800 mb-1.5">Jumlah Stok Awal (Pcs) <span class="text-rose-600">*</span>:</label>
+              <label class="block min-h-[2.75rem] text-sm leading-tight font-bold text-slate-800 mb-1.5">Jumlah Stok Awal (Pcs) <span class="text-rose-600">*</span>:</label>
               <input type="number" min="0" id="invStock" placeholder="Contoh: 10"
                 class="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-xl font-extrabold text-blue-800 focus:outline-none focus:border-blue-600">
             </div>
             <div class="sm:col-span-4">
-              <label class="block text-sm font-bold text-slate-800 mb-1.5">Harga Modal Beli (Rp):</label>
+              <label class="block min-h-[2.75rem] text-sm leading-tight font-bold text-slate-800 mb-1.5">Harga Modal Beli (Rp):</label>
               <input type="number" min="0" id="invCost" placeholder="Contoh: 180000"
                 class="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-blue-600">
             </div>
             <div class="sm:col-span-4">
-              <label class="block text-sm font-bold text-slate-800 mb-1.5">Harga Jual Toko (Rp) <span class="text-rose-600">*</span>:</label>
+              <label class="block min-h-[2.75rem] text-sm leading-tight font-bold text-slate-800 mb-1.5">Harga Jual Toko (Rp) <span class="text-rose-600">*</span>:</label>
               <input type="number" min="0" id="invPrice" placeholder="Contoh: 235000"
                 class="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-xl font-extrabold text-emerald-800 focus:outline-none focus:border-blue-600">
             </div>
@@ -1791,19 +1791,19 @@
           const tr = document.createElement("tr");
           tr.className = `hover:bg-slate-50 transition ${isLast ? "border-b-2 border-slate-300" : ""}`;
           tr.innerHTML = `
-            ${first ? `<td${rs} class="py-1.5 px-2 align-top font-semibold text-slate-700 whitespace-nowrap">${esc(tx.date)}</td>` : ""}
+            ${first ? `<td${rs} class="py-1.5 px-2 align-middle font-semibold text-slate-700 whitespace-nowrap">${esc(tx.date)}</td>` : ""}
             <td class="py-1.5 px-2 font-bold text-slate-900">
               ${esc(it.name)} <span class="text-slate-500 font-semibold whitespace-nowrap">(${Number(it.qty || 0)}x)</span>
             </td>
             <td class="py-1.5 px-2 text-right whitespace-nowrap text-slate-700">${rp(it.price)}</td>
             <td class="py-1.5 px-2 text-right whitespace-nowrap font-bold text-slate-900">${rp(it.subtotal ?? (it.price * it.qty))}</td>
             ${first ? `
-            <td${rs} class="py-1.5 px-2 text-center align-top">
+            <td${rs} class="py-1.5 px-2 text-center align-middle">
               <span class="px-2.5 py-1 rounded-lg text-xs font-extrabold bg-blue-100 text-blue-900 whitespace-nowrap">${pm}</span>
             </td>
-            <td${rs} class="py-1.5 px-2 text-right align-top whitespace-nowrap text-slate-600">${rp(tModal)}</td>
-            <td${rs} class="py-1.5 px-2 text-right align-top whitespace-nowrap font-bold text-emerald-700">${rp(tProfit)}</td>
-            <td${rs} class="py-1.5 px-2 text-center align-top no-print">
+            <td${rs} class="py-1.5 px-2 text-right align-middle whitespace-nowrap text-slate-600">${rp(tModal)}</td>
+            <td${rs} class="py-1.5 px-2 text-right align-middle whitespace-nowrap font-bold text-emerald-700">${rp(tProfit)}</td>
+            <td${rs} class="py-1.5 px-2 text-center align-middle no-print">
               <div class="flex flex-col items-center gap-1">
                 <button type="button" onclick="window.openReceiptModal('${esc(tx.id)}')" title="Cetak Nota"
                   class="w-8 h-8 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-900 cursor-pointer flex items-center justify-center">
