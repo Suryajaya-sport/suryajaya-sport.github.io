@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Surya Jaya Sport - Pembukuan & Stok QR</title>
+  <!-- Versi 2026-11-19: thumbnail hasil penjualan di desktop dan HP -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1097,7 +1098,10 @@
 
         totalOmset += subtotal;
         totalModal += cost * qty;
-        itemsToSave.push({ inventoryId: invId, name: finalName, qty, price, cost, subtotal });
+        itemsToSave.push({
+          inventoryId: invId, name: finalName, qty, price, cost, subtotal,
+          imageUrl: invMatch?.imageUrl || ""
+        });
       }
 
       if (itemsToSave.length === 0) {
@@ -1447,16 +1451,17 @@
         const qty = parseInt(row.querySelector(".item-qty").value) || 1;
         if (!name) { showToast("Isi nama barang terlebih dahulu!"); return; }
         const invId = row.dataset.invId || "";
-        if (invId) {
-          const invObj = inventory.find(i => i.id === invId);
-          if (invObj && invObj.name) {
-            name = formatItemLabel(invObj);
-          }
+        const invObj = invId ? inventory.find(i => i.id === invId) : null;
+        if (invObj && invObj.name) {
+          name = formatItemLabel(invObj);
         }
         const subtotal = price * qty;
         totalOmset += subtotal;
         totalModal += cost * qty;
-        itemsToSave.push({ inventoryId: invId, name, qty, price, cost, subtotal });
+        itemsToSave.push({
+          inventoryId: invId, name, qty, price, cost, subtotal,
+          imageUrl: invObj?.imageUrl || ""
+        });
       }
       if (itemsToSave.length === 0) { showToast("Tambahkan minimal 1 barang penjualan!"); return; }
 
@@ -1722,6 +1727,34 @@
       renderTransactions();
     }
 
+    // Ambil foto dari transaksi jika sudah tersimpan; untuk penjualan lama,
+    // cari foto di stok dengan inventoryId, kode barang, atau nama yang benar-benar sama.
+    function findSoldProduct(it) {
+      if (!it) return null;
+      const id = String(it.inventoryId || "").trim();
+      if (id) {
+        const linked = inventory.find(p => String(p.id) === id);
+        if (linked) return linked;
+      }
+      const label = String(it.name || "").trim();
+      const codeMatch = label.match(/^\[([^\]]+)\]\s*/);
+      if (codeMatch) {
+        const code = codeMatch[1].trim().toLowerCase();
+        const matches = inventory.filter(p => String(p.code || "").trim().toLowerCase() === code);
+        if (matches.length === 1) return matches[0];
+      }
+      const name = label.replace(/^\[[^\]]+\]\s*/, "").trim().toLowerCase();
+      if (!name || name === "-") return null;
+      const matches = inventory.filter(p => String(p.name || "").trim().toLowerCase() === name);
+      return matches.length === 1 ? matches[0] : null;
+    }
+
+    function saleItemImageMarkup(it, classes = "w-12 h-12 rounded-lg shrink-0") {
+      const matched = findSoldProduct(it);
+      const imageUrl = it?.imageUrl || matched?.imageUrl || "";
+      return productImageMarkup({ name: it?.name || "Foto produk", imageUrl }, classes);
+    }
+
     function renderTransactions() {
       const tbody = document.getElementById("transactionTableBody");
       const listDiv = document.getElementById("transactionMobileList");
@@ -1773,7 +1806,14 @@
       document.getElementById("emptyState").classList.toggle("hidden", filtered.length > 0);
 
       filtered.forEach(tx => {
-        const itemsText = (tx.items || []).map(it => `${esc(it.name)} (${it.qty}x)`).join(", ") || "-";
+        const itemsHtml = (tx.items || []).map(it => `
+          <div class="flex items-center gap-3 py-1.5">
+            ${saleItemImageMarkup(it, "w-14 h-14 rounded-lg border border-slate-200 shrink-0")}
+            <div class="min-w-0 flex-1">
+              <p class="font-extrabold text-sm sm:text-base text-slate-900 break-words">${esc(it.name || "-")}</p>
+              <p class="text-xs font-semibold text-slate-600">${Number(it.qty || 0)} Pcs × ${rp(it.price)}</p>
+            </div>
+          </div>`).join("") || `<p class="font-bold text-slate-600">Tidak ada rincian barang</p>`;
         const qty = (tx.items || []).reduce((s, i) => s + Number(i.qty || 0), 0);
         const pm = esc(tx.paymentMethod || "Cash");
         const tOmset = Number(tx.totalOmset || 0), tModal = Number(tx.totalModal || 0), tProfit = Number(tx.totalProfit || 0);
@@ -1793,7 +1833,12 @@
           tr.innerHTML = `
             ${first ? `<td${rs} class="py-1.5 px-2 align-middle font-semibold text-slate-700 whitespace-nowrap">${esc(tx.date)}</td>` : ""}
             <td class="py-1.5 px-2 font-bold text-slate-900">
-              ${esc(it.name)} <span class="text-slate-500 font-semibold whitespace-nowrap">(${Number(it.qty || 0)}x)</span>
+              <div class="flex items-center gap-2.5 min-w-0">
+                ${saleItemImageMarkup(it, "w-12 h-12 rounded-lg border border-slate-200 shrink-0")}
+                <div class="min-w-0 break-words">
+                  ${esc(it.name)} <span class="text-slate-500 font-semibold whitespace-nowrap">(${Number(it.qty || 0)}x)</span>
+                </div>
+              </div>
             </td>
             <td class="py-1.5 px-2 text-right whitespace-nowrap text-slate-700">${rp(it.price)}</td>
             <td class="py-1.5 px-2 text-right whitespace-nowrap font-bold text-slate-900">${rp(it.subtotal ?? (it.price * it.qty))}</td>
@@ -1818,7 +1863,7 @@
           tbody.appendChild(tr);
         });
 
-        // --- KARTU MOBILE (tidak berubah) ---
+        // --- KARTU MOBILE: foto tiap barang terjual ---
         const card = document.createElement("div");
         card.className = "bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-xs space-y-2.5";
         card.innerHTML = `
@@ -1826,7 +1871,7 @@
             <span><i class="fa-regular fa-calendar mr-1 text-blue-700"></i> ${esc(tx.date)}</span>
             <span class="px-2.5 py-0.5 rounded-lg bg-blue-100 text-blue-900 font-extrabold">${pm}</span>
           </div>
-          <p class="font-extrabold text-base text-slate-900">${itemsText}</p>
+          <div class="divide-y divide-slate-100">${itemsHtml}</div>
           <div class="grid grid-cols-2 gap-2 bg-slate-50 p-2.5 rounded-xl text-xs font-semibold">
             <div>Modal: <span class="font-bold text-slate-700">${rp(tModal)}</span></div>
             <div>Untung: <span class="font-extrabold text-emerald-700">${rp(tProfit)}</span></div>
@@ -2324,7 +2369,7 @@
         const src = currentViewMode === "day" ? transactions.filter(t => t.date === selectedDateStr) : transactions;
         const prodMap = {};
         src.forEach(tx => (tx.items || []).forEach(it => {
-          const p = prodMap[it.name] || (prodMap[it.name] = { qty: 0, omset: 0 });
+          const p = prodMap[it.name] || (prodMap[it.name] = { qty: 0, omset: 0, saleItem: it });
           p.qty += Number(it.qty || 0);
           p.omset += Number(it.subtotal || 0);
         }));
@@ -2332,9 +2377,12 @@
         list.innerHTML = names.length === 0
           ? `<p class="text-sm text-slate-500 text-center py-6">Belum ada barang terjual pada periode ini.</p>`
           : names.map(nm => `
-              <div class="py-3 flex items-center justify-between">
-                <p class="font-extrabold text-slate-900">${esc(nm)}</p>
-                <div class="text-right">
+              <div class="py-3 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                  ${saleItemImageMarkup(prodMap[nm].saleItem, "w-12 h-12 rounded-lg border border-slate-200 shrink-0")}
+                  <p class="font-extrabold text-slate-900 break-words">${esc(nm)}</p>
+                </div>
+                <div class="text-right shrink-0">
                   <span class="px-2.5 py-1 rounded-lg bg-indigo-100 text-indigo-900 font-extrabold text-xs">${prodMap[nm].qty} Pcs</span>
                   <p class="text-xs font-bold text-slate-700 mt-1">${rp(prodMap[nm].omset)}</p>
                 </div>
