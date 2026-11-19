@@ -544,7 +544,7 @@
               <input type="file" id="invImageFile" accept="image/*" class="block w-full text-sm text-slate-700 file:mr-3 file:py-3 file:px-4 file:rounded-xl file:border-0 file:bg-sky-700 file:text-white file:font-bold">
               <p class="text-xs text-slate-600 mt-2">Pilih foto JPG, PNG atau WebP maksimal 5 MB. Foto akan tampil di stok, kasir, dan katalog.</p>
               <div id="invImagePreviewWrap" class="hidden mt-3 flex items-center gap-3">
-                <img id="invImagePreview" alt="Pratinjau foto produk" class="w-24 h-24 object-cover rounded-xl border-2 border-white shadow">
+                <img id="invImagePreview" alt="Pratinjau foto produk" class="w-24 h-24 object-contain bg-white rounded-xl border-2 border-white shadow">
                 <span id="invImagePreviewLabel" class="text-sm font-bold text-sky-900">Foto produk dipilih</span>
               </div>
             </div>
@@ -1845,7 +1845,7 @@
     function productImageMarkup(item, extraClass = "") {
       const url = typeof item.imageUrl === "string" && /^https:\/\//i.test(item.imageUrl) ? esc(item.imageUrl) : "";
       return url
-        ? `<img src="${url}" alt="${esc(item.name || "Foto produk")}" loading="lazy" class="${extraClass} object-cover" onerror="this.style.display='none'">`
+        ? `<img src="${url}" alt="${esc(item.name || "Foto produk")}" loading="lazy" class="${extraClass} object-contain bg-white" onerror="this.style.display='none'">`
         : `<div class="${extraClass} bg-slate-100 text-slate-400 flex items-center justify-center"><i class="fa-solid fa-image text-3xl"></i></div>`;
     }
 
@@ -1856,7 +1856,7 @@
       grid.innerHTML = items.map(item => {
         const stock = Number(item.stock || 0);
         return `<article class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-          ${productImageMarkup(item, "w-full h-36 sm:h-44")}
+          ${productImageMarkup(item, "w-full aspect-square")}
           <div class="p-3">
             <p class="font-extrabold text-sm sm:text-base text-slate-900 line-clamp-2 min-h-10">${esc(item.name || "Produk")}</p>
             <p class="text-xs text-slate-500 mt-1">${esc(item.code || "")} ${item.size ? "• " + esc(item.size) : ""} ${item.color ? "• " + esc(item.color) : ""}</p>
