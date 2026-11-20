@@ -28,6 +28,7 @@
   </script>
 
   <style>
+    #mainNavigation[hidden] { display: none; }
     *, *::before, *::after { box-sizing: border-box; }
     html, body { max-width: 100%; overflow-x: hidden; }
     body { font-family: 'Inter', sans-serif; background-color: #eef2f6; color: #0f172a; }
@@ -128,7 +129,7 @@
 
   <main class="flex-grow max-w-7xl w-full mx-auto px-3.5 sm:px-6 lg:px-8 py-5 sm:py-6 space-y-5 sm:space-y-6">
 
-    <nav id="mainNavigation" class="bg-white p-2 rounded-2xl border-2 border-slate-300 shadow-md grid grid-cols-1 sm:grid-cols-3 gap-2 no-print" aria-label="Navigasi utama">
+    <nav id="mainNavigation" hidden class="bg-white p-2 rounded-2xl border-2 border-slate-300 shadow-md grid grid-cols-2 lg:grid-cols-4 gap-2 no-print" aria-label="Navigasi admin">
       <button type="button" id="tabBtnCatalog" aria-current="page"
         class="py-3.5 sm:py-4 px-4 rounded-xl font-extrabold text-base sm:text-lg bg-blue-800 text-white shadow-md flex items-center justify-center gap-2.5 transition cursor-pointer">
         <i class="fa-solid fa-store text-amber-300 text-lg shrink-0"></i>
@@ -137,13 +138,16 @@
       <button type="button" id="tabBtnKasir" aria-current="false"
         class="py-3.5 sm:py-4 px-4 rounded-xl font-extrabold text-base sm:text-lg text-slate-700 bg-slate-100 hover:bg-slate-200 flex items-center justify-center gap-2.5 transition cursor-pointer">
         <i class="fa-solid fa-cash-register text-amber-300 text-lg shrink-0"></i>
-        <span>1. Kasir &amp; Buku Penjualan</span>
+        <span>Kasir &amp; Penjualan</span>
       </button>
       <button type="button" id="tabBtnInventory" aria-current="false"
         class="py-3.5 sm:py-4 px-4 rounded-xl font-extrabold text-base sm:text-lg text-slate-700 bg-slate-100 hover:bg-slate-200 flex items-center justify-center gap-2.5 transition cursor-pointer">
         <i class="fa-solid fa-boxes-stacked text-blue-700 text-lg shrink-0"></i>
-        <span>2. Stok Barang &amp; QR</span>
+        <span>Stok Barang &amp; QR</span>
         <span id="navStockBadge" class="px-2.5 py-0.5 rounded-full text-sm bg-blue-100 text-blue-900 font-extrabold shrink-0">0</span>
+      </button>
+      <button type="button" id="tabBtnBooks" class="py-3.5 px-4 rounded-xl font-extrabold text-slate-700 bg-slate-100">
+        <i class="fa-solid fa-book" aria-hidden="true"></i> Pembukuan
       </button>
     </nav>
 
@@ -151,11 +155,10 @@
     <section id="viewCatalog" class="space-y-5 sm:space-y-6" aria-labelledby="catalogPageTitle">
       <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-950 via-blue-900 to-sky-700 text-white shadow-lg">
         <div class="absolute -right-10 -top-16 h-56 w-56 rounded-full bg-amber-400/15 blur-2xl" aria-hidden="true"></div>
-        <div class="relative flex flex-col gap-5 px-5 py-7 sm:px-8 sm:py-9 md:flex-row md:items-center md:justify-between">
+        <div class="relative flex flex-col gap-3 px-4 py-4 sm:px-6 sm:py-5 md:flex-row md:items-center md:justify-between">
           <div class="max-w-2xl">
             <p class="text-xs font-extrabold uppercase tracking-[0.16em] text-amber-300 sm:text-sm">Surya Jaya Sport · Berau</p>
-            <h2 id="catalogPageTitle" class="mt-2 text-2xl font-extrabold leading-tight sm:text-4xl">Perlengkapan olahraga, lebih mudah dicari</h2>
-            <p class="mt-2 text-sm leading-relaxed text-blue-100 sm:text-base">Lihat pilihan produk, harga, dan ketersediaan. Hubungi toko untuk memastikan stok atau bertanya sebelum datang.</p>
+            <h2 id="catalogPageTitle" class="mt-1 text-xl font-extrabold leading-tight sm:text-3xl">Perlengkapan Olahraga &amp; Musik</h2>
           </div>
           <a href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer"
             class="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-amber-400 px-5 py-3 font-extrabold text-blue-950 shadow-md transition hover:bg-amber-300 focus:outline-none focus:ring-4 focus:ring-white/50">
@@ -165,9 +168,11 @@
       </div>
 
       <section id="publicProductCatalog" class="overflow-hidden rounded-2xl border-2 border-sky-200 bg-white shadow-sm" aria-labelledby="productCatalogTitle">
-        <div class="bg-gradient-to-r from-sky-900 to-blue-800 px-4 py-4 text-white sm:px-5">
+        <div class="flex flex-wrap items-center justify-between gap-2 bg-gradient-to-r from-sky-900 to-blue-800 px-4 py-3 text-white sm:px-5">
           <h2 id="productCatalogTitle" class="text-lg font-extrabold sm:text-xl"><i class="fa-solid fa-store mr-2 text-amber-300" aria-hidden="true"></i>Katalog Produk</h2>
-          <p class="mt-1 text-sm text-sky-100">Harga dan stok dapat berubah. Hubungi toko untuk konfirmasi.</p>
+          <button type="button" id="openCatalogCart" class="min-h-11 rounded-xl bg-white px-3 text-sm font-bold text-blue-950">
+            <i class="fa-solid fa-basket-shopping mr-1" aria-hidden="true"></i> Keranjang <span id="catalogCartCount" aria-live="polite">0</span>
+          </button>
         </div>
         <div class="flex flex-col gap-3 border-b border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
           <form id="catalogSearchForm" role="search" autocomplete="off" class="relative w-full sm:max-w-md">
@@ -180,7 +185,10 @@
               <i class="fa-solid fa-xmark" aria-hidden="true"></i>
             </button>
           </form>
-          <div class="flex items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <select id="catalogCategory" aria-label="Kategori produk" class="min-h-11 rounded-xl border border-slate-200 bg-white px-2 text-sm">
+              <option value="all">Semua kategori</option><option value="sport">Olahraga &amp; lainnya</option><option value="music">Musik</option>
+            </select>
             <label for="catalogInStockOnly" class="flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700">
               <input type="checkbox" id="catalogInStockOnly" class="h-5 w-5 accent-emerald-600">
               <span>Stok tersedia saja</span>
@@ -193,11 +201,31 @@
       <div class="rounded-2xl border border-slate-200 bg-white p-4 text-center text-sm text-slate-600 shadow-sm sm:p-5">
         <strong class="text-slate-800">Kunjungi toko kami</strong><br>
         Jl. Jendral Ahmad Yani No. 37, Berau · <a class="whitespace-nowrap font-bold text-blue-800 underline underline-offset-2" href="tel:+6282320033333">0823-2003-3333</a>
+        <a href="https://www.google.com/maps/search/?api=1&amp;query=Surya+Jaya+Sport+Jl.+Ahmad+Yani+No.+37+Berau" target="_blank" rel="noopener noreferrer" class="mx-auto mt-2 flex min-h-11 w-fit items-center gap-2 rounded-xl border border-slate-300 px-3 font-bold text-blue-800"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Petunjuk Arah</a>
       </div>
     </section>
 
+    <dialog id="catalogCart" class="m-auto max-h-[85dvh] w-11/12 max-w-xl rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 shadow-xl backdrop:bg-slate-900/60" aria-labelledby="catalogCartTitle">
+      <div class="mb-3 flex items-center justify-between gap-3">
+        <h2 id="catalogCartTitle" class="text-lg font-bold">Keranjang WhatsApp</h2>
+        <form method="dialog"><button class="min-h-11 rounded-xl px-3 text-sm font-bold hover:bg-slate-100">Tutup</button></form>
+      </div>
+      <div id="catalogCartLines" class="space-y-3"></div>
+      <div class="mt-4 border-t border-slate-200 pt-3">
+        <p id="catalogCartTotal" class="font-bold" aria-live="polite"></p>
+        <p class="mt-1 text-sm text-slate-600">Harga dan stok dikonfirmasi oleh toko.</p>
+        <a id="catalogCartWhatsApp" target="_blank" rel="noopener noreferrer" class="mt-3 hidden min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-700 px-4 py-2 text-sm font-bold text-white"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Buka WhatsApp</a>
+      </div>
+    </dialog>
+    <dialog id="inventoryToolDialog" class="m-auto max-h-[85dvh] w-11/12 max-w-xl rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 shadow-xl backdrop:bg-slate-900/60" aria-labelledby="inventoryToolTitle">
+      <div class="mb-3 flex items-center justify-between gap-3"><h2 id="inventoryToolTitle" class="text-lg font-bold"></h2><form method="dialog"><button class="min-h-11 rounded-lg px-3 font-semibold">Tutup</button></form></div>
+      <div id="inventoryToolContent"></div>
+      <p id="inventoryToolStatus" class="mt-2 text-sm font-medium text-slate-700" aria-live="polite"></p>
+    </dialog>
+
     <!-- VIEW 1: KASIR -->
-    <div id="viewKasir" class="hidden space-y-5 sm:space-y-6"><section id="ownerBooks" class="hidden no-print rounded-2xl bg-white p-5 space-y-5 shadow">
+    <section id="viewBooks" class="hidden no-print">
+    <section id="ownerBooks" class="hidden rounded-2xl bg-white p-5 space-y-5 shadow">
   <h2 class="text-xl font-extrabold">Pembukuan Pemilik</h2>
   <label>Bulan laporan <input type="month" id="bookMonth" class="border rounded p-2"></label>
   <dl id="ownerMonthlyReport" class="grid gap-2 sm:grid-cols-2"></dl>
@@ -223,8 +251,10 @@
   </form>
   <details><summary>Riwayat pembelian bulan terpilih</summary><ul id="ownerPurchaseHistory" class="mt-2 space-y-1"></ul></details>
   <button id="backUpBooks" type="button" class="border rounded p-2">Unduh cadangan JSON</button>
-  <button id="publishCatalog" type="button" class="border rounded p-2">Perbarui katalog publik</button>
+  <button id="copyWhatsAppGreeting" type="button" class="rounded-lg border border-emerald-300 px-3 py-2 font-semibold text-emerald-900">Salin pesan sambutan WhatsApp</button>
 </section>
+    </section>
+    <div id="viewKasir" class="hidden space-y-5 sm:space-y-6">
 
       <section id="readOnlyBannerKasir" class="bg-amber-50 border-2 border-amber-400 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm no-print">
         <div class="flex items-start sm:items-center gap-3.5">
@@ -552,6 +582,15 @@
 
     <!-- VIEW 2: STOK -->
     <div id="viewInventory" class="hidden space-y-5 sm:space-y-6">
+      <section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div><h2 class="font-bold text-slate-900">Katalog Publik</h2><p id="inventoryCatalogStatus" class="text-sm text-slate-600" aria-live="polite"></p></div>
+          <div class="flex flex-wrap gap-2">
+            <button id="openReorderList" type="button" class="min-h-11 rounded-lg border border-slate-300 px-3 font-semibold text-blue-900">Daftar belanja stok</button>
+            <button id="publishCatalog" type="button" class="min-h-11 rounded-lg border border-slate-300 px-3 font-semibold text-blue-900">Terbitkan semua barang</button>
+          </div>
+        </div>
+      </section>
       <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 sm:gap-4">
         <div class="bg-white p-4 sm:p-5 rounded-2xl border-2 border-slate-200 shadow-sm">
           <span class="text-sm font-extrabold uppercase text-slate-600">1. Jenis Barang</span>
@@ -706,6 +745,9 @@
               <input type="checkbox" id="invMissingPhotoOnly" class="h-4 w-4 accent-blue-700">
               <span>Belum ada foto <span id="invMissingPhotoCount"></span></span>
             </label>
+            <select id="inventoryFollowUp" aria-label="Tindak lanjut katalog" class="min-h-11 rounded-xl border border-slate-200 px-2 text-sm">
+              <option value="all">Semua barang</option><option value="unpublished">Belum terbit</option><option value="no-price">Harga kosong</option>
+            </select>
           </div>
         </div>
         <div id="inventoryMobileList" class="xl:hidden grid grid-cols-1 lg:grid-cols-2 gap-3.5 p-3.5 sm:p-4 bg-slate-50/70"></div>
@@ -1049,6 +1091,9 @@
     let transactions = [];
     let inventory = [];
     let publicCatalog = [];
+    let catalogLoadState = "loading";
+    const catalogCart = new Map();
+    const catalogWhatsApp = "https://wa.me/6282320033333";
     let purchases = [];
 
     let selectedDateStr = todayStr();
@@ -1102,6 +1147,18 @@
     }
     function paths(...segments) {
       return ["artifacts", APP_ID, "public", "data", ...segments];
+    }
+
+    function publicProductData(item) {
+      return {
+        name: String(item.name || "").slice(0, 160),
+        code: String(item.code || "").slice(0, 80),
+        size: String(item.size || "").slice(0, 40),
+        color: String(item.color || "").slice(0, 60),
+        price: Math.max(0, Number(item.price) || 0),
+        stock: Math.max(0, Math.trunc(Number(item.stock) || 0)),
+        imageUrl: productImageUrl(item).slice(0, 2048)
+      };
     }
 
     // --- JEMBATAN DATA & AKSI UNTUK ASISTEN AI ---
@@ -1179,15 +1236,20 @@
             if (!Number.isSafeInteger(stock) || stock < requested) {
               throw new Error(`Stok ${current.name || "barang"} tersisa ${Math.max(0, stock)} pcs.`);
             }
-            currentById.set(id, stock);
+            const publicRef = doc(db, "publicCatalog", id);
+            const published = await cloudTransaction.get(publicRef);
+            currentById.set(id, { stock, publicRef, published: published.exists() });
           }
 
           cloudTransaction.set(transactionRef, txData);
           for (const [id, ref] of inventoryRefs) {
+            const current = currentById.get(id);
+            const stock = current.stock - quantitiesByInventory.get(id);
             cloudTransaction.update(ref, {
-              stock: currentById.get(id) - quantitiesByInventory.get(id),
+              stock,
               updatedAt: new Date().toISOString()
             });
+            if (current.published) cloudTransaction.update(current.publicRef, { stock });
           }
         });
 
@@ -1387,6 +1449,7 @@
           isAdmin = Boolean(user && user.uid === OWNER_UID);
           inventory = [];
           publicCatalog = [];
+          catalogLoadState = "loading";
           transactions = [];
           purchases = [];
           books.expenses = [];
@@ -1409,11 +1472,18 @@
               render();
             }, failed));
           }
+          unsubscribe.push(onSnapshot(collection(db, "publicCatalog"), snap => {
+            publicCatalog = snap.docs.map(entry => ({ ...entry.data(), id: entry.id }));
+            catalogLoadState = "ready";
+            renderProductCatalog();
+            renderCatalogCart();
+            if (isAdmin) renderInventory();
+          }, () => {
+            catalogLoadState = "error";
+            renderProductCatalog();
+            failed();
+          }));
           if (!isAdmin) {
-            unsubscribe.push(onSnapshot(collection(db, "publicCatalog"), snap => {
-              publicCatalog = snap.docs.map(entry => ({ ...entry.data(), id: entry.id }));
-              renderProductCatalog(publicCatalog);
-            }, failed));
             document.getElementById("cloudStatusLine").textContent = "Masuk untuk mengakses pembukuan.";
             updateSyncStatus(true, "Katalog publik");
             return;
@@ -1437,8 +1507,9 @@
         });      } catch (err) {
         console.warn("Firebase init gagal:", err);
         db = null;
-        updateSyncStatus(false, "Mode Offline (Lokal)");
-        document.getElementById("cloudStatusLine").textContent = "Tidak terhubung ke cloud. Data tersimpan di perangkat ini.";
+        updateSyncStatus(false, "Tidak tersambung");
+        document.getElementById("cloudStatusLine").textContent = "Tidak terhubung ke cloud. Penjualan belum bisa disimpan.";
+        catalogLoadState = "error";
         renderApp();
       }
     }
@@ -1588,7 +1659,16 @@
       if (!item) return;
       const newStock = Math.max(0, Number(item.stock || 0) + delta);
       if (db) {
-        await setDoc(doc(db, ...paths("inventory", invId)), { stock: newStock }, { merge: true });
+        const ref = doc(db, ...paths("inventory", invId));
+        const publicRef = doc(db, "publicCatalog", invId);
+        await runTransaction(db, async transaction => {
+          const current = await transaction.get(ref);
+          const published = await transaction.get(publicRef);
+          if (!current.exists()) return;
+          const stock = Math.max(0, Number(current.data().stock || 0) + delta);
+          transaction.update(ref, { stock });
+          if (published.exists()) transaction.update(publicRef, { stock });
+        });
       } else {
         item.stock = newStock;
       }
@@ -1662,7 +1742,9 @@
       const name = document.getElementById("invName").value.trim();
       let code = document.getElementById("invCode").value.trim();
 
-      const stock = parseInt(document.getElementById("invStock").value) || 0;
+      const stockInput = document.getElementById("invStock");
+      const stock = parseInt(stockInput.value) || 0;
+      const stockEdited = !editId || stock !== Number(stockInput.dataset.originalStock);
       const cost = parseFloat(document.getElementById("invCost").value) || 0;
       const price = parseFloat(document.getElementById("invPrice").value) || 0;
 
@@ -1741,12 +1823,29 @@
           itemData.imagePath = result.public_id;
         }
 
-        // SIMPAN DATA BARANG KE FIREBASE
-        await setDoc(
-          doc(db, ...paths("inventory", itemId)),
-          itemData,
-          { merge: true }
-        );
+        const invRef = doc(db, ...paths("inventory", itemId));
+        const publicRef = doc(db, "publicCatalog", itemId);
+        await runTransaction(db, async transaction => {
+          const current = await transaction.get(invRef);
+          const published = await transaction.get(publicRef);
+          if (editId && !current.exists()) throw new Error("Barang sudah dihapus. Muat ulang daftar stok.");
+          const patch = { ...itemData };
+          if (current.exists()) {
+            const saved = current.data();
+            // Preserve an upload or stock movement made in another tab since this form opened.
+            if (!imageFile) {
+              patch.imageUrl = saved.imageUrl || "";
+              patch.imagePath = saved.imagePath || "";
+            }
+            const previousStock = Number(saved.stock || 0);
+            const delta = stockEdited ? stock - previousStock : 0;
+            patch.stock = stockEdited ? stock : previousStock;
+            if (delta) patch.stockEdits = [...(Array.isArray(saved.stockEdits) ? saved.stockEdits.slice(-29) : []),
+              { date: todayStr(), createdAt: patch.updatedAt, delta } ];
+          }
+          transaction.set(invRef, patch, { merge: true });
+          if (published.exists()) transaction.set(publicRef, publicProductData(patch));
+        });
 
         resetInvForm();
         showToast(imageFile ? "Barang dan foto berhasil disimpan!" : "Barang berhasil disimpan!");
@@ -1789,6 +1888,7 @@
       document.getElementById("invSize").value = item.size || "";
       document.getElementById("invColor").value = item.color || "";
       document.getElementById("invStock").value = item.stock || 0;
+      document.getElementById("invStock").dataset.originalStock = item.stock || 0;
       document.getElementById("invCost").value = item.cost || 0;
       document.getElementById("invPrice").value = item.price || 0;
       document.getElementById("btnCancelInvEdit").classList.remove("hidden");
@@ -2012,6 +2112,7 @@
       });
       document.getElementById("publishCatalog").addEventListener("click", async event => {
         if (!isAdmin || !db) return;
+        if (!window.confirm("Terbitkan nama, foto, harga, dan stok semua barang ke katalog publik?")) return;
         const button = event.currentTarget;
         button.disabled = true;
         try {
@@ -2023,11 +2124,7 @@
           if (source.size + removed.length > 500) throw new Error("Jumlah barang melampaui batas publikasi");
           for (const entry of removed) batch.delete(entry.ref);
           for (const entry of source.docs) {
-            const { name, code, size, color, price, stock, imageUrl } = entry.data();
-            batch.set(doc(db, "publicCatalog", entry.id), {
-              name: name || "", code: code || "", size: size || "", color: color || "",
-              price: Number(price) || 0, stock: Number(stock) || 0, imageUrl: imageUrl || ""
-            });
+            batch.set(doc(db, "publicCatalog", entry.id), publicProductData(entry.data()));
           }
           await batch.commit();
           showToast("Katalog publik diperbarui.");
@@ -2040,6 +2137,7 @@
     }
 
     function renderApp() {
+      renderProductCatalog();
       renderInventory();
       renderTransactions();
       renderOwnerBooks();
@@ -2231,9 +2329,92 @@
       </div>`;
     }
 
-    function renderProductCatalog(items) {
+    function catalogProductCategory(item) {
+      return /\b(senar|gitar|ukulele|bass|capo|plektrum|musik)\b/i.test(item.name || "") ? "music" : "sport";
+    }
+
+    function catalogCartProducts() {
+      const byId = new Map(publicCatalog.map(item => [item.id, item]));
+      return [...catalogCart].map(([id, line]) => ({ item: byId.get(id), line, id }));
+    }
+
+    function updateCatalogCartSummary() {
+      const lines = catalogCartProducts();
+      document.getElementById("catalogCartCount").textContent = lines.length;
+      const total = lines.reduce((sum, { item, line }) => sum + (Number(item?.price) || 0) * line.qty, 0);
+      document.getElementById("catalogCartTotal").textContent = lines.length ? `Perkiraan total: ${rp(total)}` : "";
+      const link = document.getElementById("catalogCartWhatsApp");
+      const canSend = lines.length > 0 && lines.every(({ item, line }) => Number(item?.stock) > 0 && line.qty > 0);
+      link.classList.toggle("hidden", !canSend);
+      link.classList.toggle("inline-flex", canSend);
+      if (!canSend) {
+        link.removeAttribute("href");
+        return;
+      }
+      const message = ["Halo Surya Jaya Sport, saya mau cek stok barang berikut:", ...lines.map(({ item, line }, i) => {
+        const note = line.note.trim();
+        return `${i + 1}. ${item.name}${item.code ? ` (${item.code})` : ""} × ${line.qty}${note ? ` — ${note}` : ""}`;
+      }), `Perkiraan total: ${rp(total)}. Apakah stoknya tersedia?`].join("\n");
+      link.href = catalogWhatsApp + "?" + new URLSearchParams({ text: message });
+    }
+
+    function renderCatalogCart() {
+      const lines = catalogCartProducts();
+      document.getElementById("catalogCartLines").innerHTML = lines.length
+        ? lines.map(({ item, line, id }) => `<div class="rounded-xl border border-slate-200 p-3" data-cart-line="${esc(id)}">
+            <div class="flex items-start justify-between gap-2">
+              <div><p class="font-bold">${esc(item?.name || "Barang tidak tersedia")}</p>
+              ${Number(item?.stock) > 0 ? `<p class="text-sm text-slate-600">${esc(item.code || "")} · ${rp(item.price)}</p>` : '<p class="text-sm text-rose-700">Barang tidak tersedia. Hapus untuk melanjutkan.</p>'}</div>
+              <button type="button" data-remove-cart="${esc(id)}" class="min-h-11 px-2 text-sm font-semibold text-rose-800">Hapus</button>
+            </div>
+            <div class="mt-2 grid grid-cols-[5rem_minmax(0,1fr)] gap-2">
+              <label class="text-sm font-semibold">Jumlah<input data-cart-qty type="number" min="1" step="1" max="99" value="${line.qty || ""}" class="mt-1 w-full rounded-lg border border-slate-300 p-2"></label>
+              <label class="text-sm font-semibold">Varian / catatan<input data-cart-note type="text" maxlength="100" value="${esc(line.note)}" placeholder="Contoh: hitam ukuran L" class="mt-1 w-full rounded-lg border border-slate-300 p-2"></label>
+            </div>
+          </div>`).join("")
+        : '<p class="rounded-xl bg-slate-50 p-3 text-sm text-slate-600">Keranjang masih kosong.</p>';
+      updateCatalogCartSummary();
+    }
+
+    function wireCatalogCart() {
+      const dialog = document.getElementById("catalogCart");
+      document.getElementById("openCatalogCart").addEventListener("click", () => {
+        renderCatalogCart();
+        dialog.showModal();
+      });
+      document.getElementById("productCatalogGrid").addEventListener("click", event => {
+        const button = event.target.closest("[data-add-cart]");
+        if (!button) return;
+        const id = button.dataset.addCart;
+        const item = publicCatalog.find(product => product.id === id);
+        if (!item || Number(item.stock) <= 0) return;
+        const line = catalogCart.get(id) || { qty: 0, note: "" };
+        line.qty = Math.min(99, line.qty + 1);
+        catalogCart.set(id, line);
+        updateCatalogCartSummary();
+        showToast(`${item.name || "Barang"} ditambahkan ke keranjang.`);
+      });
+      const lines = document.getElementById("catalogCartLines");
+      lines.addEventListener("click", event => {
+        const button = event.target.closest("[data-remove-cart]");
+        if (!button) return;
+        catalogCart.delete(button.dataset.removeCart);
+        renderCatalogCart();
+      });
+      lines.addEventListener("input", event => {
+        const row = event.target.closest("[data-cart-line]");
+        const line = row && catalogCart.get(row.dataset.cartLine);
+        if (!line) return;
+        if (event.target.matches("[data-cart-qty]")) line.qty = event.target.validity.valid ? Number(event.target.value) : 0;
+        if (event.target.matches("[data-cart-note]")) line.note = event.target.value;
+        updateCatalogCartSummary();
+      });
+    }
+
+    function renderProductCatalog() {
       const grid = document.getElementById("productCatalogGrid");
       if (!grid) return;
+      const items = publicCatalog;
       const search = document.getElementById("catalogSearch");
       if (CSS.supports("selector(:autofill)") && search.matches(":autofill")
           && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(search.value.trim())) {
@@ -2242,13 +2423,19 @@
       const q = search.value.trim().toLocaleLowerCase("id");
       document.getElementById("btnClearCatalogSearch").classList.toggle("hidden", !search.value);
       const inStockOnly = Boolean(document.getElementById("catalogInStockOnly")?.checked);
+      const category = document.getElementById("catalogCategory").value;
       const filtered = items.filter(item => {
         const searchable = [item.name, item.code, item.size, item.color].filter(Boolean).join(" ").toLocaleLowerCase("id");
-        return (!q || searchable.includes(q)) && (!inStockOnly || Number(item.stock || 0) > 0);
+        return (!q || searchable.includes(q)) && (!inStockOnly || Number(item.stock || 0) > 0)
+          && (category === "all" || catalogProductCategory(item) === category);
       });
       const count = document.getElementById("catalogResultCount");
       if (count) count.textContent = items.length ? `${filtered.length} produk` : "";
-      if (!items.length) { grid.innerHTML = `<div class="col-span-full rounded-xl bg-white py-10 text-center text-slate-600">Katalog sedang dimuat atau belum ada produk yang dipublikasikan.</div>`; return; }
+      if (!items.length) {
+        const status = { loading: "Katalog sedang dimuat…", ready: "Belum ada produk di katalog.", error: "Katalog gagal dimuat. Coba muat ulang halaman." };
+        grid.innerHTML = `<p class="col-span-full rounded-xl bg-white p-6 text-center text-slate-600" role="status">${status[catalogLoadState]}</p>`;
+        return;
+      }
       if (!filtered.length) { grid.innerHTML = `<div class="col-span-full rounded-xl bg-white py-10 text-center text-slate-600">Produk tidak ditemukan. Coba ubah kata pencarian atau filter stok.</div>`; return; }
       grid.innerHTML = filtered.map(item => {
         const stock = Number(item.stock || 0);
@@ -2262,10 +2449,12 @@
             <p class="text-xs text-slate-500 mt-1">${esc(item.code || "")} ${item.size ? "• " + esc(item.size) : ""} ${item.color ? "• " + esc(item.color) : ""}</p>
             <p class="text-base sm:text-lg font-extrabold text-emerald-700 mt-2">${rp(item.price)}</p>
             <span class="mt-1 inline-block w-fit rounded-lg px-2 py-1 text-xs font-bold ${stock > 0 ? "bg-emerald-50 text-emerald-800" : "bg-rose-50 text-rose-800"}">${stock > 0 ? "Stok: " + stock + " pcs" : "Stok habis"}</span>
-            <a href="${esc(whatsappUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Tanya tentang ${esc(productName)} lewat WhatsApp"
-              class="mt-auto inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-2 py-2.5 text-center text-xs font-extrabold text-white transition hover:bg-emerald-700 focus:outline-none focus:ring-4 focus:ring-emerald-200 sm:mt-3 sm:text-sm">
-              <i class="fa-brands fa-whatsapp text-base" aria-hidden="true"></i><span>Tanya stok</span>
-            </a>
+            <div class="mt-auto grid gap-2 pt-3">
+              ${stock > 0 ? `<button type="button" data-add-cart="${esc(item.id)}" class="min-h-11 rounded-xl bg-blue-800 px-2 text-sm font-bold text-white hover:bg-blue-900">Tambah ke keranjang</button>` : ""}
+              <a href="${esc(whatsappUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Tanya tentang ${esc(productName)} lewat WhatsApp" class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-emerald-200 px-2 text-sm font-bold text-emerald-800 hover:bg-emerald-50">
+                <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Tanya stok
+              </a>
+            </div>
           </div></article>`;
       }).join("");
     }
@@ -2282,10 +2471,17 @@
 
       const q = document.getElementById("invSearchInput").value.trim().toLocaleLowerCase("id");
       const missingPhotoOnly = document.getElementById("invMissingPhotoOnly").checked;
+      const followUp = document.getElementById("inventoryFollowUp").value;
+      const published = new Set(publicCatalog.map(item => item.id));
+      document.getElementById("inventoryCatalogStatus").textContent = catalogLoadState === "ready"
+        ? `${published.size} barang terbit · ${inventory.filter(item => !published.has(item.id)).length} belum terbit`
+        : "Status katalog belum tersedia.";
       document.getElementById("invMissingPhotoCount").textContent = `(${inventory.filter(item => !productImageUrl(item)).length})`;
       const filteredInv = inventory.filter(item => {
         const searchable = [item.name, item.code, item.size, item.color].filter(Boolean).join(" ").toLocaleLowerCase("id");
-        return (!q || searchable.includes(q)) && (!missingPhotoOnly || !productImageUrl(item));
+        return (!q || searchable.includes(q)) && (!missingPhotoOnly || !productImageUrl(item))
+          && (followUp !== "unpublished" || (catalogLoadState === "ready" && !published.has(item.id)))
+          && (followUp !== "no-price" || !(Number(item.price) > 0));
       });
 
       let totalUnits = 0, totalAsset = 0, lowStockCount = 0;
@@ -2302,7 +2498,6 @@
       document.getElementById("invTotalAsset").textContent = rp(totalAsset);
       document.getElementById("invLowStockCount").textContent = lowStockCount + " Barang";
       document.getElementById("invEmptyState").classList.toggle("hidden", filteredInv.length > 0);
-      renderProductCatalog(inventory);
 
       const sel = document.getElementById("restockItem");
       const cur = sel.value;
@@ -2317,6 +2512,12 @@
         const code = esc(item.code || "-"), name = esc(item.name);
         const variant = `Uk: ${esc(item.size || "Semua")} &bull; Warna: ${esc(item.color || "Semua")}`;
         const id = esc(item.id);
+        const isPublished = published.has(item.id);
+        const catalogControls = !isAdmin ? "" : `<div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs">
+          ${catalogLoadState === "ready" ? `<span class="font-semibold ${isPublished ? "text-emerald-800" : "text-slate-600"}">${isPublished ? "Tampil di katalog" : "Belum terbit"}</span>
+          <button type="button" data-publish-item="${id}" data-publish-next="${isPublished ? "hide" : "show"}" class="font-bold text-blue-800 underline underline-offset-2">${isPublished ? "Sembunyikan" : "Terbitkan"}</button>` : ""}
+          <button type="button" data-stock-history="${id}" class="font-bold text-blue-800 underline underline-offset-2">Riwayat</button>
+        </div>`;
         const addPhoto = isAdmin && !productImageUrl(item)
           ? `<button type="button" onclick="window.editInventoryItem('${id}', true)" class="mt-1 text-xs font-bold text-blue-800 underline underline-offset-2">Tambah foto</button>`
           : "";
@@ -2325,7 +2526,7 @@
         tr.className = "hover:bg-slate-50 transition border-b border-slate-200";
         tr.innerHTML = `
           <td class="py-3.5 px-3 font-mono font-bold text-xs text-blue-900">${code}</td>
-          <td class="py-3.5 px-3"><div class="flex items-center gap-3">${productImageMarkup(item, "w-12 h-12 rounded-lg shrink-0")}<div><p class="font-extrabold text-slate-900 text-base">${name}</p><p class="text-xs text-slate-600 mt-0.5">${variant}</p>${addPhoto}</div></div></td>
+          <td class="py-3.5 px-3"><div class="flex items-center gap-3">${productImageMarkup(item, "w-12 h-12 rounded-lg shrink-0")}<div><p class="font-extrabold text-slate-900 text-base">${name}</p><p class="text-xs text-slate-600 mt-0.5">${variant}</p>${addPhoto}${catalogControls}</div></div></td>
           <td class="py-3.5 px-3 text-center"><span class="inline-block px-3 py-1 rounded-xl border-2 font-extrabold text-sm ${badge}">${stock} Pcs</span></td>
           <td class="py-3.5 px-3 text-right font-medium text-slate-700">${rp(cost)}</td>
           <td class="py-3.5 px-3 text-right font-extrabold text-emerald-700">${rp(price)}</td>
@@ -2349,6 +2550,7 @@
               <h3 class="font-extrabold text-lg text-slate-900">${name}</h3>
               <p class="text-xs text-slate-600">${variant}</p>
               ${addPhoto}
+              ${catalogControls}
             </div>
             <span class="px-3 py-1 rounded-xl border-2 font-extrabold text-sm ${badge}">${stock} Pcs</span>
           </div>
@@ -2362,6 +2564,110 @@
             <button type="button" onclick="window.promptDeleteInventory('${id}')" class="py-2.5 px-3 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-900 font-extrabold text-xs cursor-pointer ${delClass}">Hapus</button>
           </div>`;
         listDiv.appendChild(card);
+      });
+    }
+
+    function openInventoryTool(title, markup) {
+      document.getElementById("inventoryToolTitle").textContent = title;
+      document.getElementById("inventoryToolContent").innerHTML = markup;
+      document.getElementById("inventoryToolStatus").textContent = "";
+      document.getElementById("inventoryToolDialog").showModal();
+    }
+
+    function showStockHistory(item) {
+      const moves = (Array.isArray(item.stockEdits) ? item.stockEdits : []).map(row => ({ ...row, label: "Koreksi stok" }));
+      purchases.filter(row => row.inventoryId === item.id).forEach(row => moves.push({ ...row, delta: Number(row.qty), label: "Pembelian" }));
+      transactions.forEach(row => {
+        const qty = (row.items || []).filter(line => line.inventoryId === item.id).reduce((sum, line) => sum + Number(line.qty || 0), 0);
+        if (qty) moves.push({ date: row.date, createdAt: row.createdAt, delta: -qty, label: "Penjualan" });
+      });
+      moves.sort((a, b) => String(b.createdAt || b.date || "").localeCompare(String(a.createdAt || a.date || "")));
+      openInventoryTool(`Riwayat: ${item.name}`, moves.length
+        ? `<ul class="divide-y divide-slate-200">${moves.map(row => `<li class="flex justify-between gap-3 py-2 text-sm">
+            <span>${esc(row.date || "")} · ${esc(row.label)}</span><strong>${row.delta > 0 ? "+" : ""}${Number(row.delta) || 0} pcs</strong>
+          </li>`).join("")}</ul>`
+        : '<p class="py-3 text-sm text-slate-600">Belum ada pergerakan stok yang tercatat.</p>');
+    }
+
+    function wireInventoryTools() {
+      document.getElementById("viewInventory").addEventListener("click", async event => {
+        if (!isAdmin || !db) return;
+        const history = event.target.closest("[data-stock-history]");
+        if (history) {
+          const item = inventory.find(row => row.id === history.dataset.stockHistory);
+          if (item) showStockHistory(item);
+          return;
+        }
+        const button = event.target.closest("[data-publish-item]");
+        if (!button) return;
+        const id = button.dataset.publishItem;
+        const show = button.dataset.publishNext === "show";
+        button.disabled = true;
+        try {
+          const publicRef = doc(db, "publicCatalog", id);
+          if (show) {
+            const inventoryRef = doc(db, ...paths("inventory", id));
+            await runTransaction(db, async transaction => {
+              const current = await transaction.get(inventoryRef);
+              if (!current.exists()) throw new Error("Barang sudah dihapus.");
+              const item = publicProductData(current.data());
+              if (!item.name || !item.code || !item.price) throw new Error("Isi nama, kode, dan harga sebelum menerbitkan.");
+              transaction.set(publicRef, item);
+            });
+          } else {
+            await deleteDoc(publicRef);
+          }
+          showToast(show ? "Barang tampil di katalog publik." : "Barang disembunyikan dari katalog.");
+        } catch (err) {
+          showToast(err.message || "Gagal memperbarui katalog.");
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      document.getElementById("openReorderList").addEventListener("click", () => {
+        if (!isAdmin) return;
+        const low = inventory.filter(item => Number(item.stock || 0) < LOW_STOCK_LIMIT)
+          .sort((a, b) => Number(a.stock || 0) - Number(b.stock || 0));
+        openInventoryTool("Daftar belanja stok", low.length
+          ? `<form id="reorderListForm" class="space-y-3"><p class="text-sm text-slate-600">Isi jumlah yang ingin dibeli, lalu salin daftar untuk supplier.</p>
+              ${low.map(item => `<label class="grid grid-cols-[minmax(0,1fr)_5rem] items-center gap-3 rounded-lg border border-slate-200 p-2 text-sm">
+                <span><strong>${esc(item.name)}</strong><br>Sisa ${Number(item.stock || 0)} pcs · ${esc(item.code || "")}</span>
+                <input name="${esc(item.id)}" type="number" inputmode="numeric" min="1" step="1" aria-label="Jumlah pembelian ${esc(item.name)}" placeholder="Jumlah" class="w-full rounded-lg border border-slate-300 p-2">
+              </label>`).join("")}
+              <button class="min-h-11 rounded-lg bg-blue-800 px-3 font-semibold text-white">Salin daftar</button>
+              <textarea id="reorderCopyFallback" rows="5" readonly hidden aria-label="Daftar belanja siap disalin" class="w-full rounded-lg border border-slate-300 p-2"></textarea></form>`
+          : '<p class="py-3 text-sm text-slate-600">Tidak ada barang dengan stok menipis.</p>');
+      });
+      document.getElementById("inventoryToolContent").addEventListener("submit", async event => {
+        if (!isAdmin || event.target.id !== "reorderListForm") return;
+        event.preventDefault();
+        const fields = new FormData(event.target);
+        const lines = inventory.filter(item => Number(fields.get(item.id)) > 0)
+          .map(item => `- ${item.name} (${item.code || "-"}) × ${fields.get(item.id)} pcs`);
+        const status = document.getElementById("inventoryToolStatus");
+        if (!lines.length) { status.textContent = "Isi jumlah barang yang akan dibeli."; return; }
+        const message = ["Halo, saya ingin memesan barang berikut:", ...lines].join("\n");
+        try {
+          await navigator.clipboard.writeText(message);
+          status.textContent = "Daftar belanja disalin.";
+        } catch {
+          const field = document.getElementById("reorderCopyFallback");
+          field.value = message;
+          field.hidden = false;
+          field.select();
+          status.textContent = "Salin teks daftar belanja di atas.";
+        }
+      });
+      document.getElementById("copyWhatsAppGreeting").addEventListener("click", async () => {
+        if (!isAdmin) return;
+        const message = "Halo! Terima kasih sudah menghubungi Surya Jaya Sport. Kirim nama atau kode barang, jumlah, dan varian yang dicari. Kami akan cek stok dan balas secepatnya. Katalog: https://suryajaya-sport.github.io/";
+        try {
+          await navigator.clipboard.writeText(message);
+          showToast("Pesan disalin. Tempel di WhatsApp Business → Pesan salam.");
+        } catch {
+          openInventoryTool("Pesan sambutan WhatsApp", `<textarea readonly rows="6" class="w-full rounded-lg border border-slate-300 p-2">${esc(message)}</textarea>`);
+        }
       });
     }
 
@@ -2451,8 +2757,7 @@
       const mainNavigation = document.getElementById("mainNavigation");
       document.getElementById("tabBtnKasir").classList.toggle("hidden", !isAdmin);
       document.getElementById("tabBtnInventory").classList.toggle("hidden", !isAdmin);
-      mainNavigation.classList.toggle("sm:grid-cols-3", isAdmin);
-      mainNavigation.classList.toggle("sm:grid-cols-1", !isAdmin);
+      mainNavigation.hidden = !isAdmin;
       document.getElementById("syncStatusBadge").classList.toggle("hidden", !isAdmin);
       document.getElementById("currentDateBadge").classList.toggle("hidden", !isAdmin);
       document.getElementById("editShopIcon").classList.toggle("hidden", !isAdmin);
@@ -2480,6 +2785,9 @@
         document.getElementById("viewCatalog").classList.remove("hidden");
         document.getElementById("viewKasir").classList.add("hidden");
         document.getElementById("viewInventory").classList.add("hidden");
+        document.getElementById("viewBooks").classList.add("hidden");
+        document.getElementById("inventoryToolDialog").close();
+        document.getElementById("inventoryToolContent").replaceChildren();
       }
       renderApp();
     }
@@ -2530,10 +2838,13 @@
         await runTransaction(db, async transaction => {
           const current = await transaction.get(product);
           if (!current.exists()) throw new Error("Barang tidak ditemukan");
+          const publicRef = doc(db, "publicCatalog", invId);
+          const published = await transaction.get(publicRef);
           transaction.set(record, purchase);
           const patch = { stock: Number(current.data().stock || 0) + qty };
           if (unitCost > 0) patch.cost = unitCost;
           transaction.update(product, patch);
+          if (published.exists()) transaction.update(publicRef, { stock: patch.stock });
         });
         document.getElementById("restockSupplier").value = "";
         document.getElementById("restockInvoice").value = "";        document.getElementById("restockQty").value = "";
@@ -2597,7 +2908,9 @@
       document.getElementById("tabBtnCatalog").addEventListener("click", () => switchTab("catalog"));
       document.getElementById("tabBtnKasir").addEventListener("click", () => switchTab("kasir"));
       document.getElementById("tabBtnInventory").addEventListener("click", () => switchTab("inventory"));
+      document.getElementById("tabBtnBooks").addEventListener("click", () => switchTab("books"));
       function switchTab(tab) {
+        if (!isAdmin && tab !== "catalog") return;
         const on = "py-3.5 sm:py-4 px-4 rounded-xl font-extrabold text-base sm:text-lg bg-blue-800 text-white shadow-md flex items-center justify-center gap-2.5 transition cursor-pointer";
         const off = "py-3.5 sm:py-4 px-4 rounded-xl font-extrabold text-base sm:text-lg text-slate-700 bg-slate-100 hover:bg-slate-200 flex items-center justify-center gap-2.5 transition cursor-pointer";
         const catalog = tab === "catalog";
@@ -2605,15 +2918,19 @@
         document.getElementById("tabBtnCatalog").className = catalog ? on : off;
         document.getElementById("tabBtnKasir").className = kasir ? on : off;
         document.getElementById("tabBtnInventory").className = tab === "inventory" ? on : off;
+        document.getElementById("tabBtnBooks").className = tab === "books" ? on : off;
         document.getElementById("tabBtnCatalog").setAttribute("aria-current", catalog ? "page" : "false");
         document.getElementById("tabBtnKasir").setAttribute("aria-current", kasir ? "page" : "false");
         document.getElementById("tabBtnInventory").setAttribute("aria-current", tab === "inventory" ? "page" : "false");
+        document.getElementById("tabBtnBooks").setAttribute("aria-current", tab === "books" ? "page" : "false");
         document.getElementById("viewCatalog").classList.toggle("hidden", !catalog);
         document.getElementById("viewKasir").classList.toggle("hidden", !kasir);
         document.getElementById("viewInventory").classList.toggle("hidden", tab !== "inventory");
+        document.getElementById("viewBooks").classList.toggle("hidden", tab !== "books");
         if (kasir) renderTransactions();
         else if (tab === "inventory") renderInventory();
-        else renderProductCatalog(isAdmin ? inventory : publicCatalog);
+        else if (tab === "books") renderOwnerBooks();
+        else renderProductCatalog();
       }
 
       document.getElementById("btnAddItemRow").addEventListener("click", () => addSaleItemRow());
@@ -2685,8 +3002,11 @@
       document.getElementById("filterPayment").addEventListener("change", renderTransactions);
       document.getElementById("invSearchInput").addEventListener("input", renderInventory);
       document.getElementById("invMissingPhotoOnly").addEventListener("change", renderInventory);
+      document.getElementById("inventoryFollowUp").addEventListener("change", renderInventory);
+      wireInventoryTools();
+      wireCatalogCart();
       const catalogSearch = document.getElementById("catalogSearch");
-      const refreshCatalog = () => renderProductCatalog(isAdmin ? inventory : publicCatalog);
+      const refreshCatalog = renderProductCatalog;
       const resetInitialCatalogSearch = () => {
         catalogSearch.value = "";
         refreshCatalog();
@@ -2706,6 +3026,7 @@
         catalogSearch.focus();
       });
       document.getElementById("catalogInStockOnly").addEventListener("change", refreshCatalog);
+      document.getElementById("catalogCategory").addEventListener("change", refreshCatalog);
       document.getElementById("invImageFile").addEventListener("change", event => {
         const file = event.target.files?.[0];
         const wrap = document.getElementById("invImagePreviewWrap");
@@ -2814,7 +3135,12 @@
         if (!deleteTargetId) return;
         try {
           if (deleteTargetType === "inventory") {
-            if (db) await deleteDoc(doc(db, ...paths("inventory", deleteTargetId)));
+            if (db) {
+              const batch = writeBatch(db);
+              batch.delete(doc(db, ...paths("inventory", deleteTargetId)));
+              batch.delete(doc(db, "publicCatalog", deleteTargetId));
+              await batch.commit();
+            }
             else inventory = inventory.filter(i => i.id !== deleteTargetId);
           } else {
             const tx = transactions.find(t => t.id === deleteTargetId);
