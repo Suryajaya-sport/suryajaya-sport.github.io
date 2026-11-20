@@ -135,7 +135,34 @@
     </nav>
 
     <!-- VIEW 1: KASIR -->
-    <div id="viewKasir" class="space-y-5 sm:space-y-6">
+    <div id="viewKasir" class="space-y-5 sm:space-y-6"><section id="ownerBooks" class="hidden no-print rounded-2xl bg-white p-5 space-y-5 shadow">
+  <h2 class="text-xl font-extrabold">Pembukuan Pemilik</h2>
+  <label>Bulan laporan <input type="month" id="bookMonth" class="border rounded p-2"></label>
+  <dl id="ownerMonthlyReport" class="grid gap-2 sm:grid-cols-2"></dl>
+  <form id="expenseForm" class="border-t pt-3 space-y-2">
+    <h3 class="font-bold">Catat pengeluaran</h3>
+    <label>Tanggal <input name="date" type="date" required></label>
+    <label>Kategori <input name="category" placeholder="Contoh: listrik" maxlength="80" required class="border p-2"></label>
+    <label>Nominal <input name="amount" type="number" min="1" step="1" required class="border p-2"></label>
+    <label>Cara bayar <select name="method" class="border p-2"><option>Cash</option><option>Transfer</option><option>Kartu</option></select></label>
+    <button class="bg-blue-800 text-white rounded p-2">Simpan pengeluaran</button>
+  </form>
+  <ul id="expenseList" class="space-y-1"></ul>
+  <form id="cashClosingForm" class="border-t pt-3 space-y-2">
+    <h3 class="font-bold">Tutup kas harian</h3>
+    <label>Tanggal <input name="date" type="date" required></label>
+    <label>Saldo awal <input name="opening" type="number" min="0" step="1" required class="border p-2"></label>
+    <label>Kas masuk lainnya <input name="cashIn" type="number" min="0" step="1" value="0" required class="border p-2"></label>
+    <label>Kas keluar lainnya <input name="cashOut" type="number" min="0" step="1" value="0" required class="border p-2"></label>
+    <label>Uang fisik <input name="counted" type="number" min="0" step="1" required class="border p-2"></label>
+    <p class="text-sm">Isi arus kas lainnya untuk setoran, penarikan, atau pembelian tunai yang belum tercatat di buku pengeluaran.</p>
+    <p id="cashClosingSummary" aria-live="polite"></p>
+    <button class="bg-blue-800 text-white rounded p-2">Simpan tutup kas</button>
+  </form>
+  <details><summary>Riwayat pembelian bulan terpilih</summary><ul id="ownerPurchaseHistory" class="mt-2 space-y-1"></ul></details>
+  <button id="backUpBooks" type="button" class="border rounded p-2">Unduh cadangan JSON</button>
+  <button id="publishCatalog" type="button" class="border rounded p-2">Perbarui katalog publik</button>
+</section>
 
       <section id="readOnlyBannerKasir" class="bg-amber-50 border-2 border-amber-400 rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm no-print">
         <div class="flex items-start sm:items-center gap-3.5">
@@ -143,9 +170,9 @@
             <i class="fa-solid fa-eye"></i>
           </div>
           <div>
-            <p class="text-base sm:text-lg font-extrabold text-slate-900">Layar Sedang dalam Mode Lihat Laporan</p>
+            <p class="text-base sm:text-lg font-extrabold text-slate-900">Laporan Toko Memerlukan Login</p>
             <p class="text-sm sm:text-base text-slate-700 mt-0.5 leading-relaxed">
-              Anda bebas melihat hasil penjualan, <strong>mencetak ulang nota</strong>, dan cek sisa stok. Untuk mencatat penjualan baru (manual maupun via AI), buka kunci admin di samping.
+              Masuk sebagai pemilik untuk melihat laporan dan mencatat penjualan.
             </p>
           </div>
         </div>
@@ -240,7 +267,7 @@
                 <p id="previewTotalOmset" class="text-2xl sm:text-3xl font-extrabold text-slate-900 tabular-nums mt-0.5">Rp 0</p>
               </div>
               <div>
-                <span class="block text-xs sm:text-sm font-bold uppercase text-emerald-800">Keuntungan Bersih:</span>
+                <span class="block text-xs sm:text-sm font-bold uppercase text-emerald-800">Laba Kotor:</span>
                 <p id="previewTotalProfit" class="text-2xl sm:text-3xl font-extrabold text-emerald-700 tabular-nums mt-0.5">Rp 0</p>
               </div>
             </div>
@@ -324,7 +351,7 @@
             <div class="w-10 h-10 rounded-xl bg-white/20 text-white flex items-center justify-center shrink-0 text-lg"><i class="fa-solid fa-sack-dollar"></i></div>
           </div>
           <p id="totalUntung" class="text-2xl sm:text-3xl font-extrabold mt-2 tabular-nums break-words">Rp 0</p>
-          <p class="text-sm text-emerald-100 font-semibold mt-1">Laba bersih siap ditabung</p>
+          <p class="text-sm text-emerald-100 font-semibold mt-1">Penjualan dikurangi harga pokok barang terjual</p>
         </div>
         <div id="cardProductBreakdown" title="Klik untuk melihat rincian terjual per barang"
           class="bg-indigo-50/70 hover:bg-indigo-100/80 p-4 sm:p-5 rounded-2xl border-2 border-indigo-300 shadow-sm cursor-pointer transition group">
@@ -516,7 +543,7 @@
           </div>
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <p class="text-xs text-slate-500">Stok bertambah otomatis. Harga modal barang ikut diperbarui ke harga beli per pcs terakhir.</p>
-            <button type="button" id="btnSaveRestock" class="px-6 py-3.5 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-base cursor-pointer">SIMPAN PEMBELIAN</button>
+            <label class="block">Supplier <input id="restockSupplier" class="border rounded p-2" maxlength="120"></label><label class="block">Nomor nota <input id="restockInvoice" class="border rounded p-2" maxlength="80"></label><button type="button" id="btnSaveRestock" class="px-6 py-3.5 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-base cursor-pointer">SIMPAN PEMBELIAN</button>
           </div>
         </div>
       </section>
@@ -660,46 +687,18 @@
         <button type="button" id="btnCloseAdminModal" class="px-3.5 py-2 rounded-xl bg-white/20 hover:bg-white/30 font-extrabold text-sm cursor-pointer">Tutup</button>
       </div>
 
-      <div id="adminLoginPanel" class="p-5 space-y-4">
-        <p id="adminPinHint" class="text-sm sm:text-base text-slate-700 font-medium leading-relaxed">
-          Masukkan <strong>PIN Admin</strong> memakai tombol angka di bawah ini:
-        </p>
-        <input type="password" id="adminPinInput" inputmode="numeric" placeholder="Ketik / Tekan Angka PIN"
-          class="w-full px-4 py-3.5 bg-slate-100 border-2 border-slate-400 rounded-2xl text-center text-2xl font-extrabold tracking-widest text-slate-900 focus:outline-none focus:border-blue-700">
-        <div class="grid grid-cols-3 gap-2">
-          <button type="button" data-digit="1" class="pin-keypad-btn py-3.5 rounded-xl bg-slate-100 hover:bg-blue-100 border border-slate-300 text-xl font-extrabold text-slate-900 cursor-pointer">1</button>
-          <button type="button" data-digit="2" class="pin-keypad-btn py-3.5 rounded-xl bg-slate-100 hover:bg-blue-100 border border-slate-300 text-xl font-extrabold text-slate-900 cursor-pointer">2</button>
-          <button type="button" data-digit="3" class="pin-keypad-btn py-3.5 rounded-xl bg-slate-100 hover:bg-blue-100 border border-slate-300 text-xl font-extrabold text-slate-900 cursor-pointer">3</button>
-          <button type="button" data-digit="4" class="pin-keypad-btn py-3.5 rounded-xl bg-slate-100 hover:bg-blue-100 border border-slate-300 text-xl font-extrabold text-slate-900 cursor-pointer">4</button>
-          <button type="button" data-digit="5" class="pin-keypad-btn py-3.5 rounded-xl bg-slate-100 hover:bg-blue-100 border border-slate-300 text-xl font-extrabold text-slate-900 cursor-pointer">5</button>
-          <button type="button" data-digit="6" class="pin-keypad-btn py-3.5 rounded-xl bg-slate-100 hover:bg-blue-100 border border-slate-300 text-xl font-extrabold text-slate-900 cursor-pointer">6</button>
-          <button type="button" data-digit="7" class="pin-keypad-btn py-3.5 rounded-xl bg-slate-100 hover:bg-blue-100 border border-slate-300 text-xl font-extrabold text-slate-900 cursor-pointer">7</button>
-          <button type="button" data-digit="8" class="pin-keypad-btn py-3.5 rounded-xl bg-slate-100 hover:bg-blue-100 border border-slate-300 text-xl font-extrabold text-slate-900 cursor-pointer">8</button>
-          <button type="button" data-digit="9" class="pin-keypad-btn py-3.5 rounded-xl bg-slate-100 hover:bg-blue-100 border border-slate-300 text-xl font-extrabold text-slate-900 cursor-pointer">9</button>
-          <button type="button" id="btnPinClear" class="py-3.5 rounded-xl bg-rose-100 hover:bg-rose-200 border border-rose-300 text-sm font-extrabold text-rose-900 cursor-pointer">Hapus Semua</button>
-          <button type="button" data-digit="0" class="pin-keypad-btn py-3.5 rounded-xl bg-slate-100 hover:bg-blue-100 border border-slate-300 text-xl font-extrabold text-slate-900 cursor-pointer">0</button>
-          <button type="button" id="btnPinBackspace" class="py-3.5 rounded-xl bg-amber-100 hover:bg-amber-200 border border-amber-300 text-sm font-extrabold text-amber-950 cursor-pointer">&larr; Hapus 1</button>
-        </div>
-        <button type="button" id="btnSubmitAdminPin" class="w-full py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-lg shadow-md cursor-pointer">
-          Buka Akses Admin Sekarang
-        </button>
-      </div>
-
-      <div id="adminActivePanel" class="hidden p-5 space-y-4">
+      <form id="adminLoginPanel" class="p-5 space-y-4">
+<label class="block">Email pemilik<input id="ownerEmail" type="email" autocomplete="username" required class="block w-full border rounded p-2"></label>
+<label class="block">Kata sandi<input id="ownerPassword" type="password" autocomplete="current-password" required class="block w-full border rounded p-2"></label>
+<label class="block"><input id="rememberDevice" type="checkbox"> Ingat perangkat ini</label>
+<button class="w-full rounded-xl bg-emerald-700 p-3 font-bold text-white">Masuk</button>
+</form><div id="adminActivePanel" class="hidden p-5 space-y-4">
         <div class="bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-4 text-sm text-emerald-950">
           <p class="font-extrabold text-base"><i class="fa-solid fa-circle-check text-emerald-600 mr-1.5"></i> Mode Admin Sedang Aktif</p>
           <p class="mt-1">Anda bebas mencatat penjualan (manual maupun lewat chat AI), mengubah stok, dan menghapus transaksi.</p>
         </div>
-        <div class="space-y-2 pt-2 border-t border-slate-200">
-          <label class="block text-sm font-extrabold text-slate-800">Ganti PIN Admin Baru (Tersimpan ke Cloud):</label>
-          <div class="flex gap-2">
-            <input type="password" id="newAdminPinInput" inputmode="numeric" placeholder="PIN baru (min. 4 angka)"
-              class="flex-1 px-3.5 py-3 bg-slate-50 border-2 border-slate-300 rounded-xl font-bold">
-            <button type="button" id="btnChangeAdminPin" class="px-4 py-3 rounded-xl bg-blue-800 hover:bg-blue-900 text-white font-extrabold text-sm cursor-pointer">Simpan PIN</button>
-          </div>
-        </div>
         <button type="button" id="btnLockToReadOnly" class="w-full py-4 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-base flex items-center justify-center gap-2 shadow-sm cursor-pointer">
-          <i class="fa-solid fa-lock"></i><span>Kunci Layar ke Mode Lihat Saja</span>
+          <i class="fa-solid fa-lock"></i><span>Keluar dari Admin</span>
         </button>
       </div>
     </div>
@@ -855,7 +854,7 @@
       <div class="p-5 space-y-4">
         <div id="cloudStatusBox" class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 text-xs text-emerald-900 space-y-1">
           <p class="font-extrabold"><i class="fa-solid fa-circle-check text-emerald-600 mr-1"></i> <span id="cloudStatusLine">Memeriksa koneksi...</span></p>
-          <p>Seluruh data transaksi, stok barang, PIN Admin, API Key Gemini, dan Kode QRIS otomatis tersinkronisasi antara HP dan Windows.</p>
+          <p>Seluruh data transaksi, stok barang, pengeluaran, dan catatan kas otomatis tersinkronisasi antara HP dan Windows.</p>
         </div>
         <button type="button" id="btnDownloadConfiguredHtml" class="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm flex items-center justify-center gap-2 cursor-pointer">
           <i class="fa-solid fa-file-arrow-down"></i><span>Unduh File HTML Terbaru</span>
@@ -943,8 +942,8 @@
   </div>
 
   <script type="module">
-    let initializeApp, getApps, getAuth, signInAnonymously, getFirestore;
-    let doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc;
+    let initializeApp, getApps, getFirestore;
+    let doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc, getDocs, getDocsFromServer, writeBatch, runTransaction;
     let getStorage, storageRef, uploadBytes, getDownloadURL, storage = null;
 
     const EMBEDDED_FIREBASE_CONFIG = {
@@ -965,7 +964,10 @@
     let db = null;
     let shopName = "Surya Jaya Sport";
     let isAdmin = false;
-    let adminPin = null;
+    const OWNER_UID = "ijWilxxrxRabwOX7KcndkuqrBOw1";
+    let auth, firebaseAuth;
+    let unsubscribe = [];
+    const books = { expenses: [], cashClosings: [] };
     let savedQrisPayload = QRIS_DEFAULT_PAYLOAD;
     let cloudGeminiApiKey = localStorage.getItem("sjs_gemini_api_key") || "";
 
@@ -1029,10 +1031,12 @@
 
     // --- JEMBATAN DATA & AKSI UNTUK ASISTEN AI ---
     window.sjsGetApiKey = function () {
+      if (!isAdmin) return "";
       return cloudGeminiApiKey || localStorage.getItem("sjs_gemini_api_key") || "";
     };
 
     window.sjsSaveApiKey = async function (newKey) {
+      if (!isAdmin) return false;
       const clean = String(newKey || "").trim();
       if (!clean) return false;
       cloudGeminiApiKey = clean;
@@ -1250,40 +1254,59 @@
           import("https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js")
         ]);
         ({ initializeApp, getApps } = appM);
-        ({ getAuth, signInAnonymously } = authM);
-        ({ getFirestore, doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc } = fsM);
+        firebaseAuth = authM;
+        ({ getFirestore, doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc, getDocs, getDocsFromServer, writeBatch, runTransaction } = fsM);
         ({ getStorage, ref: storageRef, uploadBytes, getDownloadURL } = storageM);
         const app = getApps().length ? getApps()[0] : initializeApp(EMBEDDED_FIREBASE_CONFIG);
-        const auth = getAuth(app);
+        auth = authM.getAuth(app);
         db = getFirestore(app);
         storage = getStorage(app);
-        await signInAnonymously(auth);
-
-        const cfgSnap = await getDoc(doc(db, ...paths("settings", "config")));
-        applyConfig(cfgSnap.exists() ? cfgSnap.data() : {});
-
-        onSnapshot(doc(db, ...paths("settings", "config")), snap => {
-          applyConfig(snap.exists() ? snap.data() : {});
-        });
-        onSnapshot(collection(db, ...paths("inventory")), snap => {
+        authM.onAuthStateChanged(auth, user => {
+          unsubscribe.forEach(stop => stop());
+          unsubscribe = [];
+          isAdmin = Boolean(user && user.uid === OWNER_UID);
           inventory = [];
-          snap.forEach(d => inventory.push({ id: d.id, ...d.data() }));
-          renderApp();
-        });
-        onSnapshot(collection(db, ...paths("transactions")), snap => {
           transactions = [];
-          snap.forEach(d => transactions.push({ id: d.id, ...d.data() }));
-          renderApp();
-        });
-        onSnapshot(collection(db, ...paths("purchases")), snap => {
           purchases = [];
-          snap.forEach(d => purchases.push({ id: d.id, ...d.data() }));
-          renderApp();
-        });
-
-        updateSyncStatus(true, "Cloud Online");
-        document.getElementById("cloudStatusLine").textContent = "Terhubung ke Firebase: suryajayasport-3fd5e";
-      } catch (err) {
+          books.expenses = [];
+          books.cashClosings = [];
+          if (!isAdmin) {
+            cloudGeminiApiKey = "";
+            try { localStorage.removeItem("sjs_gemini_api_key"); } catch {}
+            setShopName("Surya Jaya Sport");
+            savedQrisPayload = QRIS_DEFAULT_PAYLOAD;
+            for (const id of ["receiptPreviewBody", "receiptPrintSheet", "dailyRecapList"]) {
+              document.getElementById(id).replaceChildren();
+            }
+          }
+    
+          updateAdminUI();
+          const failed = () => updateSyncStatus(false, "Akses cloud gagal");
+          function watch(name, assign) {
+            unsubscribe.push(onSnapshot(collection(db, ...paths(name)), snap => {
+              assign(snap.docs.map(entry => ({ ...entry.data(), id: entry.id })));
+              renderApp();
+            }, failed));
+          }
+          if (!isAdmin) {
+            unsubscribe.push(onSnapshot(collection(db, "publicCatalog"), snap => {
+              renderProductCatalog(snap.docs.map(entry => ({ ...entry.data(), id: entry.id })));
+            }, failed));
+            document.getElementById("cloudStatusLine").textContent = "Masuk untuk mengakses pembukuan.";
+            updateSyncStatus(true, "Katalog publik");
+            return;
+          }
+          document.getElementById("cloudStatusLine").textContent = "Sesi pemilik aktif.";
+          watch("inventory", rows => { inventory = rows; });
+          watch("transactions", rows => { transactions = rows; });
+          watch("purchases", rows => { purchases = rows; });
+          watch("expenses", rows => { books.expenses = rows; });
+          watch("cashClosings", rows => { books.cashClosings = rows; });
+          unsubscribe.push(onSnapshot(doc(db, ...paths("settings", "config")), snap => {
+            applyConfig(snap.data() || {});
+          }, failed));
+          updateSyncStatus(true, "Cloud Online");
+        });      } catch (err) {
         console.warn("Firebase init gagal:", err);
         db = null;
         updateSyncStatus(false, "Mode Offline (Lokal)");
@@ -1293,10 +1316,9 @@
     }
 
     function applyConfig(data) {
-      if (data.adminPin) adminPin = String(data.adminPin);
       if (data.shopName) setShopName(data.shopName);
       if (data.qrisPayload) savedQrisPayload = data.qrisPayload;
-      if (data.geminiApiKey) {
+      if (isAdmin && data.geminiApiKey) {
         cloudGeminiApiKey = String(data.geminiApiKey);
         localStorage.setItem("sjs_gemini_api_key", cloudGeminiApiKey);
       }
@@ -1440,6 +1462,7 @@
     }
 
     async function saveSale(printAfterSave = false) {
+      if (!db || !isAdmin) return showToast("Masuk ke akun pemilik terlebih dahulu.");
       const rows = document.querySelectorAll("#saleItemsContainer > div");
       const itemsToSave = [];
       let totalOmset = 0, totalModal = 0;
@@ -1722,9 +1745,172 @@
       showToast("QRIS berhasil disimpan!");
     }
 
+    function cashSnapshot(form) {
+      const fields = new FormData(form);
+      const date = fields.get("date");
+      const sales = transactions.filter(row => row.date === date && row.paymentMethod === "Cash")
+        .reduce((sum, row) => sum + Number(row.totalOmset || 0), 0);
+      const expenses = books.expenses.filter(row => row.date === date && row.method === "Cash")
+        .reduce((sum, row) => sum + row.amount, 0);
+      const opening = Number(fields.get("opening"));
+      const cashIn = Number(fields.get("cashIn"));
+      const cashOut = Number(fields.get("cashOut"));
+      const counted = Number(fields.get("counted"));
+      const expected = opening + sales + cashIn - expenses - cashOut;
+      return { date, opening, sales, expenses, cashIn, cashOut, counted, expected, difference: counted - expected };
+    }
+
+    function renderOwnerBooks() {
+      const section = document.getElementById("ownerBooks");
+      section.classList.toggle("hidden", !isAdmin);
+      const report = document.getElementById("ownerMonthlyReport");
+      const expenseList = document.getElementById("expenseList");
+      const summary = document.getElementById("cashClosingSummary");
+      const purchaseHistory = document.getElementById("ownerPurchaseHistory");
+      purchaseHistory.replaceChildren();
+      report.replaceChildren();
+      expenseList.replaceChildren();
+      summary.textContent = "";
+      if (!isAdmin) return;
+      const month = document.getElementById("bookMonth").value;
+      const sales = transactions.filter(row => month && row.date?.startsWith(month + "-"));
+      const expenses = books.expenses.filter(row => month && row.date?.startsWith(month + "-"));
+      const revenue = sales.reduce((sum, row) => sum + Number(row.totalOmset || 0), 0);
+      const cost = sales.reduce((sum, row) => sum + Number(row.totalModal || 0), 0);
+      const spending = expenses.reduce((sum, row) => sum + row.amount, 0);
+      for (const [label, amount] of Object.entries({
+        Penjualan: revenue, HPP: cost, "Laba kotor": revenue - cost,
+        Pengeluaran: spending, "Laba usaha": revenue - cost - spending
+      })) {
+        const line = document.createElement("div");
+        const title = document.createElement("dt");
+        const value = document.createElement("dd");
+        title.textContent = label;
+        value.textContent = rp(amount);
+        line.append(title, value);
+        report.append(line);
+      }
+      for (const row of expenses.sort((a, b) => b.date.localeCompare(a.date))) {
+        const item = document.createElement("li");
+        item.textContent = [row.date, row.category, row.method, rp(row.amount)].join(" · ");
+        expenseList.append(item);
+      }
+      for (const row of purchases.filter(entry => month && entry.date?.startsWith(month + "-"))
+        .sort((a, b) => b.date.localeCompare(a.date))) {
+        const item = document.createElement("li");
+        item.textContent = [row.date, row.name, row.qty + " pcs", rp(row.totalCost),
+          row.supplier, row.invoice].filter(Boolean).join(" · ");
+        purchaseHistory.append(item);
+      }
+      const form = document.getElementById("cashClosingForm");
+      const live = cashSnapshot(form);
+      const saved = books.cashClosings.find(row => row.id === live.date);
+      summary.textContent = "Seharusnya ada " + rp(live.expected) + " · Selisih " + rp(live.difference);
+      if (saved) summary.textContent += " · Selisih tersimpan " + rp(saved.difference);
+    }
+
+    function wireOwnerBooks() {
+      const month = document.getElementById("bookMonth");
+      const expense = document.getElementById("expenseForm");
+      const closing = document.getElementById("cashClosingForm");
+      month.value = todayStr().slice(0, 7);
+      expense.elements.date.value = closing.elements.date.value = todayStr();
+      month.addEventListener("change", renderOwnerBooks);
+      closing.addEventListener("input", renderOwnerBooks);
+      function saveForm(form, save) {
+        form.addEventListener("submit", async event => {
+          event.preventDefault();
+          if (!db || !isAdmin) return;
+          const button = form.querySelector("button");
+          button.disabled = true;
+          try {
+            await save();
+            showToast("Catatan tersimpan.");
+          } catch {
+            showToast("Gagal menyimpan catatan. Periksa akses cloud.");
+          } finally {
+            button.disabled = false;
+          }
+        });
+      }
+      saveForm(expense, async () => {
+        const fields = new FormData(expense);
+        const category = fields.get("category").trim();
+        const amount = Number(fields.get("amount"));
+        if (!category || !Number.isSafeInteger(amount) || amount <= 0) throw new Error("Data tidak valid");
+        await addDoc(collection(db, ...paths("expenses")), {
+          date: fields.get("date"), category, amount, method: fields.get("method"),
+          createdAt: new Date().toISOString()
+        });
+        expense.elements.category.value = "";
+        expense.elements.amount.value = "";
+      });
+      saveForm(closing, async () => {
+        const snapshot = cashSnapshot(closing);
+        const target = doc(db, ...paths("cashClosings", snapshot.date));
+        await runTransaction(db, async transaction => {
+          if ((await transaction.get(target)).exists()) throw new Error("Hari sudah ditutup");
+          transaction.set(target, { ...snapshot, createdAt: new Date().toISOString() });
+        });
+      });
+      document.getElementById("backUpBooks").addEventListener("click", async event => {
+        if (!isAdmin || !db) return;
+        const button = event.currentTarget;
+        button.disabled = true;
+        try {
+          const names = ["inventory", "transactions", "purchases", "expenses", "cashClosings"];
+          const entries = await Promise.all(names.map(async name => {
+            const snapshot = await getDocsFromServer(collection(db, ...paths(name)));
+            return [name, snapshot.docs.map(row => ({ ...row.data(), id: row.id }))];
+          }));
+          const blob = new Blob([JSON.stringify({
+            version: 1, exportedAt: new Date().toISOString(), ...Object.fromEntries(entries)
+          }, null, 2)], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = "cadangan-sjs-" + todayStr() + ".json";
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+        } catch {
+          showToast("Cadangan gagal. Periksa koneksi cloud.");
+        } finally {
+          button.disabled = false;
+        }
+      });
+      document.getElementById("publishCatalog").addEventListener("click", async event => {
+        if (!isAdmin || !db) return;
+        const button = event.currentTarget;
+        button.disabled = true;
+        try {
+          const source = await getDocs(collection(db, ...paths("inventory")));
+          const published = await getDocs(collection(db, "publicCatalog"));
+          const ids = new Set(source.docs.map(entry => entry.id));
+          const batch = writeBatch(db);
+          const removed = published.docs.filter(entry => !ids.has(entry.id));
+          if (source.size + removed.length > 500) throw new Error("Jumlah barang melampaui batas publikasi");
+          for (const entry of removed) batch.delete(entry.ref);
+          for (const entry of source.docs) {
+            const { name, code, size, color, price, stock, imageUrl } = entry.data();
+            batch.set(doc(db, "publicCatalog", entry.id), {
+              name: name || "", code: code || "", size: size || "", color: color || "",
+              price: Number(price) || 0, stock: Number(stock) || 0, imageUrl: imageUrl || ""
+            });
+          }
+          await batch.commit();
+          showToast("Katalog publik diperbarui.");
+        } catch {
+          showToast("Gagal memperbarui katalog publik.");
+        } finally {
+          button.disabled = false;
+        }
+      });
+    }
+
     function renderApp() {
       renderInventory();
       renderTransactions();
+      renderOwnerBooks();
     }
 
     // Ambil foto dari transaksi jika sudah tersimpan; untuk penjualan lama,
@@ -2073,10 +2259,7 @@
       document.getElementById("adminAuthModal").classList.remove("hidden");
       document.getElementById("adminLoginPanel").classList.toggle("hidden", isAdmin);
       document.getElementById("adminActivePanel").classList.toggle("hidden", !isAdmin);
-      document.getElementById("adminPinInput").value = "";
-      document.getElementById("adminPinHint").innerHTML = adminPin === null
-        ? `<strong>Belum ada PIN Admin.</strong> Buat PIN baru (minimal 4 angka) untuk pertama kali.`
-        : `Masukkan <strong>PIN Admin</strong> memakai tombol angka di bawah ini:`;
+      document.getElementById("ownerPassword").value = "";
     }
 
     function updateAdminUI() {
@@ -2102,35 +2285,33 @@
       renderApp();
     }
 
-    function pinKeypadPress(digit) {
-      const inp = document.getElementById("adminPinInput");
-      if (inp.value.length < 12) inp.value += digit;
-    }
-
-    async function submitPin() {
-      const val = document.getElementById("adminPinInput").value.trim();
-      if (adminPin === null) {
-        if (val.length < 4) { showToast("PIN minimal 4 angka!"); return; }
-        adminPin = val;
-        await saveConfig({ adminPin });
-        isAdmin = true;
+    async function loginOwner(event) {
+      event.preventDefault();
+      if (!auth) return showToast("Firebase belum siap.");
+      const form = event.currentTarget;
+      const button = form.querySelector("button");
+      button.disabled = true;
+      try {
+        const remember = document.getElementById("rememberDevice").checked;
+        await firebaseAuth.setPersistence(auth, remember
+          ? firebaseAuth.browserLocalPersistence : firebaseAuth.browserSessionPersistence);
+        const session = await firebaseAuth.signInWithEmailAndPassword(auth,
+          document.getElementById("ownerEmail").value.trim(),
+          document.getElementById("ownerPassword").value);
+        if (session.user.uid !== OWNER_UID) {
+          await firebaseAuth.signOut(auth);
+          return showToast("Akun ini tidak memiliki akses pemilik.");
+        }
         document.getElementById("adminAuthModal").classList.add("hidden");
-        updateAdminUI();
-        showToast("PIN Admin dibuat. Mode Admin aktif.");
-        return;
-      }
-      if (val === adminPin) {
-        isAdmin = true;
-        document.getElementById("adminAuthModal").classList.add("hidden");
-        updateAdminUI();
-        showToast("Mode Admin berhasil dibuka");
-      } else {
-        showToast("PIN salah! Coba lagi.");
-        document.getElementById("adminPinInput").value = "";
+      } catch {
+        showToast("Login gagal. Periksa email, kata sandi, dan pengaturan Firebase.");
+      } finally {
+        document.getElementById("ownerPassword").value = "";
+        button.disabled = false;
       }
     }
-
     async function saveRestock() {
+      if (!db || !isAdmin) return showToast("Masuk ke akun pemilik terlebih dahulu.");
       const invId = document.getElementById("restockItem").value;
       const qty = parseInt(document.getElementById("restockQty").value) || 0;
       const total = parseFloat(document.getElementById("restockTotal").value) || 0;
@@ -2142,19 +2323,21 @@
 
       const unitCost = Math.round(total / qty);
       const purchase = {
-        date, inventoryId: invId, name: item.name, code: item.code || "", qty, totalCost: total, unitCost, createdAt: new Date().toISOString()
+        date, supplier: document.getElementById("restockSupplier").value.trim(), invoice: document.getElementById("restockInvoice").value.trim(), inventoryId: invId, name: item.name, code: item.code || "", qty, totalCost: total, unitCost, createdAt: new Date().toISOString()
       };
       try {
-        if (db) await addDoc(collection(db, ...paths("purchases")), purchase);
-        else purchases.push({ id: "local-p-" + Date.now(), ...purchase });
-
-        await adjustStock(invId, qty);
-        if (unitCost > 0) {
-          if (db) await setDoc(doc(db, ...paths("inventory", invId)), { cost: unitCost }, { merge: true });
-          else item.cost = unitCost;
-        }
-
-        document.getElementById("restockQty").value = "";
+        const product = doc(db, ...paths("inventory", invId));
+        const record = doc(collection(db, ...paths("purchases")));
+        await runTransaction(db, async transaction => {
+          const current = await transaction.get(product);
+          if (!current.exists()) throw new Error("Barang tidak ditemukan");
+          transaction.set(record, purchase);
+          const patch = { stock: Number(current.data().stock || 0) + qty };
+          if (unitCost > 0) patch.cost = unitCost;
+          transaction.update(product, patch);
+        });
+        document.getElementById("restockSupplier").value = "";
+        document.getElementById("restockInvoice").value = "";        document.getElementById("restockQty").value = "";
         document.getElementById("restockTotal").value = "";
         showToast(`Pembelian dicatat. Stok bertambah.`);
         renderApp();
@@ -2187,28 +2370,16 @@
       const openAdmin = () => openAdminModal();
       ["adminModeBadge", "btnUnlockKasir", "btnUnlockInv"].forEach(id => document.getElementById(id).addEventListener("click", openAdmin));
       document.getElementById("btnCloseAdminModal").addEventListener("click", () => document.getElementById("adminAuthModal").classList.add("hidden"));
-      document.querySelectorAll(".pin-keypad-btn").forEach(b => b.addEventListener("click", () => pinKeypadPress(b.dataset.digit)));
-      document.getElementById("btnPinClear").addEventListener("click", () => document.getElementById("adminPinInput").value = "");
-      document.getElementById("btnPinBackspace").addEventListener("click", () => {
-        const inp = document.getElementById("adminPinInput");
-        inp.value = inp.value.slice(0, -1);
+      document.getElementById("adminLoginPanel").addEventListener("submit", loginOwner);
+      document.getElementById("btnLockToReadOnly").addEventListener("click", async () => {
+        try {
+          await firebaseAuth.signOut(auth);
+          document.getElementById("adminAuthModal").classList.add("hidden");
+        } catch {
+          showToast("Gagal keluar. Coba lagi.");
+        }
       });
-      document.getElementById("btnSubmitAdminPin").addEventListener("click", submitPin);
-      document.getElementById("btnChangeAdminPin").addEventListener("click", async () => {
-        const newPin = document.getElementById("newAdminPinInput").value.trim();
-        if (newPin.length < 4) { showToast("PIN baru minimal 4 angka!"); return; }
-        adminPin = newPin;
-        document.getElementById("newAdminPinInput").value = "";
-        await saveConfig({ adminPin });
-        showToast("PIN Admin berhasil diubah!");
-      });
-      document.getElementById("btnLockToReadOnly").addEventListener("click", () => {
-        isAdmin = false;
-        document.getElementById("adminAuthModal").classList.add("hidden");
-        updateAdminUI();
-        showToast("Layar dikunci ke Mode Lihat Saja");
-      });
-
+      wireOwnerBooks();
       document.getElementById("shopHeaderTrigger").addEventListener("click", () => {
         if (!isAdmin) { openAdmin(); return; }
         document.getElementById("shopNameInput").value = shopName;
