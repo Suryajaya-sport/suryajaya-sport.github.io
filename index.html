@@ -453,8 +453,13 @@
             </button>
           </div>
         </div>
-        <p id="salesReportScope" class="text-xs leading-relaxed text-slate-600">Cetak mengikuti tanggal dan filter. CSV berisi semua transaksi dan bisa dibuka di Excel.</p>
+        <p id="salesReportScope" class="text-xs leading-relaxed text-slate-600">Total dan cetak mengikuti tanggal dan filter. CSV berisi semua penjualan yang masih berlaku.</p>
       </section>
+
+      <div class="hidden print-only mb-4 border-b-2 border-slate-800 pb-3">
+        <h1 id="printShopName" class="text-xl font-bold">Surya Jaya Sport - Laporan Penjualan</h1>
+        <p id="printPeriodInfo" class="text-xs text-slate-600 mt-1"></p>
+      </div>
 
       <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 sm:gap-4">
         <div class="bg-white p-4 sm:p-5 rounded-2xl border-2 border-blue-200 shadow-sm">
@@ -475,7 +480,7 @@
         </div>
         <div class="bg-gradient-to-br from-emerald-600 to-green-700 p-4 sm:p-5 rounded-2xl text-white shadow-md border-2 border-emerald-500">
           <div class="flex items-center justify-between gap-2">
-            <span class="text-sm font-extrabold uppercase text-emerald-50">3. Untung Bersih</span>
+            <span class="text-sm font-extrabold uppercase text-emerald-50">3. Laba Kotor</span>
             <div class="w-10 h-10 rounded-xl bg-white/20 text-white flex items-center justify-center shrink-0 text-lg"><i class="fa-solid fa-sack-dollar"></i></div>
           </div>
           <p id="totalUntung" class="text-2xl sm:text-3xl font-extrabold mt-2 tabular-nums break-words">Rp 0</p>
@@ -525,11 +530,6 @@
         </div>
       </section>
 
-      <div class="hidden print-only mb-4 border-b-2 border-slate-800 pb-3">
-        <h1 id="printShopName" class="text-xl font-bold">Surya Jaya Sport - Laporan Penjualan</h1>
-        <p id="printPeriodInfo" class="text-xs text-slate-600 mt-1"></p>
-      </div>
-
       <section class="bg-white rounded-2xl border-2 border-slate-200 shadow-sm overflow-hidden">
         <div class="px-4 sm:px-5 py-4 border-b-2 border-slate-200 no-print">
           <div class="flex items-center justify-between sm:justify-start gap-3">
@@ -572,12 +572,14 @@
 
         <div id="emptyState" class="hidden py-14 px-4 text-center">
           <i class="fa-solid fa-sun text-5xl mb-3 text-amber-400"></i>
-          <p class="text-lg sm:text-xl font-extrabold text-slate-800">Belum ada penjualan pada tanggal ini</p>
-          <p class="text-sm sm:text-base text-slate-600 mt-1.5 max-w-lg mx-auto">
-            Catatan penjualan hari-hari sebelumnya tetap tersimpan rapi di tombol <strong>"Rekap Harian"</strong> atau <strong>"Semua Hari"</strong>.
-          </p>
+          <p class="text-lg sm:text-xl font-extrabold text-slate-800">Tidak ada penjualan yang sesuai</p>
+          <p class="text-sm sm:text-base text-slate-600 mt-1.5">Ubah tanggal, pencarian, atau filter cara bayar.</p>
         </div>
       </section>
+      <details id="cancelledSalesPanel" class="hidden rounded-2xl border border-slate-200 bg-white p-4 no-print">
+        <summary class="cursor-pointer font-bold text-slate-900">Riwayat Pembatalan <span id="cancelledSalesCount" class="ml-1 text-sm text-slate-600"></span></summary>
+        <ul id="cancelledSalesList" class="mt-3 divide-y divide-slate-200"></ul>
+      </details>
     </div>
 
     <!-- VIEW 2: STOK -->
@@ -1000,9 +1002,13 @@
     <div class="bg-white rounded-3xl max-w-sm w-full shadow-2xl border border-slate-200 p-5 text-center space-y-4">
       <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto text-xl"><i class="fa-solid fa-trash-can"></i></div>
       <div>
-        <h3 class="font-extrabold text-base text-slate-800">Hapus Data Ini?</h3>
+        <h3 id="deleteModalTitle" class="font-extrabold text-base text-slate-800">Hapus Data Ini?</h3>
         <p id="deleteModalDesc" class="text-xs text-slate-500 mt-1">Data yang dihapus tidak dapat dikembalikan.</p>
       </div>
+      <label id="cancelReasonField" class="hidden text-left text-sm font-semibold text-slate-700">
+        Alasan pembatalan (opsional)
+        <textarea id="cancelReasonInput" maxlength="160" rows="2" class="mt-1 block w-full rounded-xl border border-slate-300 p-2"></textarea>
+      </label>
       <div class="grid grid-cols-2 gap-2.5">
         <button type="button" id="btnCancelDelete" class="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer">Batal</button>
         <button type="button" id="btnConfirmDelete" class="py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs cursor-pointer">Ya, Hapus</button>
@@ -1089,10 +1095,12 @@
     let cloudGeminiApiKey = localStorage.getItem("sjs_gemini_api_key") || "";
 
     let transactions = [];
+    let cancelledTransactions = [];
     let inventory = [];
     let publicCatalog = [];
     let catalogLoadState = "loading";
     const catalogCart = new Map();
+    const catalogCartStorageKey = "sjs-catalog-cart-v1";
     const catalogWhatsApp = "https://wa.me/6282320033333";
     let purchases = [];
 
@@ -1100,6 +1108,7 @@
     let currentViewMode = "day";
     let deleteTargetId = null;
     let deleteTargetType = null;
+    let deleteInProgress = false;
     let activeQrProduct = null;
     let html5QrScanner = null;
     let isScannerRunning = false;
@@ -1203,6 +1212,20 @@
       };
     };
 
+    function saleInventoryQuantities(items) {
+      const quantities = new Map();
+      for (const item of items || []) {
+        if (!item.inventoryId) continue;
+        const qty = Number(item.qty);
+        const nextQty = (quantities.get(item.inventoryId) || 0) + qty;
+        if (!Number.isSafeInteger(qty) || qty < 1 || !Number.isSafeInteger(nextQty)) {
+          throw new Error("Jumlah barang pada transaksi tidak valid.");
+        }
+        quantities.set(item.inventoryId, nextQty);
+      }
+      return quantities;
+    }
+
     let saleSaveInProgress = false;
     async function saveSaleAndUpdateStock(txData) {
       if (!db) throw new Error("Database Firebase tidak terhubung.");
@@ -1210,15 +1233,7 @@
       saleSaveInProgress = true;
 
       try {
-        const quantitiesByInventory = new Map();
-        for (const item of txData.items || []) {
-          if (!item.inventoryId) continue;
-          const nextQty = (quantitiesByInventory.get(item.inventoryId) || 0) + Number(item.qty);
-          if (!Number.isSafeInteger(nextQty) || nextQty < 1) {
-            throw new Error("Jumlah barang tidak valid.");
-          }
-          quantitiesByInventory.set(item.inventoryId, nextQty);
-        }
+        const quantitiesByInventory = saleInventoryQuantities(txData.items);
 
         const transactionRef = doc(collection(db, ...paths("transactions")));
         const inventoryRefs = new Map([...quantitiesByInventory.keys()].map(id => [
@@ -1451,6 +1466,7 @@
           publicCatalog = [];
           catalogLoadState = "loading";
           transactions = [];
+          cancelledTransactions = [];
           purchases = [];
           books.expenses = [];
           books.cashClosings = [];
@@ -1493,7 +1509,10 @@
             renderInventory();
             renderTransactions();
           });
-          watch("transactions", rows => { transactions = rows; }, () => {
+          watch("transactions", rows => {
+            transactions = rows.filter(row => !row.cancelledAt);
+            cancelledTransactions = rows.filter(row => row.cancelledAt);
+          }, () => {
             renderTransactions();
             renderOwnerBooks();
           });
@@ -1654,24 +1673,44 @@
       document.getElementById("previewTotalProfit").textContent = rp(totalProfit);
     }
 
-    async function adjustStock(invId, delta) {
-      const item = inventory.find(i => i.id === invId);
-      if (!item) return;
-      const newStock = Math.max(0, Number(item.stock || 0) + delta);
-      if (db) {
-        const ref = doc(db, ...paths("inventory", invId));
-        const publicRef = doc(db, "publicCatalog", invId);
-        await runTransaction(db, async transaction => {
+    async function cancelSaleAndRestoreStock(id, reason) {
+      if (!isAdmin || !db) throw new Error("Masuk sebagai pemilik dan periksa koneksi cloud.");
+      const saleRef = doc(db, ...paths("transactions", id));
+      const cancelledAt = new Date().toISOString();
+      return runTransaction(db, async transaction => {
+        const sale = await transaction.get(saleRef);
+        if (!sale.exists()) throw new Error("Transaksi tidak ditemukan.");
+        const data = sale.data();
+        if (data.cancelledAt) return { alreadyCancelled: true };
+        const restored = [];
+        const skippedIds = [];
+        for (const [inventoryId, qty] of saleInventoryQuantities(data.items)) {
+          const ref = doc(db, ...paths("inventory", inventoryId));
           const current = await transaction.get(ref);
+          if (!current.exists()) {
+            skippedIds.push(inventoryId);
+            continue;
+          }
+          const publicRef = doc(db, "publicCatalog", inventoryId);
           const published = await transaction.get(publicRef);
-          if (!current.exists()) return;
-          const stock = Math.max(0, Number(current.data().stock || 0) + delta);
-          transaction.update(ref, { stock });
-          if (published.exists()) transaction.update(publicRef, { stock });
+          const before = Number(current.data().stock ?? 0);
+          const stock = before + qty;
+          if (!Number.isSafeInteger(before) || before < 0 || !Number.isSafeInteger(stock)) {
+            throw new Error("Stok barang tidak valid. Periksa stok sebelum membatalkan.");
+          }
+          restored.push({ ref, publicRef, published: published.exists(), stock });
+        }
+        for (const product of restored) {
+          transaction.update(product.ref, { stock: product.stock, updatedAt: cancelledAt });
+          if (product.published) transaction.update(product.publicRef, { stock: product.stock });
+        }
+        transaction.update(saleRef, {
+          cancelledAt,
+          cancellationReason: reason.trim().slice(0, 160),
+          cancelledSkippedInventoryIds: skippedIds
         });
-      } else {
-        item.stock = newStock;
-      }
+        return { alreadyCancelled: false, skippedCount: skippedIds.length };
+      });
     }
 
     async function saveSale(printAfterSave = false) {
@@ -2171,29 +2210,56 @@
       return productImageMarkup({ name: it?.name || "Foto produk", imageUrl }, classes);
     }
 
+    function reportSales() {
+      const searchText = document.getElementById("searchInput").value.trim();
+      const query = searchText.toLocaleLowerCase("id");
+      const payment = document.getElementById("filterPayment").value;
+      return transactions.filter(tx => {
+        if (currentViewMode === "day" && tx.date !== selectedDateStr) return false;
+        if (payment !== "all" && (tx.paymentMethod || "Cash") !== payment) return false;
+        return !query || (tx.items || []).some(item => String(item.name || "").toLocaleLowerCase("id").includes(query));
+      }).sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date));
+    }
+
+    function formatCancellationDate(value) {
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? "" : date.toLocaleString("id-ID", {
+        timeZone: "Asia/Makassar", dateStyle: "medium", timeStyle: "short"
+      }) + " WITA";
+    }
+
+    function renderCancelledSales() {
+      const panel = document.getElementById("cancelledSalesPanel");
+      const list = document.getElementById("cancelledSalesList");
+      const rows = isAdmin ? cancelledTransactions
+        .filter(row => currentViewMode !== "day" || row.date === selectedDateStr)
+        .sort((a, b) => String(b.cancelledAt).localeCompare(String(a.cancelledAt))) : [];
+      panel.classList.toggle("hidden", !rows.length);
+      document.getElementById("cancelledSalesCount").textContent = `(${rows.length})`;
+      list.innerHTML = rows.map(row => `<li class="space-y-1 py-3 text-sm">
+        <p class="font-bold text-slate-900">${esc(row.customer || "Umum")} · ${rp(row.totalOmset)}</p>
+        <p class="text-slate-700">${esc((row.items || []).map(item => item.name).filter(Boolean).join(", "))}</p>
+        <p class="text-xs text-slate-600">Penjualan ${esc(row.date || "")} · Dibatalkan ${esc(formatCancellationDate(row.cancelledAt))}</p>
+        ${row.cancellationReason ? `<p class="break-words text-slate-700">${esc(row.cancellationReason)}</p>` : ""}
+        ${row.cancelledSkippedInventoryIds?.length ? '<p class="text-xs text-amber-800">Barang yang sudah dihapus dari daftar stok dilewati.</p>' : ""}
+      </li>`).join("");
+    }
+
     function renderTransactions() {
       const tbody = document.getElementById("transactionTableBody");
       const listDiv = document.getElementById("transactionMobileList");
       tbody.innerHTML = "";
       listDiv.innerHTML = "";
-
-      const searchVal = document.getElementById("searchInput").value.toLowerCase();
-      const payFilter = document.getElementById("filterPayment").value;
-      const dayTx = currentViewMode === "day" ? transactions.filter(tx => tx.date === selectedDateStr) : transactions;
-
-      const filtered = dayTx.filter(tx => {
-        if (payFilter !== "all" && tx.paymentMethod !== payFilter) return false;
-        if (searchVal && !(tx.items || []).some(it => it.name && it.name.toLowerCase().includes(searchVal))) return false;
-        return true;
-      }).sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date));
+      const filtered = reportSales();
 
       let sumOmset = 0, sumModal = 0, sumProfit = 0, sumTerjual = 0;
       const pay = { Cash: [0, 0], QRIS: [0, 0], Kartu: [0, 0], Transfer: [0, 0] };
-      dayTx.forEach(tx => {
+      filtered.forEach(tx => {
         sumOmset += Number(tx.totalOmset || 0);
         sumModal += Number(tx.totalModal || 0);
         sumProfit += Number(tx.totalProfit || 0);
-        if (pay[tx.paymentMethod]) { pay[tx.paymentMethod][0]++; pay[tx.paymentMethod][1] += Number(tx.totalOmset || 0); }
+        const method = tx.paymentMethod || "Cash";
+        if (Object.hasOwn(pay, method)) { pay[method][0]++; pay[method][1] += Number(tx.totalOmset || 0); }
         (tx.items || []).forEach(it => sumTerjual += Number(it.qty || 0));
       });
 
@@ -2218,8 +2284,15 @@
         document.getElementById("activeBookTitle").textContent = "Seluruh Catatan Penjualan";
         document.getElementById("activeBookBadge").textContent = "Semua Hari";
       }
-      document.getElementById("printPeriodInfo").textContent = document.getElementById("activeBookTitle").textContent;
+      const payment = document.getElementById("filterPayment");
+      const query = document.getElementById("searchInput").value.trim();
+      document.getElementById("printPeriodInfo").textContent = [
+        document.getElementById("activeBookTitle").textContent,
+        payment.value !== "all" ? payment.selectedOptions[0]?.textContent : "",
+        query ? `Pencarian: ${query}` : ""
+      ].filter(Boolean).join(" · ");
       document.getElementById("emptyState").classList.toggle("hidden", filtered.length > 0);
+      renderCancelledSales();
 
       filtered.forEach(tx => {
         const itemsHtml = (tx.items || []).map(it => `
@@ -2270,9 +2343,9 @@
                   class="w-8 h-8 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-900 cursor-pointer flex items-center justify-center">
                   <i class="fa-solid fa-print"></i>
                 </button>
-                <button type="button" onclick="window.promptDeleteTx('${esc(tx.id)}')" title="Hapus Transaksi"
+                <button type="button" onclick="window.promptCancelSale('${esc(tx.id)}')" title="Batalkan transaksi" aria-label="Batalkan transaksi"
                   class="w-8 h-8 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-900 cursor-pointer flex items-center justify-center ${delBtnClass}">
-                  <i class="fa-solid fa-trash"></i>
+                  <i class="fa-solid fa-ban" aria-hidden="true"></i>
                 </button>
               </div>
             </td>` : ""}`;
@@ -2296,7 +2369,7 @@
             <span class="font-extrabold text-base text-slate-900">Total: ${rp(tOmset)}</span>
             <div class="flex items-center gap-1.5">
               <button type="button" onclick="window.openReceiptModal('${esc(tx.id)}')" class="py-2 px-3 rounded-xl bg-blue-100 hover:bg-blue-200 text-blue-900 font-extrabold text-xs cursor-pointer flex items-center gap-1"><i class="fa-solid fa-print"></i><span>Nota</span></button>
-              <button type="button" onclick="window.promptDeleteTx('${esc(tx.id)}')" class="py-2 px-3 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-900 font-extrabold text-xs cursor-pointer ${delBtnClass}">Hapus</button>
+              <button type="button" onclick="window.promptCancelSale('${esc(tx.id)}')" class="py-2 px-3 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-900 font-extrabold text-xs cursor-pointer ${delBtnClass}">Batalkan</button>
             </div>
           </div>`;
         listDiv.appendChild(card);
@@ -2376,8 +2449,35 @@
       updateCatalogCartSummary();
     }
 
+    function saveCatalogCart() {
+      try {
+        if (catalogCart.size) sessionStorage.setItem(catalogCartStorageKey, JSON.stringify([...catalogCart]));
+        else sessionStorage.removeItem(catalogCartStorageKey);
+      } catch {
+        // The cart still works when browser storage is unavailable.
+      }
+    }
+
+    function restoreCatalogCart() {
+      try {
+        const saved = JSON.parse(sessionStorage.getItem(catalogCartStorageKey) || "[]");
+        if (!Array.isArray(saved)) return;
+        for (const entry of saved.slice(0, 200)) {
+          if (!Array.isArray(entry)) continue;
+          const [id, line] = entry;
+          if (typeof id !== "string" || !id || id.length > 1500
+              || !Number.isSafeInteger(line?.qty) || line.qty < 0 || line.qty > 99) continue;
+          catalogCart.set(id, { qty: line.qty, note: String(line.note || "").slice(0, 100) });
+        }
+      } catch {
+        // A damaged or inaccessible saved cart starts empty.
+      }
+    }
+
     function wireCatalogCart() {
       const dialog = document.getElementById("catalogCart");
+      restoreCatalogCart();
+      updateCatalogCartSummary();
       document.getElementById("openCatalogCart").addEventListener("click", () => {
         renderCatalogCart();
         dialog.showModal();
@@ -2391,6 +2491,7 @@
         const line = catalogCart.get(id) || { qty: 0, note: "" };
         line.qty = Math.min(99, line.qty + 1);
         catalogCart.set(id, line);
+        saveCatalogCart();
         updateCatalogCartSummary();
         showToast(`${item.name || "Barang"} ditambahkan ke keranjang.`);
       });
@@ -2399,6 +2500,7 @@
         const button = event.target.closest("[data-remove-cart]");
         if (!button) return;
         catalogCart.delete(button.dataset.removeCart);
+        saveCatalogCart();
         renderCatalogCart();
       });
       lines.addEventListener("input", event => {
@@ -2407,6 +2509,7 @@
         if (!line) return;
         if (event.target.matches("[data-cart-qty]")) line.qty = event.target.validity.valid ? Number(event.target.value) : 0;
         if (event.target.matches("[data-cart-note]")) line.note = event.target.value;
+        saveCatalogCart();
         updateCatalogCartSummary();
       });
     }
@@ -2577,9 +2680,12 @@
     function showStockHistory(item) {
       const moves = (Array.isArray(item.stockEdits) ? item.stockEdits : []).map(row => ({ ...row, label: "Koreksi stok" }));
       purchases.filter(row => row.inventoryId === item.id).forEach(row => moves.push({ ...row, delta: Number(row.qty), label: "Pembelian" }));
-      transactions.forEach(row => {
+      [...transactions, ...cancelledTransactions].forEach(row => {
         const qty = (row.items || []).filter(line => line.inventoryId === item.id).reduce((sum, line) => sum + Number(line.qty || 0), 0);
         if (qty) moves.push({ date: row.date, createdAt: row.createdAt, delta: -qty, label: "Penjualan" });
+        if (qty && row.cancelledAt && !row.cancelledSkippedInventoryIds?.includes(item.id)) {
+          moves.push({ date: formatCancellationDate(row.cancelledAt), createdAt: row.cancelledAt, delta: qty, label: "Pembatalan penjualan" });
+        }
       });
       moves.sort((a, b) => String(b.createdAt || b.date || "").localeCompare(String(a.createdAt || a.date || "")));
       openInventoryTool(`Riwayat: ${item.name}`, moves.length
@@ -2788,6 +2894,7 @@
         document.getElementById("viewBooks").classList.add("hidden");
         document.getElementById("inventoryToolDialog").close();
         document.getElementById("inventoryToolContent").replaceChildren();
+        closeDeleteConfirmation();
       }
       renderApp();
     }
@@ -2856,18 +2963,29 @@
       }
     }
 
-    window.promptDeleteTx = function (id) {
+    function openDeleteConfirmation(id, type) {
+      if (!isAdmin || deleteInProgress) return;
       deleteTargetId = id;
-      deleteTargetType = "tx";
-      document.getElementById("deleteModalDesc").textContent = "Stok barang dari transaksi ini akan dikembalikan.";
+      deleteTargetType = type;
+      const cancelSale = type === "tx";
+      document.getElementById("deleteModalTitle").textContent = cancelSale ? "Batalkan transaksi?" : "Hapus barang ini?";
+      document.getElementById("deleteModalDesc").textContent = cancelSale
+        ? "Stok yang tercatat akan dikembalikan dan pembatalan disimpan. Jika pembayaran sudah diterima, proses pengembalian dana melalui cara bayar asal."
+        : "Barang yang dihapus tidak dapat dikembalikan.";
+      document.getElementById("btnConfirmDelete").textContent = cancelSale ? "Ya, Batalkan Transaksi" : "Ya, Hapus";
+      document.getElementById("cancelReasonField").classList.toggle("hidden", !cancelSale);
+      document.getElementById("cancelReasonInput").value = "";
       document.getElementById("deleteConfirmModal").classList.remove("hidden");
-    };
-    window.promptDeleteInventory = function (id) {
-      deleteTargetId = id;
-      deleteTargetType = "inventory";
-      document.getElementById("deleteModalDesc").textContent = "Data yang dihapus tidak dapat dikembalikan.";
-      document.getElementById("deleteConfirmModal").classList.remove("hidden");
-    };
+    }
+    window.promptCancelSale = id => openDeleteConfirmation(id, "tx");
+    window.promptDeleteInventory = id => openDeleteConfirmation(id, "inventory");
+
+    function closeDeleteConfirmation() {
+      deleteTargetId = null;
+      deleteTargetType = null;
+      document.getElementById("cancelReasonInput").value = "";
+      document.getElementById("deleteConfirmModal").classList.add("hidden");
+    }
 
     function wire() {
       document.getElementById("currentDateStr").textContent = new Date().toLocaleDateString("id-ID", { dateStyle: "full" });
@@ -3076,8 +3194,8 @@
       document.getElementById("cardProductBreakdown").addEventListener("click", () => {
         const list = document.getElementById("productBreakdownList");
         document.getElementById("productBreakdownModal").classList.remove("hidden");
-        const src = currentViewMode === "day" ? transactions.filter(t => t.date === selectedDateStr) : transactions;
-        const prodMap = {};
+        const src = reportSales();
+        const prodMap = Object.create(null);
         src.forEach(tx => (tx.items || []).forEach(it => {
           const p = prodMap[it.name] || (prodMap[it.name] = { qty: 0, omset: 0, saleItem: it });
           p.qty += Number(it.qty || 0);
@@ -3130,30 +3248,36 @@
         URL.revokeObjectURL(a.href);
       });
 
-      document.getElementById("btnCancelDelete").addEventListener("click", () => document.getElementById("deleteConfirmModal").classList.add("hidden"));
-      document.getElementById("btnConfirmDelete").addEventListener("click", async () => {
-        if (!deleteTargetId) return;
+      document.getElementById("btnCancelDelete").addEventListener("click", closeDeleteConfirmation);
+      document.getElementById("btnConfirmDelete").addEventListener("click", async event => {
+        if (!isAdmin || !db || !deleteTargetId || deleteInProgress) return;
+        const id = deleteTargetId;
+        const type = deleteTargetType;
+        const confirmButton = event.currentTarget;
+        const closeButton = document.getElementById("btnCancelDelete");
+        deleteInProgress = true;
+        confirmButton.disabled = closeButton.disabled = true;
         try {
-          if (deleteTargetType === "inventory") {
-            if (db) {
-              const batch = writeBatch(db);
-              batch.delete(doc(db, ...paths("inventory", deleteTargetId)));
-              batch.delete(doc(db, "publicCatalog", deleteTargetId));
-              await batch.commit();
-            }
-            else inventory = inventory.filter(i => i.id !== deleteTargetId);
+          if (type === "inventory") {
+            const batch = writeBatch(db);
+            batch.delete(doc(db, ...paths("inventory", id)));
+            batch.delete(doc(db, "publicCatalog", id));
+            await batch.commit();
+            showToast("Barang dihapus.");
           } else {
-            const tx = transactions.find(t => t.id === deleteTargetId);
-            if (tx) for (const it of tx.items || []) if (it.inventoryId) await adjustStock(it.inventoryId, Number(it.qty || 0));
-            if (db) await deleteDoc(doc(db, ...paths("transactions", deleteTargetId)));
-            else transactions = transactions.filter(t => t.id !== deleteTargetId);
+            const reason = document.getElementById("cancelReasonInput").value;
+            const result = await cancelSaleAndRestoreStock(id, reason);
+            if (result.alreadyCancelled) showToast("Transaksi ini sudah dibatalkan.");
+            else if (result.skippedCount) showToast("Transaksi dibatalkan. Barang yang sudah dihapus dari stok dilewati.");
+            else showToast("Transaksi dibatalkan. Stok barang dikembalikan.");
           }
-          showToast("Data berhasil dihapus!");
-          renderApp();
+          closeDeleteConfirmation();
         } catch (e) {
-          showToast("Gagal menghapus data.");
+          showToast(e?.message || "Perubahan gagal disimpan. Coba lagi.");
+        } finally {
+          deleteInProgress = false;
+          confirmButton.disabled = closeButton.disabled = false;
         }
-        document.getElementById("deleteConfirmModal").classList.add("hidden");
       });
 
       document.getElementById("btnOpenScanner").addEventListener("click", () => {
