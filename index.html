@@ -30,7 +30,6 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     html, body { max-width: 100%; overflow-x: hidden; }
-    html.large-text-mode { font-size: 18px; }
     body { font-family: 'Inter', sans-serif; background-color: #eef2f6; color: #0f172a; }
     input[type="text"], input[type="number"], input[type="date"], input[type="password"], select, textarea {
       font-size: 16px !important; max-width: 100%;
@@ -79,7 +78,7 @@
   <header class="bg-gradient-to-r from-blue-950 via-blue-900 to-indigo-800 text-white shadow-xl border-b-4 border-amber-400 no-print">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
       <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div class="flex items-center gap-3.5">
+        <div class="flex min-w-0 items-center gap-3 sm:gap-4">
           <div class="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shrink-0">
             <img src="sjs-mark.png" alt="Logo Surya Jaya Sport" class="w-full h-full object-contain">
           </div>
@@ -93,17 +92,20 @@
                 <i class="fa-solid fa-pen mr-1"></i>Ubah
               </span>
             </div>
-            <p class="text-sm sm:text-base text-blue-100 font-medium mt-0.5">Jl. Jendral Ahmad Yani No. 37, Berau &bull; 0823.200.33333</p>
+            <address class="mt-2 flex flex-col items-start gap-x-4 gap-y-1 text-[0.8125rem] not-italic leading-5 text-blue-100 sm:flex-row sm:flex-wrap sm:items-center">
+              <span class="flex items-baseline gap-2">
+                <i class="fa-solid fa-location-dot w-3 shrink-0 text-center text-blue-200" aria-hidden="true"></i>
+                <span>Jl. Jendral Ahmad Yani No. 37, Berau</span>
+              </span>
+              <a href="tel:+6282320033333" class="inline-flex items-center gap-2 whitespace-nowrap font-medium tabular-nums decoration-blue-200 underline-offset-4 hover:underline focus-visible:underline">
+                <i class="fa-solid fa-phone w-3 shrink-0 text-center text-blue-200" aria-hidden="true"></i>
+                <span>0823-2003-3333</span>
+              </a>
+            </address>
           </div>
         </div>
 
         <div class="flex flex-wrap items-center gap-2 sm:gap-2.5">
-          <button type="button" id="btnToggleTextSize" title="Ubah ukuran huruf"
-            class="flex items-center gap-2 bg-white text-blue-950 hover:bg-amber-100 px-3.5 py-2.5 rounded-xl text-sm font-extrabold shadow-sm transition cursor-pointer">
-            <i class="fa-solid fa-text-height text-blue-700"></i>
-            <span id="textSizeLabel">Huruf: Normal</span>
-          </button>
-
           <button type="button" id="adminModeBadge" title="Klik untuk masuk Mode Admin atau mengunci layar"
             class="flex items-center gap-2 bg-amber-400 text-slate-950 hover:bg-amber-300 px-3.5 py-2.5 rounded-xl text-sm font-extrabold shadow-sm transition cursor-pointer">
             <i id="adminModeIcon" class="fa-solid fa-lock"></i>
@@ -190,7 +192,7 @@
       </section>
       <div class="rounded-2xl border border-slate-200 bg-white p-4 text-center text-sm text-slate-600 shadow-sm sm:p-5">
         <strong class="text-slate-800">Kunjungi toko kami</strong><br>
-        Jl. Jendral Ahmad Yani No. 37, Berau · <a class="font-bold text-blue-800 underline underline-offset-2" href="tel:+6282320033333">0823.200.33333</a>
+        Jl. Jendral Ahmad Yani No. 37, Berau · <a class="whitespace-nowrap font-bold text-blue-800 underline underline-offset-2" href="tel:+6282320033333">0823-2003-3333</a>
       </div>
     </section>
 
@@ -1031,7 +1033,6 @@
 
     let selectedDateStr = todayStr();
     let currentViewMode = "day";
-    let textSizeMode = "normal";
     let deleteTargetId = null;
     let deleteTargetType = null;
     let activeQrProduct = null;
@@ -2395,7 +2396,6 @@
       document.getElementById("tabBtnInventory").classList.toggle("hidden", !isAdmin);
       mainNavigation.classList.toggle("sm:grid-cols-3", isAdmin);
       mainNavigation.classList.toggle("sm:grid-cols-1", !isAdmin);
-      document.getElementById("btnToggleTextSize").classList.toggle("hidden", !isAdmin);
       document.getElementById("syncStatusBadge").classList.toggle("hidden", !isAdmin);
       document.getElementById("currentDateBadge").classList.toggle("hidden", !isAdmin);
       document.getElementById("editShopIcon").classList.toggle("hidden", !isAdmin);
@@ -2658,18 +2658,6 @@
         document.getElementById("invImagePreview").src = URL.createObjectURL(file);
         document.getElementById("invImagePreviewLabel").textContent = file.name;
         wrap.classList.remove("hidden");
-      });
-
-      document.getElementById("btnToggleTextSize").addEventListener("click", () => {
-        if (textSizeMode === "large") {
-          textSizeMode = "normal";
-          document.documentElement.classList.remove("large-text-mode");
-          document.getElementById("textSizeLabel").textContent = "Huruf: Normal";
-        } else {
-          textSizeMode = "large";
-          document.documentElement.classList.add("large-text-mode");
-          document.getElementById("textSizeLabel").textContent = "Huruf: Besar";
-        }
       });
 
       document.getElementById("btnOpenRecap").addEventListener("click", () => {
