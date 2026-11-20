@@ -79,12 +79,15 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
       <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div class="flex items-center gap-3.5">
-          <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white flex items-center justify-center shadow-lg shrink-0 overflow-hidden p-0.5">
-            <img src="sjs-mark.png" alt="Logo Surya Jaya Sport" class="w-full h-full object-contain rounded-xl">
+          <div class="w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center shrink-0">
+            <img src="sjs-mark.png" alt="Logo Surya Jaya Sport" class="w-full h-full object-contain">
           </div>
           <div class="min-w-0">
             <div id="shopHeaderTrigger" class="flex items-center gap-2.5 group cursor-pointer" title="Klik untuk mengubah nama toko (Mode Admin)">
-              <h1 id="shopNameDisplay" class="text-xl sm:text-3xl font-extrabold tracking-tight text-white truncate">Surya Jaya Sport</h1>
+              <h1 id="shopNameDisplay" class="flex min-w-0 flex-col items-start font-black uppercase italic leading-[0.88] tracking-wide truncate">
+                <span class="text-lg sm:text-2xl text-white">Surya Jaya</span>
+                <span class="mt-1 pl-8 text-base sm:text-xl text-rose-400">Sport</span>
+              </h1>
               <span id="editShopIcon" class="hidden text-xs sm:text-sm bg-white/20 group-hover:bg-white/30 px-2.5 py-1 rounded-xl font-bold transition text-amber-200 shrink-0">
                 <i class="fa-solid fa-pen mr-1"></i>Ubah
               </span>
@@ -1420,7 +1423,12 @@
 
     function setShopName(name) {
       shopName = name;
-      document.getElementById("shopNameDisplay").textContent = name;
+      const nameDisplay = document.getElementById("shopNameDisplay");
+      if (String(name).trim().toLocaleLowerCase("id") === "surya jaya sport") {
+        nameDisplay.innerHTML = '<span class="text-lg sm:text-2xl text-white">Surya Jaya</span><span class="mt-1 pl-8 text-base sm:text-xl text-rose-400">Sport</span>';
+      } else {
+        nameDisplay.textContent = name;
+      }
       document.getElementById("footerShopName").textContent = name;
       document.getElementById("printShopName").textContent = name + " - Laporan Penjualan";
     }
