@@ -1595,8 +1595,11 @@
         <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
           <div class="sm:col-span-4">
             <label class="block text-xs font-bold text-slate-600 mb-1">Cari Kode / Nama Barang:</label>
-            <input type="text" list="inventoryDatalist" class="item-name-input w-full px-3 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-blue-600"
-              placeholder="Ketik nama atau kode..." value="${esc(initialDisplay)}">
+            <div class="flex items-center gap-2">
+              <div class="sale-entry-thumbnail shrink-0">${prefill ? productImageMarkup(prefill, "h-12 w-12 rounded-lg", 160, { eager: true }) : ""}</div>
+              <input type="text" list="inventoryDatalist" class="item-name-input min-w-0 w-full px-3 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-blue-600"
+                placeholder="Ketik nama atau kode..." value="${esc(initialDisplay)}">
+            </div>
           </div>
           <div class="sm:col-span-2">
             <label class="block text-xs font-bold text-slate-600 mb-1">Modal (Rp):</label>
@@ -1625,9 +1628,14 @@
       const costInput = rowDiv.querySelector(".item-cost-input");
       const priceInput = rowDiv.querySelector(".item-price-input");
       const qtyInput = rowDiv.querySelector(".item-qty");
+      const preview = rowDiv.querySelector(".sale-entry-thumbnail");
 
       const handleItemSelect = () => {
         const match = matchInventoryFromText(nameInput.value);
+        const nextId = match?.id || "";
+        if (rowDiv.dataset.invId !== nextId) {
+          preview.innerHTML = match ? productImageMarkup(match, "h-12 w-12 rounded-lg", 160, { eager: true }) : "";
+        }
         if (match) {
           rowDiv.dataset.invId = match.id;
           costInput.value = match.cost || 0;
@@ -2184,30 +2192,55 @@
 
     // Ambil foto dari transaksi jika sudah tersimpan; untuk penjualan lama,
     // cari foto di stok dengan inventoryId, kode barang, atau nama yang benar-benar sama.
-    function findSoldProduct(it) {
-      if (!it) return null;
-      const id = String(it.inventoryId || "").trim();
-      if (id) {
-        const linked = inventory.find(p => String(p.id) === id);
-        if (linked) return linked;
-      }
-      const label = String(it.name || "").trim();
-      const codeMatch = label.match(/^\[([^\]]+)\]\s*/);
-      if (codeMatch) {
-        const code = codeMatch[1].trim().toLowerCase();
-        const matches = inventory.filter(p => String(p.code || "").trim().toLowerCase() === code);
-        if (matches.length === 1) return matches[0];
-      }
-      const name = label.replace(/^\[[^\]]+\]\s*/, "").trim().toLowerCase();
-      if (!name || name === "-") return null;
-      const matches = inventory.filter(p => String(p.name || "").trim().toLowerCase() === name);
-      return matches.length === 1 ? matches[0] : null;
+    function normalizedProductName(name) {
+      return String(name || "").normalize("NFKC").toLocaleLowerCase("id")
+        .replace(/['’]/g, "").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
     }
 
-    function saleItemImageMarkup(it, classes = "w-12 h-12 rounded-lg shrink-0") {
-      const matched = findSoldProduct(it);
-      const imageUrl = it?.imageUrl || matched?.imageUrl || "";
-      return productImageMarkup({ name: it?.name || "Foto produk", imageUrl }, classes);
+    function normalizedProductCode(code) {
+      return String(code || "").normalize("NFKC").toUpperCase().replace(/[\s-]+/g, "");
+    }
+
+    function buildSoldProductIndex() {
+      const byId = new Map(), byCode = new Map(), byName = new Map();
+      function indexUnique(map, key, item) {
+        if (key) map.set(key, map.has(key) ? null : item);
+      }
+      for (const item of inventory) {
+        byId.set(String(item.id), item);
+        indexUnique(byCode, normalizedProductCode(item.code), item);
+        indexUnique(byName, normalizedProductName(item.name), item);
+      }
+      return { byId, byCode, byName };
+    }
+
+    function findSoldProduct(it, index) {
+      if (!it) return null;
+      const photoLink = String(it.photoInventoryId || "").trim();
+      if (photoLink) return index.byId.get(photoLink) || null;
+      const linked = index.byId.get(String(it.inventoryId || "").trim());
+      if (linked) return linked;
+      const label = String(it.name || "").trim();
+      const bracket = label.match(/^\[([^\]]+)\]\s*/);
+      const embeddedCode = label.match(/\bSJS[\s-]*\d+\b/i)?.[0];
+      const code = normalizedProductCode(it.code || bracket?.[1] || embeddedCode);
+      if (code && index.byCode.has(code)) return index.byCode.get(code);
+      return index.byName.get(normalizedProductName(bracket ? label.slice(bracket[0].length) : label)) || null;
+    }
+
+    function soldPhotoSources(it, index) {
+      const item = findSoldProduct(it, index);
+      return [productImageUrl(item), productImageUrl(it)].filter(Boolean);
+    }
+
+    function saleItemImageMarkup(it, classes, index, eager = false) {
+      const [primary = "", fallback = ""] = soldPhotoSources(it, index);
+      return productImageMarkup({ name: it?.name || "Foto produk", imageUrl: primary }, classes, 160, { eager, fallback });
+    }
+
+    function salePhotoButton(tx, item, position, index) {
+      if (!isAdmin || soldPhotoSources(item, index).length) return "";
+      return `<button type="button" data-sale-photo-tx="${esc(tx.id)}" data-sale-photo-line="${position}" class="no-print block py-1 text-xs font-bold text-blue-800 underline underline-offset-2">Pilih foto</button>`;
     }
 
     function reportSales() {
@@ -2248,9 +2281,11 @@
     function renderTransactions() {
       const tbody = document.getElementById("transactionTableBody");
       const listDiv = document.getElementById("transactionMobileList");
-      tbody.innerHTML = "";
-      listDiv.innerHTML = "";
+      if (isAdmin && document.getElementById("viewKasir").classList.contains("hidden")) return;
+      const tableRows = document.createDocumentFragment();
+      const mobileCards = document.createDocumentFragment();
       const filtered = reportSales();
+      const photoIndex = buildSoldProductIndex();
 
       let sumOmset = 0, sumModal = 0, sumProfit = 0, sumTerjual = 0;
       const pay = { Cash: [0, 0], QRIS: [0, 0], Kartu: [0, 0], Transfer: [0, 0] };
@@ -2294,13 +2329,14 @@
       document.getElementById("emptyState").classList.toggle("hidden", filtered.length > 0);
       renderCancelledSales();
 
-      filtered.forEach(tx => {
-        const itemsHtml = (tx.items || []).map(it => `
+      filtered.forEach((tx, rowIndex) => {
+        const itemsHtml = (tx.items || []).map((it, itemIndex) => `
           <div class="flex items-center gap-3 py-1.5">
-            ${saleItemImageMarkup(it, "w-14 h-14 rounded-lg border border-slate-200 shrink-0")}
+            ${saleItemImageMarkup(it, "w-14 h-14 rounded-lg border border-slate-200 shrink-0", photoIndex, rowIndex < 2 && itemIndex < 3)}
             <div class="min-w-0 flex-1">
               <p class="font-extrabold text-sm sm:text-base text-slate-900 break-words">${esc(it.name || "-")}</p>
               <p class="text-xs font-semibold text-slate-600">${Number(it.qty || 0)} Pcs × ${rp(it.price)}</p>
+              ${salePhotoButton(tx, it, itemIndex, photoIndex)}
             </div>
           </div>`).join("") || `<p class="font-bold text-slate-600">Tidak ada rincian barang</p>`;
         const qty = (tx.items || []).reduce((s, i) => s + Number(i.qty || 0), 0);
@@ -2323,9 +2359,10 @@
             ${first ? `<td${rs} class="py-1.5 px-2 align-middle font-semibold text-slate-700 whitespace-nowrap">${esc(tx.date)}</td>` : ""}
             <td class="py-1.5 px-2 font-bold text-slate-900">
               <div class="flex items-center gap-2.5 min-w-0">
-                ${saleItemImageMarkup(it, "w-12 h-12 rounded-lg border border-slate-200 shrink-0")}
+                ${saleItemImageMarkup(it, "w-12 h-12 rounded-lg border border-slate-200 shrink-0", photoIndex, rowIndex < 2 && idx < 3)}
                 <div class="min-w-0 break-words">
                   ${esc(it.name)} <span class="text-slate-500 font-semibold whitespace-nowrap">(${Number(it.qty || 0)}x)</span>
+                  ${tx.items?.length ? salePhotoButton(tx, it, idx, photoIndex) : ""}
                 </div>
               </div>
             </td>
@@ -2349,7 +2386,7 @@
                 </button>
               </div>
             </td>` : ""}`;
-          tbody.appendChild(tr);
+          tableRows.appendChild(tr);
         });
 
         // --- KARTU MOBILE: foto tiap barang terjual ---
@@ -2372,34 +2409,52 @@
               <button type="button" onclick="window.promptCancelSale('${esc(tx.id)}')" class="py-2 px-3 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-900 font-extrabold text-xs cursor-pointer ${delBtnClass}">Batalkan</button>
             </div>
           </div>`;
-        listDiv.appendChild(card);
+        mobileCards.appendChild(card);
       });
+      tbody.replaceChildren(tableRows);
+      listDiv.replaceChildren(mobileCards);
     }
 
     function productImageUrl(item) {
-      const url = typeof item.imageUrl === "string" ? item.imageUrl.trim() : "";
+      const url = typeof item?.imageUrl === "string" ? item.imageUrl.trim() : "";
       return /^https:\/\//i.test(url) ? url : "";
     }
 
-    function productImageMarkup(item, extraClass = "", width = 160) {
-      const original = productImageUrl(item);
+    function thumbnailUrl(original, width) {
       const cloudinaryUpload = "https://res.cloudinary.com/mhfuwzby/image/upload/";
       const useThumbnail = original.startsWith(cloudinaryUpload)
         && /^v\d+\//.test(original.slice(cloudinaryUpload.length));
-      const url = useThumbnail
+      return useThumbnail
         ? cloudinaryUpload + `c_limit,w_${width},h_${width},q_auto,f_auto/` + original.slice(cloudinaryUpload.length)
         : original;
+    }
+
+    function productImageMarkup(item, extraClass = "", width = 160, { eager = false, fallback = "" } = {}) {
+      const originals = [productImageUrl(item), productImageUrl({ imageUrl: fallback })].filter(Boolean);
+      const [url, ...remaining] = [...new Set([...originals.map(original => thumbnailUrl(original, width)), ...originals])];
       const img = url
-        ? `<img src="${esc(url)}" alt="${esc(item.name || "Foto produk")}" loading="lazy" decoding="async"
-            ${useThumbnail ? `data-original="${esc(original)}"` : ""}
-            class="relative h-full w-full object-contain bg-white"
-            onerror="if (this.dataset.original) { this.src = this.dataset.original; delete this.dataset.original; } else { this.previousElementSibling.removeAttribute('aria-hidden'); this.remove(); }">`
+        ? `<img src="${esc(url)}" alt="${esc(item.name || "Foto produk")}" loading="${eager ? "eager" : "lazy"}" decoding="async"
+            data-thumb-fallback="${esc(JSON.stringify(remaining))}" class="relative h-full w-full object-contain bg-white">`
         : "";
       return `<div class="${extraClass} relative overflow-hidden bg-slate-100">
         <span class="absolute inset-0 flex items-center justify-center text-slate-500" role="img"
           aria-label="Foto produk tidak tersedia"${url ? ' aria-hidden="true"' : ""}><i class="fa-solid fa-image text-lg" aria-hidden="true"></i></span>
         ${img}
       </div>`;
+    }
+
+    function recoverProductImage(event) {
+      const image = event.target;
+      if (!image.matches?.("img[data-thumb-fallback]")) return;
+      const remaining = JSON.parse(image.dataset.thumbFallback);
+      const next = remaining.shift();
+      if (next) {
+        image.dataset.thumbFallback = JSON.stringify(remaining);
+        image.src = next;
+      } else {
+        image.previousElementSibling?.removeAttribute("aria-hidden");
+        image.remove();
+      }
     }
 
     function catalogProductCategory(item) {
@@ -2677,6 +2732,72 @@
       document.getElementById("inventoryToolDialog").showModal();
     }
 
+    function wireSalePhotos() {
+      const view = document.getElementById("viewKasir");
+      view.addEventListener("click", event => {
+        const button = event.target.closest("[data-sale-photo-tx]");
+        if (!button || !isAdmin || !db) return;
+        const tx = transactions.find(row => row.id === button.dataset.salePhotoTx);
+        const index = Number(button.dataset.salePhotoLine);
+        const line = tx?.items?.[index];
+        if (!line) return;
+        const options = inventory.filter(item => productImageUrl(item)).sort((a, b) => String(a.name).localeCompare(String(b.name), "id"));
+        openInventoryTool("Pilih foto untuk " + (line.name || "barang terjual"), options.length
+          ? `<form id="salePhotoForm" data-tx-id="${esc(tx.id)}" data-line-index="${index}" data-item-name="${esc(line.name || "")}" class="space-y-3">
+            <p class="text-sm text-slate-600">Pilih barang yang sama dari daftar stok untuk mengambil fotonya.</p>
+            <label class="block text-sm font-semibold">Barang dari stok
+              <select name="product" required class="mt-1 w-full rounded-xl border border-slate-300 p-2">
+                <option value="">Pilih barang</option>
+                ${options.map(item => `<option value="${esc(item.id)}">${esc([item.code, item.name, item.size, item.color].filter(Boolean).join(" · "))}</option>`).join("")}
+              </select>
+            </label>
+            <button type="submit" class="min-h-11 rounded-xl bg-blue-800 px-4 text-sm font-bold text-white">Simpan foto</button>
+          </form>`
+          : '<p class="text-sm text-slate-600">Tambahkan foto barang di Stok Admin terlebih dahulu.</p>');
+      });
+
+      document.getElementById("inventoryToolContent").addEventListener("submit", async event => {
+        const form = event.target;
+        if (form.id !== "salePhotoForm") return;
+        event.preventDefault();
+        if (!isAdmin || !db) return;
+        const button = form.querySelector("button[type=submit]");
+        const status = document.getElementById("inventoryToolStatus");
+        if (button.disabled) return;
+        button.disabled = true;
+        status.textContent = "Menyimpan foto…";
+        try {
+          const id = new FormData(form).get("product");
+          if (!inventory.some(item => item.id === id)) throw new Error("Pilih barang dari stok.");
+          const saleRef = doc(db, ...paths("transactions", form.dataset.txId));
+          const productRef = doc(db, ...paths("inventory", id));
+          const index = Number(form.dataset.lineIndex);
+          await runTransaction(db, async transaction => {
+            const sale = await transaction.get(saleRef);
+            const product = await transaction.get(productRef);
+            const data = sale.data();
+            const line = data?.items?.[index];
+            const imageUrl = productImageUrl(product.data());
+            if (!line || data.cancelledAt || (line.name || "") !== form.dataset.itemName) {
+              throw new Error("Rincian transaksi berubah. Buka kembali daftar penjualan.");
+            }
+            if (productImageUrl(line) || line.photoInventoryId) throw new Error("Foto sudah dipasang. Buka kembali daftar penjualan.");
+            if (!imageUrl) throw new Error("Barang pilihan belum punya foto.");
+            const items = data.items.map((entry, position) => position === index
+              ? { ...entry, photoInventoryId: id, imageUrl }
+              : entry);
+            transaction.update(saleRef, { items });
+          });
+          document.getElementById("inventoryToolDialog").close();
+          showToast("Foto barang terjual disimpan.");
+        } catch (error) {
+          status.textContent = error?.message || "Foto gagal disimpan. Coba lagi.";
+        } finally {
+          button.disabled = false;
+        }
+      });
+    }
+
     function showStockHistory(item) {
       const moves = (Array.isArray(item.stockEdits) ? item.stockEdits : []).map(row => ({ ...row, label: "Koreksi stok" }));
       purchases.filter(row => row.inventoryId === item.id).forEach(row => moves.push({ ...row, delta: Number(row.qty), label: "Pembelian" }));
@@ -2784,11 +2905,11 @@
         qList.innerHTML = `<div class="p-4 text-center text-xs text-slate-500">Belum ada barang di stok.</div>`;
         return;
       }
-      inventory.forEach(item => {
+      inventory.forEach((item, index) => {
         const div = document.createElement("div");
         div.className = "p-3 hover:bg-blue-50 flex items-center justify-between gap-2 cursor-pointer transition";
         div.innerHTML = `
-          ${productImageMarkup(item, "w-14 h-14 rounded-lg shrink-0")}
+          ${productImageMarkup(item, "w-14 h-14 rounded-lg shrink-0", 160, { eager: index < 4 })}
           <div class="min-w-0 flex-1">
             <span class="font-mono font-bold text-xs text-blue-900">${esc(item.code)}</span>
             <p class="font-extrabold text-sm text-slate-900">${esc(item.name)}</p>
@@ -2988,6 +3109,7 @@
     }
 
     function wire() {
+      document.addEventListener("error", recoverProductImage, true);
       document.getElementById("currentDateStr").textContent = new Date().toLocaleDateString("id-ID", { dateStyle: "full" });
       document.getElementById("footerYear").textContent = new Date().getFullYear();
       document.getElementById("inputDate").value = selectedDateStr;
@@ -3122,6 +3244,7 @@
       document.getElementById("invMissingPhotoOnly").addEventListener("change", renderInventory);
       document.getElementById("inventoryFollowUp").addEventListener("change", renderInventory);
       wireInventoryTools();
+      wireSalePhotos();
       wireCatalogCart();
       const catalogSearch = document.getElementById("catalogSearch");
       const refreshCatalog = renderProductCatalog;
@@ -3195,6 +3318,7 @@
         const list = document.getElementById("productBreakdownList");
         document.getElementById("productBreakdownModal").classList.remove("hidden");
         const src = reportSales();
+        const photoIndex = buildSoldProductIndex();
         const prodMap = Object.create(null);
         src.forEach(tx => (tx.items || []).forEach(it => {
           const p = prodMap[it.name] || (prodMap[it.name] = { qty: 0, omset: 0, saleItem: it });
@@ -3207,7 +3331,7 @@
           : names.map(nm => `
               <div class="py-3 flex items-center justify-between gap-3">
                 <div class="flex items-center gap-3 min-w-0">
-                  ${saleItemImageMarkup(prodMap[nm].saleItem, "w-12 h-12 rounded-lg border border-slate-200 shrink-0")}
+                  ${saleItemImageMarkup(prodMap[nm].saleItem, "w-12 h-12 rounded-lg border border-slate-200 shrink-0", photoIndex)}
                   <p class="font-extrabold text-slate-900 break-words">${esc(nm)}</p>
                 </div>
                 <div class="text-right shrink-0">
