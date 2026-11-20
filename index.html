@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="large-text-mode">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,6 +35,7 @@
     input[type="text"], input[type="number"], input[type="date"], input[type="password"], select, textarea {
       font-size: 16px !important; max-width: 100%;
     }
+    #catalogSearch::-webkit-search-cancel-button { -webkit-appearance: none; }
 
     #receiptPrintSheet { display: none; }
 
@@ -100,7 +101,7 @@
           <button type="button" id="btnToggleTextSize" title="Ubah ukuran huruf"
             class="flex items-center gap-2 bg-white text-blue-950 hover:bg-amber-100 px-3.5 py-2.5 rounded-xl text-sm font-extrabold shadow-sm transition cursor-pointer">
             <i class="fa-solid fa-text-height text-blue-700"></i>
-            <span id="textSizeLabel">Huruf: Besar</span>
+            <span id="textSizeLabel">Huruf: Normal</span>
           </button>
 
           <button type="button" id="adminModeBadge" title="Klik untuk masuk Mode Admin atau mengunci layar"
@@ -167,12 +168,16 @@
           <p class="mt-1 text-sm text-sky-100">Harga dan stok dapat berubah. Hubungi toko untuk konfirmasi.</p>
         </div>
         <div class="flex flex-col gap-3 border-b border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between sm:p-4">
-          <label class="relative block w-full sm:max-w-md">
-            <span class="sr-only">Cari produk katalog</span>
+          <form id="catalogSearchForm" role="search" autocomplete="off" class="relative w-full sm:max-w-md">
+            <label for="catalogSearch" class="sr-only">Cari produk katalog</label>
             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" aria-hidden="true"></i>
-            <input type="search" id="catalogSearch" placeholder="Cari nama atau kode produk..." autocomplete="off"
-              class="w-full rounded-xl border-2 border-slate-300 bg-white py-3 pl-10 pr-3 font-semibold text-slate-900 focus:border-blue-600 focus:outline-none">
-          </label>
+            <input type="search" id="catalogSearch" name="productQuery" placeholder="Cari nama atau kode produk..."
+              autocomplete="off" spellcheck="false" class="w-full rounded-xl border-2 border-slate-300 bg-white py-3 pl-10 pr-12 font-medium text-slate-900 focus:border-blue-600 focus:outline-none">
+            <button type="button" id="btnClearCatalogSearch" aria-label="Hapus pencarian"
+              class="hidden absolute right-1 top-1/2 h-11 w-11 -translate-y-1/2 rounded-lg text-slate-600 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-blue-600">
+              <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
+          </form>
           <div class="flex items-center justify-between gap-3">
             <label for="catalogInStockOnly" class="flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700">
               <input type="checkbox" id="catalogInStockOnly" class="h-5 w-5 accent-emerald-600">
@@ -1026,7 +1031,7 @@
 
     let selectedDateStr = todayStr();
     let currentViewMode = "day";
-    let textSizeMode = "large";
+    let textSizeMode = "normal";
     let deleteTargetId = null;
     let deleteTargetType = null;
     let activeQrProduct = null;
@@ -2180,7 +2185,13 @@
     function renderProductCatalog(items) {
       const grid = document.getElementById("productCatalogGrid");
       if (!grid) return;
-      const q = (document.getElementById("catalogSearch")?.value || "").trim().toLocaleLowerCase("id");
+      const search = document.getElementById("catalogSearch");
+      if (CSS.supports("selector(:autofill)") && search.matches(":autofill")
+          && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(search.value.trim())) {
+        search.value = "";
+      }
+      const q = search.value.trim().toLocaleLowerCase("id");
+      document.getElementById("btnClearCatalogSearch").classList.toggle("hidden", !search.value);
       const inStockOnly = Boolean(document.getElementById("catalogInStockOnly")?.checked);
       const filtered = items.filter(item => {
         const searchable = [item.name, item.code, item.size, item.color].filter(Boolean).join(" ").toLocaleLowerCase("id");
@@ -2616,8 +2627,27 @@
       document.getElementById("searchInput").addEventListener("input", renderTransactions);
       document.getElementById("filterPayment").addEventListener("change", renderTransactions);
       document.getElementById("invSearchInput").addEventListener("input", renderInventory);
-      document.getElementById("catalogSearch").addEventListener("input", () => renderProductCatalog(isAdmin ? inventory : publicCatalog));
-      document.getElementById("catalogInStockOnly").addEventListener("change", () => renderProductCatalog(isAdmin ? inventory : publicCatalog));
+      const catalogSearch = document.getElementById("catalogSearch");
+      const refreshCatalog = () => renderProductCatalog(isAdmin ? inventory : publicCatalog);
+      const resetInitialCatalogSearch = () => {
+        catalogSearch.value = "";
+        refreshCatalog();
+      };
+      resetInitialCatalogSearch();
+      window.addEventListener("pageshow", event => {
+        if (!event.persisted) resetInitialCatalogSearch();
+      });
+      document.getElementById("catalogSearchForm").addEventListener("submit", event => {
+        event.preventDefault();
+        refreshCatalog();
+      });
+      catalogSearch.addEventListener("input", refreshCatalog);
+      document.getElementById("btnClearCatalogSearch").addEventListener("click", () => {
+        catalogSearch.value = "";
+        refreshCatalog();
+        catalogSearch.focus();
+      });
+      document.getElementById("catalogInStockOnly").addEventListener("change", refreshCatalog);
       document.getElementById("invImageFile").addEventListener("change", event => {
         const file = event.target.files?.[0];
         const wrap = document.getElementById("invImagePreviewWrap");
