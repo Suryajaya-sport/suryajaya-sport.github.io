@@ -170,16 +170,16 @@
             <i class="fa-solid fa-eye"></i>
           </div>
           <div>
-            <p class="text-base sm:text-lg font-extrabold text-slate-900">Laporan Toko Memerlukan Login</p>
+            <p class="text-base sm:text-lg font-extrabold text-slate-900">Masuk untuk Mencatat Penjualan</p>
             <p class="text-sm sm:text-base text-slate-700 mt-0.5 leading-relaxed">
-              Masuk sebagai pemilik untuk melihat laporan dan mencatat penjualan.
+              Login pemilik diperlukan untuk mencatat transaksi dan melihat laporan toko. Katalog publik tetap tersedia.
             </p>
           </div>
         </div>
         <button type="button" id="btnUnlockKasir"
           class="w-full md:w-auto px-6 py-4 rounded-2xl bg-blue-800 hover:bg-blue-900 text-white font-extrabold text-base flex items-center justify-center gap-2.5 shadow-md shrink-0 transition cursor-pointer">
           <i class="fa-solid fa-key text-amber-300"></i>
-          <span>Buka Kunci Admin</span>
+          <span>Masuk sebagai Pemilik</span>
         </button>
       </section>
 
@@ -527,12 +527,12 @@
             </div>
             <div class="sm:col-span-2">
               <label class="block min-h-[2.75rem] text-sm leading-tight font-bold text-slate-800 mb-1.5">Jumlah Dibeli (Pcs):</label>
-              <input type="number" min="1" id="restockQty" placeholder="Contoh: 10"
+              <input type="number" min="1" step="1" inputmode="numeric" id="restockQty" placeholder="Contoh: 10"
                 class="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-xl font-extrabold text-blue-800 focus:outline-none focus:border-emerald-600">
             </div>
             <div class="sm:col-span-2">
               <label class="block min-h-[2.75rem] text-sm leading-tight font-bold text-slate-800 mb-1.5">Total Harga Beli (Rp):</label>
-              <input type="number" min="0" id="restockTotal" placeholder="Contoh: 1800000"
+              <input type="number" min="0" step="1" inputmode="numeric" id="restockTotal" placeholder="Contoh: 1800000"
                 class="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-emerald-600">
             </div>
             <div class="sm:col-span-2">
@@ -588,17 +588,17 @@
             </div>
             <div class="sm:col-span-4">
               <label class="block min-h-[2.75rem] text-sm leading-tight font-bold text-slate-800 mb-1.5">Jumlah Stok Awal (Pcs) <span class="text-rose-600">*</span>:</label>
-              <input type="number" min="0" id="invStock" placeholder="Contoh: 10"
+              <input type="number" min="0" step="1" inputmode="numeric" id="invStock" placeholder="Contoh: 10"
                 class="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-xl font-extrabold text-blue-800 focus:outline-none focus:border-blue-600">
             </div>
             <div class="sm:col-span-4">
               <label class="block min-h-[2.75rem] text-sm leading-tight font-bold text-slate-800 mb-1.5">Harga Modal Beli (Rp):</label>
-              <input type="number" min="0" id="invCost" placeholder="Contoh: 180000"
+              <input type="number" min="0" step="1" inputmode="numeric" id="invCost" placeholder="Contoh: 180000"
                 class="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-blue-600">
             </div>
             <div class="sm:col-span-4">
               <label class="block min-h-[2.75rem] text-sm leading-tight font-bold text-slate-800 mb-1.5">Harga Jual Toko (Rp) <span class="text-rose-600">*</span>:</label>
-              <input type="number" min="0" id="invPrice" placeholder="Contoh: 235000"
+              <input type="number" min="0" step="1" inputmode="numeric" id="invPrice" placeholder="Contoh: 235000"
                 class="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-xl font-extrabold text-emerald-800 focus:outline-none focus:border-blue-600">
             </div>
           </div>
@@ -1071,6 +1071,57 @@
       };
     };
 
+    let saleSaveInProgress = false;
+    async function saveSaleAndUpdateStock(txData) {
+      if (!db) throw new Error("Database Firebase tidak terhubung.");
+      if (saleSaveInProgress) throw new Error("Penjualan sedang disimpan. Tunggu sebentar.");
+      saleSaveInProgress = true;
+
+      try {
+        const quantitiesByInventory = new Map();
+        for (const item of txData.items || []) {
+          if (!item.inventoryId) continue;
+          const nextQty = (quantitiesByInventory.get(item.inventoryId) || 0) + Number(item.qty);
+          if (!Number.isSafeInteger(nextQty) || nextQty < 1) {
+            throw new Error("Jumlah barang tidak valid.");
+          }
+          quantitiesByInventory.set(item.inventoryId, nextQty);
+        }
+
+        const transactionRef = doc(collection(db, ...paths("transactions")));
+        const inventoryRefs = new Map([...quantitiesByInventory.keys()].map(id => [
+          id, doc(db, ...paths("inventory", id))
+        ]));
+
+        await runTransaction(db, async cloudTransaction => {
+          const currentById = new Map();
+          for (const [id, ref] of inventoryRefs) {
+            const snapshot = await cloudTransaction.get(ref);
+            if (!snapshot.exists()) throw new Error("Barang sudah tidak ada di daftar stok. Pilih ulang barang.");
+            const current = snapshot.data();
+            const stock = Number(current.stock || 0);
+            const requested = quantitiesByInventory.get(id);
+            if (!Number.isSafeInteger(stock) || stock < requested) {
+              throw new Error(`Stok ${current.name || "barang"} tersisa ${Math.max(0, stock)} pcs.`);
+            }
+            currentById.set(id, stock);
+          }
+
+          cloudTransaction.set(transactionRef, txData);
+          for (const [id, ref] of inventoryRefs) {
+            cloudTransaction.update(ref, {
+              stock: currentById.get(id) - quantitiesByInventory.get(id),
+              updatedAt: new Date().toISOString()
+            });
+          }
+        });
+
+        return transactionRef.id;
+      } finally {
+        saleSaveInProgress = false;
+      }
+    }
+
     window.sjsRecordSaleFromAi = async function (payload) {
       if (!isAdmin) {
         return {
@@ -1093,7 +1144,10 @@
           || inventory.find(inv => inv.name && inv.name.toLowerCase() === qName.toLowerCase())
           || inventory.find(inv => inv.name && inv.name.toLowerCase().includes(qName.toLowerCase()));
 
-        const qty = Math.max(1, parseInt(it.qty) || 1);
+        const qty = it.qty == null || it.qty === "" ? 1 : Number(it.qty);
+        if (!Number.isSafeInteger(qty) || qty < 1) {
+          return { ok: false, message: "Jumlah setiap barang harus berupa bilangan bulat minimal 1." };
+        }
         const price = Number(it.price) > 0 ? Number(it.price) : (invMatch ? Number(invMatch.price || 0) : 0);
         const cost = Number(it.cost) > 0 ? Number(it.cost) : (invMatch ? Number(invMatch.cost || 0) : 0);
         const finalName = invMatch ? formatItemLabel(invMatch) : qName;
@@ -1129,16 +1183,7 @@
       };
 
       try {
-        let savedId = "local-" + Date.now();
-        if (db) {
-          const docRef = await addDoc(collection(db, ...paths("transactions")), txData);
-          savedId = docRef.id;
-        } else {
-          transactions.push({ id: savedId, ...txData });
-        }
-        for (const itm of itemsToSave) {
-          if (itm.inventoryId) await adjustStock(itm.inventoryId, -itm.qty);
-        }
+        const savedId = await saveSaleAndUpdateStock(txData);
         selectedDateStr = txDate;
         document.getElementById("bookDatePicker").value = txDate;
         renderApp();
@@ -1149,7 +1194,7 @@
           summary: `${itemsToSave.map(i => `${i.name} (${i.qty}x)`).join(", ")} | Total: ${rp(totalOmset)} | Bayar: ${matchedMethod} | Pembeli: ${customerName}`
         };
       } catch (e) {
-        return { ok: false, message: "Terjadi kesalahan saat menyimpan ke database." };
+        return { ok: false, message: e?.message || "Terjadi kesalahan saat menyimpan ke database." };
       }
     };
 
@@ -1377,17 +1422,17 @@
           </div>
           <div class="sm:col-span-2">
             <label class="block text-xs font-bold text-slate-600 mb-1">Modal (Rp):</label>
-            <input type="number" min="0" class="item-cost-input w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-800" placeholder="0" value="${prefill ? (prefill.cost || 0) : ""}">
+            <input type="number" min="0" step="1" inputmode="numeric" class="item-cost-input w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-800" placeholder="0" value="${prefill ? (prefill.cost || 0) : ""}">
           </div>
           <div class="sm:col-span-3">
             <label class="block text-xs font-bold text-slate-600 mb-1">Harga Jual (Rp):</label>
-            <input type="number" min="0" class="item-price-input w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-extrabold text-emerald-800" placeholder="0" value="${prefill ? (prefill.price || 0) : ""}">
+            <input type="number" min="0" step="1" inputmode="numeric" class="item-price-input w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-extrabold text-emerald-800" placeholder="0" value="${prefill ? (prefill.price || 0) : ""}">
           </div>
           <div class="sm:col-span-3">
             <label class="block text-xs font-bold text-slate-600 mb-1">Jumlah:</label>
             <div class="flex items-center gap-1">
               <button type="button" class="btn-qty-minus w-9 h-11 shrink-0 rounded-xl bg-slate-200 hover:bg-slate-300 font-extrabold text-lg text-slate-800 flex items-center justify-center cursor-pointer">-</button>
-              <input type="number" min="1" value="1" class="item-qty min-w-0 flex-1 px-1 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-extrabold text-center text-slate-900">
+              <input type="number" min="1" step="1" inputmode="numeric" value="1" class="item-qty min-w-0 flex-1 px-1 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-extrabold text-center text-slate-900">
               <button type="button" class="btn-qty-plus w-9 h-11 shrink-0 rounded-xl bg-blue-100 hover:bg-blue-200 font-extrabold text-lg text-blue-900 flex items-center justify-center cursor-pointer">+</button>
             </div>
           </div>
@@ -1469,12 +1514,17 @@
 
       for (const row of rows) {
         let name = row.querySelector(".item-name-input").value.trim();
-        const cost = parseFloat(row.querySelector(".item-cost-input").value) || 0;
-        const price = parseFloat(row.querySelector(".item-price-input").value) || 0;
-        const qty = parseInt(row.querySelector(".item-qty").value) || 1;
+        const cost = Number(row.querySelector(".item-cost-input").value);
+        const price = Number(row.querySelector(".item-price-input").value);
+        const qty = Number(row.querySelector(".item-qty").value);
         if (!name) { showToast("Isi nama barang terlebih dahulu!"); return; }
+        if (!Number.isSafeInteger(qty) || qty < 1) { showToast("Jumlah barang harus bilangan bulat minimal 1."); return; }
+        if (!Number.isSafeInteger(cost) || cost < 0 || !Number.isSafeInteger(price) || price < 0) {
+          showToast("Modal dan harga jual harus berupa angka Rupiah yang valid."); return;
+        }
         const invId = row.dataset.invId || "";
         const invObj = invId ? inventory.find(i => i.id === invId) : null;
+        if (invId && !invObj) { showToast("Barang sudah tidak ada di stok. Pilih ulang barang."); return; }
         if (invObj && invObj.name) {
           name = formatItemLabel(invObj);
         }
@@ -1502,16 +1552,7 @@
       };
 
       try {
-        let savedId = "local-" + Date.now();
-        if (db) {
-          const docRef = await addDoc(collection(db, ...paths("transactions")), txData);
-          savedId = docRef.id;
-        } else {
-          transactions.push({ id: savedId, ...txData });
-        }
-        for (const itm of itemsToSave) {
-          if (itm.inventoryId) await adjustStock(itm.inventoryId, -itm.qty);
-        }
+        const savedId = await saveSaleAndUpdateStock(txData);
         selectedDateStr = txDate;
         document.getElementById("bookDatePicker").value = txDate;
         document.getElementById("inputCustomer").value = "";
@@ -1524,7 +1565,7 @@
           executeReceiptPrint({ id: savedId, ...txData });
         }
       } catch (err) {
-        showToast("Gagal menyimpan transaksi.");
+        showToast(err?.message || "Gagal menyimpan transaksi.");
       }
     }
 
