@@ -4,8 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="google-site-verification" content="vrjxxpAYXCef2vnrqp5wAciun8wWjnBmJjEJuMtGBF0">
-  <title>Surya Jaya Sport - Katalog Perlengkapan Olahraga</title>
-  <meta name="description" content="Lihat katalog perlengkapan olahraga Surya Jaya Sport di Berau. Cek harga dan ketersediaan produk, lalu hubungi toko untuk bertanya atau memesan.">
+  <title>Surya Jaya Sport | Toko Olahraga &amp; Musik di Berau</title>
+  <meta name="description" content="Katalog toko olahraga dan musik Surya Jaya Sport di Tanjung Redeb, Berau. Cari perlengkapan badminton, futsal, dan senar gitar, lalu tanya stok lewat WhatsApp.">
+  <link rel="canonical" href="https://suryajaya-sport.github.io/">
+  <link rel="icon" href="/sjs-mark.png" type="image/png">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="id_ID">
+  <meta property="og:site_name" content="Surya Jaya Sport">
+  <meta property="og:url" content="https://suryajaya-sport.github.io/">
+  <meta property="og:title" content="Surya Jaya Sport | Toko Olahraga &amp; Musik di Berau">
+  <meta property="og:description" content="Lihat perlengkapan olahraga dan musik Surya Jaya Sport di Berau, lalu cek stok lewat WhatsApp.">
+  <meta property="og:image" content="https://suryajaya-sport.github.io/sjs-mark.png">
+  <meta property="og:image:alt" content="Logo Surya Jaya Sport">
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SportingGoodsStore",
+      "@id": "https://suryajaya-sport.github.io/#toko",
+      "name": "Surya Jaya Sport",
+      "url": "https://suryajaya-sport.github.io/",
+      "image": "https://suryajaya-sport.github.io/sjs-mark.png",
+      "telephone": "+6282320033333",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Jl. Jendral Ahmad Yani No. 37",
+        "addressLocality": "Tanjung Redeb, Berau",
+        "addressRegion": "Kalimantan Timur",
+        "addressCountry": "ID"
+      }
+    }
+  </script>
   <!-- Versi 2026-11-19: thumbnail hasil penjualan di desktop dan HP -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -198,6 +226,14 @@
         </div>
         <div id="productCatalogGrid" class="grid grid-cols-2 gap-3 bg-slate-50/60 p-3 sm:grid-cols-3 sm:gap-4 sm:p-4 lg:grid-cols-4 xl:grid-cols-5"></div>
       </section>
+      <nav id="featuredProducts" aria-label="Detail produk unggulan" class="rounded-2xl border border-slate-200 bg-white p-4 text-sm shadow-sm">
+        <p class="mb-2 font-bold text-slate-800">Detail produk pilihan</p>
+        <ul class="flex flex-wrap gap-x-5 gap-y-2 text-blue-800">
+          <li><a data-product-code="SJS-035" class="underline underline-offset-2" href="/produk/senar-gitar-elixir/">Senar Gitar Elixir</a></li>
+          <li><a data-product-code="SJS-034" class="underline underline-offset-2" href="/produk/senar-gitar-daddario/">Senar Gitar D’Addario</a></li>
+          <li><a data-product-code="SJS-033" class="underline underline-offset-2" href="/produk/kaos-kaki-avo-futsal-junior/">Kaos Kaki AVO Futsal Junior</a></li>
+        </ul>
+      </nav>
       <div class="rounded-2xl border border-slate-200 bg-white p-4 text-center text-sm text-slate-600 shadow-sm sm:p-5">
         <strong class="text-slate-800">Kunjungi toko kami</strong><br>
         Jl. Jendral Ahmad Yani No. 37, Berau · <a class="whitespace-nowrap font-bold text-blue-800 underline underline-offset-2" href="tel:+6282320033333">0823-2003-3333</a>
@@ -2573,6 +2609,16 @@
       const grid = document.getElementById("productCatalogGrid");
       if (!grid) return;
       const items = publicCatalog;
+      const featured = document.getElementById("featuredProducts");
+      const productLinks = new Map([...featured.querySelectorAll("[data-product-code]")]
+        .map(link => [link.dataset.productCode, link.getAttribute("href")]));
+      if (catalogLoadState === "ready") {
+        const published = new Set(items.map(item => item.code));
+        for (const link of featured.querySelectorAll("[data-product-code]")) {
+          link.closest("li").hidden = !published.has(link.dataset.productCode);
+        }
+        featured.hidden = ![...productLinks.keys()].some(code => published.has(code));
+      }
       const search = document.getElementById("catalogSearch");
       if (CSS.supports("selector(:autofill)") && search.matches(":autofill")
           && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(search.value.trim())) {
@@ -2603,7 +2649,9 @@
         return `<article class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
           ${productImageMarkup(item, "w-full aspect-square", 560)}
           <div class="flex min-h-40 flex-col p-3 sm:p-3.5">
-            <p class="font-extrabold text-sm sm:text-base text-slate-900 line-clamp-2 min-h-10">${esc(item.name || "Produk")}</p>
+            <p class="font-extrabold text-sm sm:text-base text-slate-900 line-clamp-2 min-h-10">${productLinks.has(item.code)
+              ? `<a href="${esc(productLinks.get(item.code))}" class="text-blue-900 underline decoration-blue-200 underline-offset-2 hover:decoration-current">${esc(item.name || "Produk")}</a>`
+              : esc(item.name || "Produk")}</p>
             <p class="text-xs text-slate-500 mt-1">${esc(item.code || "")} ${item.size ? "• " + esc(item.size) : ""} ${item.color ? "• " + esc(item.color) : ""}</p>
             <p class="text-base sm:text-lg font-extrabold text-emerald-700 mt-2">${rp(item.price)}</p>
             <span class="mt-1 inline-block w-fit rounded-lg px-2 py-1 text-xs font-bold ${stock > 0 ? "bg-emerald-50 text-emerald-800" : "bg-rose-50 text-rose-800"}">${stock > 0 ? "Stok: " + stock + " pcs" : "Stok habis"}</span>
