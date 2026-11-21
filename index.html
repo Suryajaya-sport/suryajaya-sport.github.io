@@ -1276,7 +1276,7 @@
           id, doc(db, ...paths("inventory", id))
         ]));
 
-        await runTransaction(db, async cloudTransaction => {
+        const savedSale = await runTransaction(db, async cloudTransaction => {
           const currentById = new Map();
           for (const [id, ref] of inventoryRefs) {
             const snapshot = await cloudTransaction.get(ref);
@@ -1287,12 +1287,28 @@
             if (!Number.isSafeInteger(stock) || stock < requested) {
               throw new Error(`Stok ${current.name || "barang"} tersisa ${Math.max(0, stock)} pcs.`);
             }
+            const cost = typeof current.cost === "string" && current.cost.trim()
+              ? Number(current.cost) : current.cost;
+            if (!Number.isFinite(cost) || cost < 0) {
+              throw new Error(`Harga modal ${current.name || "barang"} tidak valid. Perbaiki harga modal di inventaris.`);
+            }
             const publicRef = doc(db, "publicCatalog", id);
             const published = await cloudTransaction.get(publicRef);
-            currentById.set(id, { stock, publicRef, published: published.exists() });
+            currentById.set(id, { stock, cost, publicRef, published: published.exists() });
           }
 
-          cloudTransaction.set(transactionRef, txData);
+          const items = txData.items.map(item => ({
+            ...item,
+            cost: item.inventoryId ? currentById.get(item.inventoryId).cost : item.cost,
+            subtotal: item.price * item.qty
+          }));
+          const totalOmset = items.reduce((sum, item) => sum + item.subtotal, 0);
+          const totalModal = items.reduce((sum, item) => sum + item.cost * item.qty, 0);
+          if (!Number.isFinite(totalOmset) || !Number.isFinite(totalModal)) {
+            throw new Error("Total penjualan atau harga pokok tidak valid.");
+          }
+          const sale = { ...txData, items, totalOmset, totalModal, totalProfit: totalOmset - totalModal };
+          cloudTransaction.set(transactionRef, sale);
           for (const [id, ref] of inventoryRefs) {
             const current = currentById.get(id);
             const stock = current.stock - quantitiesByInventory.get(id);
@@ -1302,9 +1318,10 @@
             });
             if (current.published) cloudTransaction.update(current.publicRef, { stock });
           }
+          return sale;
         });
 
-        return transactionRef.id;
+        return { ...savedSale, id: transactionRef.id };
       } finally {
         saleSaveInProgress = false;
       }
@@ -1323,7 +1340,6 @@
       }
 
       const itemsToSave = [];
-      let totalOmset = 0, totalModal = 0;
 
       for (const it of rawItems) {
         const qName = String(it.name || "").trim();
@@ -1337,15 +1353,13 @@
           return { ok: false, message: "Jumlah setiap barang harus berupa bilangan bulat minimal 1." };
         }
         const price = Number(it.price) > 0 ? Number(it.price) : (invMatch ? Number(invMatch.price || 0) : 0);
-        const cost = Number(it.cost) > 0 ? Number(it.cost) : (invMatch ? Number(invMatch.cost || 0) : 0);
+        const manualCost = Number(it.cost);
+        const cost = !invMatch && Number.isFinite(manualCost) && manualCost > 0 ? manualCost : 0;
         const finalName = invMatch ? formatItemLabel(invMatch) : qName;
         const invId = invMatch ? invMatch.id : "";
-        const subtotal = price * qty;
 
-        totalOmset += subtotal;
-        totalModal += cost * qty;
         itemsToSave.push({
-          inventoryId: invId, name: finalName, qty, price, cost, subtotal,
+          inventoryId: invId, name: finalName, qty, price, cost,
           imageUrl: invMatch?.imageUrl || ""
         });
       }
@@ -1364,22 +1378,19 @@
         customer: customerName,
         paymentMethod: matchedMethod,
         items: itemsToSave,
-        totalOmset,
-        totalModal,
-        totalProfit: totalOmset - totalModal,
         createdAt: new Date().toISOString()
       };
 
       try {
-        const savedId = await saveSaleAndUpdateStock(txData);
+        const savedSale = await saveSaleAndUpdateStock(txData);
         selectedDateStr = txDate;
         document.getElementById("bookDatePicker").value = txDate;
         renderApp();
         showToast("Transaksi dari AI berhasil dicatat!");
         return {
           ok: true,
-          txId: savedId,
-          summary: `${itemsToSave.map(i => `${i.name} (${i.qty}x)`).join(", ")} | Total: ${rp(totalOmset)} | Bayar: ${matchedMethod} | Pembeli: ${customerName}`
+          txId: savedSale.id,
+          summary: `${savedSale.items.map(i => `${i.name} (${i.qty}x)`).join(", ")} | Total: ${rp(savedSale.totalOmset)} | Bayar: ${matchedMethod} | Pembeli: ${customerName}`
         };
       } catch (e) {
         return { ok: false, message: e?.message || "Terjadi kesalahan saat menyimpan ke database." };
@@ -1639,7 +1650,7 @@
           </div>
           <div class="sm:col-span-2">
             <label class="block text-xs font-bold text-slate-600 mb-1">Modal (Rp):</label>
-            <input type="number" min="0" step="1" inputmode="numeric" class="item-cost-input w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-800" placeholder="0" value="${prefill ? (prefill.cost || 0) : ""}">
+            <input type="number" min="0" step="1" inputmode="numeric" class="item-cost-input w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-800" placeholder="0" value="${prefill ? (prefill.cost || 0) : ""}" ${prefill?.id ? "readonly" : ""}>
           </div>
           <div class="sm:col-span-3">
             <label class="block text-xs font-bold text-slate-600 mb-1">Harga Jual (Rp):</label>
@@ -1668,17 +1679,18 @@
 
       const handleItemSelect = () => {
         const match = matchInventoryFromText(nameInput.value);
+        const previousId = rowDiv.dataset.invId;
         const nextId = match?.id || "";
-        if (rowDiv.dataset.invId !== nextId) {
+        if (previousId !== nextId) {
           preview.innerHTML = match ? productImageMarkup(match, "h-12 w-12 rounded-lg", 160, { eager: true }) : "";
+          if (!match) costInput.value = "";
         }
+        rowDiv.dataset.invId = nextId;
+        costInput.readOnly = Boolean(match);
         if (match) {
-          rowDiv.dataset.invId = match.id;
           costInput.value = match.cost || 0;
           priceInput.value = match.price || 0;
           nameInput.value = formatItemLabel(match);
-        } else {
-          rowDiv.dataset.invId = "";
         }
         calculateSaleTotals();
       };
@@ -1727,13 +1739,12 @@
         const data = sale.data();
         if (data.cancelledAt) return { alreadyCancelled: true };
         const restored = [];
-        const skippedIds = [];
         for (const [inventoryId, qty] of saleInventoryQuantities(data.items)) {
           const ref = doc(db, ...paths("inventory", inventoryId));
           const current = await transaction.get(ref);
           if (!current.exists()) {
-            skippedIds.push(inventoryId);
-            continue;
+            const name = data.items.find(item => item.inventoryId === inventoryId)?.name || "Barang";
+            throw new Error(`Pembatalan gagal. Pulihkan ${name} (ID ${inventoryId}) ke inventaris terlebih dahulu.`);
           }
           const publicRef = doc(db, "publicCatalog", inventoryId);
           const published = await transaction.get(publicRef);
@@ -1750,10 +1761,9 @@
         }
         transaction.update(saleRef, {
           cancelledAt,
-          cancellationReason: reason.trim().slice(0, 160),
-          cancelledSkippedInventoryIds: skippedIds
+          cancellationReason: reason.trim().slice(0, 160)
         });
-        return { alreadyCancelled: false, skippedCount: skippedIds.length };
+        return { alreadyCancelled: false };
       });
     }
 
@@ -1761,11 +1771,11 @@
       if (!db || !isAdmin) return showToast("Masuk ke akun pemilik terlebih dahulu.");
       const rows = document.querySelectorAll("#saleItemsContainer > div");
       const itemsToSave = [];
-      let totalOmset = 0, totalModal = 0;
 
       for (const row of rows) {
         let name = row.querySelector(".item-name-input").value.trim();
-        const cost = Number(row.querySelector(".item-cost-input").value);
+        const invId = row.dataset.invId || "";
+        const cost = invId ? 0 : Number(row.querySelector(".item-cost-input").value);
         const price = Number(row.querySelector(".item-price-input").value);
         const qty = Number(row.querySelector(".item-qty").value);
         if (!name) { showToast("Isi nama barang terlebih dahulu!"); return; }
@@ -1773,17 +1783,13 @@
         if (!Number.isSafeInteger(cost) || cost < 0 || !Number.isSafeInteger(price) || price < 0) {
           showToast("Modal dan harga jual harus berupa angka Rupiah yang valid."); return;
         }
-        const invId = row.dataset.invId || "";
         const invObj = invId ? inventory.find(i => i.id === invId) : null;
         if (invId && !invObj) { showToast("Barang sudah tidak ada di stok. Pilih ulang barang."); return; }
         if (invObj && invObj.name) {
           name = formatItemLabel(invObj);
         }
-        const subtotal = price * qty;
-        totalOmset += subtotal;
-        totalModal += cost * qty;
         itemsToSave.push({
-          inventoryId: invId, name, qty, price, cost, subtotal,
+          inventoryId: invId, name, qty, price, cost,
           imageUrl: invObj?.imageUrl || ""
         });
       }
@@ -1796,14 +1802,11 @@
         customer: customerName,
         paymentMethod: selectedPaymentMethod,
         items: itemsToSave,
-        totalOmset,
-        totalModal,
-        totalProfit: totalOmset - totalModal,
         createdAt: new Date().toISOString()
       };
 
       try {
-        const savedId = await saveSaleAndUpdateStock(txData);
+        const savedSale = await saveSaleAndUpdateStock(txData);
         selectedDateStr = txDate;
         document.getElementById("bookDatePicker").value = txDate;
         document.getElementById("inputCustomer").value = "";
@@ -1813,7 +1816,7 @@
         renderApp();
 
         if (printAfterSave) {
-          executeReceiptPrint({ id: savedId, ...txData });
+          executeReceiptPrint(savedSale);
         }
       } catch (err) {
         showToast(err?.message || "Gagal menyimpan transaksi.");
@@ -3139,7 +3142,7 @@
       const cancelSale = type === "tx";
       document.getElementById("deleteModalTitle").textContent = cancelSale ? "Batalkan transaksi?" : "Hapus barang ini?";
       document.getElementById("deleteModalDesc").textContent = cancelSale
-        ? "Stok yang tercatat akan dikembalikan dan pembatalan disimpan. Jika pembayaran sudah diterima, proses pengembalian dana melalui cara bayar asal."
+        ? "Pembatalan disimpan jika seluruh stok terkait berhasil dikembalikan. Jika pembayaran sudah diterima, proses pengembalian dana melalui cara bayar asal."
         : "Barang yang dihapus tidak dapat dikembalikan.";
       document.getElementById("btnConfirmDelete").textContent = cancelSale ? "Ya, Batalkan Transaksi" : "Ya, Hapus";
       document.getElementById("cancelReasonField").classList.toggle("hidden", !cancelSale);
@@ -3440,7 +3443,6 @@
             const reason = document.getElementById("cancelReasonInput").value;
             const result = await cancelSaleAndRestoreStock(id, reason);
             if (result.alreadyCancelled) showToast("Transaksi ini sudah dibatalkan.");
-            else if (result.skippedCount) showToast("Transaksi dibatalkan. Barang yang sudah dihapus dari stok dilewati.");
             else showToast("Transaksi dibatalkan. Stok barang dikembalikan.");
           }
           closeDeleteConfirmation();
