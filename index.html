@@ -95,7 +95,7 @@
     #sjsAiFab button { background: #2563eb; color: #fff; width: 60px; height: 60px; border-radius: 50%; border: 3px solid #f59e0b; box-shadow: 0 10px 25px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; transition: transform 0.2s; }
     #sjsAiFab button:hover { transform: scale(1.08); }
     #sjsAiBox { position: fixed; bottom: 96px; right: 24px; width: 400px; max-width: calc(100vw - 32px); height: 560px; max-height: calc(100vh - 120px); background: #ffffff; border-radius: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.25); border: 2px solid #cbd5e1; display: flex; flex-direction: column; overflow: hidden; z-index: 99999; }
-    #sjsAiBox.hidden { display: none !important; }
+    #sjsAiBox.hidden, #sjsAssistantSaleActions[hidden] { display: none !important; }
   </style>
 </head>
 <body class="text-slate-900 antialiased min-h-screen flex flex-col">
@@ -850,7 +850,7 @@
 </form><div id="adminActivePanel" class="hidden p-5 space-y-4">
         <div class="bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-4 text-sm text-emerald-950">
           <p class="font-extrabold text-base"><i class="fa-solid fa-circle-check text-emerald-600 mr-1.5"></i> Mode Admin Sedang Aktif</p>
-          <p class="mt-1">Anda bebas mencatat penjualan (manual maupun lewat chat AI), mengubah stok, dan menghapus transaksi.</p>
+          <p class="mt-1">Catat penjualan lewat formulir atau Asisten Toko, kelola stok, dan batalkan transaksi.</p>
         </div>
         <button type="button" id="btnLockToReadOnly" class="w-full py-4 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-base flex items-center justify-center gap-2 shadow-sm cursor-pointer">
           <i class="fa-solid fa-lock"></i><span>Keluar dari Admin</span>
@@ -1057,52 +1057,37 @@
     <span id="toastMessage"></span>
   </div>
 
-  <!-- ASISTEN AI TERINTEGRASI (INPUT TRANSAKSI & CLOUD API KEY) -->
-  <div id="sjsAiFab" class="no-print">
-    <button type="button" id="sjsAiToggleBtn" title="Buka Asisten Toko"><i class="fa-solid fa-robot"></i></button>
+  <div id="sjsAiFab" class="no-print hidden">
+    <button type="button" id="sjsAiToggleBtn" aria-label="Buka Asisten Toko" aria-expanded="false" aria-controls="sjsAiBox">
+      <i class="fa-solid fa-robot" aria-hidden="true"></i>
+    </button>
   </div>
-
-  <div id="sjsAiBox" class="hidden no-print">
-    <div style="background: linear-gradient(to right, #1e3a8a, #1d4ed8); color: white; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between;">
-      <div style="display: flex; align-items: center; gap: 10px;">
-        <div style="width: 36px; height: 36px; background: #f59e0b; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #1e3a8a; font-weight: bold;"><i class="fa-solid fa-robot"></i></div>
-        <div>
-          <h4 style="font-weight: 800; font-size: 15px; margin: 0;">Asisten Toko Surya Jaya</h4>
-          <p id="sjsAiStatusSub" style="font-size: 11px; opacity: 0.9; margin: 0;">Online • gemini-4-hydrogen</p>
-        </div>
-      </div>
-      <div style="display: flex; align-items: center; gap: 6px;">
-        <button type="button" id="sjsAiKeyBtn" title="Atur API Key Gemini (Tersimpan Cloud)" style="background: rgba(255,255,255,0.2); border: none; color: #fde047; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold;"><i class="fa-solid fa-key"></i></button>
-        <button type="button" id="sjsAiCloseBtn" style="background: rgba(255,255,255,0.2); border: none; color: #fff; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-weight: bold;"><i class="fa-solid fa-xmark"></i></button>
-      </div>
+  <section id="sjsAiBox" class="hidden no-print" aria-labelledby="sjsAssistantTitle">
+    <div class="flex items-center justify-between gap-3 bg-blue-900 px-4 py-3 text-white">
+      <h2 id="sjsAssistantTitle" class="font-extrabold">Asisten Toko Surya Jaya</h2>
+      <button type="button" id="sjsAiCloseBtn" class="rounded-lg px-3 py-2 font-bold hover:bg-white/20" aria-label="Tutup Asisten Toko">Tutup</button>
     </div>
-
-    <div id="sjsAiKeyPanel" class="hidden" style="background: #fef3c7; padding: 10px 14px; border-bottom: 2px solid #f59e0b; display: flex; flex-direction: column; gap: 6px;">
-      <label style="font-size: 11px; font-weight: 800; color: #78350f;">Masukkan Gemini API Key (Otomatis sinkron ke semua HP/PC):</label>
-      <div style="display: flex; gap: 6px;">
-        <input type="password" id="sjsAiKeyInput" placeholder="Tempel AIzaSy... di sini" style="flex: 1; padding: 6px 10px; border: 1px solid #d97706; border-radius: 8px; font-size: 12px !important;">
-        <button type="button" id="sjsAiSaveKeyBtn" style="background: #d97706; color: #fff; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer;">Simpan</button>
-      </div>
+    <div id="sjsAssistantShortcuts" class="flex flex-wrap gap-1.5 border-b border-slate-200 bg-white p-2 text-xs font-bold text-blue-900">
+      <button type="button" class="rounded-lg bg-blue-50 px-2 py-2" data-assistant-command="Omzet kemarin">Omzet kemarin</button>
+      <button type="button" class="rounded-lg bg-blue-50 px-2 py-2" data-assistant-command="Laba rugi bulan ini">Laba rugi</button>
+      <button type="button" class="rounded-lg bg-blue-50 px-2 py-2" data-assistant-command="Terlaris 30 hari">Barang terlaris</button>
+      <button type="button" class="rounded-lg bg-blue-50 px-2 py-2" data-assistant-command="Saran restok">Saran restok</button>
+      <button type="button" class="rounded-lg bg-blue-50 px-2 py-2" data-assistant-command="Peluang barang baru">Barang baru</button>
     </div>
-
-    <div id="sjsAiChatLog" style="flex: 1; padding: 14px; overflow-y: auto; background: #f8fafc; font-size: 13px; display: flex; flex-direction: column; gap: 10px;">
-      <div style="background: #e2e8f0; color: #0f172a; padding: 10px 14px; border-radius: 14px; max-width: 88%; line-height: 1.45;">
-        Halo Bos! Saya siap bantu cek laporan maupun <strong>catat penjualan langsung</strong>.<br><br>
-        <strong>Contoh perintah catat jualan:</strong><br>
-        &bull; <em>"Catat jual 2 slop kok bayar QRIS"</em><br>
-        &bull; <em>"Laku 1 raket Yonex 499000 pembeli Budi bayar cash"</em>
-      </div>
+    <div id="sjsAiChatLog" class="flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto bg-slate-50 p-3 text-sm" role="log" aria-live="polite"></div>
+    <div id="sjsAssistantSaleActions" class="flex gap-2 border-t border-slate-200 bg-white px-3 py-2" hidden>
+      <button type="button" id="sjsAssistantConfirm" class="flex-1 rounded-lg bg-emerald-700 px-3 py-2 text-sm font-bold text-white disabled:opacity-50">Simpan penjualan</button>
+      <button type="button" id="sjsAssistantCancel" class="rounded-lg bg-slate-100 px-3 py-2 text-sm font-bold disabled:opacity-50">Batalkan draf</button>
     </div>
-
-    <div style="padding: 10px; background: #ffffff; border-top: 2px solid #e2e8f0; display: flex; gap: 8px;">
-      <input type="text" id="sjsAiInput" placeholder="Ketik perintah transaksi atau pertanyaan..." style="flex: 1; padding: 10px 14px; border: 2px solid #cbd5e1; border-radius: 12px; font-size: 13px !important; outline: none;">
-      <button type="button" id="sjsAiSendBtn" style="background: #2563eb; color: #fff; border: none; padding: 0 16px; border-radius: 12px; font-weight: bold; cursor: pointer;"><i class="fa-solid fa-paper-plane"></i></button>
-    </div>
-  </div>
+    <form id="sjsAssistantForm" class="flex gap-2 border-t border-slate-200 bg-white p-3">
+      <input type="text" id="sjsAiInput" class="min-w-0 flex-1 rounded-lg border border-slate-300 px-2 py-2" maxlength="400" autocomplete="off" placeholder="Tanya laporan, stok, atau catat jual" aria-label="Pesan untuk Asisten Toko">
+      <button type="submit" id="sjsAiSendBtn" class="rounded-lg bg-blue-800 px-3 py-2 font-bold text-white disabled:opacity-50">Kirim</button>
+    </form>
+  </section>
 
   <script type="module">
     let initializeApp, getApps, getFirestore;
-    let doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc, getDocs, getDocsFromServer, writeBatch, runTransaction;
+    let doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc, getDocs, getDocsFromServer, query, where, writeBatch, runTransaction;
     let getStorage, storageRef, uploadBytes, getDownloadURL, storage = null;
 
     const EMBEDDED_FIREBASE_CONFIG = {
@@ -1128,7 +1113,6 @@
     let unsubscribe = [];
     const books = { expenses: [], cashClosings: [] };
     let savedQrisPayload = QRIS_DEFAULT_PAYLOAD;
-    let cloudGeminiApiKey = localStorage.getItem("sjs_gemini_api_key") || "";
 
     let transactions = [];
     let cancelledTransactions = [];
@@ -1205,48 +1189,6 @@
         imageUrl: productImageUrl(item).slice(0, 2048)
       };
     }
-
-    // --- JEMBATAN DATA & AKSI UNTUK ASISTEN AI ---
-    window.sjsGetApiKey = function () {
-      if (!isAdmin) return "";
-      return cloudGeminiApiKey || localStorage.getItem("sjs_gemini_api_key") || "";
-    };
-
-    window.sjsSaveApiKey = async function (newKey) {
-      if (!isAdmin) return false;
-      const clean = String(newKey || "").trim();
-      if (!clean) return false;
-      cloudGeminiApiKey = clean;
-      localStorage.setItem("sjs_gemini_api_key", clean);
-      await saveConfig({ geminiApiKey: clean });
-      return true;
-    };
-
-    window.sjsGetContext = function () {
-      const todayTx = transactions.filter(t => t.date === todayStr());
-      return {
-        isAdminActive: isAdmin,
-        tanggalHariIni: todayStr(),
-        transaksiHariIni: todayTx.map(t => ({
-          pembeli: t.customer || "Umum",
-          bayar: t.paymentMethod,
-          omset: t.totalOmset,
-          untung: t.totalProfit,
-          barang: (t.items || []).map(i => `${i.name} (${i.qty} pcs @ ${i.price})`)
-        })),
-        totalTransaksiSemuaHari: transactions.length,
-        daftarStok: inventory.map(i => ({
-          id: i.id,
-          kode: i.code,
-          nama: i.name,
-          ukuran: i.size,
-          warna: i.color,
-          stok: i.stock,
-          modal: i.cost,
-          hargaJual: i.price
-        }))
-      };
-    };
 
     function saleInventoryQuantities(items) {
       const quantities = new Map();
@@ -1326,76 +1268,6 @@
         saleSaveInProgress = false;
       }
     }
-
-    window.sjsRecordSaleFromAi = async function (payload) {
-      if (!isAdmin) {
-        return {
-          ok: false,
-          message: "Mode Admin belum dibuka. Silakan klik tombol 'Buka Kunci Admin' di bagian atas layar terlebih dahulu agar saya bisa menyimpan transaksi ke pembukuan."
-        };
-      }
-      const rawItems = Array.isArray(payload.items) ? payload.items : [];
-      if (rawItems.length === 0) {
-        return { ok: false, message: "Daftar barang tidak terbaca." };
-      }
-
-      const itemsToSave = [];
-
-      for (const it of rawItems) {
-        const qName = String(it.name || "").trim();
-        if (!qName) continue;
-        const invMatch = inventory.find(inv => inv.id === it.inventoryId)
-          || inventory.find(inv => inv.name && inv.name.toLowerCase() === qName.toLowerCase())
-          || inventory.find(inv => inv.name && inv.name.toLowerCase().includes(qName.toLowerCase()));
-
-        const qty = it.qty == null || it.qty === "" ? 1 : Number(it.qty);
-        if (!Number.isSafeInteger(qty) || qty < 1) {
-          return { ok: false, message: "Jumlah setiap barang harus berupa bilangan bulat minimal 1." };
-        }
-        const price = Number(it.price) > 0 ? Number(it.price) : (invMatch ? Number(invMatch.price || 0) : 0);
-        const manualCost = Number(it.cost);
-        const cost = !invMatch && Number.isFinite(manualCost) && manualCost > 0 ? manualCost : 0;
-        const finalName = invMatch ? formatItemLabel(invMatch) : qName;
-        const invId = invMatch ? invMatch.id : "";
-
-        itemsToSave.push({
-          inventoryId: invId, name: finalName, qty, price, cost,
-          imageUrl: invMatch?.imageUrl || ""
-        });
-      }
-
-      if (itemsToSave.length === 0) {
-        return { ok: false, message: "Tidak ada item valid untuk disimpan." };
-      }
-
-      const validMethods = ["Cash", "QRIS", "Kartu", "Transfer"];
-      const matchedMethod = validMethods.find(m => m.toLowerCase() === String(payload.paymentMethod || "").toLowerCase()) || "Cash";
-      const txDate = payload.date && /^\d{4}-\d{2}-\d{2}$/.test(payload.date) ? payload.date : todayStr();
-      const customerName = String(payload.customer || "").trim() || "Pelanggan Umum";
-
-      const txData = {
-        date: txDate,
-        customer: customerName,
-        paymentMethod: matchedMethod,
-        items: itemsToSave,
-        createdAt: new Date().toISOString()
-      };
-
-      try {
-        const savedSale = await saveSaleAndUpdateStock(txData);
-        selectedDateStr = txDate;
-        document.getElementById("bookDatePicker").value = txDate;
-        renderApp();
-        showToast("Transaksi dari AI berhasil dicatat!");
-        return {
-          ok: true,
-          txId: savedSale.id,
-          summary: `${savedSale.items.map(i => `${i.name} (${i.qty}x)`).join(", ")} | Total: ${rp(savedSale.totalOmset)} | Bayar: ${matchedMethod} | Pembeli: ${customerName}`
-        };
-      } catch (e) {
-        return { ok: false, message: e?.message || "Terjadi kesalahan saat menyimpan ke database." };
-      }
-    };
 
     // --- FUNGSI NOTA PENJUALAN (CANON E470 - 1/2 A4, BERSIH TANPA URL) ---
     function buildReceiptHtml(tx) {
@@ -1480,13 +1352,17 @@
       }, 150);
     }
 
-    window.openReceiptModal = function (txId) {
-      const tx = transactions.find(t => t.id === txId);
-      if (!tx) { showToast("Data transaksi tidak ditemukan."); return; }
+    function showReceiptPreview(tx) {
       const html = buildReceiptHtml(tx);
       document.getElementById("receiptPreviewBody").innerHTML = html;
       document.getElementById("receiptPrintSheet").innerHTML = html;
       document.getElementById("receiptPreviewModal").classList.remove("hidden");
+    }
+
+    window.openReceiptModal = function (txId) {
+      const tx = transactions.find(t => t.id === txId);
+      if (!tx) { showToast("Data transaksi tidak ditemukan."); return; }
+      showReceiptPreview(tx);
     };
 
     async function initFirebase() {
@@ -1499,7 +1375,7 @@
         ]);
         ({ initializeApp, getApps } = appM);
         firebaseAuth = authM;
-        ({ getFirestore, doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc, getDocs, getDocsFromServer, writeBatch, runTransaction } = fsM);
+        ({ getFirestore, doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc, getDocs, getDocsFromServer, query, where, writeBatch, runTransaction } = fsM);
         ({ getStorage, ref: storageRef, uploadBytes, getDownloadURL } = storageM);
         const app = getApps().length ? getApps()[0] : initializeApp(EMBEDDED_FIREBASE_CONFIG);
         auth = authM.getAuth(app);
@@ -1517,9 +1393,8 @@
           purchases = [];
           books.expenses = [];
           books.cashClosings = [];
+          resetShopAssistant();
           if (!isAdmin) {
-            cloudGeminiApiKey = "";
-            try { localStorage.removeItem("sjs_gemini_api_key"); } catch {}
             setShopName("Surya Jaya Sport");
             savedQrisPayload = QRIS_DEFAULT_PAYLOAD;
             for (const id of ["receiptPreviewBody", "receiptPrintSheet", "dailyRecapList"]) {
@@ -1583,10 +1458,6 @@
     function applyConfig(data) {
       if (data.shopName) setShopName(data.shopName);
       if (data.qrisPayload) savedQrisPayload = data.qrisPayload;
-      if (isAdmin && data.geminiApiKey) {
-        cloudGeminiApiKey = String(data.geminiApiKey);
-        localStorage.setItem("sjs_gemini_api_key", cloudGeminiApiKey);
-      }
       if (!document.getElementById("qrisPayModal").classList.contains("hidden")) renderQrisPaymentScreen();
     }
 
@@ -3036,6 +2907,7 @@
       document.getElementById("tabBtnKasir").classList.toggle("hidden", !isAdmin);
       document.getElementById("tabBtnInventory").classList.toggle("hidden", !isAdmin);
       mainNavigation.hidden = !isAdmin;
+      document.getElementById("sjsAiFab").classList.toggle("hidden", !isAdmin);
       document.getElementById("syncStatusBadge").classList.toggle("hidden", !isAdmin);
       document.getElementById("currentDateBadge").classList.toggle("hidden", !isAdmin);
       document.getElementById("editShopIcon").classList.toggle("hidden", !isAdmin);
@@ -3181,6 +3053,7 @@
         }
       });
       wireOwnerBooks();
+      wireShopAssistant();
       document.getElementById("shopHeaderTrigger").addEventListener("click", () => {
         if (!isAdmin) { openAdmin(); return; }
         document.getElementById("shopNameInput").value = shopName;
@@ -3530,159 +3403,371 @@
       });
     }
 
+
+    const assistantHelp = "Contoh perintah\n• Omzet kemarin\n• Laba rugi bulan lalu atau 2026-11\n• Terlaris 30 hari, saran restok, atau peluang barang baru\n• Stok SJS-039\n• Catat jual 2 SJS-021 bayar QRIS\nTambahkan + untuk barang lain, harga 100.000 untuk harga khusus, atau pembeli diikuti nama.";
+    const assistantMethods = new Map([
+      ["cash", "Cash"], ["tunai", "Cash"], ["qris", "QRIS"], ["kartu", "Kartu"], ["transfer", "Transfer"]
+    ]);
+    const assistantOpportunities = [
+      { name: "Tas raket badminton", demand: /\braket\b|\bshuttlecock\b|\bkok\b/i, existing: /(?:tas|bag).*(?:raket|badminton|yonex|victor|lining)|(?:raket|badminton).*(?:tas|bag)/i },
+      { name: "Sepatu badminton", demand: /\braket\b|\bshuttlecock\b|\bkok\b/i, existing: /sepatu.*(?:badminton|bulu tangkis|yonex|victor)|(?:badminton|bulu tangkis).*sepatu/i },
+      { name: "Pompa bola dengan jarum", demand: /\bbola\b|\bmikasa\b|\bfutsal\b|\bvoli\b/i, existing: /\bpompa\b|\bjarum bola\b/i },
+      { name: "Pelindung lutut voli", demand: /\bvoli\b|\bvolley\b|\bmikasa\b/i, existing: /pelindung lutut|knee pad|avo lutut|deker lutut/i },
+      { name: "Pemetik gitar (pick)", demand: /\bgitar\b|\bsenar\b|\belixir\b|\bdaddario\b/i, existing: /\bpick\b|\bplektrum\b|\bpemetik\b/i },
+      { name: "Tuner gitar klip", demand: /\bgitar\b|\bsenar\b|\belixir\b|\bdaddario\b/i, existing: /\btuner\b|\bstem gitar\b|\bpenyetem\b/i },
+      { name: "Jam catur", demand: /\bcatur\b|\bchess\b/i, existing: /jam catur|timer catur|chess clock/i },
+      { name: "Kerucut latihan futsal", demand: /\bfutsal\b|\bsepak bola\b/i, existing: /kerucut|cone latihan|marker latihan/i }
+    ];
+    let assistantDraft = null;
+    let assistantBusy = false;
+    let assistantSession = 0;
+
+    function assistantKey(value) {
+      return String(value ?? "").trim().toLocaleLowerCase("id-ID").replace(/\s+/g, " ");
+    }
+
+    function assistantISODate(value) {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || shiftDate(value, 0) !== value) {
+        throw new Error("Tanggal tidak valid. Gunakan format YYYY-MM-DD.");
+      }
+      return value;
+    }
+
+    function assistantPeriod(text, defaultDays) {
+      const today = todayStr();
+      if (/\b(?:minggu|tahun)\b/.test(text) && !/\b\d{4}-\d{2}\b/.test(text)) {
+        throw new Error("Gunakan tanggal YYYY-MM-DD, bulan ini, bulan lalu, atau rentang seperti 7 hari.");
+      }
+      const day = text.match(/\b\d{4}-\d{2}-\d{2}\b/)?.[0];
+      if (day) return { start: assistantISODate(day), end: day };
+
+      const explicitMonth = text.match(/\b\d{4}-\d{2}\b/)?.[0];
+      const previousMonth = /\bbulan (?:lalu|kemarin|kemaren)\b/.test(text);
+      if (explicitMonth || previousMonth || /\bbulan ini\b/.test(text) || (!defaultDays &&
+          !/\b(kemarin|kemaren|hari ini|\d+ hari)\b/.test(text))) {
+        const thisMonth = today.slice(0, 7);
+        const month = explicitMonth || (previousMonth ? shiftDate(thisMonth + "-01", -1).slice(0, 7) : thisMonth);
+        const start = assistantISODate(month + "-01");
+        const [year, number] = month.split("-").map(Number);
+        const lastDay = new Date(Date.UTC(year, number, 0)).getUTCDate();
+        return { start, end: month === thisMonth ? today : month + "-" + lastDay };
+      }
+
+      const days = Number(text.match(/\b(\d+) hari\b/)?.[1] || defaultDays || 1);
+      if (!Number.isInteger(days) || days < 1 || days > 365) throw new Error("Pilih periode antara 1 dan 365 hari.");
+      if (/\b(?:kemarin|kemaren)\b/.test(text)) {
+        const yesterday = shiftDate(today, -1);
+        return { start: yesterday, end: yesterday };
+      }
+      const count = /\bhari ini\b/.test(text) ? 1 : days;
+      return { start: shiftDate(today, 1 - count), end: today };
+    }
+
+    function assistantPeriodLabel({ start, end }) {
+      const label = value => parseLocalDate(value).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
+      return start === end ? label(start) : label(start) + " sampai " + label(end);
+    }
+
+    async function assistantRows(name, period) {
+      if (!isAdmin || !db) throw new Error("Masuk sebagai pemilik dan periksa koneksi Firebase.");
+      const rows = collection(db, ...paths(name));
+      let source = rows;
+      if (period) {
+        source = period.start === period.end
+          ? query(rows, where("date", "==", period.start))
+          : query(rows, where("date", ">=", period.start), where("date", "<=", period.end));
+      }
+      const snap = await getDocsFromServer(source);
+      return snap.docs.map(entry => ({ ...entry.data(), id: entry.id }));
+    }
+
+    function assistantProduct(items, term) {
+      const key = assistantKey(term);
+      if (!key) throw new Error("Masukkan nama barang atau kode, misalnya stok SJS-039.");
+      const byCode = items.find(item => assistantKey(item.code) === key);
+      if (byCode) return byCode;
+      const exact = items.filter(item => assistantKey(item.name) === key || assistantKey(formatItemLabel(item)) === key);
+      const matches = exact.length ? exact : items.filter(item => assistantKey(item.name).includes(key));
+      if (matches.length === 1) return matches[0];
+      if (matches.length > 1) {
+        throw new Error("Pilih kode barang yang tepat:\n" + matches.slice(0, 5).map(formatItemLabel).join("\n"));
+      }
+      throw new Error('Barang "' + term + '" tidak ditemukan di inventaris.');
+    }
+
+    function assistantSalePlan(command, items) {
+      const parts = command.split(/\s+(bayar|pembeli|tanggal)\s+/i);
+      const options = new Map();
+      for (let i = 1; i < parts.length; i += 2) {
+        const key = assistantKey(parts[i]);
+        if (options.has(key) || !parts[i + 1]?.trim()) throw new Error("Periksa bagian " + key + " pada perintah.");
+        options.set(key, parts[i + 1].trim());
+      }
+      const method = assistantKey(options.get("bayar") || "cash").replace(/^(?:pakai|via) /, "");
+      const paymentMethod = assistantMethods.get(method);
+      if (!paymentMethod) throw new Error("Pilih cara bayar Cash, QRIS, Kartu, atau Transfer.");
+      const date = options.has("tanggal") ? assistantISODate(options.get("tanggal")) : todayStr();
+      const customer = options.get("pembeli") || "Pelanggan Umum";
+      const saleItems = parts[0].split("+").map(line => {
+        const match = line.trim().match(/^(\d+)\s+(?:(?:pcs|buah|unit)\s+)?(.+)$/i);
+        const qty = Number(match?.[1]);
+        if (!Number.isSafeInteger(qty) || qty < 1) throw new Error("Tulis jumlah dan barang, misalnya catat jual 2 SJS-021.");
+        const [name, customPrice, extra] = match[2].split(/\s+(?:harga\s+|@\s*)/i);
+        if (extra !== undefined || (customPrice !== undefined &&
+            !/^(?:rp\s*)?(?:\d{1,3}(?:\.\d{3})+|\d+)$/i.test(customPrice.trim()))) {
+          throw new Error("Tulis harga per unit seperti harga 100.000.");
+        }
+        const item = assistantProduct(items, name);
+        const price = customPrice === undefined ? Number(item.price) : Number(customPrice.replace(/[^\d]/g, ""));
+        if (!Number.isSafeInteger(price) || price <= 0) throw new Error("Isi harga jual yang valid untuk " + item.name + ".");
+        return { inventoryId: item.id, name: formatItemLabel(item), qty, price, imageUrl: item.imageUrl || "" };
+      });
+      const available = new Map(items.map(item => [item.id, item]));
+      for (const [id, qty] of saleInventoryQuantities(saleItems)) {
+        const item = available.get(id);
+        const stock = Number(item.stock);
+        if (!Number.isSafeInteger(stock) || stock < qty) {
+          throw new Error("Stok " + item.name + " tersisa " + (Number.isSafeInteger(stock) ? Math.max(0, stock) : 0) + " pcs.");
+        }
+      }
+      const total = saleItems.reduce((sum, item) => sum + item.qty * item.price, 0);
+      if (!Number.isSafeInteger(total)) throw new Error("Total penjualan terlalu besar.");
+      return { date, customer, paymentMethod, items: saleItems, total };
+    }
+
+    function assistantProfitReport(sales, expenses, period) {
+      const revenue = sales.reduce((sum, row) => sum + Number(row.totalOmset || 0), 0);
+      const cost = sales.reduce((sum, row) => sum + Number(row.totalModal || 0), 0);
+      const spent = expenses.reduce((sum, row) => sum + Number(row.amount || 0), 0);
+      const gross = revenue - cost;
+      const net = gross - spent;
+      const outcome = net < 0 ? "Rugi usaha" : net > 0 ? "Laba usaha" : "Impas";
+      const margin = revenue > 0 ? "\nMargin laba kotor: " + (gross / revenue).toLocaleString("id-ID",
+        { style: "percent", maximumFractionDigits: 1 }) : "";
+      return "Laporan " + assistantPeriodLabel(period) + "\n" + sales.length + " transaksi aktif"
+        + "\nOmzet: " + rp(revenue) + "\nHPP: " + rp(cost) + "\nLaba kotor: " + rp(gross)
+        + "\nPengeluaran tercatat: " + rp(spent) + "\n" + outcome + ": " + rp(Math.abs(net)) + margin;
+    }
+
+    function assistantSalesRank(sales, items) {
+      const inventoryById = new Map(items.map(item => [item.id, item]));
+      const byProduct = new Map();
+      for (const sale of sales) {
+        const seen = new Set();
+        for (const line of sale.items || []) {
+          const qty = Number(line.qty);
+          if (!Number.isSafeInteger(qty) || qty <= 0) continue;
+          const item = inventoryById.get(line.inventoryId);
+          const name = item?.name || String(line.name || "").trim();
+          if (!name) continue;
+          const id = line.inventoryId ? "inventory:" + line.inventoryId : "manual:" + assistantKey(name);
+          if (!byProduct.has(id)) byProduct.set(id, { name, item, qty: 0, orders: 0 });
+          const product = byProduct.get(id);
+          product.qty += qty;
+          if (!seen.has(id)) product.orders += 1;
+          seen.add(id);
+        }
+      }
+      return [...byProduct.values()].sort((a, b) => b.qty - a.qty || b.orders - a.orders || a.name.localeCompare(b.name, "id"));
+    }
+
+    function assistantDemandReport(type, sales, items, period, filter) {
+      const rank = assistantSalesRank(sales, items).filter(row =>
+        !filter || assistantKey(row.name).includes(filter) || assistantKey(row.item?.code) === filter);
+      const header = assistantPeriodLabel(period) + " · " + sales.length + " transaksi aktif\n";
+      if (!rank.length) return header + "Belum ada penjualan barang yang cocok pada periode ini.";
+      if (type === "opportunity") {
+        const candidates = assistantOpportunities.filter(candidate => !items.some(item => candidate.existing.test(item.name)))
+          .map(candidate => ({ ...candidate, qty: rank.reduce((sum, row) => sum + (candidate.demand.test(row.name) ? row.qty : 0), 0) }))
+          .filter(candidate => candidate.qty > 0).sort((a, b) => b.qty - a.qty);
+        if (!candidates.length) return header + "Belum ada usulan barang baru dari pola penjualan ini.";
+        return header + "Barang pelengkap untuk uji stok kecil\n" + candidates.slice(0, 5).map(candidate =>
+          "• " + candidate.name + " · barang terkait terjual " + candidate.qty + " unit").join("\n")
+          + "\nIni perkiraan dari penjualan toko. Coba 1–2 unit per model dan lihat peminat sebelum menambah stok.";
+      }
+      if (type === "restock") {
+        const days = 1 + Math.round((Date.parse(period.end) - Date.parse(period.start)) / 86400000);
+        const picks = rank.filter(row => row.item && Number.isSafeInteger(Number(row.item.stock)) && Number(row.item.stock) >= 0)
+          .map(row => ({ ...row, stock: Number(row.item.stock), target: Math.ceil(row.qty * 14 / days) }))
+          .filter(row => row.target > row.stock)
+          .sort((a, b) => Number(b.stock === 0) - Number(a.stock === 0) || b.qty - a.qty);
+        if (!picks.length) return header + "Stok barang yang terjual cukup untuk perkiraan 14 hari.";
+        return header + "Prioritas restok untuk perkiraan 14 hari\n" + picks.slice(0, 6).map(row =>
+          "• " + formatItemLabel(row.item) + " · terjual " + row.qty + ", stok " + row.stock
+          + ", isi sekitar " + (row.target - row.stock)).join("\n")
+          + "\nPerkiraan memakai laju penjualan periode ini. Penjualan saat stok kosong bisa meremehkan permintaan.";
+      }
+      return header + "Model terlaris menurut unit terjual\n" + rank.slice(0, 6).map(row =>
+        "• " + (row.item ? formatItemLabel(row.item) : row.name) + " · " + row.qty + " unit dalam "
+        + row.orders + " transaksi").join("\n");
+    }
+
+    function assistantAddMessage(text, isUser = false) {
+      const log = document.getElementById("sjsAiChatLog");
+      const bubble = document.createElement("div");
+      bubble.className = "max-w-[95%] whitespace-pre-wrap break-words rounded-2xl px-3 py-2 "
+        + (isUser ? "self-end bg-blue-800 text-white" : "self-start bg-slate-200 text-slate-900");
+      bubble.textContent = text;
+      log.append(bubble);
+      while (log.childElementCount > 40) log.firstElementChild.remove();
+      log.scrollTop = log.scrollHeight;
+      return bubble;
+    }
+
+    function assistantRefreshControls() {
+      document.getElementById("sjsAssistantSaleActions").hidden = !assistantDraft;
+      for (const id of ["sjsAiInput", "sjsAiSendBtn", "sjsAssistantConfirm", "sjsAssistantCancel"]) {
+        document.getElementById(id).disabled = assistantBusy;
+      }
+      for (const button of document.querySelectorAll("#sjsAssistantShortcuts button")) button.disabled = assistantBusy;
+    }
+
+    function resetShopAssistant() {
+      assistantSession += 1;
+      assistantDraft = null;
+      assistantBusy = false;
+      document.getElementById("sjsAiBox").classList.add("hidden");
+      document.getElementById("sjsAiToggleBtn").setAttribute("aria-expanded", "false");
+      document.getElementById("sjsAiInput").value = "";
+      document.getElementById("sjsAiChatLog").replaceChildren();
+      assistantRefreshControls();
+    }
+
+    async function assistantSubmit(raw) {
+      const text = raw.trim();
+      if (!isAdmin || assistantBusy || !text) return;
+      const session = assistantSession;
+      assistantBusy = true;
+      assistantRefreshControls();
+      assistantAddMessage(text, true);
+      try {
+        const normalized = assistantKey(text);
+        const command = text.match(/^(?:(?:tolong\s+)?(?:catat|input|simpan)\s+(?:jual(?:an)?|penjualan)|jual|laku)\s+(.+)$/i);
+        const stock = text.match(/^(?:(?:cek|lihat)\s+)?(?:stok|sisa stok|harga)\s+(.+)$/i);
+        const type = /\b(?:barang baru|produk baru|peluang|di luar stok|diluar stok)\b/.test(normalized) ? "opportunity"
+          : /\b(?:restok|restock|isi stok|distock)\b/.test(normalized) ? "restock"
+          : /\b(?:terlaris|laku|diminati|disukai|disuka|model favorit)\b/.test(normalized) ? "popular"
+          : /\b(?:laporan|laba|rugi|profit|untung|omset|omzet|hpp|penjualan|pengeluaran)\b/.test(normalized) ? "report"
+          : "";
+        let reply = assistantHelp;
+        if (command || stock) {
+          if (command) {
+            assistantDraft = null;
+            assistantRefreshControls();
+          }
+          const items = await assistantRows("inventory");
+          if (session !== assistantSession) return;
+          if (command) {
+            const draft = assistantSalePlan(command[1], items);
+            assistantDraft = draft;
+            reply = "Draf penjualan " + assistantPeriodLabel({ start: draft.date, end: draft.date })
+              + "\n" + draft.items.map(item => "• " + item.name + " × " + item.qty + " @ " + rp(item.price)).join("\n")
+              + "\nTotal: " + rp(draft.total) + "\nBayar: " + draft.paymentMethod + "\nPembeli: " + draft.customer
+              + "\nPeriksa rincian lalu tekan Simpan penjualan.";
+          } else {
+            const item = assistantProduct(items, stock[1]);
+            reply = formatItemLabel(item) + "\nStok: " + (item.stock ?? 0) + " pcs\nHarga jual: " + rp(item.price);
+          }
+        } else if (type) {
+          const defaultDays = type !== "report" ? 30
+            : /\b(?:laba|rugi|profit|untung|pengeluaran)\b/.test(normalized) ? 0 : 1;
+          const period = assistantPeriod(normalized, defaultDays);
+          const [allSales, other] = await Promise.all([
+            assistantRows("transactions", period),
+            type === "report" ? assistantRows("expenses", period) : assistantRows("inventory")
+          ]);
+          const sales = allSales.filter(row => !row.cancelledAt);
+          const filter = normalized.match(/\buntuk\s+(.+)$/)?.[1] || "";
+          reply = type === "report" ? assistantProfitReport(sales, other, period)
+            : assistantDemandReport(type, sales, other, period, filter);
+        }
+        if (session === assistantSession) assistantAddMessage(reply);
+      } catch (error) {
+        if (session === assistantSession) {
+          const message = error?.code ? "Data toko gagal dimuat. Periksa koneksi dan coba lagi." : error?.message;
+          assistantAddMessage(message || "Permintaan gagal dijalankan.");
+        }
+      } finally {
+        if (session === assistantSession) {
+          assistantBusy = false;
+          assistantRefreshControls();
+        }
+      }
+    }
+
+    function wireShopAssistant() {
+      const panel = document.getElementById("sjsAiBox");
+      const toggle = document.getElementById("sjsAiToggleBtn");
+      const input = document.getElementById("sjsAiInput");
+      function show(open) {
+        if (!isAdmin) return;
+        panel.classList.toggle("hidden", !open);
+        toggle.setAttribute("aria-expanded", String(open));
+        if (open) {
+          if (!document.getElementById("sjsAiChatLog").childElementCount) assistantAddMessage(assistantHelp);
+          input.focus();
+        } else {
+          toggle.focus();
+        }
+      }
+      toggle.addEventListener("click", () => show(panel.classList.contains("hidden")));
+      document.getElementById("sjsAiCloseBtn").addEventListener("click", () => show(false));
+      panel.addEventListener("keydown", event => { if (event.key === "Escape") show(false); });
+      document.getElementById("sjsAssistantForm").addEventListener("submit", event => {
+        event.preventDefault();
+        if (!input.value.trim() || assistantBusy) return;
+        const message = input.value;
+        input.value = "";
+        assistantSubmit(message);
+      });
+      document.getElementById("sjsAssistantShortcuts").addEventListener("click", event => {
+        const command = event.target.closest("[data-assistant-command]")?.dataset.assistantCommand;
+        if (command) assistantSubmit(command);
+      });
+      document.getElementById("sjsAssistantCancel").addEventListener("click", () => {
+        if (assistantBusy || !assistantDraft) return;
+        assistantDraft = null;
+        assistantRefreshControls();
+        assistantAddMessage("Draf dibatalkan.");
+      });
+      document.getElementById("sjsAssistantConfirm").addEventListener("click", async () => {
+        if (!isAdmin || !db || assistantBusy || !assistantDraft) return;
+        const { total, ...draft } = assistantDraft;
+        const session = assistantSession;
+        assistantBusy = true;
+        assistantRefreshControls();
+        try {
+          const sale = await saveSaleAndUpdateStock({ ...draft, createdAt: new Date().toISOString() });
+          if (session !== assistantSession) return;
+          assistantDraft = null;
+          selectedDateStr = sale.date;
+          document.getElementById("bookDatePicker").value = sale.date;
+          renderApp();
+          const saved = assistantAddMessage("Penjualan tersimpan. Total " + rp(sale.totalOmset) + " · " + sale.paymentMethod);
+          const receipt = document.createElement("button");
+          receipt.type = "button";
+          receipt.className = "mt-2 block rounded-lg bg-blue-800 px-3 py-2 font-bold text-white";
+          receipt.textContent = "Lihat nota";
+          receipt.addEventListener("click", () => {
+            if (!isAdmin || session !== assistantSession) return;
+            show(false);
+            showReceiptPreview(sale);
+          });
+          saved.append(receipt);
+        } catch (error) {
+          if (session === assistantSession) assistantAddMessage(error?.message || "Penjualan belum tersimpan.");
+        } finally {
+          if (session === assistantSession) {
+            assistantBusy = false;
+            assistantRefreshControls();
+          }
+        }
+      });
+    }
+
     wire();
     initFirebase();
   </script>
 
-  <!-- SCRIPT ASISTEN AI (gemini-4-hydrogen + AUTO INPUT TRANSAKSI + CLOUD KEY) -->
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const GEMINI_MODEL = "gemini-4-hydrogen";
-
-      const toggleBtn = document.getElementById("sjsAiToggleBtn");
-      const closeBtn = document.getElementById("sjsAiCloseBtn");
-      const keyBtn = document.getElementById("sjsAiKeyBtn");
-      const keyPanel = document.getElementById("sjsAiKeyPanel");
-      const keyInput = document.getElementById("sjsAiKeyInput");
-      const saveKeyBtn = document.getElementById("sjsAiSaveKeyBtn");
-      const box = document.getElementById("sjsAiBox");
-      const sendBtn = document.getElementById("sjsAiSendBtn");
-      const input = document.getElementById("sjsAiInput");
-      const log = document.getElementById("sjsAiChatLog");
-
-      const statusSub = document.getElementById("sjsAiStatusSub");
-      if (statusSub) statusSub.textContent = `Online • ${GEMINI_MODEL}`;
-
-      function getSavedKey() {
-        return typeof window.sjsGetApiKey === "function"
-          ? window.sjsGetApiKey()
-          : (localStorage.getItem("sjs_gemini_api_key") || "");
-      }
-
-      if (toggleBtn && box) {
-        toggleBtn.addEventListener("click", () => {
-          box.classList.toggle("hidden");
-          const saved = getSavedKey();
-          if (!saved && keyPanel) keyPanel.classList.remove("hidden");
-          else if (keyPanel) keyPanel.classList.add("hidden");
-        });
-        closeBtn.addEventListener("click", () => box.classList.add("hidden"));
-      }
-
-      if (keyBtn && keyPanel) {
-        keyBtn.addEventListener("click", () => {
-          keyInput.value = getSavedKey();
-          keyPanel.classList.toggle("hidden");
-        });
-        saveKeyBtn.addEventListener("click", async () => {
-          const val = keyInput.value.trim();
-          if (!val) return;
-          if (typeof window.sjsSaveApiKey === "function") {
-            await window.sjsSaveApiKey(val);
-          } else {
-            localStorage.setItem("sjs_gemini_api_key", val);
-          }
-          keyPanel.classList.add("hidden");
-          addBubble(`API Key tersimpan permanen di Cloud & Browser! Tidak perlu dimasukkan lagi di perangkat lain.`, "ai");
-        });
-      }
-
-      function addBubble(text, sender, txIdToPrint = null) {
-        const div = document.createElement("div");
-        div.style.cssText = sender === 'user' 
-          ? "background: #2563eb; color: white; padding: 10px 14px; border-radius: 14px; max-width: 88%; align-self: flex-end; word-break: break-word;"
-          : "background: #e2e8f0; color: #0f172a; padding: 10px 14px; border-radius: 14px; max-width: 88%; align-self: flex-start; word-break: break-word; white-space: pre-wrap; line-height: 1.45;";
-        div.textContent = text;
-
-        if (txIdToPrint && typeof window.openReceiptModal === "function") {
-          const printBtn = document.createElement("button");
-          printBtn.type = "button";
-          printBtn.textContent = "🖨️ Cetak Nota Transaksi Ini";
-          printBtn.style.cssText = "display: block; margin-top: 8px; background: #1e40af; color: #fff; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer;";
-          printBtn.addEventListener("click", () => window.openReceiptModal(txIdToPrint));
-          div.appendChild(printBtn);
-        }
-
-        log.appendChild(div);
-        log.scrollTop = log.scrollHeight;
-      }
-
-      async function handleAiChat() {
-        const query = input.value.trim();
-        if (!query) return;
-        addBubble(query, 'user');
-        input.value = "";
-
-        const apiKey = getSavedKey();
-        if (!apiKey) {
-          if (keyPanel) keyPanel.classList.remove("hidden");
-          addBubble("API Key belum diisi. Silakan tempel Gemini API Key Anda di kotak kuning di atas lalu klik Simpan (cukup sekali saja).", 'ai');
-          return;
-        }
-
-        addBubble("Sedang memproses...", 'ai');
-        const contextData = typeof window.sjsGetContext === "function" ? window.sjsGetContext() : {};
-
-        const systemPrompt = `Anda adalah asisten kasir & pembukuan toko Surya Jaya Sport (Jl. Jendral Ahmad Yani No. 37, Berau, Telp/WA: 0823.200.33333).
-Data toko real-time saat ini: ${JSON.stringify(contextData)}
-
-TUGAS ANDA:
-1. Jika user MEMERINTAHKAN untuk MENCATAT / INPUT TRANSAKSI PENJUALAN (contoh: "catat jual 2 kok", "laku 1 raket", "input penjualan..."), Anda WAJIB membalas HANYA dengan format JSON murni tanpa markdown (\`\`\`json) seperti berikut:
-{"action":"ADD_SALE","customer":"Nama Pembeli atau Umum","paymentMethod":"Cash","items":[{"inventoryId":"id_stok_jika_cocok_atau_kosong","name":"Nama Barang","qty":1,"price":100000,"cost":80000}]}
-- Cocokkan nama barang dengan daftarStok jika tersedia untuk mengambil inventoryId, price, dan cost. Jika user menyebut harga khusus, gunakan harga dari user.
-- paymentMethod hanya boleh salah satu dari: "Cash", "QRIS", "Kartu", "Transfer" (default "Cash").
-
-2. Jika user hanya BERTANYA (cek omset, untung, sisa stok, laporan, saran), balas dengan teks biasa dalam Bahasa Indonesia yang ringkas, jelas, dan langsung ke inti.`;
-
-        try {
-          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{
-                parts: [
-                  { text: `${systemPrompt}\n\nPesan user: "${query}"` }
-                ]
-              }]
-            })
-          });
-          const data = await res.json();
-          log.lastChild.remove();
-          if (data.error) {
-            addBubble(`Error API (${GEMINI_MODEL}): ${data.error.message}`, 'ai');
-            return;
-          }
-          const rawReply = (data.candidates?.[0]?.content?.parts?.[0]?.text || "").trim();
-
-          const cleanJson = rawReply.replace(/^```json\s*/i, "").replace(/```$/i, "").trim();
-          if (cleanJson.startsWith("{") && cleanJson.includes('"ADD_SALE"')) {
-            try {
-              const parsed = JSON.parse(cleanJson);
-              if (parsed.action === "ADD_SALE" && typeof window.sjsRecordSaleFromAi === "function") {
-                const result = await window.sjsRecordSaleFromAi(parsed);
-                if (result.ok) {
-                  addBubble(`✅ Transaksi berhasil dicatat!\n${result.summary}`, 'ai', result.txId);
-                } else {
-                  addBubble(`⚠️ ${result.message}`, 'ai');
-                }
-                return;
-              }
-            } catch (parseErr) {
-            }
-          }
-
-          addBubble(rawReply || "Maaf, tidak ada respons dari AI.", 'ai');
-        } catch (e) {
-          log.lastChild.remove();
-          addBubble("Gagal terhubung ke server AI Gemini. Periksa koneksi internet Anda.", 'ai');
-        }
-      }
-
-      if (sendBtn && input) {
-        sendBtn.addEventListener("click", handleAiChat);
-        input.addEventListener("keypress", e => { if (e.key === 'Enter') handleAiChat(); });
-      }
-    });
-  </script>
 </body>
 </html>
