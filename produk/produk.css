@@ -1,57 +1,74 @@
 :root {
-  color: #172642;
-  background: #f0f5fb;
-  font: 100%/1.55 system-ui, sans-serif;
+  --ink: #111a32;
+  --primary: #26366a;
+  --muted: #526077;
+  --line: #d9e2ef;
+  --paper: #f1f4fa;
+  --accent: #ff916b;
+  color: var(--ink);
+  background: var(--paper);
+  font: 100%/1.55 Inter, system-ui, sans-serif;
   color-scheme: light;
 }
 
 * { box-sizing: border-box; }
 body { margin: 0; }
-a { color: #174c83; text-underline-offset: .15em; }
-a:focus-visible { outline: 3px solid #245e96; outline-offset: 3px; }
+a { color: var(--primary); text-underline-offset: .15em; }
+a:focus-visible { outline: 2px solid #4860a5; outline-offset: 3px; }
 
-.wrap { width: min(100% - 2rem, 65rem); margin-inline: auto; }
-.site-header { background: #142e5b; border-bottom: 4px solid #ffd758; }
+.wrap { width: min(100% - 2rem, 73rem); margin-inline: auto; }
+.site-header { background: #fff; border-bottom: 1px solid var(--line); }
 .brand {
-  display: flex; align-items: center; gap: .75rem; padding-block: .65rem;
-  color: white; font-weight: 800; text-decoration: none;
+  display: flex; align-items: center; gap: .75rem; min-height: 4.75rem; padding-block: .55rem;
+  color: var(--ink); font: 800 1.8rem/.95 "Barlow Condensed", Impact, "Arial Narrow", sans-serif;
+  text-decoration: none; text-transform: uppercase;
 }
-.brand small { display: block; color: #c9dafa; font-weight: 600; }
-.breadcrumb { margin: 1rem 0; color: #42567a; font-size: .875rem; }
+.brand img { width: 2.6rem; height: 2.6rem; object-fit: contain; }
+.brand small { display: block; margin-top: .25rem; color: var(--muted); font: 650 .68rem/1 Inter, sans-serif; letter-spacing: .08em; }
+.breadcrumb { margin: 1.25rem 0 .8rem; color: var(--muted); font-size: .875rem; }
 .breadcrumb span { margin-inline: .15rem; }
 .product {
-  display: grid; gap: 1.3rem; padding: clamp(.8rem, 2.6vw, 1.5rem);
-  background: white; border: 1px solid #d8e2ee; border-radius: 1.2rem;
+  display: grid;
+  gap: 1.3rem;
+  padding: clamp(.8rem, 2.6vw, 1.5rem);
+  border: 1px solid var(--line);
+  border-radius: 1.25rem;
+  background: white;
+  box-shadow: 0 12px 42px #11192f09;
 }
 .product-photo {
   display: block; width: 100%; height: auto; align-self: start; border-radius: .75rem;
-  background: #edf3fa;
+  background: var(--paper);
 }
-.product-body h1 { margin: .2rem 0 .75rem; font-size: clamp(1.65rem, 4vw, 2.4rem); line-height: 1.16; }
+.product-body h1 {
+  margin: .45rem 0 .75rem;
+  font: 800 clamp(2.4rem, 5vw, 4.45rem)/.9 "Barlow Condensed", Impact, "Arial Narrow", sans-serif;
+  text-transform: uppercase;
+}
 .product-body p { margin: 0 0 1rem; }
-.product-body .category { margin: 0; color: #315c88; font-size: .875rem; font-weight: 700; }
-.specs { margin: 1rem 0; border-bottom: 1px solid #dce6f1; }
+.product-body .category { display: inline-block; margin: 0; padding: .28rem .55rem; border-radius: .4rem; background: #fff1e9; color: #8d381a; font-size: .8rem; font-weight: 750; }
+.specs { margin: 1rem 0; border-bottom: 1px solid var(--line); }
 .specs div {
   display: grid; grid-template-columns: minmax(5.5rem, 2fr) minmax(0, 3fr);
-  gap: .6rem; padding: .55rem 0; border-top: 1px solid #dce6f1;
+  gap: .6rem; padding: .55rem 0; border-top: 1px solid var(--line);
 }
 .specs dt { font-weight: 700; }
-.specs dd { margin: 0; color: #40516e; }
+.specs dd { margin: 0; color: var(--muted); }
 .availability {
   margin: .9rem 0; padding: .75rem .9rem; border-radius: .625rem;
-  background: #eef5ff; color: #21385a;
+  background: #eaf0fc; color: var(--primary);
 }
 .availability p { margin: 0; }
-.availability .price { color: #14533c; font-size: 1.25rem; font-weight: 800; }
+.availability .price { font-size: 1.25rem; font-weight: 800; }
 .action {
   display: inline-flex; min-height: 44px; align-items: center; padding: .5rem 1rem;
-  border-radius: .625rem; color: #fff; background: #11684b; font-weight: 700; text-decoration: none;
+  border-radius: .7rem; color: var(--ink); background: var(--accent); font-weight: 750; text-decoration: none;
 }
-.action:hover { background: #0b503a; }
-.related { margin-top: 1.4rem; padding: .25rem .3rem 1rem; }
-.related h2 { margin: 0 0 .4rem; font-size: 1.15rem; }
+.action:hover { background: #ffae91; }
+.related { margin-top: 1.1rem; padding: 1rem; border: 1px solid var(--line); border-radius: .9rem; background: #fff; }
+.related h2 { margin: 0 0 .4rem; font: 800 1.65rem/.95 "Barlow Condensed", Impact, "Arial Narrow", sans-serif; text-transform: uppercase; }
 .related ul { display: flex; flex-wrap: wrap; gap: .35rem 1.25rem; margin: 0; padding: 0; list-style: none; }
-.site-footer { padding: .7rem 0 1.5rem; color: #42567a; font-size: .875rem; }
+.site-footer { padding: 1rem 0 1.5rem; color: var(--muted); font-size: .875rem; }
 
 @media (min-width: 44rem) {
   .product { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 1.8rem; }

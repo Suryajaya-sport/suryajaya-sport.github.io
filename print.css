@@ -1,0 +1,275 @@
+#receiptPrintSheet,
+#stickerPrintSheet {
+  display: none;
+}
+
+.receipt-doc {
+  background: #fff;
+  color: var(--shop-ink);
+  font-size: .875rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.receipt-brand {
+  display: flex;
+  align-items: center;
+  gap: .7em;
+  padding-bottom: .8em;
+  border-bottom: 2px solid currentColor;
+}
+
+.receipt-brand img {
+  width: 2.5em;
+  height: 2.5em;
+  flex: none;
+  object-fit: contain;
+}
+
+.receipt-brand h4 {
+  margin: 0 0 .15em;
+  font: 800 1.65em/.95 var(--shop-display);
+  text-transform: uppercase;
+}
+
+.receipt-brand p { margin: 0; font-size: .82em; }
+
+.receipt-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .45em .8em;
+  margin: .85em 0;
+}
+
+.receipt-meta dt { font-size: .82em; }
+.receipt-meta dd { margin: 0; font-weight: 750; }
+.receipt-meta div:first-child dd { font-variant-numeric: tabular-nums; }
+.receipt-cancelled {
+  margin: .8em 0;
+  padding: .35em .55em;
+  border: 1px solid currentColor;
+  color: #8b3b2f;
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.receipt-items {
+  margin: 0;
+  padding: 0;
+  border-block: 1px solid currentColor;
+  list-style: none;
+}
+
+.receipt-items li { padding-block: .55em; break-inside: avoid; }
+.receipt-items li + li { border-top: 1px dashed #929292; }
+.receipt-item-name { margin: 0 0 .1em; font-weight: 750; }
+.receipt-item-amount {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .15em .5em;
+  font-variant-numeric: tabular-nums;
+}
+
+.receipt-total {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: .25em .6em;
+  margin: .75em 0 0;
+  padding: .6em;
+  font-weight: 750;
+}
+
+.receipt-total strong { font-size: 1.36em; font-variant-numeric: tabular-nums; }
+.receipt-policy { margin: .75em 0 0; font-size: .8em; }
+.receipt-signatures {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.4em;
+  margin-top: 1.3em;
+  font-size: .82em;
+  text-align: center;
+  break-inside: avoid;
+}
+
+.receipt-signatures p { margin: 0; }
+.receipt-signatures span { display: block; margin-top: 2.4em; padding-top: .2em; border-top: 1px solid currentColor; }
+[data-paper="thermal"] .receipt-signatures { display: none; }
+
+@media screen {
+  #receiptPreviewBody { background: var(--shop-paper); padding: clamp(.8rem, 3vw, 1.35rem); }
+
+  .receipt-doc {
+    width: 100%;
+    margin-inline: auto;
+    padding: clamp(.75rem, 3vw, 1.15rem);
+    border: 1px solid var(--shop-line);
+    border-radius: .65rem;
+    box-shadow: 0 3px 10px #10271e09;
+  }
+
+  [data-paper="thermal"] .receipt-doc { max-width: 80mm; }
+  .receipt-brand { border-color: var(--shop-primary); }
+  .receipt-total { border-radius: .45rem; background: #eef2fb; color: var(--shop-primary); }
+  .receipt-print-controls {
+    flex: none;
+    padding: .8rem 1rem;
+    border-top: 1px solid var(--shop-line);
+    background: #fff;
+    font-size: .85rem;
+  }
+
+  .receipt-print-controls label { display: block; margin-bottom: .25rem; font-weight: 750; }
+  .receipt-print-controls > div { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .55rem; }
+  #receiptPaper { min-height: 2.75rem; padding: .3rem .5rem; border: 1px solid var(--shop-line); border-radius: .6rem; background: var(--shop-paper); }
+  #receiptPaperHint { margin-top: .4rem; color: var(--shop-muted); font-size: .75rem; }
+}
+
+@page {
+  margin: 0;
+}
+
+@page shop-report {
+  size: A4 landscape;
+  margin: 11mm;
+}
+
+@page sticker-50x30 { size: 50mm 30mm; margin: 0; }
+@page sticker-40x30 { size: 40mm 30mm; margin: 0; }
+@page sticker-50x50 { size: 50mm 50mm; margin: 0; }
+
+@media print {
+  html, body { overflow: visible !important; }
+  body { display: block !important; margin: 0 !important; padding: 0 !important; background: #fff !important; }
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+
+  body[data-print-document="receipt"] > :not(#receiptPrintSheet),
+  body[data-print-document="sticker"] > :not(#stickerPrintSheet),
+  body[data-print-document="report"] > :not(.shop-main),
+  body[data-print-document="report"] .shop-main > :not(#viewKasir) {
+    display: none !important;
+  }
+
+  body[data-print-document="receipt"] #receiptPrintSheet {
+    display: block;
+    width: 100%;
+    max-width: 148mm;
+    margin-inline: auto;
+    padding: 7mm;
+  }
+
+  body[data-print-document="receipt"] #receiptPrintSheet[data-paper="thermal"] {
+    max-width: 80mm;
+    padding: 3mm 4mm;
+  }
+
+  #receiptPrintSheet .receipt-doc {
+    color: #000;
+    font-family: Arial, sans-serif;
+    font-size: 10.5pt;
+  }
+
+  #receiptPrintSheet[data-paper="thermal"] .receipt-doc { font-size: 9pt; }
+  #receiptPrintSheet .receipt-brand img { filter: grayscale(1) contrast(1.45); }
+  #receiptPrintSheet .receipt-brand h4 { font: 800 1.45em/1.02 Arial, sans-serif; }
+  #receiptPrintSheet .receipt-cancelled { color: #000; }
+  #receiptPrintSheet .receipt-total { padding-inline: 0; }
+
+  body[data-print-document="sticker"] #stickerPrintSheet {
+    display: grid;
+    width: min(100%, var(--label-width));
+    height: calc(var(--label-height) - .4mm);
+    place-items: center;
+    margin: 0 auto;
+    break-inside: avoid;
+  }
+
+  #stickerPrintSheet canvas {
+    display: block;
+    width: calc(100% - .65mm);
+    height: calc(100% - .35mm);
+    object-fit: contain;
+  }
+
+  #stickerPrintSheet[data-label-size="50x30"] { page: sticker-50x30; --label-width: 50mm; --label-height: 30mm; }
+  #stickerPrintSheet[data-label-size="40x30"] { page: sticker-40x30; --label-width: 40mm; --label-height: 30mm; }
+  #stickerPrintSheet[data-label-size="50x50"] { page: sticker-50x50; --label-width: 50mm; --label-height: 50mm; }
+
+  body[data-print-document="report"] .shop-main {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  body[data-print-document="report"] #viewKasir {
+    page: shop-report;
+    margin: 0;
+    color: #000;
+    font: 9pt/1.3 Arial, sans-serif;
+  }
+
+  #viewKasir .report-print-header {
+    display: flex !important;
+    align-items: center;
+    gap: 3mm;
+    margin-bottom: 4mm;
+    padding-bottom: 3mm;
+    border-bottom: 1.5pt solid #121212;
+  }
+
+  .report-print-header img { width: 12mm; height: 12mm; object-fit: contain; filter: grayscale(1) contrast(1.25); }
+  .report-print-header h1 { margin: .4mm 0 .6mm; font: 800 19pt/1.05 Arial, sans-serif; }
+  #printShopName { font-weight: 800; text-transform: uppercase; }
+  #printPeriodInfo { overflow-wrap: anywhere; }
+
+  #viewKasir :is(#salesReportSummary, #salesReportPayments) {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2mm;
+    margin-block: 3mm;
+    break-inside: avoid;
+  }
+
+  #viewKasir :is(#salesReportSummary, #salesReportPayments) > div {
+    padding: 2.3mm;
+    border: 1px solid #aaa;
+    border-radius: 2mm;
+    background: #fff;
+    color: #000;
+    box-shadow: none;
+  }
+
+  #viewKasir :is(#salesReportSummary, #salesReportPayments) :is(span, p) { color: #000; font-size: 8pt; }
+  #viewKasir #salesReportSummary > div > p:first-of-type { font-size: 12pt; line-height: 1.15; }
+  #viewKasir #salesReportSummary > div > p:last-of-type,
+  #viewKasir #salesReportSummary > div > div > div,
+  #viewKasir #salesReportPayments i { display: none; }
+  #viewKasir #salesReportPayments > div > span { background: #fff; }
+
+  #salesReportRows {
+    margin-top: 4mm;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  #salesReportRows .report-table { display: block; overflow: visible; }
+  #salesReportRows table { width: 100%; font-size: 8.5pt; }
+  #salesReportRows col { width: 12%; }
+  #salesReportRows col:nth-child(2) { width: 28%; }
+  #salesReportRows thead tr { border-block: 1pt solid #222; background: #fff; color: #000; }
+  #salesReportRows :is(td, th) { padding: 1.6mm; color: #000; }
+  #salesReportRows td span { background: transparent; color: #000; }
+  #salesReportRows td button,
+  #salesReportRows td img,
+  #salesReportRows td [role="img"],
+  #salesReportRows #emptyState > i { display: none; }
+  #salesReportRows td div:has(> [role="img"]) { display: none; }
+  #salesReportRows tr { break-inside: avoid; }
+}
