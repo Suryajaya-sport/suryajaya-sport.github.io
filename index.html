@@ -464,9 +464,9 @@
         <div class="flex flex-col gap-3 border-t border-slate-200 pt-4 lg:flex-row lg:flex-wrap lg:items-end lg:justify-between">
           <div class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] lg:flex-1">
             <div class="relative">
-              <label for="searchInput" class="sr-only">Cari nama barang terjual</label>
+              <label for="searchInput" class="sr-only">Cari nama barang atau nomor nota</label>
               <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" aria-hidden="true"></i>
-              <input type="text" id="searchInput" placeholder="Cari nama barang..."
+              <input type="text" id="searchInput" placeholder="Cari barang atau no. nota..."
                 class="w-full rounded-xl border-2 border-slate-300 bg-slate-50 py-2.5 pl-10 pr-3 font-semibold text-slate-900 transition focus:border-blue-600 focus:bg-white focus:outline-none">
             </div>
             <select id="filterPayment" aria-label="Filter cara bayar"
@@ -489,7 +489,7 @@
             </button>
           </div>
         </div>
-        <p id="salesReportScope" class="text-xs leading-relaxed text-slate-600">Total dan cetak mengikuti tanggal dan filter. CSV berisi semua penjualan yang masih berlaku.</p>
+        <p id="salesReportScope" class="text-xs leading-relaxed text-slate-600">Pencarian no. nota mencakup semua hari. Total dan cetak mengikuti hasil pencarian. CSV berisi semua penjualan aktif.</p>
       </section>
 
       <div class="hidden print-only mb-4 border-b-2 border-slate-800 pb-3">
@@ -1116,6 +1116,7 @@
 
     let transactions = [];
     let cancelledTransactions = [];
+    let receiptAliasOwners = new Map();
     let inventory = [];
     let publicCatalog = [];
     let catalogLoadState = "loading";
@@ -1270,8 +1271,37 @@
     }
 
     // --- FUNGSI NOTA PENJUALAN (CANON E470 - 1/2 A4, BERSIH TANPA URL) ---
-    function buildReceiptHtml(tx) {
-      const noNota = "SJS-" + String(tx.id || Date.now()).slice(-6).toUpperCase();
+    function receiptAlias(tx) {
+      return "SJS-" + String(tx.id).slice(-6).toUpperCase();
+    }
+
+    function receiptOwners(rows) {
+      const owners = new Map();
+      for (const tx of rows) {
+        const number = receiptAlias(tx);
+        owners.set(number, owners.has(number) ? null : tx.id);
+      }
+      return owners;
+    }
+
+    function receiptNumber(tx, owners = receiptAliasOwners) {
+      const number = receiptAlias(tx);
+      const owner = owners.get(number);
+      return owner === undefined || owner === tx.id ? number : "ID:" + tx.id;
+    }
+
+    function isReceiptSearch(value) {
+      return /^(?:SJS-[a-z0-9_-]{6}|ID:\S+)$/i.test(value);
+    }
+
+    function matchingReceipts(rows, input) {
+      const number = input.trim();
+      if (/^ID:/i.test(number)) return rows.filter(tx => tx.id === number.slice(3));
+      const alias = /^SJS-/i.test(number) ? number.toUpperCase() : "SJS-" + number.toUpperCase();
+      return rows.filter(tx => receiptAlias(tx) === alias);
+    }
+
+    function buildReceiptHtml(tx, noNota = receiptNumber(tx)) {
       const customer = esc(tx.customer || "Pelanggan Umum");
       const rowsHtml = (tx.items || []).map((it, idx) => `
         <tr style="border-bottom: 1px dashed #94a3b8;">
@@ -1290,9 +1320,10 @@
             <div style="font-size: 12px; font-weight: 700;">Telp / WA: 0823.200.33333</div>
           </div>
 
+          ${tx.cancelledAt ? '<p style="font-weight: 800; color: #9f1239;">TRANSAKSI DIBATALKAN</p>' : ""}
           <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 10px;">
             <div>
-              <div><strong>No. Nota:</strong> ${noNota}</div>
+              <div><strong>No. Nota:</strong> ${esc(noNota)}</div>
               <div><strong>Tanggal:</strong> ${esc(tx.date)}</div>
             </div>
             <div style="text-align: right;">
@@ -1352,8 +1383,8 @@
       }, 150);
     }
 
-    function showReceiptPreview(tx) {
-      const html = buildReceiptHtml(tx);
+    function showReceiptPreview(tx, noNota) {
+      const html = buildReceiptHtml(tx, noNota);
       document.getElementById("receiptPreviewBody").innerHTML = html;
       document.getElementById("receiptPrintSheet").innerHTML = html;
       document.getElementById("receiptPreviewModal").classList.remove("hidden");
@@ -1390,6 +1421,7 @@
           catalogLoadState = "loading";
           transactions = [];
           cancelledTransactions = [];
+          receiptAliasOwners = new Map();
           purchases = [];
           books.expenses = [];
           books.cashClosings = [];
@@ -1434,6 +1466,7 @@
           watch("transactions", rows => {
             transactions = rows.filter(row => !row.cancelledAt);
             cancelledTransactions = rows.filter(row => row.cancelledAt);
+            receiptAliasOwners = receiptOwners(rows);
           }, () => {
             renderTransactions();
             renderOwnerBooks();
@@ -1683,7 +1716,7 @@
         document.getElementById("inputCustomer").value = "";
         document.getElementById("saleItemsContainer").innerHTML = "";
         addSaleItemRow();
-        showToast("Penjualan berhasil disimpan!");
+        showToast("Penjualan tersimpan. No. nota " + receiptNumber(savedSale));
         renderApp();
 
         if (printAfterSave) {
@@ -2155,6 +2188,7 @@
 
     function reportSales() {
       const searchText = document.getElementById("searchInput").value.trim();
+      if (isReceiptSearch(searchText)) return matchingReceipts(transactions, searchText);
       const query = searchText.toLocaleLowerCase("id");
       const payment = document.getElementById("filterPayment").value;
       return transactions.filter(tx => {
@@ -2174,13 +2208,16 @@
     function renderCancelledSales() {
       const panel = document.getElementById("cancelledSalesPanel");
       const list = document.getElementById("cancelledSalesList");
-      const rows = isAdmin ? cancelledTransactions
-        .filter(row => currentViewMode !== "day" || row.date === selectedDateStr)
-        .sort((a, b) => String(b.cancelledAt).localeCompare(String(a.cancelledAt))) : [];
+      const query = document.getElementById("searchInput").value.trim();
+      const receiptSearch = isReceiptSearch(query);
+      const rows = !isAdmin ? [] : receiptSearch ? matchingReceipts(cancelledTransactions, query)
+        : cancelledTransactions.filter(row => currentViewMode !== "day" || row.date === selectedDateStr);
+      rows.sort((a, b) => String(b.cancelledAt).localeCompare(String(a.cancelledAt)));
+      if (receiptSearch && rows.length) panel.open = true;
       panel.classList.toggle("hidden", !rows.length);
       document.getElementById("cancelledSalesCount").textContent = `(${rows.length})`;
       list.innerHTML = rows.map(row => `<li class="space-y-1 py-3 text-sm">
-        <p class="font-bold text-slate-900">${esc(row.customer || "Umum")} · ${rp(row.totalOmset)}</p>
+        <p class="font-bold text-slate-900">${esc(receiptNumber(row))} · ${esc(row.customer || "Umum")} · ${rp(row.totalOmset)}</p>
         <p class="text-slate-700">${esc((row.items || []).map(item => item.name).filter(Boolean).join(", "))}</p>
         <p class="text-xs text-slate-600">Penjualan ${esc(row.date || "")} · Dibatalkan ${esc(formatCancellationDate(row.cancelledAt))}</p>
         ${row.cancellationReason ? `<p class="break-words text-slate-700">${esc(row.cancellationReason)}</p>` : ""}
@@ -2222,7 +2259,12 @@
       document.getElementById("payTransfer").textContent = rp(pay.Transfer[1]);
       document.getElementById("countTransfer").textContent = pay.Transfer[0] + "x";
 
-      if (currentViewMode === "day") {
+      const query = document.getElementById("searchInput").value.trim();
+      const receiptSearch = isReceiptSearch(query);
+      if (receiptSearch) {
+        document.getElementById("activeBookTitle").textContent = "Hasil pencarian no. nota";
+        document.getElementById("activeBookBadge").textContent = "Semua Hari";
+      } else if (currentViewMode === "day") {
         document.getElementById("activeBookTitle").textContent = parseLocalDate(selectedDateStr).toLocaleDateString("id-ID", { dateStyle: "full" });
         document.getElementById("activeBookBadge").textContent = "Buku Harian";
       } else {
@@ -2230,10 +2272,9 @@
         document.getElementById("activeBookBadge").textContent = "Semua Hari";
       }
       const payment = document.getElementById("filterPayment");
-      const query = document.getElementById("searchInput").value.trim();
       document.getElementById("printPeriodInfo").textContent = [
         document.getElementById("activeBookTitle").textContent,
-        payment.value !== "all" ? payment.selectedOptions[0]?.textContent : "",
+        !receiptSearch && payment.value !== "all" ? payment.selectedOptions[0]?.textContent : "",
         query ? `Pencarian: ${query}` : ""
       ].filter(Boolean).join(" · ");
       document.getElementById("emptyState").classList.toggle("hidden", filtered.length > 0);
@@ -2266,7 +2307,7 @@
           const tr = document.createElement("tr");
           tr.className = `hover:bg-slate-50 transition ${isLast ? "border-b-2 border-slate-300" : ""}`;
           tr.innerHTML = `
-            ${first ? `<td${rs} class="py-1.5 px-2 align-middle font-semibold text-slate-700 whitespace-nowrap">${esc(tx.date)}</td>` : ""}
+            ${first ? `<td${rs} class="py-1.5 px-2 align-middle font-semibold text-slate-700 whitespace-nowrap">${esc(tx.date)}<span class="block max-w-28 break-all whitespace-normal text-xs text-blue-900">${esc(receiptNumber(tx))}</span></td>` : ""}
             <td class="py-1.5 px-2 font-bold text-slate-900">
               <div class="flex items-center gap-2.5 min-w-0">
                 ${saleItemImageMarkup(it, "w-12 h-12 rounded-lg border border-slate-200 shrink-0", photoIndex, rowIndex < 2 && idx < 3)}
@@ -2304,7 +2345,7 @@
         card.className = "bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-xs space-y-2.5";
         card.innerHTML = `
           <div class="flex items-center justify-between text-xs font-bold text-slate-600 border-b border-slate-100 pb-2">
-            <span><i class="fa-regular fa-calendar mr-1 text-blue-700"></i> ${esc(tx.date)}</span>
+            <span class="min-w-0 break-all">${esc(receiptNumber(tx))} · ${esc(tx.date)}</span>
             <span class="px-2.5 py-0.5 rounded-lg bg-blue-100 text-blue-900 font-extrabold">${pm}</span>
           </div>
           <div class="divide-y divide-slate-100">${itemsHtml}</div>
@@ -3007,14 +3048,19 @@
       }
     }
 
-    function openDeleteConfirmation(id, type) {
+    function openDeleteConfirmation(id, type, knownSale, knownNumber) {
       if (!isAdmin || deleteInProgress) return;
       deleteTargetId = id;
       deleteTargetType = type;
       const cancelSale = type === "tx";
-      document.getElementById("deleteModalTitle").textContent = cancelSale ? "Batalkan transaksi?" : "Hapus barang ini?";
+      const sale = cancelSale ? knownSale || transactions.find(tx => tx.id === id) : null;
+      const number = sale ? knownNumber || receiptNumber(sale) : "";
+      document.getElementById("deleteModalTitle").textContent = cancelSale
+        ? number ? "Batalkan nota " + number + "?" : "Batalkan transaksi?"
+        : "Hapus barang ini?";
       document.getElementById("deleteModalDesc").textContent = cancelSale
-        ? "Pembatalan disimpan jika seluruh stok terkait berhasil dikembalikan. Jika pembayaran sudah diterima, proses pengembalian dana melalui cara bayar asal."
+        ? (sale ? sale.date + " · " + (sale.customer || "Umum") + " · " + rp(sale.totalOmset) + ". " : "")
+          + "Stok dikembalikan saat pembatalan berhasil. Pengembalian uang kepada pelanggan diproses terpisah."
         : "Barang yang dihapus tidak dapat dikembalikan.";
       document.getElementById("btnConfirmDelete").textContent = cancelSale ? "Ya, Batalkan Transaksi" : "Ya, Hapus";
       document.getElementById("cancelReasonField").classList.toggle("hidden", !cancelSale);
@@ -3271,10 +3317,10 @@
         window.print();
       });
       document.getElementById("btnExportCSV").addEventListener("click", () => {
-        const rows = [["Tanggal", "Pembeli", "Barang", "Metode Bayar", "Modal", "Total Jual", "Untung"]];
+        const rows = [["Tanggal", "Pembeli", "Barang", "Metode Bayar", "Modal", "Total Jual", "Untung", "No. Nota"]];
         transactions.forEach(tx => {
           const itemsStr = (tx.items || []).map(i => `${i.name} (${i.qty}x)`).join("; ");
-          rows.push([tx.date, tx.customer || "Umum", itemsStr, tx.paymentMethod, tx.totalModal, tx.totalOmset, tx.totalProfit]);
+          rows.push([tx.date, tx.customer || "Umum", itemsStr, tx.paymentMethod, tx.totalModal, tx.totalOmset, tx.totalProfit, receiptNumber(tx)]);
         });
         const csv = rows.map(r => r.map(c => `"${String(c ?? "").replace(/"/g, '""')}"`).join(",")).join("\r\n");
         const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
@@ -3404,7 +3450,7 @@
     }
 
 
-    const assistantHelp = "Contoh perintah\n• Omzet kemarin\n• Laba rugi bulan lalu atau 2026-11\n• Terlaris 30 hari, saran restok, atau peluang barang baru\n• Stok SJS-039\n• Catat jual 2 SJS-021 bayar QRIS\nTambahkan + untuk barang lain, harga 100.000 untuk harga khusus, atau pembeli diikuti nama.";
+    const assistantHelp = "Contoh perintah\n• Omzet kemarin\n• Laba rugi bulan lalu atau 2026-11\n• Terlaris 30 hari, saran restok, atau peluang barang baru\n• Stok SJS-039\n• Cari nota SJS-ABC123\n• Catat jual 2 SJS-021 bayar QRIS\nTambahkan + untuk barang lain, harga 100.000 untuk harga khusus, atau pembeli diikuti nama.";
     const assistantMethods = new Map([
       ["cash", "Cash"], ["tunai", "Cash"], ["qris", "QRIS"], ["kartu", "Kartu"], ["transfer", "Transfer"]
     ]);
@@ -3633,6 +3679,59 @@
       assistantRefreshControls();
     }
 
+    function assistantReceiptRequest(text) {
+      if (isReceiptSearch(text)) return text;
+      return text.match(/^(?:tolong\s+)?(?:(?:cari|lihat|cek|buka|hapus|batalkan|batal)\s+)?(?:(?:nomor|no\.?)\s+)?(?:nota|transaksi)\s+(\S+)$/i)?.[1];
+    }
+
+    function showAssistantReceipt(number, rows, session) {
+      const matches = matchingReceipts(rows, number);
+      if (!matches.length) {
+        assistantAddMessage("Nomor nota " + number + " tidak ditemukan. Salin nomor dari nota atau daftar penjualan.");
+        return;
+      }
+      const owners = receiptOwners(rows);
+      if (matches.length > 1) {
+        assistantAddMessage("Nomor singkat ini cocok dengan beberapa transaksi. Cari lagi menggunakan ID yang tepat:\n"
+          + matches.map(tx => "• " + receiptNumber(tx, owners) + " · " + tx.date + " · " + rp(tx.totalOmset)).join("\n"));
+        return;
+      }
+
+      const sale = matches[0];
+      const displayNumber = receiptNumber(sale, owners);
+      const message = assistantAddMessage("Nota " + displayNumber + "\n" + sale.date + " · " + (sale.customer || "Umum")
+        + "\n" + rp(sale.totalOmset) + " · " + (sale.paymentMethod || "Cash")
+        + "\nStatus: " + (sale.cancelledAt ? "Dibatalkan" : "Aktif"));
+      const actions = document.createElement("div");
+      actions.className = "mt-2 flex flex-wrap gap-2";
+      function action(label, style, open) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "rounded-lg px-3 py-2 font-bold " + style;
+        button.textContent = label;
+        button.addEventListener("click", () => {
+          if (!isAdmin || session !== assistantSession || assistantBusy) return;
+          closeShopAssistant();
+          open();
+        });
+        actions.append(button);
+      }
+      action("Lihat nota", "bg-blue-800 text-white", () => showReceiptPreview(sale, displayNumber));
+      if (!sale.cancelledAt) {
+        action("Tinjau pembatalan", "bg-rose-100 text-rose-900", () => openDeleteConfirmation(sale.id, "tx", sale, displayNumber));
+      }
+      message.append(actions);
+      const log = document.getElementById("sjsAiChatLog");
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function closeShopAssistant() {
+      document.getElementById("sjsAiBox").classList.add("hidden");
+      const toggle = document.getElementById("sjsAiToggleBtn");
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.focus();
+    }
+
     async function assistantSubmit(raw) {
       const text = raw.trim();
       if (!isAdmin || assistantBusy || !text) return;
@@ -3641,6 +3740,12 @@
       assistantRefreshControls();
       assistantAddMessage(text, true);
       try {
+        const note = assistantReceiptRequest(text);
+        if (note) {
+          const rows = await assistantRows("transactions");
+          if (session === assistantSession) showAssistantReceipt(note, rows, session);
+          return;
+        }
         const normalized = assistantKey(text);
         const command = text.match(/^(?:(?:tolong\s+)?(?:catat|input|simpan)\s+(?:jual(?:an)?|penjualan)|jual|laku)\s+(.+)$/i);
         const stock = text.match(/^(?:(?:cek|lihat)\s+)?(?:stok|sisa stok|harga)\s+(.+)$/i);
@@ -3707,7 +3812,7 @@
           if (!document.getElementById("sjsAiChatLog").childElementCount) assistantAddMessage(assistantHelp);
           input.focus();
         } else {
-          toggle.focus();
+          closeShopAssistant();
         }
       }
       toggle.addEventListener("click", () => show(panel.classList.contains("hidden")));
@@ -3743,7 +3848,8 @@
           selectedDateStr = sale.date;
           document.getElementById("bookDatePicker").value = sale.date;
           renderApp();
-          const saved = assistantAddMessage("Penjualan tersimpan. Total " + rp(sale.totalOmset) + " · " + sale.paymentMethod);
+          const saved = assistantAddMessage("Penjualan tersimpan. No. nota " + receiptNumber(sale)
+            + "\nTotal " + rp(sale.totalOmset) + " · " + sale.paymentMethod);
           const receipt = document.createElement("button");
           receipt.type = "button";
           receipt.className = "mt-2 block rounded-lg bg-blue-800 px-3 py-2 font-bold text-white";
