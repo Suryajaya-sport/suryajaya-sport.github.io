@@ -40,7 +40,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&amp;family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="site.css?v=biru-kuning">
+  <link rel="stylesheet" href="site.css?v=katalog-ringkas">
   <link rel="stylesheet" href="print.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
@@ -151,13 +151,6 @@
         </div>
       </div>
 
-      <nav class="shop-departments" aria-label="Jelajahi kategori">
-        <button type="button" data-catalog-category="badminton" aria-controls="productCatalogGrid" aria-pressed="false"><i class="fa-solid fa-table-tennis-paddle-ball" aria-hidden="true"></i><span>Badminton</span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></button>
-        <button type="button" data-catalog-category="ball" aria-controls="productCatalogGrid" aria-pressed="false"><i class="fa-regular fa-futbol" aria-hidden="true"></i><span>Futsal &amp; bola</span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></button>
-        <button type="button" data-catalog-category="chess" aria-controls="productCatalogGrid" aria-pressed="false"><i class="fa-solid fa-chess-knight" aria-hidden="true"></i><span>Catur</span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></button>
-        <button type="button" data-catalog-category="music" aria-controls="productCatalogGrid" aria-pressed="false"><i class="fa-solid fa-guitar" aria-hidden="true"></i><span>Musik</span><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i></button>
-      </nav>
-
       <section id="publicProductCatalog" aria-labelledby="productCatalogTitle">
         <div class="catalog-heading">
           <h2 id="productCatalogTitle">Katalog produk</h2>
@@ -172,9 +165,6 @@
             <input type="search" id="catalogSearch" name="productQuery" placeholder="Cari nama atau kode produk" autocomplete="off" spellcheck="false">
             <button type="button" id="btnClearCatalogSearch" class="hidden" aria-label="Hapus pencarian"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
           </form>
-          <label for="catalogInStockOnly" class="catalog-stock-filter">
-            <input type="checkbox" id="catalogInStockOnly"><span>Stok tersedia saja</span>
-          </label>
           <div class="catalog-filter-row">
             <fieldset id="catalogCategory" class="catalog-categories">
               <legend class="sr-only">Kategori produk</legend>
@@ -191,7 +181,7 @@
         <div id="productCatalogGrid" class="catalog-grid"><p class="catalog-empty" role="status">Katalog sedang dimuat…</p></div>
       </section>
 
-      <nav id="featuredProducts" aria-label="Detail produk pilihan" class="shop-featured">
+      <nav id="featuredProducts" aria-label="Detail produk pilihan" class="shop-featured" hidden>
         <h2>Detail produk pilihan</h2>
         <ul>
           <li><a data-product-code="SJS-035" href="/produk/senar-gitar-elixir/">Senar Gitar Elixir <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a></li>
@@ -218,7 +208,7 @@
       <div class="mt-4 border-t border-slate-200 pt-3">
         <p id="catalogCartTotal" class="font-bold" aria-live="polite"></p>
         <p class="mt-1 text-sm text-slate-600">Harga dan stok dikonfirmasi oleh toko.</p>
-        <a id="catalogCartWhatsApp" target="_blank" rel="noopener noreferrer" class="shop-button shop-button-primary mt-3 hidden"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Buka WhatsApp</a>
+        <a id="catalogCartWhatsApp" target="_blank" rel="noopener noreferrer" class="shop-button shop-button-primary mt-3 hidden"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Kirim daftar ke WhatsApp</a>
       </div>
     </dialog>
     <dialog id="inventoryToolDialog" class="m-auto max-h-[85dvh] w-11/12 max-w-xl rounded-2xl border border-slate-200 bg-white p-4 text-slate-900 shadow-xl backdrop:bg-slate-900/60" aria-labelledby="inventoryToolTitle">
@@ -1089,6 +1079,7 @@
 
   <script type="module">
     import { drawNiimbotLabel, encodeNiimbotPng, niimbotLabelSizes } from "./niimbot-label.js";
+    import { catalogImageUrl, chessBoardSpecs, productImageUrl, thumbnailUrl } from "./produk/katalog.js";
     let initializeApp, getApps, getFirestore;
     let doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc, getDocs, getDocsFromServer, query, where, writeBatch, runTransaction;
     let getStorage, storageRef, uploadBytes, getDownloadURL, storage = null;
@@ -2367,22 +2358,8 @@
       listDiv.replaceChildren(mobileCards);
     }
 
-    function productImageUrl(item) {
-      const url = typeof item?.imageUrl === "string" ? item.imageUrl.trim() : "";
-      return /^https:\/\//i.test(url) ? url : "";
-    }
-
-    function thumbnailUrl(original, width) {
-      const cloudinaryUpload = "https://res.cloudinary.com/mhfuwzby/image/upload/";
-      const useThumbnail = original.startsWith(cloudinaryUpload)
-        && /^v\d+\//.test(original.slice(cloudinaryUpload.length));
-      return useThumbnail
-        ? cloudinaryUpload + `c_limit,w_${width},h_${width},q_auto,f_auto/` + original.slice(cloudinaryUpload.length)
-        : original;
-    }
-
-    function productImageMarkup(item, extraClass = "", width = 160, { eager = false, fallback = "" } = {}) {
-      const originals = [productImageUrl(item), productImageUrl({ imageUrl: fallback })].filter(Boolean);
+    function productImageMarkup(item, extraClass = "", width = 160, { eager = false, fallback = "", imageUrl = productImageUrl(item) } = {}) {
+      const originals = [imageUrl, productImageUrl({ imageUrl: fallback })].filter(Boolean);
       const [url, ...remaining] = [...new Set([...originals.map(original => thumbnailUrl(original, width)), ...originals])];
       const img = url
         ? `<img src="${esc(url)}" alt="${esc(item.name || "Foto produk")}" loading="${eager ? "eager" : "lazy"}" decoding="async"
@@ -2531,17 +2508,15 @@
     function renderProductCatalog() {
       const grid = document.getElementById("productCatalogGrid");
       if (!grid) return;
-      const items = publicCatalog;
+      const items = publicCatalog.filter(item => Number(item.stock) > 0);
       const featured = document.getElementById("featuredProducts");
       const productLinks = new Map([...featured.querySelectorAll("[data-product-code]")]
         .map(link => [link.dataset.productCode, link.getAttribute("href")]));
-      if (catalogLoadState === "ready") {
-        const published = new Set(items.map(item => item.code));
-        for (const link of featured.querySelectorAll("[data-product-code]")) {
-          link.closest("li").hidden = !published.has(link.dataset.productCode);
-        }
-        featured.hidden = ![...productLinks.keys()].some(code => published.has(code));
+      const availableCodes = new Set(items.map(item => item.code));
+      for (const link of featured.querySelectorAll("[data-product-code]")) {
+        link.closest("li").hidden = !availableCodes.has(link.dataset.productCode);
       }
+      featured.hidden = ![...productLinks.keys()].some(code => availableCodes.has(code));
       const search = document.getElementById("catalogSearch");
       if (CSS.supports("selector(:autofill)") && search.matches(":autofill")
           && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(search.value.trim())) {
@@ -2549,20 +2524,17 @@
       }
       const q = search.value.trim().toLocaleLowerCase("id");
       document.getElementById("btnClearCatalogSearch").classList.toggle("hidden", !search.value);
-      const inStockOnly = Boolean(document.getElementById("catalogInStockOnly")?.checked);
       const category = document.querySelector('#catalogCategory input:checked')?.value || "all";
-      for (const shortcut of document.querySelectorAll("[data-catalog-category]")) {
-        shortcut.setAttribute("aria-pressed", String(shortcut.dataset.catalogCategory === category));
-      }
       const filtered = items.filter(item => {
-        const searchable = [item.name, item.code, item.size, item.color].filter(Boolean).join(" ").toLocaleLowerCase("id");
-        return (!q || searchable.includes(q)) && (!inStockOnly || Number(item.stock || 0) > 0)
-          && matchesCatalogCategory(item, category);
+        const chess = chessBoardSpecs(item);
+        const searchable = [item.name, item.code, chess?.model || item.size, chess?.dimensions, item.color]
+          .filter(Boolean).join(" ").toLocaleLowerCase("id");
+        return (!q || searchable.includes(q)) && matchesCatalogCategory(item, category);
       });
       const count = document.getElementById("catalogResultCount");
       if (count) count.textContent = items.length ? `${filtered.length} produk` : "";
       if (!items.length) {
-        const status = { loading: "Katalog sedang dimuat…", ready: "Belum ada produk di katalog.", error: "Katalog gagal dimuat. Coba muat ulang halaman." };
+        const status = { loading: "Katalog sedang dimuat…", ready: "Belum ada produk yang tersedia saat ini.", error: "Katalog gagal dimuat. Coba muat ulang halaman." };
         grid.innerHTML = `<p class="catalog-empty" role="status">${status[catalogLoadState]}</p>`;
         return;
       }
@@ -2570,25 +2542,26 @@
         grid.innerHTML = '<p class="catalog-empty" role="status">Produk tidak ditemukan. Coba ubah kata pencarian atau filter.</p>';
         return;
       }
-      grid.innerHTML = filtered.map(item => {
-        const stock = Number(item.stock || 0);
+      grid.innerHTML = filtered.map((item, index) => {
+        const stock = Number(item.stock);
         const productName = item.name || "Produk";
-        const productDetails = [item.code, item.size, item.color].filter(Boolean).join(" · ");
-        const message = `Halo Surya Jaya Sport, saya ingin bertanya tentang ${productName}${item.code ? ` (${item.code})` : ""} dengan harga ${rp(item.price)}. ${stock > 0 ? "Apakah stoknya tersedia?" : "Apakah ada alternatif yang tersedia?"}`;
+        const chess = chessBoardSpecs(item);
+        const productDetails = chess ? item.code : [item.code, item.size, item.color].filter(Boolean).join(" · ");
+        const detailUrl = productLinks.get(item.code) || `/produk/?id=${encodeURIComponent(item.id)}`;
+        const message = `Halo Surya Jaya Sport, saya ingin bertanya tentang ${productName}${item.code ? ` (${item.code})` : ""} dengan harga ${rp(item.price)}. Apakah stoknya tersedia?`;
         const whatsappUrl = `https://wa.me/6282320033333?text=${encodeURIComponent(message)}`;
         return `<article class="catalog-card">
-          ${productImageMarkup(item, "catalog-card-photo", 560)}
+          ${productImageMarkup(item, "catalog-card-photo", 560, { eager: index < 2, imageUrl: catalogImageUrl(item) })}
           <div class="catalog-card-body">
             ${productDetails ? `<p class="catalog-card-meta">${esc(productDetails)}</p>` : ""}
-            <h3>${productLinks.has(item.code)
-              ? `<a href="${esc(productLinks.get(item.code))}">${productTitleMarkup(productName)}</a>`
-              : productTitleMarkup(productName)}</h3>
+            <h3><a href="${esc(detailUrl)}">${productTitleMarkup(productName)}</a></h3>
+            ${chess ? `<p class="catalog-card-size">${esc(chess.model)} · ${esc(chess.dimensions)}</p>` : ""}
             <div class="catalog-card-facts">
               <p class="catalog-card-price">${rp(item.price)}</p>
-              <span class="catalog-stock ${stock > 0 ? "is-available" : ""}">${stock > 0 ? "Stok " + stock + " pcs" : "Stok habis"}</span>
+              <span class="catalog-stock">Stok ${stock} pcs</span>
             </div>
             <div class="catalog-card-actions">
-              ${stock > 0 ? `<button type="button" data-add-cart="${esc(item.id)}" class="shop-button shop-button-primary" aria-label="Tambah ${esc(productName)} ke keranjang"><i class="fa-solid fa-plus" aria-hidden="true"></i> Keranjang</button>` : ""}
+              <button type="button" data-add-cart="${esc(item.id)}" class="shop-button shop-button-primary" aria-label="Tambah ${esc(productName)} ke keranjang"><i class="fa-solid fa-plus" aria-hidden="true"></i> Keranjang</button>
               <a href="${esc(whatsappUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Tanya tentang ${esc(productName)} lewat WhatsApp" class="shop-button shop-button-secondary">
                 <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Tanya stok
               </a>
@@ -3264,17 +3237,7 @@
         refreshCatalog();
         catalogSearch.focus();
       });
-      document.getElementById("catalogInStockOnly").addEventListener("change", refreshCatalog);
       document.getElementById("catalogCategory").addEventListener("change", refreshCatalog);
-      for (const shortcut of document.querySelectorAll("[data-catalog-category]")) {
-        shortcut.addEventListener("click", () => {
-          const category = document.querySelector(`#catalogCategory input[value="${shortcut.dataset.catalogCategory}"]`);
-          catalogSearch.value = "";
-          category.checked = true;
-          refreshCatalog();
-          document.getElementById("publicProductCatalog").scrollIntoView({ block: "start" });
-        });
-      }
       document.getElementById("invImageFile").addEventListener("change", event => {
         const file = event.target.files?.[0];
         const wrap = document.getElementById("invImagePreviewWrap");

@@ -41,6 +41,11 @@ a:focus-visible { outline: 2px solid #4860a5; outline-offset: 3px; }
   display: block; width: 100%; height: auto; align-self: start; border-radius: .75rem;
   background: var(--paper);
 }
+.product-placeholder {
+  display: grid; min-height: 10rem; place-items: center; margin: 0; padding: 1rem;
+  border-radius: .75rem; color: var(--muted); background: var(--paper); text-align: center;
+}
+.product[hidden], .product-photo[hidden], .product-placeholder[hidden], .product-body .category[hidden] { display: none; }
 .product-body h1 {
   margin: .45rem 0 .75rem;
   font: 800 clamp(2.4rem, 5vw, 4.45rem)/.9 "Barlow Condensed", Impact, "Arial Narrow", sans-serif;

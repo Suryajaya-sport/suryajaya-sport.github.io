@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Detail Produk | Surya Jaya Sport</title>
+  <link rel="icon" href="/sjs-mark.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@800&amp;family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/produk/produk.css?v=katalog-ringkas">
+  <script type="module" src="/produk/detail.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="wrap brand" href="/"><img src="/sjs-mark.png" width="38" height="44" alt=""><span>Surya Jaya Sport <small>Berau</small></span></a>
+  </header>
+  <main class="wrap">
+    <nav class="breadcrumb" aria-label="Navigasi halaman"><a href="/#publicProductCatalog">Katalog</a><span aria-hidden="true"> / </span><span id="breadcrumb-product" aria-current="page">Detail produk</span></nav>
+    <p class="availability" id="detail-status" role="status">Detail produk sedang dimuat…</p>
+    <noscript><p>Aktifkan JavaScript untuk melihat detail produk.</p></noscript>
+    <article class="product" aria-labelledby="product-name" hidden>
+      <div>
+        <img class="product-photo" id="product-photo" width="800" height="800" decoding="async" alt="" hidden>
+        <p class="product-placeholder" id="photo-placeholder">Foto produk belum tersedia.</p>
+      </div>
+      <div class="product-body">
+        <p class="category" id="product-code"></p>
+        <h1 id="product-name"></h1>
+        <dl class="specs" id="product-specs" hidden></dl>
+        <div class="availability">
+          <p class="price" id="product-price"></p>
+          <p id="product-stock"></p>
+        </div>
+        <a class="action" id="product-contact" target="_blank" rel="noopener noreferrer">Tanya lewat WhatsApp</a>
+      </div>
+    </article>
+  </main>
+  <footer class="wrap site-footer">
+    Surya Jaya Sport · Jl. Jendral Ahmad Yani No. 37, Berau · <a href="tel:+6282320033333">0823-2003-3333</a>
+  </footer>
+</body>
+</html>
