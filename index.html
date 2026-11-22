@@ -40,7 +40,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&amp;family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="site.css?v=koreksi-logo">
+  <link rel="stylesheet" href="site.css?v=restore-menu">
   <link rel="stylesheet" href="print.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
@@ -297,11 +297,58 @@
           <summary>Alat tambahan</summary>
           <div class="workspace-books-actions">
             <button id="backUpBooks" type="button" class="shop-button shop-button-secondary">Unduh cadangan data</button>
+            <button id="openBackupRestore" type="button" class="shop-button shop-button-secondary">Pulihkan cadangan</button>
             <button id="copyWhatsAppGreeting" type="button" class="shop-button shop-button-secondary">Salin pesan sambutan WhatsApp</button>
           </div>
         </details>
       </section>
     </section>
+    <dialog id="backupRestoreDialog" class="workspace-dialog no-print" aria-labelledby="backupRestoreTitle">
+      <div class="workspace-dialog-heading">
+        <h2 id="backupRestoreTitle">Pulihkan cadangan</h2>
+        <form method="dialog"><button class="workspace-dialog-close" type="submit">Tutup</button></form>
+      </div>
+      <form id="backupRestoreForm" class="space-y-4 p-4">
+        <label class="restore-field">File cadangan (.json)
+          <input id="restoreBackupFile" type="file" accept=".json,application/json" required>
+        </label>
+        <p id="restoreBackupInfo" class="text-sm text-slate-600" aria-live="polite"></p>
+        <label class="restore-field">Data yang akan dipulihkan
+          <select id="restoreBackupMode">
+            <option value="catalog">Katalog produk</option>
+            <option value="stock">Stok, penjualan, dan pembelian stok</option>
+            <option value="books">Pengeluaran dan tutup kas</option>
+            <option value="full">Semua data</option>
+          </select>
+        </label>
+        <p id="restoreModeHelp" class="text-sm text-slate-600"></p>
+        <div id="restoreCatalogOptions" class="space-y-3">
+          <label class="restore-field">Barang
+            <select id="restoreCatalogProduct"><option value="">Pilih file cadangan dulu</option></select>
+          </label>
+          <fieldset class="flex flex-wrap gap-x-4 gap-y-2 text-sm">
+            <legend class="mb-2 font-bold">Informasi yang ingin dipulihkan</legend>
+            <label class="inline-flex min-h-8 items-center gap-2"><input type="checkbox" name="restoreCatalogField" value="name"> Nama barang</label>
+            <label class="inline-flex min-h-8 items-center gap-2"><input type="checkbox" name="restoreCatalogField" value="description" checked> Deskripsi</label>
+            <label class="inline-flex min-h-8 items-center gap-2"><input type="checkbox" name="restoreCatalogField" value="price"> Harga jual</label>
+            <label class="inline-flex min-h-8 items-center gap-2"><input type="checkbox" name="restoreCatalogField" value="imageUrl"> Tautan foto</label>
+          </fieldset>
+        </div>
+        <label id="restoreBooksOptions" class="restore-field" hidden>Tanggal yang dipulihkan
+          <input id="restoreBooksDate" type="date">
+        </label>
+        <button id="previewBackupRestore" type="submit" class="shop-button shop-button-primary">Lihat pratinjau</button>
+        <section id="restoreBackupPreview" class="space-y-3 rounded-xl border border-slate-200 bg-slate-50 p-3" aria-labelledby="restorePreviewTitle" hidden>
+          <h3 id="restorePreviewTitle" class="font-extrabold">Pratinjau pemulihan</h3>
+          <div id="restoreBackupChanges" class="space-y-2 text-sm"></div>
+          <label id="restoreConfirmLabel" class="flex min-h-11 items-center gap-2 text-sm font-bold">
+            <input id="confirmBackupRestore" type="checkbox"> Saya setuju menyimpan perubahan di atas.
+          </label>
+          <button id="applyBackupRestore" type="button" class="shop-button shop-button-accent" disabled>Pulihkan data</button>
+        </section>
+      </form>
+      <p class="workspace-dialog-status" data-dialog-status role="status"></p>
+    </dialog>
     <!-- VIEW 1: KASIR -->
     <div id="viewKasir" class="hidden">
       <section id="cashierWorkspace" class="workspace-pane" aria-labelledby="cashierTitle" hidden>
@@ -1108,6 +1155,8 @@
     import { drawNiimbotLabel, encodeNiimbotPng, niimbotLabelSizes } from "./niimbot-label.js";
     import { catalogImageUrl, chessBoardSpecs, productDescription, productImageUrl, thumbnailUrl } from "./produk/katalog.js?v=deskripsi-stok";
     import { backupCollections, cashClosingRecord, monthlyBookTotals } from "./bookkeeping.js";
+    import { wireBackupRestore } from "./restore-ui.js";
+    import { commitRestore } from "./backup-restore.js";
     let initializeApp, getApps, getFirestore;
     let doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc, getDocs, getDocsFromServer, query, where, writeBatch, runTransaction;
     let getStorage, storageRef, uploadBytes, getDownloadURL, storage = null;
@@ -2325,6 +2374,17 @@
         } finally {
           button.disabled = false;
         }
+      });
+      wireBackupRestore({
+        canRestore: () => Boolean(db && isAdmin && auth?.currentUser?.uid === OWNER_UID),
+        open: () => openWorkspaceDialog("backupRestoreDialog"),
+        formatMoney: rp,
+        readCurrent: async () => Object.fromEntries(await Promise.all(backupCollections.map(async group => {
+          const snapshot = await getDocsFromServer(collection(db, ...(group === "publicCatalog" ? [group] : paths(group))));
+          return [group, new Map(snapshot.docs.map(row => [row.id, { ...row.data(), id: row.id }]))];
+        }))),
+        save: plan => commitRestore(plan, apply => runTransaction(db, apply),
+          (group, id) => doc(db, ...(group === "publicCatalog" ? [group, id] : paths(group, id))))
       });
       document.getElementById("publishCatalog").addEventListener("click", async event => {
         if (!isAdmin || !db) return;

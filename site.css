@@ -193,6 +193,15 @@
 
 .shop-button-accent { background: var(--shop-accent); color: var(--shop-ink); }
 .shop-button[hidden] { display: none; }
+.restore-field:not([hidden]) { display: grid; gap: .35rem; font-size: .88rem; font-weight: 750; }
+.restore-field :is(input, select) {
+  min-width: 0; min-height: 2.75rem; width: 100%; padding: .5rem;
+  border: 1px solid var(--shop-line); border-radius: .6rem; background: #fff;
+}
+.restore-field input[type="file"] { font-weight: 500; }
+#backupRestoreDialog .shop-button:disabled { opacity: .5; cursor: not-allowed; }
+#restoreConfirmLabel[hidden] { display: none; }
+#backupRestoreDialog [data-dialog-status]:not(:empty) { margin: 0 1rem 1rem; }
 .shop-button-accent:hover { background: #fde047; }
 .shop-button-outline:not(.hidden) { border-color: #bcc9e18f; color: #fff; }
 .shop-button-outline:hover { background: #ffffff1a; }
