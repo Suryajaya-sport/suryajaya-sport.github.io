@@ -1476,17 +1476,10 @@
 
     function buildReceiptHtml(tx, noNota = receiptNumber(tx)) {
       const customer = esc(tx.customer || "Pelanggan Umum");
-      const photoIndex = buildSoldProductIndex();
       const rows = (tx.items || []).map(item => {
         const quantity = Number(item.qty ?? 1);
-        const photo = soldPhotoSources(item, photoIndex).length
-          ? saleItemImageMarkup(item, "w-10 h-10 rounded-lg border border-slate-200 shrink-0", photoIndex, true)
-          : "";
         return `<li>
-          <div class="flex items-center gap-2">
-            ${photo}
-            <p class="receipt-item-name">${esc(item.name || "Barang")}</p>
-          </div>
+          <p class="receipt-item-name">${esc(item.name || "Barang")}</p>
           <div class="receipt-item-amount">
             <span>${quantity} × ${rp(item.price)}</span>
             <strong>${rp(item.subtotal ?? item.price * quantity)}</strong>
