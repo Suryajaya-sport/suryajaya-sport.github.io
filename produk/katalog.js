@@ -68,18 +68,22 @@ export function catalogImageUrl(item) {
   const image = productImageUrl(item);
   const chess = chessBoardSpecs(item);
   // Replace the artwork that had the old sizes. Future uploads still take precedence.
-  return chess && image.endsWith(`/${chess.previousPhoto}`) ? `/assets/${chess.photo}` : image;
+  if (chess && image.endsWith(`/${chess.previousPhoto}`)) return `/assets/${chess.photo}`;
+  const code = String(item?.code || "").trim().toUpperCase();
+  const previousPhoto = posterSources.get(code);
+  return previousPhoto && image.endsWith(`/${previousPhoto}`)
+    ? `/assets/poster-${code.toLowerCase()}.webp` : image;
 }
 
-const framedPhotos = new Map([
-  ["SJS-046", { file: "zdnoyawsvigdos6t9qyc.jpg", title: "Celana Yonex" }],
-  ["SJS-047", { file: "fo1owkazpcww8crgwuy3.webp", title: "Sepatu Hundred Court Star" }],
-  ["SJS-048", { file: "kks9eujohs9k2p163rzl.jpg", title: "Net Pingpong CIMA T117" }]
+const posterSources = new Map([
+  ["SJS-046", "zdnoyawsvigdos6t9qyc.jpg"],
+  ["SJS-047", "fo1owkazpcww8crgwuy3.webp"],
+  ["SJS-048", "kks9eujohs9k2p163rzl.jpg"]
 ]);
 
-export function catalogPhotoTitle(item) {
-  const frame = framedPhotos.get(String(item?.code || "").trim().toUpperCase());
-  return frame && productImageUrl(item).endsWith(`/${frame.file}`) ? frame.title : "";
+// Cached detail pages may still import this helper. Artwork now includes its title.
+export function catalogPhotoTitle() {
+  return "";
 }
 
 export function thumbnailUrl(original, width) {
