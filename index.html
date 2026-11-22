@@ -1155,8 +1155,8 @@
     import { drawNiimbotLabel, encodeNiimbotPng, niimbotLabelSizes } from "./niimbot-label.js";
     import { catalogImageUrl, chessBoardSpecs, productDescription, productImageUrl, thumbnailUrl } from "./produk/katalog.js?v=deskripsi-stok";
     import { backupCollections, cashClosingRecord, monthlyBookTotals } from "./bookkeeping.js";
-    import { wireBackupRestore } from "./restore-ui.js";
-    import { commitRestore } from "./backup-restore.js";
+    import { wireBackupRestore } from "./restore-ui.js?v=pratinjau";
+    import { commitRestore } from "./backup-restore.js?v=pratinjau";
     let initializeApp, getApps, getFirestore;
     let doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc, getDocs, getDocsFromServer, query, where, writeBatch, runTransaction;
     let getStorage, storageRef, uploadBytes, getDownloadURL, storage = null;

@@ -1,4 +1,4 @@
-import { parseRestoreBackup, planRestore, restoreFingerprint, restoreLabels } from "./backup-restore.js";
+import { parseRestoreBackup, planRestore, restoreFingerprint, restoreLabels } from "./backup-restore.js?v=pratinjau";
 
 const modeHelp = {
   catalog: "Pulihkan informasi satu barang. Jumlah stok memakai catatan saat ini.",
@@ -121,6 +121,7 @@ export function wireBackupRestore({ canRestore, open, formatMoney, readCurrent, 
   function showError(error) {
     status.textContent = error instanceof SyntaxError ? "File tidak bisa dibaca sebagai JSON."
       : error?.code ? "Pemulihan gagal. Periksa koneksi dan buat pratinjau baru." : error.message;
+    status.scrollIntoView({ block: "nearest" });
   }
 
   get("openBackupRestore").addEventListener("click", () => {

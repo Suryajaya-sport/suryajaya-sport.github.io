@@ -1,4 +1,5 @@
 import { backupCollections } from "./bookkeeping.js";
+import { productDescription } from "./produk/katalog.js?v=deskripsi-stok";
 
 export const restoreLabels = {
   inventory: "Barang stok", transactions: "Nota penjualan", purchases: "Pembelian stok",
@@ -160,7 +161,9 @@ export function planRestore(backup, live, selection) {
       if (!same(published, nextPublic)) stage("publicCatalog", nextPublic);
     }
     changes = fields.map(field => ({
-      label: catalogRestoreFields[field], before: current[field], after: archived[field]
+      label: catalogRestoreFields[field],
+      before: field === "description" ? productDescription(current) : current[field],
+      after: field === "description" ? productDescription(next) : next[field]
     }));
   } else if (mode === "stock") {
     for (const group of stockGroups) {
