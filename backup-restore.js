@@ -1,4 +1,4 @@
-import { backupCollections } from "./bookkeeping.js";
+import { backupCollections, salePaymentMethods } from "./bookkeeping.js?v=koreksi-bayar";
 import { productDescription } from "./produk/katalog.js?v=deskripsi-stok";
 
 export const restoreLabels = {
@@ -29,6 +29,18 @@ const units = value => Number.isSafeInteger(value) && value >= 0;
 const text = (value, max) => typeof value === "string" && value.length <= max;
 const optionalText = (value, max) => value === undefined || text(value, max);
 
+function validPaymentHistory(row) {
+  const history = row.paymentCorrections;
+  if (history === undefined) return true;
+  return Array.isArray(history) && history.length <= 100 && (!history.length || history.at(-1)?.to === row.paymentMethod)
+    && history.every((entry, index) => entry && salePaymentMethods.has(entry.to)
+      && (entry.from === "" || salePaymentMethods.has(entry.from)) && entry.from !== entry.to
+      && (index === 0 || entry.from === history[index - 1].to)
+      && text(entry.reason, 160) && entry.reason.trim()
+      && text(entry.correctedAt, 40) && Number.isFinite(Date.parse(entry.correctedAt))
+      && validId(entry.correctedBy?.uid) && text(entry.correctedBy?.name, 160));
+}
+
 function validRow(group, row) {
   if (!row || typeof row !== "object" || Array.isArray(row) || !validId(row.id)) return false;
   if (group === "inventory" || group === "publicCatalog") {
@@ -47,7 +59,7 @@ function validRow(group, row) {
       && Number.isFinite(row.expected) && Number.isFinite(row.difference);
   }
   if (group === "purchases") return validId(row.inventoryId) && units(row.qty) && row.qty > 0 && money(row.totalCost);
-  return money(row.totalOmset) && money(row.totalModal) && Array.isArray(row.items) && row.items.length > 0
+  return validPaymentHistory(row) && money(row.totalOmset) && money(row.totalModal) && Array.isArray(row.items) && row.items.length > 0
     && row.items.every(item => item && text(item.name, 500) && units(item.qty) && item.qty > 0
       && money(item.price) && money(item.cost) && (!item.inventoryId || validId(item.inventoryId)));
 }

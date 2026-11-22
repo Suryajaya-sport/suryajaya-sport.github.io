@@ -1,4 +1,23 @@
 export const backupCollections = ["inventory", "transactions", "purchases", "expenses", "cashClosings", "publicCatalog"];
+export const salePaymentMethods = new Set(["Cash", "QRIS", "Kartu", "Transfer"]);
+
+export function paymentCorrectionPatch(sale, correction, actor, now) {
+  if (!sale || sale.cancelledAt) throw new Error("Koreksi hanya tersedia untuk nota yang masih aktif.");
+  const history = sale.paymentCorrections ?? [];
+  const from = sale.paymentMethod || "";
+  if (correction.from !== from || correction.revision !== history.length) {
+    throw new Error("Cara bayar sudah berubah. Tutup dan buka kembali nota untuk memeriksa perubahan.");
+  }
+  const to = correction.to;
+  if (!salePaymentMethods.has(to) || to === from) throw new Error("Pilih cara bayar yang berbeda.");
+  const reason = correction.reason.trim();
+  if (!reason || reason.length > 160) throw new Error("Isi alasan koreksi, maksimal 160 karakter.");
+  if (history.length >= 100) throw new Error("Nota ini sudah mencapai batas koreksi cara bayar.");
+  return {
+    paymentMethod: to,
+    paymentCorrections: [...history, { from, to, reason, correctedAt: now, correctedBy: actor }]
+  };
+}
 
 export function monthlyBookTotals(month, transactions, expenses) {
   const inMonth = row => Boolean(month && row.date?.startsWith(month + "-"));

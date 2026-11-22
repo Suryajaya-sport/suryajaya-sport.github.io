@@ -1,4 +1,4 @@
-import { parseRestoreBackup, planRestore, restoreFingerprint, restoreLabels } from "./backup-restore.js?v=arsip-stok";
+import { parseRestoreBackup, planRestore, restoreFingerprint, restoreLabels } from "./backup-restore.js?v=koreksi-bayar";
 
 const modeHelp = {
   catalog: "Pulihkan informasi satu barang. Jumlah stok memakai catatan saat ini.",
