@@ -1,9 +1,74 @@
 rules_version = '2';
+// Inventory retains its document ID and stock when archived. An empty or
+// missing archivedAt marks an active product. The catalog is a separate public
+// projection. Historical receipts may carry restored cancellation metadata.
 service cloud.firestore {
   match /databases/{database}/documents {
     function owner() {
       return request.auth != null
         && request.auth.uid == 'ijWilxxrxRabwOX7KcndkuqrBOw1';
+    }
+
+    function optionalText(data, field, maxLength) {
+      return !data.keys().hasAny([field])
+        || (data[field] is string && data[field].size() <= maxLength);
+    }
+
+    function nonNegativeAmount(value) {
+      return value is number && value >= 0 && value <= 9007199254740991;
+    }
+
+    function validInventory(data) {
+      return data.keys().hasAll(['name', 'stock', 'cost', 'price'])
+        && data.keys().hasOnly(['name', 'code', 'size', 'color', 'price', 'stock',
+          'cost', 'description', 'imagePath', 'imageUrl', 'updatedAt', 'stockEdits', 'archivedAt'])
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 160
+        && data.stock is int && nonNegativeAmount(data.stock)
+        && nonNegativeAmount(data.cost) && nonNegativeAmount(data.price)
+        && optionalText(data, 'code', 80) && optionalText(data, 'size', 40)
+        && optionalText(data, 'color', 60) && optionalText(data, 'description', 400)
+        && optionalText(data, 'imagePath', 2048) && optionalText(data, 'imageUrl', 2048)
+        && optionalText(data, 'updatedAt', 40) && optionalText(data, 'archivedAt', 30)
+        && (!data.keys().hasAny(['stockEdits']) || (data.stockEdits is list && data.stockEdits.size() <= 30));
+    }
+
+    function validActor(actor) {
+      return actor is map && actor.keys().hasOnly(['uid', 'name'])
+        && actor.uid == request.auth.uid
+        && actor.name is string && actor.name.size() > 0 && actor.name.size() <= 160;
+    }
+
+    function validSale(data) {
+      return data.keys().hasAll(['date', 'items', 'totalOmset', 'totalModal'])
+        && data.keys().hasOnly(['date', 'customer', 'paymentMethod', 'items',
+          'totalOmset', 'totalModal', 'totalProfit', 'createdAt', 'cancelledAt',
+          'cancellationReason', 'cancelledBy', 'cancelledSkippedInventoryIds',
+          'replacesSaleId', 'replacementSaleId'])
+        && data.date is string && data.date.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}')
+        && data.items is list && data.items.size() > 0 && data.items.size() <= 500
+        && nonNegativeAmount(data.totalOmset) && nonNegativeAmount(data.totalModal)
+        && (!data.keys().hasAny(['totalProfit']) || (data.totalProfit is number
+          && data.totalProfit >= -9007199254740991 && data.totalProfit <= 9007199254740991))
+        && (!data.keys().hasAny(['paymentMethod']) || data.paymentMethod in ['Cash', 'QRIS', 'Kartu', 'Transfer'])
+        && optionalText(data, 'customer', 500) && optionalText(data, 'createdAt', 40)
+        && optionalText(data, 'cancelledAt', 40) && optionalText(data, 'cancellationReason', 160)
+        && optionalText(data, 'replacesSaleId', 1500) && optionalText(data, 'replacementSaleId', 1500)
+        && (!data.keys().hasAny(['cancelledBy']) || validActor(data.cancelledBy))
+        && (!data.keys().hasAny(['cancelledSkippedInventoryIds'])
+          || (data.cancelledSkippedInventoryIds is list && data.cancelledSkippedInventoryIds.size() <= 500));
+    }
+
+    function validSaleUpdate(data, before) {
+      let changed = data.diff(before).affectedKeys();
+      let wasCancelled = before.get('cancelledAt', '') != '';
+      return (!wasCancelled
+          && changed.hasOnly(['cancelledAt', 'cancelledBy', 'cancellationReason'])
+          && data.get('cancelledAt', '').size() > 0 && data.get('cancellationReason', '').size() > 0
+          && validActor(data.get('cancelledBy', {})))
+        || (wasCancelled && before.get('replacementSaleId', '') == ''
+          && changed.hasOnly(['replacementSaleId']) && data.get('replacementSaleId', '').size() > 0)
+        // The existing photo tool updates the item list without changing the receipt totals.
+        || (!wasCancelled && changed.hasOnly(['items']) && data.items.size() == before.items.size());
     }
 
     // Only publish customer-facing inventory fields. The description is optional for older items.
@@ -27,9 +92,20 @@ service cloud.firestore {
     }
 
     match /artifacts/suryajayasport-3fd5e-app/public/data/{group}/{id} {
-      allow read, write: if owner() && group in [
+      allow read: if owner() && group in [
         'settings', 'inventory', 'transactions', 'purchases', 'expenses', 'cashClosings'
       ];
+      allow write: if owner() && group in ['settings', 'purchases', 'expenses', 'cashClosings'];
+    }
+
+    match /artifacts/suryajayasport-3fd5e-app/public/data/inventory/{id} {
+      allow create, update: if owner() && validInventory(request.resource.data);
+    }
+
+    match /artifacts/suryajayasport-3fd5e-app/public/data/transactions/{id} {
+      allow create: if owner() && validSale(request.resource.data);
+      allow update: if owner() && validSale(request.resource.data)
+        && validSaleUpdate(request.resource.data, resource.data);
     }
 
     match /publicCatalog/{id} {

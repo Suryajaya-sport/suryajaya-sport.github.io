@@ -13,6 +13,13 @@ export function monthlyBookTotals(month, transactions, expenses) {
   return { revenue, cost, spending, profit: revenue - cost - spending };
 }
 
+export function cashClosingChanges(saved, live) {
+  const sales = live.sales - saved.sales;
+  const expenses = live.expenses - saved.expenses;
+  const expected = saved.expected + sales - expenses;
+  return { needsReview: sales !== 0 || expenses !== 0, sales, expenses, difference: saved.counted - expected };
+}
+
 export function cashClosingRecord(snapshot, current, correction, actor, now) {
   if (!current && !correction) return { ...snapshot, createdAt: now, closedBy: actor };
   if (!current) throw new Error("Catatan tutup kas sudah berubah. Buka ulang tanggal ini.");

@@ -285,6 +285,7 @@
                 </label>
               </div>
               <p id="cashClosingSummary" aria-live="polite"></p>
+              <p id="cashClosingReview" class="mt-2 whitespace-pre-line rounded-lg bg-amber-100 p-3 text-sm font-semibold text-amber-950" role="status" hidden></p>
               <button type="submit" class="shop-button shop-button-primary">Simpan tutup kas</button>
               <button type="button" id="editCashClosing" class="shop-button shop-button-secondary" hidden>Koreksi tutup kas</button>
               <button type="button" id="cancelCashCorrection" class="shop-button shop-button-secondary" hidden>Batal koreksi</button>
@@ -442,7 +443,7 @@
               <summary>Tanggal dan nama pembeli <span id="saleDateSummary"></span></summary>
               <div class="workspace-form-fields">
                 <label>Tanggal penjualan <input type="date" id="inputDate" class="w-full rounded-lg border border-slate-300 bg-white p-2"></label>
-                <label>Nama pembeli (opsional) <input type="text" id="inputCustomer" placeholder="Pelanggan umum" class="w-full rounded-lg border border-slate-300 bg-white p-2"></label>
+                <label>Nama pembeli (opsional) <input type="text" id="inputCustomer" maxlength="500" placeholder="Pelanggan umum" class="w-full rounded-lg border border-slate-300 bg-white p-2"></label>
               </div>
             </details>
           </div>
@@ -696,7 +697,7 @@
           <div><h2 class="font-bold text-slate-900">Katalog Publik</h2><p id="inventoryCatalogStatus" class="text-sm text-slate-600" aria-live="polite"></p></div>
           <div class="flex flex-wrap gap-2">
             <button id="openReorderList" type="button" class="min-h-11 rounded-lg border border-slate-300 px-3 font-semibold text-blue-900">Daftar belanja stok</button>
-            <button id="publishCatalog" type="button" class="min-h-11 rounded-lg border border-slate-300 px-3 font-semibold text-blue-900">Terbitkan semua barang</button>
+            <button id="publishCatalog" type="button" class="min-h-11 rounded-lg border border-slate-300 px-3 font-semibold text-blue-900">Terbitkan barang aktif</button>
           </div>
         </div>
       </section>
@@ -782,12 +783,12 @@
           <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
             <div class="sm:col-span-4">
               <label class="block min-h-[2.75rem] text-sm leading-tight font-bold text-slate-800 mb-1.5">Kode Barang / QR:</label>
-              <input type="text" id="invCode" placeholder="Otomatis (mis. SJS-001)"
+              <input type="text" id="invCode" maxlength="80" placeholder="Otomatis (mis. SJS-001)"
                 class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-blue-600">
             </div>
             <div class="sm:col-span-8">
               <label class="block min-h-[2.75rem] text-sm leading-tight font-bold text-slate-800 mb-1.5">Nama Barang <span class="text-rose-600">* (Wajib diisi)</span>:</label>
-              <input type="text" id="invName" placeholder="Contoh: Sepatu Futsal Ortuseight"
+              <input type="text" id="invName" maxlength="160" placeholder="Contoh: Sepatu Futsal Ortuseight"
                 class="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-blue-600">
             </div>
             <div class="sm:col-span-12">
@@ -808,12 +809,12 @@
             </div>
             <div class="sm:col-span-6">
               <label class="block min-h-[2.75rem] text-sm leading-tight font-bold text-slate-800 mb-1.5">Ukuran (Jika ada):</label>
-              <input type="text" id="invSize" placeholder="Contoh: 42 / L / XL / 4U"
+              <input type="text" id="invSize" maxlength="40" placeholder="Contoh: 42 / L / XL / 4U"
                 class="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-xl font-semibold text-slate-900 focus:outline-none focus:border-blue-600">
             </div>
             <div class="sm:col-span-6">
               <label class="block min-h-[2.75rem] text-sm leading-tight font-bold text-slate-800 mb-1.5">Warna (Jika ada):</label>
-              <input type="text" id="invColor" placeholder="Contoh: Hitam / Putih / Merah"
+              <input type="text" id="invColor" maxlength="60" placeholder="Contoh: Hitam / Putih / Merah"
                 class="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-xl font-semibold text-slate-900 focus:outline-none focus:border-blue-600">
             </div>
             <div class="sm:col-span-4">
@@ -859,7 +860,7 @@
               <span>Belum ada foto <span id="invMissingPhotoCount"></span></span>
             </label>
             <select id="inventoryFollowUp" aria-label="Filter daftar stok" class="min-h-11 rounded-xl border border-slate-200 px-2 text-sm">
-              <option value="all">Semua barang</option><option value="low">Stok menipis</option><option value="out">Stok habis</option><option value="unpublished">Belum terbit</option><option value="no-price">Harga kosong</option>
+              <option value="all">Barang aktif</option><option value="low">Stok menipis</option><option value="out">Stok habis</option><option value="unpublished">Belum terbit</option><option value="no-price">Harga kosong</option><option value="archived">Arsip barang</option>
             </select>
           </div>
         </div>
@@ -1175,12 +1176,12 @@
   <script type="module">
     import { drawNiimbotLabel, encodeNiimbotPng, niimbotLabelSizes } from "./niimbot-label.js";
     import { catalogImageUrl, chessBoardSpecs, productDescription, productImageUrl, thumbnailUrl } from "./produk/katalog.js?v=deskripsi-stok";
-    import { backupCollections, cashClosingRecord, monthlyBookTotals } from "./bookkeeping.js";
-    import { wireBackupRestore } from "./restore-ui.js?v=pratinjau";
-    import { commitRestore } from "./backup-restore.js?v=pratinjau";
+    import { backupCollections, cashClosingChanges, cashClosingRecord, monthlyBookTotals } from "./bookkeeping.js?v=arsip-kas";
+    import { wireBackupRestore } from "./restore-ui.js?v=arsip-stok";
+    import { commitRestore } from "./backup-restore.js?v=arsip-stok";
     import { assistantComparisonPeriod, assistantKey, assistantSaleParts, shopDemandFilter, understandShopQuestion } from "./shop-assistant.js";
     let initializeApp, getApps, getFirestore;
-    let doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc, getDocs, getDocsFromServer, query, where, writeBatch, runTransaction;
+    let doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc, getDocsFromServer, query, where, runTransaction;
     let getStorage, storageRef, uploadBytes, getDownloadURL, storage = null;
 
     const EMBEDDED_FIREBASE_CONFIG = {
@@ -1213,6 +1214,7 @@
     let cancelledTransactions = [];
     let receiptAliasOwners = new Map();
     let inventory = [];
+    const activeInventory = () => inventory.filter(item => !item.archivedAt);
     let publicCatalog = [];
     let catalogLoadState = "loading";
     const catalogCart = new Map();
@@ -1343,6 +1345,7 @@
             const snapshot = await cloudTransaction.get(ref);
             if (!snapshot.exists()) throw new Error("Barang sudah tidak ada di daftar stok. Pilih ulang barang.");
             const current = snapshot.data();
+            if (current.archivedAt) throw new Error((current.name || "Barang") + " diarsipkan. Pilih barang aktif.");
             const stock = Number(current.stock || 0);
             const requested = quantitiesByInventory.get(id);
             if (!Number.isSafeInteger(stock) || stock < requested) {
@@ -1514,7 +1517,7 @@
         ]);
         ({ initializeApp, getApps } = appM);
         firebaseAuth = authM;
-        ({ getFirestore, doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc, getDocs, getDocsFromServer, query, where, writeBatch, runTransaction } = fsM);
+        ({ getFirestore, doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc, getDocsFromServer, query, where, runTransaction } = fsM);
         ({ getStorage, ref: storageRef, uploadBytes, getDownloadURL } = storageM);
         const app = getApps().length ? getApps()[0] : initializeApp(EMBEDDED_FIREBASE_CONFIG);
         auth = authM.getAuth(app);
@@ -1625,7 +1628,7 @@
     function matchInventoryFromText(rawText) {
       const val = String(rawText || "").trim().toLowerCase();
       if (!val) return null;
-      return inventory.find(inv => {
+      return activeInventory().find(inv => {
         const fullOpt = formatDropdownOption(inv).toLowerCase();
         const label = formatItemLabel(inv).toLowerCase();
         return fullOpt === val
@@ -1864,7 +1867,7 @@
           row.querySelector(".item-cost-input").focus();
           showToast("Isi modal satuan untuk barang di luar stok."); return;
         }
-        const invObj = invId ? inventory.find(i => i.id === invId) : null;
+        const invObj = invId ? activeInventory().find(i => i.id === invId) : null;
         if (invId && !invObj) { showToast("Barang sudah tidak ada di stok. Pilih ulang barang."); return; }
         if (invObj && invObj.name) {
           name = formatItemLabel(invObj);
@@ -1913,7 +1916,7 @@
       let code = document.getElementById("invCode").value.trim();
 
       const stockInput = document.getElementById("invStock");
-      const stock = parseInt(stockInput.value) || 0;
+      const stock = Number(stockInput.value);
       const stockEdited = !editId || stock !== Number(stockInput.dataset.originalStock);
       const cost = parseFloat(document.getElementById("invCost").value) || 0;
       const price = parseFloat(document.getElementById("invPrice").value) || 0;
@@ -1928,6 +1931,10 @@
         return;
       }
 
+      if (!Number.isSafeInteger(stock) || stock < 0) return showToast("Isi stok dengan jumlah bulat, minimal 0.");
+      if (![cost, price].every(value => Number.isFinite(value) && value >= 0 && value <= Number.MAX_SAFE_INTEGER)) {
+        return showToast("Isi harga modal dan harga jual dengan angka Rupiah yang valid.");
+      }
       if (!code) code = nextAutoCode();
 
       if (description.length > 400) return showToast("Deskripsi maksimal 400 karakter.");
@@ -2087,9 +2094,10 @@
     function findInventoryByCode(text) {
       const q = text.trim().toLowerCase();
       if (!q) return null;
-      return inventory.find(i => i.code && i.code.toLowerCase() === q)
-        || inventory.find(i => i.name && i.name.toLowerCase() === q)
-        || inventory.find(i => i.code && q.includes(i.code.toLowerCase()));
+      const active = activeInventory();
+      return active.find(i => i.code && i.code.toLowerCase() === q)
+        || active.find(i => i.name && i.name.toLowerCase() === q)
+        || active.find(i => i.code && q.includes(i.code.toLowerCase()));
     }
 
     function handleScannedCode(code) {
@@ -2234,6 +2242,17 @@
       const summary = document.getElementById("cashClosingSummary");
       const live = cashSnapshot(new FormData(form));
       const saved = books.cashClosings.find(row => row.id === live.date);
+      const review = document.getElementById("cashClosingReview");
+      const changes = saved ? cashClosingChanges(saved, live) : null;
+      review.hidden = !changes?.needsReview;
+      if (changes?.needsReview) {
+        const changeText = amount => (amount < 0 ? "turun " : "naik ") + rp(Math.abs(amount));
+        const details = [
+          changes.sales ? "Penjualan tunai " + changeText(changes.sales) : "",
+          changes.expenses ? "Pengeluaran tunai " + changeText(changes.expenses) : ""
+        ].filter(Boolean);
+        review.textContent = "Perlu cek ulang\n" + details.join(" · ") + "\nSelisih terbaru: " + rp(changes.difference);
+      }
       const editing = Boolean(saved && cashClosingCorrection?.date === live.date);
       const saving = form.dataset.saving === "true";
       const submit = form.querySelector('button[type="submit"]');
@@ -2426,21 +2445,25 @@
       });
       document.getElementById("publishCatalog").addEventListener("click", async event => {
         if (!isAdmin || !db) return;
-        if (!window.confirm("Terbitkan nama, foto, harga, dan stok semua barang ke katalog publik?")) return;
+        if (!window.confirm("Terbitkan nama, foto, harga, dan stok barang aktif ke katalog publik?")) return;
         const button = event.currentTarget;
         button.disabled = true;
         try {
-          const source = await getDocs(collection(db, ...paths("inventory")));
-          const published = await getDocs(collection(db, "publicCatalog"));
-          const ids = new Set(source.docs.map(entry => entry.id));
-          const batch = writeBatch(db);
-          const removed = published.docs.filter(entry => !ids.has(entry.id));
-          if (source.size + removed.length > 500) throw new Error("Jumlah barang melampaui batas publikasi");
-          for (const entry of removed) batch.delete(entry.ref);
-          for (const entry of source.docs) {
-            batch.set(doc(db, "publicCatalog", entry.id), publicProductData(entry.data()));
-          }
-          await batch.commit();
+          const [source, published] = await Promise.all([
+            getDocsFromServer(collection(db, ...paths("inventory"))), getDocsFromServer(collection(db, "publicCatalog"))
+          ]);
+          const ids = [...new Set([...source.docs, ...published.docs].map(entry => entry.id))];
+          if (ids.length > 500) throw new Error("Jumlah barang melampaui batas publikasi");
+          const publishedIds = new Set(published.docs.map(entry => entry.id));
+          await runTransaction(db, async transaction => {
+            const latest = await Promise.all(ids.map(id => transaction.get(doc(db, ...paths("inventory", id)))));
+            for (const entry of latest) {
+              const item = entry.data();
+              const publicRef = doc(db, "publicCatalog", entry.id);
+              if (item && !item.archivedAt) transaction.set(publicRef, publicProductData(item));
+              else if (publishedIds.has(entry.id)) transaction.delete(publicRef);
+            }
+          });
           showToast("Katalog publik diperbarui.");
         } catch {
           showToast("Gagal memperbarui katalog publik.");
@@ -2553,7 +2576,7 @@
       if (original.items?.length) {
         document.getElementById("saleItemsContainer").replaceChildren();
         for (const item of original.items) {
-          const stockItem = inventory.find(record => record.id === item.inventoryId);
+          const stockItem = activeInventory().find(record => record.id === item.inventoryId);
           const row = addSaleItemRow(stockItem);
           if (!stockItem) {
             row.querySelector(".item-name-input").value = item.name || "";
@@ -2968,19 +2991,21 @@
       const datalist = document.getElementById("inventoryDatalist");
       tbody.innerHTML = "";
       listDiv.innerHTML = "";
+      const active = activeInventory();
       if (datalist) {
-        datalist.innerHTML = inventory.map(i => `<option value="${esc(formatDropdownOption(i))}"></option>`).join("");
+        datalist.innerHTML = active.map(i => `<option value="${esc(formatDropdownOption(i))}"></option>`).join("");
       }
 
       const q = document.getElementById("invSearchInput").value.trim().toLocaleLowerCase("id");
       const missingPhotoOnly = document.getElementById("invMissingPhotoOnly").checked;
       const followUp = document.getElementById("inventoryFollowUp").value;
+      const listed = followUp === "archived" ? inventory.filter(item => item.archivedAt) : active;
       const published = new Set(publicCatalog.map(item => item.id));
       document.getElementById("inventoryCatalogStatus").textContent = catalogLoadState === "ready"
-        ? `${published.size} barang terbit · ${inventory.filter(item => !published.has(item.id)).length} belum terbit`
+        ? `${published.size} barang terbit · ${active.filter(item => !published.has(item.id)).length} belum terbit`
         : "Status katalog belum tersedia.";
-      document.getElementById("invMissingPhotoCount").textContent = `(${inventory.filter(item => !productImageUrl(item)).length})`;
-      const filteredInv = inventory.filter(item => {
+      document.getElementById("invMissingPhotoCount").textContent = `(${listed.filter(item => !productImageUrl(item)).length})`;
+      const filteredInv = listed.filter(item => {
         const searchable = [item.name, item.code, item.size, item.color].filter(Boolean).join(" ").toLocaleLowerCase("id");
         const stock = Number(item.stock || 0);
         return (!q || searchable.includes(q)) && (!missingPhotoOnly || !productImageUrl(item))
@@ -2989,18 +3014,18 @@
           && (followUp !== "low" || stock < LOW_STOCK_LIMIT)
           && (followUp !== "out" || stock <= 0);
       });
-      document.getElementById("inventoryResultCount").textContent = `${filteredInv.length} dari ${inventory.length} barang`;
+      document.getElementById("inventoryResultCount").textContent = `${filteredInv.length} dari ${listed.length} barang`;
 
       let totalUnits = 0, totalAsset = 0, lowStockCount = 0;
       inventory.forEach(item => {
         const stock = Number(item.stock || 0);
         totalUnits += stock;
         totalAsset += stock * Number(item.cost || 0);
-        if (stock < LOW_STOCK_LIMIT) lowStockCount++;
+        if (!item.archivedAt && stock < LOW_STOCK_LIMIT) lowStockCount++;
       });
 
-      document.getElementById("navStockBadge").textContent = inventory.length;
-      document.getElementById("invTotalTypes").textContent = inventory.length + " Item";
+      document.getElementById("navStockBadge").textContent = active.length;
+      document.getElementById("invTotalTypes").textContent = active.length + " Aktif";
       document.getElementById("invTotalUnits").textContent = totalUnits + " Pcs";
       document.getElementById("invTotalAsset").textContent = rp(totalAsset);
       document.getElementById("invLowStockCount").textContent = lowStockCount + " Barang";
@@ -3008,8 +3033,8 @@
 
       const sel = document.getElementById("restockItem");
       const cur = sel.value;
-      sel.innerHTML = inventory.map(i => `<option value="${esc(i.id)}">${esc(i.code)} - ${esc(i.name)} (sisa ${Number(i.stock || 0)})</option>`).join("");
-      if (cur && inventory.some(i => i.id === cur)) sel.value = cur;
+      sel.innerHTML = active.map(i => `<option value="${esc(i.id)}">${esc(i.code)} - ${esc(i.name)} (sisa ${Number(i.stock || 0)})</option>`).join("");
+      if (cur && active.some(i => i.id === cur)) sel.value = cur;
 
       const delClass = isAdmin ? "" : "hidden";
       filteredInv.forEach(item => {
@@ -3020,8 +3045,9 @@
         const variant = `Uk: ${esc(item.size || "Semua")} &bull; Warna: ${esc(item.color || "Semua")}`;
         const id = esc(item.id);
         const isPublished = published.has(item.id);
+        const archiveControl = !isAdmin ? "" : `<button type="button" data-archive-item="${id}" class="rounded-xl bg-slate-100 px-3 py-2 text-xs font-extrabold text-slate-800 hover:bg-slate-200">${item.archivedAt ? "Aktifkan lagi" : "Arsipkan"}</button>`;
         const catalogControls = !isAdmin ? "" : `<div class="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs">
-          ${catalogLoadState === "ready" ? `<span class="font-semibold ${isPublished ? "text-emerald-800" : "text-slate-600"}">${isPublished ? "Tampil di katalog" : "Belum terbit"}</span>
+          ${item.archivedAt ? '<span class="font-semibold text-slate-600">Diarsipkan</span>' : catalogLoadState === "ready" ? `<span class="font-semibold ${isPublished ? "text-emerald-800" : "text-slate-600"}">${isPublished ? "Tampil di katalog" : "Belum terbit"}</span>
           <button type="button" data-publish-item="${id}" data-publish-next="${isPublished ? "hide" : "show"}" class="font-bold text-blue-800 underline underline-offset-2">${isPublished ? "Sembunyikan" : "Terbitkan"}</button>` : ""}
           <button type="button" data-stock-history="${id}" class="font-bold text-blue-800 underline underline-offset-2">Riwayat</button>
         </div>`;
@@ -3042,7 +3068,7 @@
             <div class="flex items-center justify-center gap-1.5">
               <button type="button" onclick="window.openQrModal('${id}')" class="px-3 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs flex items-center gap-1 cursor-pointer shadow-xs"><i class="fa-solid fa-qrcode"></i><span>QR</span></button>
               <button type="button" onclick="window.editInventoryItem('${id}')" class="px-3 py-2 rounded-xl bg-blue-100 hover:bg-blue-200 text-blue-900 font-extrabold text-xs cursor-pointer ${delClass}">Ubah</button>
-              <button type="button" onclick="window.promptDeleteInventory('${id}')" class="px-3 py-2 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-900 font-extrabold text-xs cursor-pointer ${delClass}">Hapus</button>
+              ${archiveControl}
             </div>
           </td>`;
         tbody.appendChild(tr);
@@ -3068,7 +3094,7 @@
           <div class="flex flex-wrap items-center gap-2 pt-1">
             <button type="button" onclick="window.openQrModal('${id}')" class="flex-1 py-2.5 px-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"><i class="fa-solid fa-qrcode"></i><span>Stiker QR</span></button>
             <button type="button" onclick="window.editInventoryItem('${id}')" class="py-2.5 px-3 rounded-xl bg-blue-100 hover:bg-blue-200 text-blue-900 font-extrabold text-xs cursor-pointer ${delClass}">Ubah</button>
-            <button type="button" onclick="window.promptDeleteInventory('${id}')" class="py-2.5 px-3 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-900 font-extrabold text-xs cursor-pointer ${delClass}">Hapus</button>
+            ${archiveControl}
           </div>`;
         listDiv.appendChild(card);
       });
@@ -3168,6 +3194,12 @@
     function wireInventoryTools() {
       document.getElementById("viewInventory").addEventListener("click", async event => {
         if (!isAdmin || !db) return;
+        const archive = event.target.closest("[data-archive-item]");
+        if (archive) {
+          const item = inventory.find(row => row.id === archive.dataset.archiveItem);
+          if (item) openDeleteConfirmation(item.id, item.archivedAt ? "reactivate" : "archive");
+          return;
+        }
         const history = event.target.closest("[data-stock-history]");
         if (history) {
           const item = inventory.find(row => row.id === history.dataset.stockHistory);
@@ -3186,6 +3218,7 @@
             await runTransaction(db, async transaction => {
               const current = await transaction.get(inventoryRef);
               if (!current.exists()) throw new Error("Barang sudah dihapus.");
+              if (current.data().archivedAt) throw new Error("Aktifkan kembali barang sebelum diterbitkan.");
               const item = publicProductData(current.data());
               if (!item.name || !item.code || !item.price) throw new Error("Isi nama, kode, dan harga sebelum menerbitkan.");
               transaction.set(publicRef, item);
@@ -3203,7 +3236,7 @@
 
       document.getElementById("openReorderList").addEventListener("click", () => {
         if (!isAdmin) return;
-        const low = inventory.filter(item => Number(item.stock || 0) < LOW_STOCK_LIMIT)
+        const low = activeInventory().filter(item => Number(item.stock || 0) < LOW_STOCK_LIMIT)
           .sort((a, b) => Number(a.stock || 0) - Number(b.stock || 0));
         openInventoryTool("Daftar belanja stok", low.length
           ? `<form id="reorderListForm" class="space-y-3"><p class="text-sm text-slate-600">Isi jumlah yang ingin dibeli, lalu salin daftar untuk supplier.</p>
@@ -3219,7 +3252,7 @@
         if (!isAdmin || event.target.id !== "reorderListForm") return;
         event.preventDefault();
         const fields = new FormData(event.target);
-        const lines = inventory.filter(item => Number(fields.get(item.id)) > 0)
+        const lines = activeInventory().filter(item => Number(fields.get(item.id)) > 0)
           .map(item => `- ${item.name} (${item.code || "-"}) × ${fields.get(item.id)} pcs`);
         const status = document.getElementById("inventoryToolStatus");
         if (!lines.length) { status.textContent = "Isi jumlah barang yang akan dibeli."; return; }
@@ -3256,11 +3289,12 @@
     function renderQuickPickList() {
       const qList = document.getElementById("quickPickStockList");
       qList.innerHTML = "";
-      if (inventory.length === 0) {
+      const active = activeInventory();
+      if (active.length === 0) {
         qList.innerHTML = `<div class="p-4 text-center text-xs text-slate-500">Belum ada barang di stok.</div>`;
         return;
       }
-      inventory.forEach((item, index) => {
+      active.forEach((item, index) => {
         const div = document.createElement("div");
         div.className = "p-3 hover:bg-blue-50 flex items-center justify-between gap-2 cursor-pointer transition";
         div.innerHTML = `
@@ -3427,7 +3461,7 @@
       const qty = parseInt(document.getElementById("restockQty").value) || 0;
       const total = parseFloat(document.getElementById("restockTotal").value) || 0;
       const date = document.getElementById("restockDate").value || todayStr();
-      const item = inventory.find(i => i.id === invId);
+      const item = activeInventory().find(i => i.id === invId);
 
       if (!item) { showToast("Pilih barang terlebih dahulu."); return; }
       if (qty <= 0) { showToast("Jumlah pembelian harus lebih dari 0."); return; }
@@ -3442,6 +3476,7 @@
         await runTransaction(db, async transaction => {
           const current = await transaction.get(product);
           if (!current.exists()) throw new Error("Barang tidak ditemukan");
+          if (current.data().archivedAt) throw new Error("Aktifkan kembali barang sebelum membeli stok.");
           const publicRef = doc(db, "publicCatalog", invId);
           const published = await transaction.get(publicRef);
           transaction.set(record, purchase);
@@ -3458,7 +3493,7 @@
         showToast(`Pembelian dicatat. Stok bertambah.`);
         renderApp();
       } catch (err) {
-        showToast("Gagal mencatat pembelian.");
+        showToast(err?.code ? "Gagal mencatat pembelian." : err.message);
       }
     }
 
@@ -3469,20 +3504,41 @@
       const cancelSale = type === "tx";
       const sale = cancelSale ? knownSale || transactions.find(tx => tx.id === id) : null;
       const number = sale ? knownNumber || receiptNumber(sale) : "";
-      document.getElementById("deleteModalTitle").textContent = cancelSale
-        ? number ? "Batalkan nota " + number + "?" : "Batalkan transaksi?"
-        : "Hapus barang ini?";
-      document.getElementById("deleteModalDesc").textContent = cancelSale
-        ? (sale ? sale.date + " · " + (sale.customer || "Umum") + " · " + rp(sale.totalOmset) + ". " : "")
-          + "Stok dikembalikan saat pembatalan berhasil. Pengembalian uang kepada pelanggan diproses terpisah."
-        : "Barang yang dihapus tidak dapat dikembalikan.";
-      document.getElementById("btnConfirmDelete").textContent = cancelSale ? "Ya, Batalkan Transaksi" : "Ya, Hapus";
+      const item = cancelSale ? null : inventory.find(row => row.id === id);
+      const reactivate = type === "reactivate";
+      const title = document.getElementById("deleteModalTitle");
+      const desc = document.getElementById("deleteModalDesc");
+      const confirm = document.getElementById("btnConfirmDelete");
+      if (cancelSale) {
+        title.textContent = number ? "Batalkan nota " + number + "?" : "Batalkan transaksi?";
+        desc.textContent = (sale ? sale.date + " · " + (sale.customer || "Umum") + " · " + rp(sale.totalOmset) + ". " : "")
+          + "Stok dikembalikan saat pembatalan berhasil. Pengembalian uang kepada pelanggan diproses terpisah.";
+        confirm.textContent = "Ya, Batalkan Transaksi";
+      } else {
+        title.textContent = (reactivate ? "Aktifkan kembali " : "Arsipkan ") + (item?.name || "barang ini") + "?";
+        desc.textContent = reactivate
+          ? "Barang kembali ke daftar kasir. Pilih Terbitkan di menu Stok untuk menampilkannya di katalog."
+          : "Barang disembunyikan dari kasir dan katalog. Stok dan riwayat nota tetap tersimpan.";
+        confirm.textContent = reactivate ? "Aktifkan kembali" : "Arsipkan barang";
+      }
       document.getElementById("cancelReasonField").classList.toggle("hidden", !cancelSale);
       document.getElementById("cancelReasonInput").value = "";
       document.getElementById("deleteConfirmModal").classList.remove("hidden");
     }
     window.promptCancelSale = id => openDeleteConfirmation(id, "tx");
-    window.promptDeleteInventory = id => openDeleteConfirmation(id, "inventory");
+
+    async function setInventoryArchived(id, archived) {
+      const itemRef = doc(db, ...paths("inventory", id));
+      const catalogRef = doc(db, "publicCatalog", id);
+      const updatedAt = new Date().toISOString();
+      await runTransaction(db, async transaction => {
+        const saved = await transaction.get(itemRef);
+        if (!saved.exists()) throw new Error("Barang tidak ditemukan.");
+        if (Boolean(saved.data().archivedAt) === archived) return;
+        transaction.update(itemRef, { archivedAt: archived ? updatedAt : "", updatedAt });
+        if (archived) transaction.delete(catalogRef);
+      });
+    }
 
     function closeDeleteConfirmation() {
       deleteTargetId = null;
@@ -3742,13 +3798,7 @@
         deleteInProgress = true;
         confirmButton.disabled = closeButton.disabled = true;
         try {
-          if (type === "inventory") {
-            const batch = writeBatch(db);
-            batch.delete(doc(db, ...paths("inventory", id)));
-            batch.delete(doc(db, "publicCatalog", id));
-            await batch.commit();
-            showToast("Barang dihapus.");
-          } else {
+          if (type === "tx") {
             const reasonInput = document.getElementById("cancelReasonInput");
             const reason = reasonInput.value.trim();
             if (!reason) {
@@ -3758,6 +3808,10 @@
             const result = await cancelSaleAndRestoreStock(id, reason);
             if (result.alreadyCancelled) showToast("Transaksi ini sudah dibatalkan.");
             else showToast("Transaksi dibatalkan. Stok barang dikembalikan.");
+          } else {
+            const archived = type === "archive";
+            await setInventoryArchived(id, archived);
+            showToast(archived ? "Barang diarsipkan." : "Barang aktif kembali. Terbitkan untuk tampil di katalog.");
           }
           closeDeleteConfirmation();
         } catch (e) {
@@ -4087,7 +4141,8 @@
       }
       if (type === "restock") {
         const days = 1 + Math.round((Date.parse(period.end) - Date.parse(period.start)) / 86400000);
-        const picks = rank.filter(row => row.item && Number.isSafeInteger(Number(row.item.stock)) && Number(row.item.stock) >= 0)
+        const picks = rank.filter(row => row.item && !row.item.archivedAt
+          && Number.isSafeInteger(Number(row.item.stock)) && Number(row.item.stock) >= 0)
           .map(row => ({ ...row, stock: Number(row.item.stock), target: Math.ceil(row.qty * 14 / days),
             daysLeft: Number(row.item.stock) * days / row.qty }))
           .filter(row => row.target > row.stock)
@@ -4210,7 +4265,7 @@
             assistantDraft = null;
             assistantRefreshControls();
           }
-          const items = await assistantRows("inventory");
+          const items = (await assistantRows("inventory")).filter(item => !item.archivedAt);
           if (session !== assistantSession) return;
           if (type === "sale") {
             const draft = assistantSalePlan(term, items);

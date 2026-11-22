@@ -34,7 +34,8 @@ function validRow(group, row) {
   if (group === "inventory" || group === "publicCatalog") {
     const base = text(row.name, 160) && row.name.trim() && money(row.price) && units(row.stock)
       && optionalText(row.description, 400) && optionalText(row.imageUrl, 2048);
-    if (group === "inventory") return base && money(row.cost) && optionalText(row.code, 80);
+    if (group === "inventory") return base && money(row.cost) && optionalText(row.code, 80)
+      && optionalText(row.archivedAt, 30);
     const allowed = ["id", "name", "code", "size", "color", "price", "stock", "imageUrl", "description"];
     return base && text(row.code, 80) && optionalText(row.size, 40) && optionalText(row.color, 60)
       && Object.keys(row).every(key => allowed.includes(key));
@@ -214,7 +215,8 @@ export function planRestore(backup, live, selection) {
       throw new Error("Pulihkan semua data hanya tersedia jika stok, penjualan, pembukuan, dan katalog masih kosong.");
     }
     for (const [id, row] of data.publicCatalog) {
-      if (row.stock !== data.inventory.get(id)?.stock) throw new Error("Isi stok dan katalog di file cadangan tidak cocok.");
+      const item = data.inventory.get(id);
+      if (row.stock !== item?.stock || item.archivedAt) throw new Error("Isi stok dan katalog di file cadangan tidak cocok.");
     }
     for (const group of backupCollections) addMissing(group, data[group].values());
   } else {
