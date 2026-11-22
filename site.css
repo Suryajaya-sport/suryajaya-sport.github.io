@@ -562,7 +562,7 @@
   .sjs-admin .shop-main { padding-top: clamp(.85rem, 2vw, 1.7rem); }
   #mainNavigation:not([hidden]) {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: .25rem;
     padding: .35rem;
     margin-bottom: 1rem;
@@ -782,7 +782,7 @@
     gap: 1.15rem;
   }
 
-  .sjs-admin .shop-main > :is(#viewCatalog, #viewKasir, #viewInventory, #viewBooks) { grid-area: 1 / 2; min-width: 0; }
+  .sjs-admin .shop-main > :is(#viewCatalog, #viewKasir, #viewInventory, #viewBooks, #viewBackup) { grid-area: 1 / 2; min-width: 0; }
   #mainNavigation:not([hidden]) {
     position: sticky;
     top: 1rem;
@@ -812,6 +812,7 @@
 }
 
 @media (max-width: 37.5rem) {
+  #mainNavigation:not([hidden]) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .shop-header-inner { min-height: 4rem; }
   .shop-brand img { height: 2rem; }
   .shop-brand h1 { font-size: 1.4rem; }

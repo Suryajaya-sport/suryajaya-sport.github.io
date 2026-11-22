@@ -40,7 +40,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&amp;family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="site.css?v=restore-menu">
+  <link rel="stylesheet" href="site.css?v=menu-cadangan-admin">
   <link rel="stylesheet" href="print.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
@@ -127,6 +127,9 @@
       </button>
       <button type="button" id="tabBtnBooks" data-workspace="books" aria-controls="viewBooks">
         <i class="fa-solid fa-book" aria-hidden="true"></i><span>Pembukuan</span>
+      </button>
+      <button type="button" id="tabBtnBackup" data-workspace="backup" aria-controls="viewBackup">
+        <i class="fa-solid fa-database" aria-hidden="true"></i><span>Cadangan data</span>
       </button>
       <button type="button" id="tabBtnCatalog" data-workspace="catalog" aria-controls="viewCatalog" aria-current="page">
         <i class="fa-solid fa-store" aria-hidden="true"></i><span>Katalog</span>
@@ -296,12 +299,29 @@
         <details class="workspace-book-panel">
           <summary>Alat tambahan</summary>
           <div class="workspace-books-actions">
-            <button id="backUpBooks" type="button" class="shop-button shop-button-secondary">Unduh cadangan data</button>
-            <button id="openBackupRestore" type="button" class="shop-button shop-button-secondary">Pulihkan cadangan</button>
             <button id="copyWhatsAppGreeting" type="button" class="shop-button shop-button-secondary">Salin pesan sambutan WhatsApp</button>
           </div>
         </details>
       </section>
+    </section>
+    <section id="viewBackup" class="workspace-pane hidden no-print" aria-labelledby="backupWorkspaceTitle">
+      <header class="workspace-heading">
+        <h2 id="backupWorkspaceTitle" tabindex="-1">Cadangan data</h2>
+      </header>
+      <div class="grid gap-3 sm:grid-cols-2">
+        <div class="workspace-book-panel space-y-3">
+          <button id="backUpBooks" type="button" class="shop-button shop-button-primary">
+            <i class="fa-solid fa-download" aria-hidden="true"></i> Unduh cadangan data
+          </button>
+          <p class="text-sm text-slate-600">Simpan salinan stok, penjualan, pembukuan, dan katalog dalam satu file.</p>
+        </div>
+        <div class="workspace-book-panel space-y-3">
+          <button id="openBackupRestore" type="button" class="shop-button shop-button-secondary">
+            <i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Pulihkan cadangan
+          </button>
+          <p class="text-sm text-slate-600">Pilih file cadangan dan lihat perubahan sebelum menyimpannya.</p>
+        </div>
+      </div>
     </section>
     <dialog id="backupRestoreDialog" class="workspace-dialog no-print" aria-labelledby="backupRestoreTitle">
       <div class="workspace-dialog-heading">
@@ -3310,6 +3330,7 @@
       document.getElementById("salesHistoryWorkspace").hidden = !sales;
       document.getElementById("viewInventory").classList.toggle("hidden", name !== "inventory");
       document.getElementById("viewBooks").classList.toggle("hidden", name !== "books");
+      document.getElementById("viewBackup").classList.toggle("hidden", name !== "backup");
       if (sales) renderTransactions();
       else if (name === "inventory") renderInventory();
       else if (name === "books") renderOwnerBooks();
