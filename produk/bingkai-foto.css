@@ -1,0 +1,61 @@
+.photo-with-brand {
+  min-width: 0;
+}
+
+.photo-with-brand:has(.catalog-card-photo img, .product-photo-frame[data-has-photo="true"])::after {
+  content: "";
+  display: block;
+  height: 32px;
+  background: #f4f7fc url("/sjs-mark.png") right 10px center / auto 23px no-repeat;
+  border-bottom: 1px solid #dbe3ef;
+}
+
+.photo-artwork-heading {
+  display: none;
+}
+
+.photo-artwork-branded:has(.catalog-card-photo img, .product-photo-frame[data-has-photo="true"]) {
+  position: relative;
+  display: grid;
+  grid-template-rows: 27% minmax(0, 1fr);
+  aspect-ratio: 1;
+  container-type: inline-size;
+  overflow: hidden;
+  border: 1px solid #dbe3ef;
+  border-bottom: 4px solid #2156b6;
+  background: #eef4ff;
+}
+
+.photo-artwork-branded:has(.catalog-card-photo img, .product-photo-frame[data-has-photo="true"]) .photo-artwork-heading {
+  display: grid;
+  grid-template-columns: 42% 1fr;
+  align-items: stretch;
+  background: linear-gradient(135deg, #101e53, #1e53a7);
+  color: #fff;
+}
+
+.photo-artwork-heading span {
+  align-content: center;
+  padding: 0 2% 0 31%;
+  border-right: 4px solid #facc15;
+  background: #fff url("/sjs-mark.png") left 6% center / 23% auto no-repeat;
+  color: #113379;
+  font: 800 5cqi/.95 "Barlow Condensed", "Arial Narrow", sans-serif;
+  font-style: italic;
+  text-transform: uppercase;
+}
+
+.photo-artwork-heading strong {
+  align-self: center;
+  padding-inline: 8%;
+  font: 800 8cqi/.95 "Barlow Condensed", "Arial Narrow", sans-serif;
+  text-wrap: balance;
+}
+
+.photo-artwork-branded:has(.catalog-card-photo img, .product-photo-frame[data-has-photo="true"]) :is(.catalog-card-photo, .product-photo-frame) {
+  aspect-ratio: auto;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}

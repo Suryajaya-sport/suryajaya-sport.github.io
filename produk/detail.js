@@ -1,4 +1,4 @@
-import { catalogImageUrl, chessBoardSpecs, productDescription, thumbnailUrl } from "./katalog.js?v=deskripsi-stok";
+import { catalogImageUrl, catalogPhotoTitle, chessBoardSpecs, productDescription, thumbnailUrl } from "./katalog.js?v=bingkai-foto";
 
 const endpoint = "https://firestore.googleapis.com/v1/projects/suryajayasport-3fd5e/databases/(default)/documents/publicCatalog/";
 const status = document.getElementById("detail-status");
@@ -56,6 +56,9 @@ function showProduct(item) {
   specs.hidden = !rows.length;
 
   const image = catalogImageUrl(item);
+  const photoTitle = catalogPhotoTitle(item);
+  get("product-photo-title").textContent = photoTitle;
+  get("product-photo-artwork").classList.toggle("photo-artwork-branded", Boolean(photoTitle));
   const photoFrame = get("product-photo-frame");
   const photo = get("product-photo");
   const placeholder = get("photo-placeholder");
@@ -65,15 +68,17 @@ function showProduct(item) {
     photo.addEventListener("load", () => {
       photoFrame.dataset.hasPhoto = "true";
     }, { once: true });
-    photo.addEventListener("error", () => {
+    const handlePhotoError = () => {
       if (photo.getAttribute("src") === thumbnail && thumbnail !== image) {
         photo.src = image;
         return;
       }
+      photo.removeEventListener("error", handlePhotoError);
       photoFrame.dataset.hasPhoto = "false";
       photo.hidden = true;
       placeholder.hidden = false;
-    }, { once: true });
+    };
+    photo.addEventListener("error", handlePhotoError);
     photo.alt = `Foto katalog ${item.name}`;
     photo.src = thumbnail;
     photo.hidden = false;

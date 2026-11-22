@@ -6,8 +6,9 @@
   <title>Detail Produk | Surya Jaya Sport</title>
   <link rel="icon" href="/sjs-mark.png" type="image/png">
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@800&amp;family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/produk/produk.css?v=referensi-frame-20261122">
-  <script type="module" src="/produk/detail.js?v=referensi-frame-20261122"></script>
+  <link rel="stylesheet" href="/produk/produk.css?v=bingkai-foto-20261122">
+  <link rel="stylesheet" href="/produk/bingkai-foto.css?v=20261122">
+  <script type="module" src="/produk/detail.js?v=bingkai-foto-20261122"></script>
 </head>
 <body>
   <header class="site-header">
@@ -18,9 +19,14 @@
     <p class="availability" id="detail-status" role="status">Detail produk sedang dimuat…</p>
     <noscript><p>Aktifkan JavaScript untuk melihat detail produk.</p></noscript>
     <article class="product" aria-labelledby="product-name" hidden>
-      <div class="product-photo-frame" id="product-photo-frame">
-        <img class="product-photo" id="product-photo" width="800" height="800" decoding="async" alt="" hidden>
-        <p class="product-placeholder" id="photo-placeholder">Foto produk belum tersedia.</p>
+      <div class="photo-with-brand">
+        <div class="photo-artwork" id="product-photo-artwork">
+          <div class="photo-artwork-heading" aria-hidden="true"><span>Surya Jaya<br>Sport</span><strong id="product-photo-title"></strong></div>
+          <div class="product-photo-frame" id="product-photo-frame">
+            <img class="product-photo" id="product-photo" width="800" height="800" decoding="async" alt="" hidden>
+            <p class="product-placeholder" id="photo-placeholder">Foto produk belum tersedia.</p>
+          </div>
+        </div>
       </div>
       <div class="product-body">
         <p class="category" id="product-code"></p>

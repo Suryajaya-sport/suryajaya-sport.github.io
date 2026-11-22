@@ -353,21 +353,87 @@
   box-sizing: border-box;
   background: #fff;
 }
-/* Add the same Surya Jaya Sport brand mark to every card with a real photo. */
+
+.catalog-card-photo:has(img) {
+  display: grid;
+  grid-template-rows: auto 32px;
+  aspect-ratio: auto;
+}
+
+.catalog-card-photo:has(img) img {
+  position: relative;
+  inset: auto;
+  grid-row: 1;
+  height: auto;
+  aspect-ratio: 1;
+  margin: 8px;
+}
+
 .catalog-card-photo:has(img)::after {
   content: "";
-  position: absolute;
-  z-index: 2;
-  right: 10px;
-  bottom: 10px;
-  width: 30px;
-  height: 30px;
-  border: 1px solid #dbe3ef;
-  border-radius: 7px;
-  background: #fff url("/sjs-mark.png") center / 72% 72% no-repeat;
-  box-shadow: 0 1px 4px #0f172a20;
-  pointer-events: none;
+  grid-row: 2;
+  background: #f4f7fc url("/sjs-mark.png") right 10px center / auto 23px no-repeat;
 }
+
+.catalog-card-photo:has(img[src*="zdnoyawsvigdos6t9qyc.jpg"]) {
+  --catalog-photo-title: "Celana Yonex";
+}
+
+.catalog-card-photo:has(img[src*="fo1owkazpcww8crgwuy3.webp"]) {
+  --catalog-photo-title: "Sepatu Hundred Court Star";
+}
+
+.catalog-card-photo:has(img[src*="kks9eujohs9k2p163rzl.jpg"]) {
+  --catalog-photo-title: "Net Pingpong CIMA T117";
+}
+
+.catalog-card-photo:has(img:is(
+  [src*="zdnoyawsvigdos6t9qyc.jpg"],
+  [src*="fo1owkazpcww8crgwuy3.webp"],
+  [src*="kks9eujohs9k2p163rzl.jpg"]
+)) {
+  container-type: inline-size;
+  grid-template-rows: auto auto 32px;
+  background: #eef4ff;
+}
+
+.catalog-card-photo:has(img:is(
+  [src*="zdnoyawsvigdos6t9qyc.jpg"],
+  [src*="fo1owkazpcww8crgwuy3.webp"],
+  [src*="kks9eujohs9k2p163rzl.jpg"]
+))::before {
+  content: var(--catalog-photo-title);
+  grid-row: 1;
+  display: grid;
+  min-height: 24cqi;
+  align-content: center;
+  padding: 3% 6% 3% 28%;
+  background:
+    url("/sjs-mark.png") left 5% center / 11% auto no-repeat,
+    linear-gradient(115deg, #fff 21%, #facc15 21% 24%, #142757 24%, #1e53a7);
+  color: #fff;
+  font: 800 8cqi/.95 "Barlow Condensed", "Arial Narrow", sans-serif;
+  text-wrap: balance;
+}
+
+.catalog-card-photo img:is(
+  [src*="zdnoyawsvigdos6t9qyc.jpg"],
+  [src*="fo1owkazpcww8crgwuy3.webp"],
+  [src*="kks9eujohs9k2p163rzl.jpg"]
+) {
+  grid-row: 2;
+  aspect-ratio: 1 / .76;
+}
+
+.catalog-card-photo:has(img:is(
+  [src*="zdnoyawsvigdos6t9qyc.jpg"],
+  [src*="fo1owkazpcww8crgwuy3.webp"],
+  [src*="kks9eujohs9k2p163rzl.jpg"]
+))::after {
+  grid-row: 3;
+  border-top: 3px solid #2156b6;
+}
+
 .catalog-card-body { display: flex; flex: 1; flex-direction: column; padding: clamp(.65rem, 1.6vw, 1rem); }
 .catalog-card-meta { margin: 0 0 .35rem; color: var(--shop-muted); font-size: .72rem; font-weight: 650; overflow-wrap: anywhere; }
 .catalog-card-size { margin: .3rem 0 0; color: var(--shop-primary); font-size: .79rem; font-weight: 750; }

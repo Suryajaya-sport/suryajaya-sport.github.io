@@ -75,20 +75,6 @@ a:focus-visible { outline: 2px solid #4860a5; outline-offset: 3px; }
   background: #fff;
   text-align: center;
 }
-.product-photo-frame[data-has-photo="true"]::after {
-  content: "";
-  position: absolute;
-  z-index: 2;
-  right: 10px;
-  bottom: 10px;
-  width: 30px;
-  height: 30px;
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  background: #fff url("/sjs-mark.png") center / 72% 72% no-repeat;
-  box-shadow: 0 1px 4px #0f172a20;
-  pointer-events: none;
-}
 .product[hidden], .product-photo[hidden], .product-placeholder[hidden], .product-body .category[hidden] { display: none; }
 .product-body h1 {
   margin: .45rem 0 .75rem;
