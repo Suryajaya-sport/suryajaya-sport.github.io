@@ -1158,7 +1158,7 @@
       <button type="button" class="rounded-lg bg-blue-50 px-2 py-2" data-assistant-command="Omzet kemarin">Omzet kemarin</button>
       <button type="button" class="rounded-lg bg-blue-50 px-2 py-2" data-assistant-command="Laba rugi bulan ini">Laba rugi</button>
       <button type="button" class="rounded-lg bg-blue-50 px-2 py-2" data-assistant-command="Terlaris 30 hari">Barang terlaris</button>
-      <button type="button" class="rounded-lg bg-blue-50 px-2 py-2" data-assistant-command="Saran restok">Saran restok</button>
+      <button type="button" class="rounded-lg bg-blue-50 px-2 py-2" data-assistant-command="Barang apa yang perlu dibeli lagi?">Perlu dibeli</button>
       <button type="button" class="rounded-lg bg-blue-50 px-2 py-2" data-assistant-command="Peluang barang baru">Barang baru</button>
     </div>
     <div id="sjsAiChatLog" class="flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto bg-slate-50 p-3 text-sm" role="log" aria-live="polite"></div>
@@ -1178,6 +1178,7 @@
     import { backupCollections, cashClosingRecord, monthlyBookTotals } from "./bookkeeping.js";
     import { wireBackupRestore } from "./restore-ui.js?v=pratinjau";
     import { commitRestore } from "./backup-restore.js?v=pratinjau";
+    import { assistantComparisonPeriod, assistantKey, assistantSaleParts, shopDemandFilter, understandShopQuestion } from "./shop-assistant.js";
     let initializeApp, getApps, getFirestore;
     let doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc, getDocs, getDocsFromServer, query, where, writeBatch, runTransaction;
     let getStorage, storageRef, uploadBytes, getDownloadURL, storage = null;
@@ -3863,7 +3864,7 @@
     }
 
 
-    const assistantHelp = "Contoh perintah\n• Omzet kemarin\n• Laba rugi bulan lalu atau 2026-11\n• Terlaris 30 hari, saran restok, atau peluang barang baru\n• Stok SJS-039\n• Cari nota SJS-ABC123\n• Catat jual 2 SJS-021 bayar QRIS\nTambahkan + untuk barang lain, harga 100.000 untuk harga khusus, atau pembeli diikuti nama.";
+    const assistantHelp = "Apa yang mau Anda cek?\n• Berapa untung bulan ini?\n• Model apa yang paling laku 30 hari ini?\n• Barang apa yang perlu dibeli lagi?\n• Barang baru apa yang layak dicoba?\n• SJS-039 stoknya berapa?\n• Cari nota SJS-ABC123\n• Tolong catat penjualan 2 SJS-021, bayar QRIS";
     const assistantMethods = new Map([
       ["cash", "Cash"], ["tunai", "Cash"], ["qris", "QRIS"], ["kartu", "Kartu"], ["transfer", "Transfer"]
     ]);
@@ -3881,10 +3882,6 @@
     let assistantBusy = false;
     let assistantSession = 0;
 
-    function assistantKey(value) {
-      return String(value ?? "").trim().toLocaleLowerCase("id-ID").replace(/\s+/g, " ");
-    }
-
     function assistantISODate(value) {
       if (!/^\d{4}-\d{2}-\d{2}$/.test(value) || shiftDate(value, 0) !== value) {
         throw new Error("Tanggal tidak valid. Gunakan format YYYY-MM-DD.");
@@ -3894,11 +3891,19 @@
 
     function assistantPeriod(text, defaultDays) {
       const today = todayStr();
-      if (/\b(?:minggu|tahun)\b/.test(text) && !/\b\d{4}-\d{2}\b/.test(text)) {
-        throw new Error("Gunakan tanggal YYYY-MM-DD, bulan ini, bulan lalu, atau rentang seperti 7 hari.");
-      }
       const day = text.match(/\b\d{4}-\d{2}-\d{2}\b/)?.[0];
       if (day) return { start: assistantISODate(day), end: day };
+
+      const week = text.match(/\bminggu (ini|lalu|kemarin)\b/)?.[1];
+      if (week) {
+        const weekday = new Date(today + "T00:00:00Z").getUTCDay() || 7;
+        const monday = shiftDate(today, 1 - weekday);
+        return week === "ini" ? { start: monday, end: today }
+          : { start: shiftDate(monday, -7), end: shiftDate(monday, -1) };
+      }
+      if (/\b(?:minggu|tahun)\b/.test(text) && !/\b\d{4}-\d{2}\b/.test(text)) {
+        throw new Error("Pilih minggu ini, bulan lalu, rentang seperti 7 hari, atau tanggal YYYY-MM-DD.");
+      }
 
       const explicitMonth = text.match(/\b\d{4}-\d{2}\b/)?.[0];
       const previousMonth = /\bbulan (?:lalu|kemarin|kemaren)\b/.test(text);
@@ -3946,7 +3951,11 @@
       const byCode = items.find(item => assistantKey(item.code) === key);
       if (byCode) return byCode;
       const exact = items.filter(item => assistantKey(item.name) === key || assistantKey(formatItemLabel(item)) === key);
-      const matches = exact.length ? exact : items.filter(item => assistantKey(item.name).includes(key));
+      const tokens = key.split(" ");
+      const matches = exact.length ? exact : items.filter(item => {
+        const label = assistantKey([item.name, item.code, item.size, item.color].filter(Boolean).join(" "));
+        return tokens.every(token => label.includes(token));
+      });
       if (matches.length === 1) return matches[0];
       if (matches.length > 1) {
         throw new Error("Pilih kode barang yang tepat:\n" + matches.slice(0, 5).map(formatItemLabel).join("\n"));
@@ -3955,20 +3964,14 @@
     }
 
     function assistantSalePlan(command, items) {
-      const parts = command.split(/\s+(bayar|pembeli|tanggal)\s+/i);
-      const options = new Map();
-      for (let i = 1; i < parts.length; i += 2) {
-        const key = assistantKey(parts[i]);
-        if (options.has(key) || !parts[i + 1]?.trim()) throw new Error("Periksa bagian " + key + " pada perintah.");
-        options.set(key, parts[i + 1].trim());
-      }
+      const { items: lines, options } = assistantSaleParts(command);
       if (!options.has("bayar")) throw new Error("Tulis cara bayar, misalnya catat jual 2 SJS-021 bayar tunai.");
-      const method = assistantKey(options.get("bayar")).replace(/^(?:pakai|via) /, "");
+      const method = assistantKey(options.get("bayar")).replace(/^(?:pakai|via|secara|dengan) /, "");
       const paymentMethod = assistantMethods.get(method);
       if (!paymentMethod) throw new Error("Pilih cara bayar Cash, QRIS, Kartu, atau Transfer.");
       const date = options.has("tanggal") ? assistantISODate(options.get("tanggal")) : todayStr();
       const customer = options.get("pembeli") || "Pelanggan Umum";
-      const saleItems = parts[0].split("+").map(line => {
+      const saleItems = lines.map(line => {
         const match = line.trim().match(/^(\d+)\s+(?:(?:pcs|buah|unit)\s+)?(.+)$/i);
         const qty = Number(match?.[1]);
         if (!Number.isSafeInteger(qty) || qty < 1) throw new Error("Tulis jumlah dan barang, misalnya catat jual 2 SJS-021.");
@@ -3995,18 +3998,53 @@
       return { date, customer, paymentMethod, items: saleItems, total };
     }
 
-    function assistantProfitReport(sales, expenses, period) {
+    function assistantProfitTotals(sales, expenses) {
       const revenue = sales.reduce((sum, row) => sum + Number(row.totalOmset || 0), 0);
       const cost = sales.reduce((sum, row) => sum + Number(row.totalModal || 0), 0);
       const spent = expenses.reduce((sum, row) => sum + Number(row.amount || 0), 0);
       const gross = revenue - cost;
-      const net = gross - spent;
+      return { revenue, cost, spent, gross, net: gross - spent };
+    }
+
+    async function assistantProfitReport(text, defaultDays) {
+      const [requested, comparisonText] = text.split(/\s+(?:vs\.?|versus|dibanding(?:kan)?(?:\s+dengan)?|dengan)\s+(?=(?:bulan|minggu|hari|kemarin)\b|\d{4}-)/, 2);
+      const period = assistantPeriod(requested, defaultDays);
+      const comparable = assistantComparisonPeriod(period, shiftDate);
+      const selected = comparisonText ? assistantPeriod(comparisonText, defaultDays) : comparable;
+      const previous = selected.start === comparable.start && selected.end >= comparable.end ? comparable : selected;
+      const inPeriod = (rows, dates) => rows.filter(row => row.date >= dates.start && row.date <= dates.end);
+      const readBooks = async dates => {
+        const [sales, expenses] = await Promise.all([
+          assistantRows("transactions", dates), assistantRows("expenses", dates)
+        ]);
+        return { sales: sales.filter(row => !row.cancelledAt), expenses };
+      };
+      let current;
+      let prior;
+      if (comparisonText && previous !== comparable) {
+        [current, prior] = await Promise.all([readBooks(period), readBooks(previous)]);
+      } else {
+        const rows = await readBooks({ start: previous.start, end: period.end });
+        current = { sales: inPeriod(rows.sales, period), expenses: inPeriod(rows.expenses, period) };
+        prior = { sales: inPeriod(rows.sales, previous), expenses: inPeriod(rows.expenses, previous) };
+      }
+      const { revenue, cost, spent, gross, net } = assistantProfitTotals(current.sales, current.expenses);
+      const before = assistantProfitTotals(prior.sales, prior.expenses);
       const outcome = net < 0 ? "Rugi usaha" : net > 0 ? "Laba usaha" : "Impas";
       const margin = revenue > 0 ? "\nMargin laba kotor: " + (gross / revenue).toLocaleString("id-ID",
         { style: "percent", maximumFractionDigits: 1 }) : "";
-      return "Laporan " + assistantPeriodLabel(period) + "\n" + sales.length + " transaksi aktif"
+      const trend = delta => delta === 0 ? "tetap" : (delta > 0 ? "naik " : "turun ") + rp(Math.abs(delta));
+      const comparison = "\n\nPembanding " + assistantPeriodLabel(previous) + "\n"
+        + (prior.sales.length || prior.expenses.length
+          ? "Omzet " + trend(revenue - before.revenue) + " · Laba bersih " + trend(net - before.net)
+            + "\nHPP " + trend(cost - before.cost) + " · Pengeluaran " + trend(spent - before.spent)
+          : "Belum ada catatan pada periode pembanding.");
+      if (!current.sales.length && !current.expenses.length) {
+        return "Laporan " + assistantPeriodLabel(period) + "\nBelum ada penjualan atau pengeluaran tercatat." + comparison;
+      }
+      return "Laporan " + assistantPeriodLabel(period) + "\n" + current.sales.length + " transaksi aktif"
         + "\nOmzet: " + rp(revenue) + "\nHPP: " + rp(cost) + "\nLaba kotor: " + rp(gross)
-        + "\nPengeluaran tercatat: " + rp(spent) + "\n" + outcome + ": " + rp(Math.abs(net)) + margin;
+        + "\nPengeluaran tercatat: " + rp(spent) + "\n" + outcome + ": " + rp(Math.abs(net)) + margin + comparison;
     }
 
     function assistantSalesRank(sales, items) {
@@ -4032,8 +4070,10 @@
     }
 
     function assistantDemandReport(type, sales, items, period, filter) {
-      const rank = assistantSalesRank(sales, items).filter(row =>
-        !filter || assistantKey(row.name).includes(filter) || assistantKey(row.item?.code) === filter);
+      const rank = assistantSalesRank(sales, items).filter(row => {
+        const label = assistantKey([row.name, row.item?.code, row.item?.size, row.item?.color].filter(Boolean).join(" "));
+        return !filter || filter.split(" ").every(token => label.includes(token));
+      });
       const header = assistantPeriodLabel(period) + " · " + sales.length + " transaksi aktif\n";
       if (!rank.length) return header + "Belum ada penjualan barang yang cocok pada periode ini.";
       if (type === "opportunity") {
@@ -4043,19 +4083,21 @@
         if (!candidates.length) return header + "Belum ada usulan barang baru dari pola penjualan ini.";
         return header + "Barang pelengkap untuk uji stok kecil\n" + candidates.slice(0, 5).map(candidate =>
           "• " + candidate.name + " · barang terkait terjual " + candidate.qty + " unit").join("\n")
-          + "\nIni perkiraan dari penjualan toko. Coba 1–2 unit per model dan lihat peminat sebelum menambah stok.";
+          + "\nSumber: penjualan barang terkait di toko. Coba 1–2 unit per model dan lihat peminat sebelum menambah stok.";
       }
       if (type === "restock") {
         const days = 1 + Math.round((Date.parse(period.end) - Date.parse(period.start)) / 86400000);
         const picks = rank.filter(row => row.item && Number.isSafeInteger(Number(row.item.stock)) && Number(row.item.stock) >= 0)
-          .map(row => ({ ...row, stock: Number(row.item.stock), target: Math.ceil(row.qty * 14 / days) }))
+          .map(row => ({ ...row, stock: Number(row.item.stock), target: Math.ceil(row.qty * 14 / days),
+            daysLeft: Number(row.item.stock) * days / row.qty }))
           .filter(row => row.target > row.stock)
-          .sort((a, b) => Number(b.stock === 0) - Number(a.stock === 0) || b.qty - a.qty);
+          .sort((a, b) => a.daysLeft - b.daysLeft || b.qty - a.qty);
         if (!picks.length) return header + "Stok barang yang terjual cukup untuk perkiraan 14 hari.";
         return header + "Prioritas restok untuk perkiraan 14 hari\n" + picks.slice(0, 6).map(row =>
-          "• " + formatItemLabel(row.item) + " · terjual " + row.qty + ", stok " + row.stock
-          + ", isi sekitar " + (row.target - row.stock)).join("\n")
-          + "\nPerkiraan memakai laju penjualan periode ini. Penjualan saat stok kosong bisa meremehkan permintaan.";
+          "• " + formatItemLabel(row.item) + " · beli " + (row.target - row.stock) + " pcs"
+          + "\n  Terjual " + row.qty + " pcs dalam " + row.orders + " nota · "
+          + (row.stock === 0 ? "Stok habis" : "Stok " + row.stock + " pcs, kira-kira cukup " + Math.max(1, Math.round(row.daysLeft)) + " hari")).join("\n")
+          + "\nSumber: penjualan toko pada periode ini. Saat stok habis, sebagian permintaan mungkin tidak tercatat.";
       }
       return header + "Model terlaris menurut unit terjual\n" + rank.slice(0, 6).map(row =>
         "• " + (row.item ? formatItemLabel(row.item) : row.name) + " · " + row.qty + " unit dalam "
@@ -4095,7 +4137,7 @@
 
     function assistantReceiptRequest(text) {
       if (isReceiptSearch(text)) return text;
-      return text.match(/^(?:tolong\s+)?(?:(?:cari|lihat|cek|buka|hapus|batalkan|batal)\s+)?(?:(?:nomor|no\.?)\s+)?(?:nota|transaksi)\s+(\S+)$/i)?.[1];
+      return text.match(/^(?:tolong\s+)?(?:(?:cari(?:kan)?|lihat|cek|buka|hapus|batalkan|batal)\s+)?(?:(?:nomor|no\.?)\s+)?(?:nota|transaksi)\s+(\S+?)\s*[?!]?$/i)?.[1];
     }
 
     function showAssistantReceipt(number, rows, session) {
@@ -4161,44 +4203,37 @@
           return;
         }
         const normalized = assistantKey(text);
-        const command = text.match(/^(?:(?:tolong\s+)?(?:catat|input|simpan)\s+(?:jual(?:an)?|penjualan)|jual|laku)\s+(.+)$/i);
-        const stock = text.match(/^(?:(?:cek|lihat)\s+)?(?:stok|sisa stok|harga)\s+(.+)$/i);
-        const type = /\b(?:barang baru|produk baru|peluang|di luar stok|diluar stok)\b/.test(normalized) ? "opportunity"
-          : /\b(?:restok|restock|isi stok|distock)\b/.test(normalized) ? "restock"
-          : /\b(?:terlaris|laku|diminati|disukai|disuka|model favorit)\b/.test(normalized) ? "popular"
-          : /\b(?:laporan|laba|rugi|profit|untung|omset|omzet|hpp|penjualan|pengeluaran)\b/.test(normalized) ? "report"
-          : "";
+        const { type, term } = understandShopQuestion(text);
         let reply = assistantHelp;
-        if (command || stock) {
-          if (command) {
+        if (type === "sale" || type === "stock") {
+          if (type === "sale") {
             assistantDraft = null;
             assistantRefreshControls();
           }
           const items = await assistantRows("inventory");
           if (session !== assistantSession) return;
-          if (command) {
-            const draft = assistantSalePlan(command[1], items);
+          if (type === "sale") {
+            const draft = assistantSalePlan(term, items);
             assistantDraft = draft;
             reply = "Draf penjualan " + assistantPeriodLabel({ start: draft.date, end: draft.date })
               + "\n" + draft.items.map(item => "• " + item.name + " × " + item.qty + " @ " + rp(item.price)).join("\n")
               + "\nTotal: " + rp(draft.total) + "\nBayar: " + draft.paymentMethod + "\nPembeli: " + draft.customer
               + "\nPeriksa rincian lalu tekan Simpan penjualan.";
           } else {
-            const item = assistantProduct(items, stock[1]);
+            const item = assistantProduct(items, term);
             reply = formatItemLabel(item) + "\nStok: " + (item.stock ?? 0) + " pcs\nHarga jual: " + rp(item.price);
           }
-        } else if (type) {
-          const defaultDays = type !== "report" ? 30
-            : /\b(?:laba|rugi|profit|untung|pengeluaran)\b/.test(normalized) ? 0 : 1;
-          const period = assistantPeriod(normalized, defaultDays);
+        } else if (type === "report") {
+          const defaultDays = /\b(?:laba|rugi|profit|untung|keuntungan|pengeluaran)\b/.test(normalized) ? 0 : 1;
+          reply = await assistantProfitReport(normalized, defaultDays);
+        } else if (type !== "help") {
+          const period = assistantPeriod(normalized, 30);
           const [allSales, other] = await Promise.all([
             assistantRows("transactions", period),
-            type === "report" ? assistantRows("expenses", period) : assistantRows("inventory")
+            assistantRows("inventory")
           ]);
           const sales = allSales.filter(row => !row.cancelledAt);
-          const filter = normalized.match(/\buntuk\s+(.+)$/)?.[1] || "";
-          reply = type === "report" ? assistantProfitReport(sales, other, period)
-            : assistantDemandReport(type, sales, other, period, filter);
+          reply = assistantDemandReport(type, sales, other, period, shopDemandFilter(normalized));
         }
         if (session === assistantSession) assistantAddMessage(reply);
       } catch (error) {
