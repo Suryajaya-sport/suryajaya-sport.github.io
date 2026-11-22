@@ -433,7 +433,7 @@
               </button>
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" role="group" aria-labelledby="salePaymentTitle">
-              <button type="button" data-pay="Cash" aria-pressed="true" class="shop-button pay-option-btn"><i class="fa-solid fa-money-bill-wave" aria-hidden="true"></i> Tunai</button>
+              <button type="button" data-pay="Cash" aria-pressed="false" class="shop-button pay-option-btn"><i class="fa-solid fa-money-bill-wave" aria-hidden="true"></i> Tunai</button>
               <button type="button" data-pay="QRIS" aria-pressed="false" class="shop-button pay-option-btn"><i class="fa-solid fa-qrcode" aria-hidden="true"></i> QRIS</button>
               <button type="button" data-pay="Kartu" aria-pressed="false" class="shop-button pay-option-btn"><i class="fa-solid fa-credit-card" aria-hidden="true"></i> Kartu</button>
               <button type="button" data-pay="Transfer" aria-pressed="false" class="shop-button pay-option-btn"><i class="fa-solid fa-building-columns" aria-hidden="true"></i> Transfer</button>
@@ -448,6 +448,7 @@
           </div>
 
           <h3 class="workspace-section-title">3. Cek total dan simpan</h3>
+          <p id="salePaymentHint" class="text-sm font-semibold text-slate-600">Pilih cara bayar untuk menyimpan penjualan.</p>
           <div class="checkout-totals">
             <div class="checkout-amounts">
               <div>
@@ -463,10 +464,10 @@
               <button type="button" id="btnResetForm" class="shop-button shop-button-secondary">
                 Kosongkan
               </button>
-              <button type="button" id="btnSaveTx" class="shop-button shop-button-primary">
+              <button type="button" id="btnSaveTx" class="shop-button shop-button-primary" disabled>
                 <i class="fa-solid fa-circle-check" aria-hidden="true"></i> Simpan penjualan
               </button>
-              <button type="button" id="btnSaveAndPrintTx" class="shop-button shop-button-accent">
+              <button type="button" id="btnSaveAndPrintTx" class="shop-button shop-button-accent" disabled>
                 <i class="fa-solid fa-print" aria-hidden="true"></i> Simpan &amp; cetak
               </button>
             </div>
@@ -1227,7 +1228,9 @@
     let html5QrScanner = null;
     let isScannerRunning = false;
     let toastTimer = null;
-    let selectedPaymentMethod = "Cash";
+    const salePaymentMethods = new Set(["Cash", "QRIS", "Kartu", "Transfer"]);
+    let selectedPaymentMethod = "";
+    let saleFormSaving = false;
 
     function todayStr() {
       const d = new Date();
@@ -1311,6 +1314,7 @@
     let saleSaveInProgress = false;
     async function saveSaleAndUpdateStock(txData, replacementFor = "") {
       if (!db) throw new Error("Database Firebase tidak terhubung.");
+      if (!salePaymentMethods.has(txData.paymentMethod)) throw new Error("Pilih cara bayar sebelum menyimpan penjualan.");
       if (saleSaveInProgress) throw new Error("Penjualan sedang disimpan. Tunggu sebentar.");
       saleSaveInProgress = true;
 
@@ -1530,6 +1534,7 @@
           books.cashClosings = [];
           cashClosingCorrection = null;
           if (replacesSaleId) resetSaleDraft();
+          else selectSalePayment("");
           resetShopAssistant();
           if (!isAdmin) {
             setShopName("Surya Jaya Sport");
@@ -1744,11 +1749,21 @@
       document.getElementById("previewTotalProfit").textContent = rp(totalProfit);
     }
 
-    function selectSalePayment(method) {
-      selectedPaymentMethod = method;
+    function renderSalePayment() {
+      const hasPayment = salePaymentMethods.has(selectedPaymentMethod);
       for (const button of document.querySelectorAll(".pay-option-btn")) {
-        button.setAttribute("aria-pressed", String(button.dataset.pay === method));
+        button.setAttribute("aria-pressed", String(button.dataset.pay === selectedPaymentMethod));
+        button.disabled = saleFormSaving;
       }
+      document.getElementById("salePaymentHint").hidden = hasPayment;
+      document.getElementById("btnSaveTx").disabled = !hasPayment || saleFormSaving;
+      document.getElementById("btnSaveAndPrintTx").disabled = !hasPayment || saleFormSaving;
+      document.getElementById("btnResetForm").disabled = saleFormSaving;
+    }
+
+    function selectSalePayment(method) {
+      selectedPaymentMethod = salePaymentMethods.has(method) ? method : "";
+      renderSalePayment();
     }
 
     function updateSaleDateSummary() {
@@ -1764,7 +1779,7 @@
       document.getElementById("inputDate").value = todayStr();
       document.getElementById("saleExtraDetails").open = false;
       document.getElementById("saleItemsContainer").replaceChildren();
-      selectSalePayment("Cash");
+      selectSalePayment("");
       updateSaleDateSummary();
       addSaleItemRow();
     }
@@ -1820,6 +1835,7 @@
     async function saveSale(printAfterSave = false) {
       if (!db || !isAdmin) return showToast("Masuk ke akun pemilik terlebih dahulu.");
       if (saleSaveInProgress) return showToast("Penjualan sedang disimpan. Tunggu sebentar.");
+      if (!salePaymentMethods.has(selectedPaymentMethod)) return showToast("Pilih cara bayar sebelum menyimpan penjualan.");
       const rows = document.querySelectorAll("#saleItemsContainer > div");
       const itemsToSave = [];
 
@@ -1869,8 +1885,8 @@
         createdAt: new Date().toISOString()
       };
 
-      const controls = document.querySelectorAll("#btnSaveTx, #btnSaveAndPrintTx, #btnResetForm");
-      controls.forEach(button => { button.disabled = true; });
+      saleFormSaving = true;
+      renderSalePayment();
       try {
         const savedSale = await saveSaleAndUpdateStock(txData, replacesSaleId);
         selectedDateStr = txDate;
@@ -1885,7 +1901,8 @@
       } catch (err) {
         showToast(err?.message || "Gagal menyimpan transaksi.");
       } finally {
-        controls.forEach(button => { button.disabled = false; });
+        saleFormSaving = false;
+        renderSalePayment();
       }
     }
 
@@ -2527,10 +2544,9 @@
       replacesSaleId = original.id;
       document.getElementById("inputDate").value = original.date || todayStr();
       document.getElementById("inputCustomer").value = original.customer === "Pelanggan Umum" ? "" : original.customer || "";
-      selectSalePayment(["Cash", "QRIS", "Kartu", "Transfer"].includes(original.paymentMethod) ? original.paymentMethod : "Cash");
       updateSaleDateSummary();
       const notice = document.getElementById("replacementSaleNotice");
-      notice.textContent = "Nota pengganti untuk " + receiptNumber(original) + ". Periksa barang, jumlah, dan cara bayar sebelum simpan.";
+      notice.textContent = "Nota pengganti untuk " + receiptNumber(original) + ". Periksa barang dan jumlah, lalu pilih cara bayar sebelum simpan.";
       notice.hidden = false;
 
       if (original.items?.length) {
@@ -3530,6 +3546,7 @@
       updateSaleDateSummary();
       document.getElementById("btnSaveTx").addEventListener("click", () => saveSale(false));
       document.getElementById("btnSaveAndPrintTx").addEventListener("click", () => saveSale(true));
+      renderSalePayment();
 
       let savedReceiptPaper;
       try { savedReceiptPaper = localStorage.getItem("sjs-receipt-paper"); } catch {}
@@ -3546,7 +3563,6 @@
         btn.addEventListener("click", () => selectSalePayment(btn.dataset.pay));
       });
       document.getElementById("btnShowQrisPay").addEventListener("click", () => {
-        selectSalePayment("QRIS");
         document.getElementById("qrisPayModal").classList.remove("hidden");
         renderQrisPaymentScreen();
       });
@@ -3946,7 +3962,8 @@
         if (options.has(key) || !parts[i + 1]?.trim()) throw new Error("Periksa bagian " + key + " pada perintah.");
         options.set(key, parts[i + 1].trim());
       }
-      const method = assistantKey(options.get("bayar") || "cash").replace(/^(?:pakai|via) /, "");
+      if (!options.has("bayar")) throw new Error("Tulis cara bayar, misalnya catat jual 2 SJS-021 bayar tunai.");
+      const method = assistantKey(options.get("bayar")).replace(/^(?:pakai|via) /, "");
       const paymentMethod = assistantMethods.get(method);
       if (!paymentMethod) throw new Error("Pilih cara bayar Cash, QRIS, Kartu, atau Transfer.");
       const date = options.has("tanggal") ? assistantISODate(options.get("tanggal")) : todayStr();
