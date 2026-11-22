@@ -45,8 +45,8 @@ a:focus-visible { outline: 2px solid #4860a5; outline-offset: 3px; }
   aspect-ratio: 1 / 1;
   min-width: 0;
   overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: .75rem;
+  border: 1px solid #dbe3ef;
+  border-radius: .85rem;
   background: #fff;
 }
 .product-photo-frame .product-photo {
@@ -81,8 +81,8 @@ a:focus-visible { outline: 2px solid #4860a5; outline-offset: 3px; }
   z-index: 2;
   right: 10px;
   bottom: 10px;
-  width: 34px;
-  height: 34px;
+  width: 30px;
+  height: 30px;
   border: 1px solid var(--line);
   border-radius: 7px;
   background: #fff url("/sjs-mark.png") center / 72% 72% no-repeat;
