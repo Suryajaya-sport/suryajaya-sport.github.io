@@ -40,7 +40,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&amp;family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="site.css?v=katalog-kasir">
+  <link rel="stylesheet" href="site.css?v=koreksi-logo">
   <link rel="stylesheet" href="print.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
@@ -85,7 +85,7 @@
   <header class="shop-header no-print">
     <div class="shop-header-inner">
       <div class="shop-brand">
-        <img src="sjs-mark.png" alt="" width="46" height="46">
+        <img src="sjs-mark.png" alt="" width="130" height="155">
         <h1 id="shopNameDisplay">Surya Jaya Sport</h1>
         <button type="button" id="shopHeaderTrigger" class="hidden shop-edit" aria-label="Ubah nama toko">
           <i class="fa-solid fa-pen" aria-hidden="true"></i>
@@ -263,23 +263,34 @@
             <form id="cashClosingForm">
               <h3 id="cashClosingTitle" class="workspace-section-title">Tutup kas harian</h3>
               <p class="workspace-book-hint">Hitung uang tunai di laci. Penjualan dan pengeluaran tunai sudah masuk hitungan.</p>
-              <div class="workspace-form-fields">
-                <label>Tanggal <input name="date" type="date" required></label>
-                <label>Uang di laci saat buka (Rp) <input name="opening" type="number" min="0" step="1" inputmode="numeric" required></label>
-                <label>Uang di laci saat dihitung (Rp) <input name="counted" type="number" min="0" step="1" inputmode="numeric" required></label>
-              </div>
-              <details class="workspace-optional">
-                <summary>Uang tunai lain (opsional)</summary>
+              <label class="block text-sm font-bold">Tanggal <input name="date" type="date" required></label>
+              <div id="cashClosingEntryFields" class="space-y-3">
                 <div class="workspace-form-fields">
-                  <label>Uang masuk lain (Rp) <input name="cashIn" type="number" min="0" step="1" inputmode="numeric" value="0" required></label>
-                  <label>Uang keluar lain (Rp) <input name="cashOut" type="number" min="0" step="1" inputmode="numeric" value="0" required></label>
+                  <label>Uang di laci saat buka (Rp) <input name="opening" type="number" min="0" step="1" inputmode="numeric" required></label>
+                  <label>Uang di laci saat dihitung (Rp) <input name="counted" type="number" min="0" step="1" inputmode="numeric" required></label>
                 </div>
-                <p class="workspace-book-hint">Isi untuk setoran, penarikan, atau pembelian tunai yang belum masuk catatan pengeluaran.</p>
-              </details>
+                <details class="workspace-optional">
+                  <summary>Uang tunai lain (opsional)</summary>
+                  <div class="workspace-form-fields">
+                    <label>Uang masuk lain (Rp) <input name="cashIn" type="number" min="0" step="1" inputmode="numeric" value="0" required></label>
+                    <label>Uang keluar lain (Rp) <input name="cashOut" type="number" min="0" step="1" inputmode="numeric" value="0" required></label>
+                  </div>
+                  <p class="workspace-book-hint">Isi untuk setoran, penarikan, atau pembelian tunai yang belum masuk catatan pengeluaran.</p>
+                </details>
+                <label id="cashCorrectionReasonField" class="text-sm font-bold" hidden>Alasan koreksi
+                  <textarea name="reason" maxlength="160" rows="2" class="mt-1 block w-full rounded-lg border border-slate-300 p-2" disabled></textarea>
+                </label>
+              </div>
               <p id="cashClosingSummary" aria-live="polite"></p>
               <button type="submit" class="shop-button shop-button-primary">Simpan tutup kas</button>
+              <button type="button" id="editCashClosing" class="shop-button shop-button-secondary" hidden>Koreksi tutup kas</button>
+              <button type="button" id="cancelCashCorrection" class="shop-button shop-button-secondary" hidden>Batal koreksi</button>
             </form>
           </div>
+          <details id="cashCorrectionHistory" class="workspace-book-panel" hidden>
+            <summary>Riwayat koreksi tutup kas</summary>
+            <ul id="cashCorrectionList" class="workspace-book-list"></ul>
+          </details>
         </section>
 
         <details class="workspace-book-panel">
@@ -335,6 +346,7 @@
 
         <div class="p-4 sm:p-6 space-y-5">
           <datalist id="inventoryDatalist"></datalist>
+          <p id="replacementSaleNotice" class="rounded-xl bg-blue-50 p-3 text-sm font-bold text-blue-900" role="status" hidden></p>
 
           <div class="space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-2.5">
@@ -710,6 +722,13 @@
               <input type="text" id="invName" placeholder="Contoh: Sepatu Futsal Ortuseight"
                 class="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-blue-600">
             </div>
+            <div class="sm:col-span-12">
+              <label for="invDescription" class="block text-sm font-bold text-slate-700 mb-1.5">Deskripsi untuk pelanggan</label>
+              <textarea id="invDescription" maxlength="400" rows="2" placeholder="Contoh: ukuran papan dan bahan"
+                class="w-full rounded-xl border-2 border-slate-300 bg-white px-3.5 py-3 text-slate-900"
+                aria-describedby="invDescriptionHint"></textarea>
+              <p id="invDescriptionHint" class="mt-1 text-xs text-slate-600">Teks ini tampil di katalog publik saat barang diterbitkan.</p>
+            </div>
             <div class="sm:col-span-12 bg-sky-50 border-2 border-sky-200 rounded-2xl p-4">
               <label for="invImageFile" class="block text-sm font-extrabold text-sky-900 mb-2"><i class="fa-solid fa-camera mr-1"></i> Foto Produk (Opsional)</label>
               <input type="file" id="invImageFile" accept="image/*" class="block w-full text-sm text-slate-700 file:mr-3 file:py-3 file:px-4 file:rounded-xl file:border-0 file:bg-sky-700 file:text-white file:font-bold">
@@ -1042,8 +1061,8 @@
         <p id="deleteModalDesc" class="text-xs text-slate-500 mt-1">Data yang dihapus tidak dapat dikembalikan.</p>
       </div>
       <label id="cancelReasonField" class="hidden text-left text-sm font-semibold text-slate-700">
-        Alasan pembatalan (opsional)
-        <textarea id="cancelReasonInput" maxlength="160" rows="2" class="mt-1 block w-full rounded-xl border border-slate-300 p-2"></textarea>
+        Alasan pembatalan
+        <textarea id="cancelReasonInput" required maxlength="160" rows="2" class="mt-1 block w-full rounded-xl border border-slate-300 p-2"></textarea>
       </label>
       <div class="grid grid-cols-2 gap-2.5">
         <button type="button" id="btnCancelDelete" class="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer">Batal</button>
@@ -1087,7 +1106,8 @@
 
   <script type="module">
     import { drawNiimbotLabel, encodeNiimbotPng, niimbotLabelSizes } from "./niimbot-label.js";
-    import { catalogImageUrl, chessBoardSpecs, productDescription, productImageUrl, thumbnailUrl } from "./produk/katalog.js?v=deskripsi";
+    import { catalogImageUrl, chessBoardSpecs, productDescription, productImageUrl, thumbnailUrl } from "./produk/katalog.js?v=deskripsi-stok";
+    import { backupCollections, cashClosingRecord, monthlyBookTotals } from "./bookkeeping.js";
     let initializeApp, getApps, getFirestore;
     let doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc, getDocs, getDocsFromServer, query, where, writeBatch, runTransaction;
     let getStorage, storageRef, uploadBytes, getDownloadURL, storage = null;
@@ -1114,6 +1134,8 @@
     let auth, firebaseAuth;
     let unsubscribe = [];
     const books = { expenses: [], cashClosings: [] };
+    let cashClosingCorrection = null;
+    let replacesSaleId = "";
     let savedQrisPayload = QRIS_DEFAULT_PAYLOAD;
 
     let transactions = [];
@@ -1198,7 +1220,8 @@
         color: String(item.color || "").slice(0, 60),
         price: Math.max(0, Number(item.price) || 0),
         stock: Math.max(0, Math.trunc(Number(item.stock) || 0)),
-        imageUrl: productImageUrl(item).slice(0, 2048)
+        imageUrl: productImageUrl(item).slice(0, 2048),
+        ...(typeof item.description === "string" ? { description: item.description.trim().slice(0, 400) } : {})
       };
     }
 
@@ -1217,7 +1240,7 @@
     }
 
     let saleSaveInProgress = false;
-    async function saveSaleAndUpdateStock(txData) {
+    async function saveSaleAndUpdateStock(txData, replacementFor = "") {
       if (!db) throw new Error("Database Firebase tidak terhubung.");
       if (saleSaveInProgress) throw new Error("Penjualan sedang disimpan. Tunggu sebentar.");
       saleSaveInProgress = true;
@@ -1226,11 +1249,21 @@
         const quantitiesByInventory = saleInventoryQuantities(txData.items);
 
         const transactionRef = doc(collection(db, ...paths("transactions")));
+        const originalRef = replacementFor ? doc(db, ...paths("transactions", replacementFor)) : null;
         const inventoryRefs = new Map([...quantitiesByInventory.keys()].map(id => [
           id, doc(db, ...paths("inventory", id))
         ]));
 
         const savedSale = await runTransaction(db, async cloudTransaction => {
+          if (originalRef) {
+            const original = await cloudTransaction.get(originalRef);
+            if (!original.exists() || !original.data().cancelledAt) {
+              throw new Error("Nota asal harus dibatalkan sebelum membuat pengganti.");
+            }
+            if (original.data().replacementSaleId) {
+              throw new Error("Nota ini sudah punya pengganti. Lihat Riwayat penjualan.");
+            }
+          }
           const currentById = new Map();
           for (const [id, ref] of inventoryRefs) {
             const snapshot = await cloudTransaction.get(ref);
@@ -1261,8 +1294,10 @@
           if (!Number.isFinite(totalOmset) || !Number.isFinite(totalModal)) {
             throw new Error("Total penjualan atau harga pokok tidak valid.");
           }
-          const sale = { ...txData, items, totalOmset, totalModal, totalProfit: totalOmset - totalModal };
+          const sale = { ...txData, items, totalOmset, totalModal, totalProfit: totalOmset - totalModal,
+            ...(originalRef ? { replacesSaleId: replacementFor } : {}) };
           cloudTransaction.set(transactionRef, sale);
+          if (originalRef) cloudTransaction.update(originalRef, { replacementSaleId: transactionRef.id });
           for (const [id, ref] of inventoryRefs) {
             const current = currentById.get(id);
             const stock = current.stock - quantitiesByInventory.get(id);
@@ -1424,6 +1459,8 @@
           purchases = [];
           books.expenses = [];
           books.cashClosings = [];
+          cashClosingCorrection = null;
+          if (replacesSaleId) resetSaleDraft();
           resetShopAssistant();
           if (!isAdmin) {
             setShopName("Surya Jaya Sport");
@@ -1620,6 +1657,7 @@
         calculateSaleTotals();
       });
       calculateSaleTotals();
+      return rowDiv;
     }
 
     function calculateSaleTotals() {
@@ -1651,6 +1689,8 @@
     }
 
     function resetSaleDraft() {
+      replacesSaleId = "";
+      document.getElementById("replacementSaleNotice").hidden = true;
       document.getElementById("inputCustomer").value = "";
       document.getElementById("inputDate").value = todayStr();
       document.getElementById("saleExtraDetails").open = false;
@@ -1660,8 +1700,17 @@
       addSaleItemRow();
     }
 
+    function ownerActor() {
+      const user = auth?.currentUser;
+      if (!isAdmin || !user) throw new Error("Masuk kembali sebagai pemilik.");
+      return { uid: user.uid, name: String(user.displayName || user.email || "Pemilik").slice(0, 160) };
+    }
+
     async function cancelSaleAndRestoreStock(id, reason) {
       if (!isAdmin || !db) throw new Error("Masuk sebagai pemilik dan periksa koneksi cloud.");
+      const cancellationReason = reason.trim();
+      if (!cancellationReason || cancellationReason.length > 160) throw new Error("Isi alasan pembatalan, maksimal 160 karakter.");
+      const cancelledBy = ownerActor();
       const saleRef = doc(db, ...paths("transactions", id));
       const cancelledAt = new Date().toISOString();
       return runTransaction(db, async transaction => {
@@ -1692,7 +1741,8 @@
         }
         transaction.update(saleRef, {
           cancelledAt,
-          cancellationReason: reason.trim().slice(0, 160)
+          cancellationReason,
+          cancelledBy
         });
         return { alreadyCancelled: false };
       });
@@ -1753,7 +1803,7 @@
       const controls = document.querySelectorAll("#btnSaveTx, #btnSaveAndPrintTx, #btnResetForm");
       controls.forEach(button => { button.disabled = true; });
       try {
-        const savedSale = await saveSaleAndUpdateStock(txData);
+        const savedSale = await saveSaleAndUpdateStock(txData, replacesSaleId);
         selectedDateStr = txDate;
         document.getElementById("bookDatePicker").value = txDate;
         resetSaleDraft();
@@ -1780,6 +1830,9 @@
       const stockEdited = !editId || stock !== Number(stockInput.dataset.originalStock);
       const cost = parseFloat(document.getElementById("invCost").value) || 0;
       const price = parseFloat(document.getElementById("invPrice").value) || 0;
+      const descriptionInput = document.getElementById("invDescription");
+      const description = descriptionInput.value.trim();
+      const descriptionEdited = !editId || description !== descriptionInput.dataset.original;
 
       const imageFile = document.getElementById("invImageFile")?.files?.[0] || null;
 
@@ -1789,6 +1842,8 @@
       }
 
       if (!code) code = nextAutoCode();
+
+      if (description.length > 400) return showToast("Deskripsi maksimal 400 karakter.");
 
       if (imageFile && !imageFile.type.startsWith("image/")) {
         showToast("File harus berupa foto.");
@@ -1810,6 +1865,7 @@
         stock,
         cost,
         price,
+        description,
         imageUrl: oldItem?.imageUrl || "",
         imagePath: oldItem?.imagePath || "",
         updatedAt: new Date().toISOString()
@@ -1870,6 +1926,10 @@
               patch.imageUrl = saved.imageUrl || "";
               patch.imagePath = saved.imagePath || "";
             }
+            if (!descriptionEdited) {
+              if (typeof saved.description === "string") patch.description = saved.description;
+              else delete patch.description;
+            }
             const previousStock = Number(saved.stock || 0);
             const delta = stockEdited ? stock - previousStock : 0;
             patch.stock = stockEdited ? stock : previousStock;
@@ -1903,8 +1963,9 @@
     }
 
     function resetInvForm() {
-      ["editInvId", "invName", "invCode", "invSize", "invColor", "invStock", "invCost", "invPrice"]
+      ["editInvId", "invName", "invCode", "invSize", "invColor", "invStock", "invCost", "invPrice", "invDescription"]
         .forEach(id => document.getElementById(id).value = "");
+      delete document.getElementById("invDescription").dataset.original;
       document.getElementById("btnCancelInvEdit").classList.add("hidden");
       const fileInput = document.getElementById("invImageFile");
       if (fileInput) fileInput.value = "";
@@ -1926,6 +1987,9 @@
       document.getElementById("invStock").dataset.originalStock = item.stock || 0;
       document.getElementById("invCost").value = item.cost || 0;
       document.getElementById("invPrice").value = item.price || 0;
+      const description = document.getElementById("invDescription");
+      description.value = productDescription(item);
+      description.dataset.original = description.value.trim();
       document.getElementById("btnCancelInvEdit").classList.remove("hidden");
       document.getElementById("btnSaveInvText").textContent = "SIMPAN PERUBAHAN BARANG";
       document.getElementById("inventoryEntryTitle").textContent = "Ubah barang";
@@ -2012,13 +2076,12 @@
       showToast("QRIS berhasil disimpan!");
     }
 
-    function cashSnapshot(form) {
-      const fields = new FormData(form);
+    function cashSnapshot(fields, salesRows = transactions, expenseRows = books.expenses) {
       const date = fields.get("date");
-      const sales = transactions.filter(row => row.date === date && row.paymentMethod === "Cash")
+      const sales = salesRows.filter(row => !row.cancelledAt && row.date === date && row.paymentMethod === "Cash")
         .reduce((sum, row) => sum + Number(row.totalOmset || 0), 0);
-      const expenses = books.expenses.filter(row => row.date === date && row.method === "Cash")
-        .reduce((sum, row) => sum + row.amount, 0);
+      const expenses = expenseRows.filter(row => row.date === date && row.method === "Cash")
+        .reduce((sum, row) => sum + Number(row.amount || 0), 0);
       const opening = Number(fields.get("opening"));
       const cashIn = Number(fields.get("cashIn"));
       const cashOut = Number(fields.get("cashOut"));
@@ -2038,14 +2101,10 @@
       expenseList.replaceChildren();
       if (!isAdmin) return;
       const month = document.getElementById("bookMonth").value;
-      const sales = transactions.filter(row => month && row.date?.startsWith(month + "-"));
-      const expenses = books.expenses.filter(row => month && row.date?.startsWith(month + "-"));
-      const revenue = sales.reduce((sum, row) => sum + Number(row.totalOmset || 0), 0);
-      const cost = sales.reduce((sum, row) => sum + Number(row.totalModal || 0), 0);
-      const spending = expenses.reduce((sum, row) => sum + row.amount, 0);
+      const { revenue, cost, spending, profit } = monthlyBookTotals(month, transactions, books.expenses);
       for (const [label, amount] of Object.entries({
         "Uang dari penjualan": revenue, "Modal barang terjual": cost, "Laba sebelum pengeluaran": revenue - cost,
-        "Pengeluaran toko": spending, "Untung / rugi usaha": revenue - cost - spending
+        "Pengeluaran toko": spending, "Untung / rugi usaha": profit
       })) {
         const line = document.createElement("div");
         const title = document.createElement("dt");
@@ -2086,11 +2145,22 @@
     function renderCashClosing() {
       const form = document.getElementById("cashClosingForm");
       const summary = document.getElementById("cashClosingSummary");
-      const live = cashSnapshot(form);
+      const live = cashSnapshot(new FormData(form));
       const saved = books.cashClosings.find(row => row.id === live.date);
+      const editing = Boolean(saved && cashClosingCorrection?.date === live.date);
+      const saving = form.dataset.saving === "true";
       const submit = form.querySelector('button[type="submit"]');
-      submit.disabled = Boolean(saved) || form.dataset.saving === "true";
-      if (saved) {
+      submit.hidden = Boolean(saved) && !editing;
+      submit.disabled = saving;
+      submit.textContent = editing ? "Simpan koreksi" : "Simpan tutup kas";
+      document.getElementById("cashClosingEntryFields").hidden = submit.hidden;
+      document.getElementById("editCashClosing").hidden = !submit.hidden;
+      document.getElementById("cancelCashCorrection").hidden = !editing || saving;
+      document.getElementById("cashCorrectionReasonField").hidden = !editing;
+      form.elements.reason.disabled = !editing;
+      form.elements.reason.required = editing;
+      renderCashCorrectionHistory(saved);
+      if (saved && !editing) {
         summary.textContent = "Sudah ditutup · Seharusnya ada " + rp(saved.expected) + " · Uang dihitung " + rp(saved.counted)
           + " · Selisih " + rp(saved.difference);
         return;
@@ -2101,6 +2171,35 @@
       }
       summary.textContent = "Seharusnya ada " + rp(live.expected);
       if (form.elements.counted.validity.valid) summary.textContent += " · Selisih " + rp(live.difference);
+    }
+
+    function renderCashCorrectionHistory(saved) {
+      const history = document.getElementById("cashCorrectionHistory");
+      const list = document.getElementById("cashCorrectionList");
+      const corrections = Array.isArray(saved?.corrections) ? saved.corrections : [];
+      history.hidden = !corrections.length;
+      list.replaceChildren();
+      const labels = {
+        opening: "Uang saat buka", sales: "Penjualan tunai", expenses: "Pengeluaran tunai",
+        cashIn: "Uang masuk lain", cashOut: "Uang keluar lain", counted: "Uang dihitung",
+        expected: "Uang seharusnya", difference: "Selisih"
+      };
+      for (const entry of [...corrections].reverse()) {
+        const item = document.createElement("li");
+        const title = document.createElement("p");
+        title.className = "font-bold";
+        title.textContent = [formatCancellationDate(entry.correctedAt), entry.correctedBy?.name, entry.reason].filter(Boolean).join(" · ");
+        item.append(title);
+        for (const [key, label] of Object.entries(labels)) {
+          const previous = entry.before?.[key];
+          const current = entry.after?.[key];
+          if (previous === current) continue;
+          const change = document.createElement("p");
+          change.textContent = label + " " + (previous == null ? "—" : rp(previous)) + " → " + rp(current);
+          item.append(change);
+        }
+        list.append(item);
+      }
     }
 
     function wireOwnerBooks() {
@@ -2114,9 +2213,27 @@
       expenseMonth.addEventListener("change", renderOwnerBooks);
       closing.addEventListener("input", renderCashClosing);
       closing.elements.date.addEventListener("change", () => {
+        cashClosingCorrection = null;
         closing.elements.opening.value = closing.elements.counted.value = "";
         closing.elements.cashIn.value = closing.elements.cashOut.value = "0";
+        closing.elements.reason.value = "";
         renderCashClosing();
+      });
+      document.getElementById("editCashClosing").addEventListener("click", () => {
+        const saved = books.cashClosings.find(row => row.id === closing.elements.date.value);
+        if (!saved) return;
+        cashClosingCorrection = { date: saved.id, revision: Array.isArray(saved.corrections) ? saved.corrections.length : 0 };
+        for (const name of ["opening", "counted", "cashIn", "cashOut"]) {
+          closing.elements[name].value = saved[name] ?? (name === "cashIn" || name === "cashOut" ? 0 : "");
+        }
+        closing.elements.reason.value = "";
+        renderCashClosing();
+        closing.elements.counted.focus();
+      });
+      document.getElementById("cancelCashCorrection").addEventListener("click", () => {
+        cashClosingCorrection = null;
+        renderCashClosing();
+        document.getElementById("editCashClosing").focus();
       });
       const sectionButtons = document.querySelectorAll("[data-books-section]");
       for (const button of sectionButtons) {
@@ -2163,25 +2280,39 @@
         renderOwnerBooks();
       }, "Catatan uang keluar tersimpan.");
       saveForm(closing, async () => {
-        const snapshot = cashSnapshot(closing);
+        const fields = new FormData(closing);
+        const date = fields.get("date");
+        const correction = cashClosingCorrection?.date === date
+          ? { ...cashClosingCorrection, reason: String(fields.get("reason") || "").trim() } : null;
+        if (correction && !correction.reason) throw new Error("Isi alasan koreksi tutup kas.");
+        const actor = ownerActor();
+        const reports = await Promise.all(["transactions", "expenses"].map(async name => {
+          const day = await getDocsFromServer(query(collection(db, ...paths(name)), where("date", "==", date)));
+          return day.docs.map(row => row.data());
+        }));
+        const snapshot = cashSnapshot(fields, ...reports);
+        if (!["opening", "counted", "cashIn", "cashOut"].every(key => Number.isSafeInteger(snapshot[key]) && snapshot[key] >= 0)) {
+          throw new Error("Isi jumlah uang dalam Rupiah tanpa angka negatif.");
+        }
         const target = doc(db, ...paths("cashClosings", snapshot.date));
         await runTransaction(db, async transaction => {
-          if ((await transaction.get(target)).exists()) throw new Error("Kas tanggal ini sudah ditutup.");
-          transaction.set(target, { ...snapshot, createdAt: new Date().toISOString() });
+          const saved = await transaction.get(target);
+          const record = cashClosingRecord(snapshot, saved.exists() ? saved.data() : null, correction, actor, new Date().toISOString());
+          transaction.set(target, record);
         });
-      }, "Tutup kas tersimpan.");
+        if (cashClosingCorrection?.date === date) cashClosingCorrection = null;
+      }, "Catatan tutup kas tersimpan.");
       document.getElementById("backUpBooks").addEventListener("click", async event => {
         if (!isAdmin || !db) return;
         const button = event.currentTarget;
         button.disabled = true;
         try {
-          const names = ["inventory", "transactions", "purchases", "expenses", "cashClosings"];
-          const entries = await Promise.all(names.map(async name => {
-            const snapshot = await getDocsFromServer(collection(db, ...paths(name)));
+          const entries = await Promise.all(backupCollections.map(async name => {
+            const snapshot = await getDocsFromServer(collection(db, ...(name === "publicCatalog" ? [name] : paths(name))));
             return [name, snapshot.docs.map(row => ({ ...row.data(), id: row.id }))];
           }));
           const blob = new Blob([JSON.stringify({
-            version: 1, exportedAt: new Date().toISOString(), ...Object.fromEntries(entries)
+            version: 2, exportedAt: new Date().toISOString(), ...Object.fromEntries(entries)
           }, null, 2)], { type: "application/json" });
           const url = URL.createObjectURL(blob);
           const link = document.createElement("a");
@@ -2293,6 +2424,57 @@
       }).sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date));
     }
 
+    function relatedSaleButton(id, label) {
+      if (!id) return "";
+      const other = transactions.find(row => row.id === id) || cancelledTransactions.find(row => row.id === id);
+      const number = other ? receiptNumber(other) : "ID:" + id;
+      return `<button type="button" data-related-sale="${esc(id)}" class="min-h-8 text-left text-xs font-bold text-blue-900 underline">${esc(label)} ${esc(number)}</button>`;
+    }
+
+    function startReplacementSale(id) {
+      if (!isAdmin) return;
+      const original = cancelledTransactions.find(row => row.id === id);
+      if (!original || original.replacementSaleId) {
+        showToast("Nota sudah punya pengganti atau tidak ditemukan.");
+        return;
+      }
+      if (replacesSaleId || [...document.querySelectorAll(".item-name-input")].some(input => input.value.trim())) {
+        showToast("Selesaikan atau kosongkan isian kasir sebelum membuat nota pengganti.");
+        return;
+      }
+
+      resetSaleDraft();
+      replacesSaleId = original.id;
+      document.getElementById("inputDate").value = original.date || todayStr();
+      document.getElementById("inputCustomer").value = original.customer === "Pelanggan Umum" ? "" : original.customer || "";
+      selectSalePayment(["Cash", "QRIS", "Kartu", "Transfer"].includes(original.paymentMethod) ? original.paymentMethod : "Cash");
+      updateSaleDateSummary();
+      const notice = document.getElementById("replacementSaleNotice");
+      notice.textContent = "Nota pengganti untuk " + receiptNumber(original) + ". Periksa barang, jumlah, dan cara bayar sebelum simpan.";
+      notice.hidden = false;
+
+      if (original.items?.length) {
+        document.getElementById("saleItemsContainer").replaceChildren();
+        for (const item of original.items) {
+          const stockItem = inventory.find(record => record.id === item.inventoryId);
+          const row = addSaleItemRow(stockItem);
+          if (!stockItem) {
+            row.querySelector(".item-name-input").value = item.name || "";
+            if (!item.inventoryId) {
+              const manual = row.querySelector(".item-manual-entry");
+              manual.checked = true;
+              manual.dispatchEvent(new Event("change"));
+              row.querySelector(".item-cost-input").value = item.cost ?? "";
+            }
+          }
+          row.querySelector(".item-price-input").value = item.price ?? "";
+          row.querySelector(".item-qty").value = item.qty ?? 1;
+        }
+      }
+      calculateSaleTotals();
+      switchWorkspace("kasir", true);
+    }
+
     function formatCancellationDate(value) {
       const date = new Date(value);
       return Number.isNaN(date.getTime()) ? "" : date.toLocaleString("id-ID", {
@@ -2316,6 +2498,9 @@
         <p class="text-slate-700">${esc((row.items || []).map(item => item.name).filter(Boolean).join(", "))}</p>
         <p class="text-xs text-slate-600">Penjualan ${esc(row.date || "")} · Dibatalkan ${esc(formatCancellationDate(row.cancelledAt))}</p>
         ${row.cancellationReason ? `<p class="break-words text-slate-700">${esc(row.cancellationReason)}</p>` : ""}
+        ${row.cancelledBy?.name ? `<p class="break-words text-xs text-slate-600">Dibatalkan oleh ${esc(row.cancelledBy.name)}</p>` : ""}
+        ${relatedSaleButton(row.replacesSaleId, "Menggantikan")}
+        ${row.replacementSaleId ? relatedSaleButton(row.replacementSaleId, "Nota pengganti") : `<button type="button" data-replace-sale="${esc(row.id)}" class="shop-button shop-button-secondary">Buat nota pengganti</button>`}
         ${row.cancelledSkippedInventoryIds?.length ? '<p class="text-xs text-amber-800">Barang yang sudah dihapus dari daftar stok dilewati.</p>' : ""}
       </li>`).join("");
     }
@@ -2406,7 +2591,7 @@
           const tr = document.createElement("tr");
           tr.className = `hover:bg-slate-50 transition ${isLast ? "border-b-2 border-slate-300" : ""}`;
           tr.innerHTML = `
-            ${first ? `<td${rs} class="py-1.5 px-2 align-middle font-semibold text-slate-700 whitespace-nowrap">${esc(tx.date)}<span class="block max-w-28 break-all whitespace-normal text-xs text-blue-900">${esc(receiptNumber(tx))}</span></td>` : ""}
+            ${first ? `<td${rs} class="py-1.5 px-2 align-middle font-semibold text-slate-700 whitespace-nowrap">${esc(tx.date)}<span class="block max-w-28 break-all whitespace-normal text-xs text-blue-900">${esc(receiptNumber(tx))}</span><div class="whitespace-normal break-words">${relatedSaleButton(tx.replacesSaleId, "Menggantikan")}</div></td>` : ""}
             <td class="py-1.5 px-2 font-bold text-slate-900">
               <div class="flex items-center gap-2.5 min-w-0">
                 ${saleItemImageMarkup(it, "w-12 h-12 rounded-lg border border-slate-200 shrink-0", photoIndex, rowIndex < 2 && idx < 3)}
@@ -2447,6 +2632,7 @@
             <span class="min-w-0 break-all">${esc(receiptNumber(tx))} · ${esc(tx.date)}</span>
             <span class="px-2.5 py-0.5 rounded-lg bg-blue-100 text-blue-900 font-extrabold">${pm}</span>
           </div>
+          ${relatedSaleButton(tx.replacesSaleId, "Menggantikan")}
           <div class="divide-y divide-slate-100">${itemsHtml}</div>
           <div class="grid grid-cols-2 gap-2 bg-slate-50 p-2.5 rounded-xl text-xs font-semibold">
             <div>Modal: <span class="font-bold text-slate-700">${rp(tModal)}</span></div>
@@ -3438,6 +3624,17 @@
       });
 
       document.getElementById("btnCancelDelete").addEventListener("click", closeDeleteConfirmation);
+      document.getElementById("salesHistoryWorkspace").addEventListener("click", event => {
+        const related = event.target.closest("[data-related-sale]");
+        if (related) {
+          const search = document.getElementById("searchInput");
+          search.value = "ID:" + related.dataset.relatedSale;
+          renderTransactions();
+          search.focus();
+        }
+        const replacement = event.target.closest("[data-replace-sale]");
+        if (replacement) startReplacementSale(replacement.dataset.replaceSale);
+      });
       document.getElementById("btnConfirmDelete").addEventListener("click", async event => {
         if (!isAdmin || !db || !deleteTargetId || deleteInProgress) return;
         const id = deleteTargetId;
@@ -3454,7 +3651,12 @@
             await batch.commit();
             showToast("Barang dihapus.");
           } else {
-            const reason = document.getElementById("cancelReasonInput").value;
+            const reasonInput = document.getElementById("cancelReasonInput");
+            const reason = reasonInput.value.trim();
+            if (!reason) {
+              reasonInput.focus();
+              return showToast("Isi alasan pembatalan sebelum melanjutkan.");
+            }
             const result = await cancelSaleAndRestoreStock(id, reason);
             if (result.alreadyCancelled) showToast("Transaksi ini sudah dibatalkan.");
             else showToast("Transaksi dibatalkan. Stok barang dikembalikan.");

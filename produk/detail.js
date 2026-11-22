@@ -1,4 +1,4 @@
-import { catalogImageUrl, chessBoardSpecs, productDescription, thumbnailUrl } from "./katalog.js?v=deskripsi";
+import { catalogImageUrl, chessBoardSpecs, productDescription, thumbnailUrl } from "./katalog.js?v=deskripsi-stok";
 
 const endpoint = "https://firestore.googleapis.com/v1/projects/suryajayasport-3fd5e/databases/(default)/documents/publicCatalog/";
 const status = document.getElementById("detail-status");
@@ -17,6 +17,7 @@ async function readProduct(id) {
     code: fields.code?.stringValue || "",
     size: fields.size?.stringValue || "",
     color: fields.color?.stringValue || "",
+    description: fields.description?.stringValue,
     imageUrl: fields.imageUrl?.stringValue || "",
     price: Number(fields.price?.integerValue ?? fields.price?.doubleValue ?? 0),
     stock: Number(fields.stock?.integerValue ?? fields.stock?.doubleValue ?? 0)

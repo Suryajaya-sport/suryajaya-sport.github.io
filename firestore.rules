@@ -1,0 +1,41 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function owner() {
+      return request.auth != null
+        && request.auth.uid == 'ijWilxxrxRabwOX7KcndkuqrBOw1';
+    }
+
+    // Only publish customer-facing inventory fields. The description is optional for older items.
+    function validPublicCatalog(data) {
+      return data.keys().hasOnly([
+          'name', 'code', 'size', 'color', 'price', 'stock', 'imageUrl', 'description'
+        ])
+        && data.keys().hasAll(['name', 'code', 'price', 'stock'])
+        && data.name is string
+        && data.name.size() <= 160
+        && data.code is string
+        && data.code.size() <= 80
+        && (data.price is int || data.price is float)
+        && data.price >= 0
+        && data.stock is int
+        && data.stock >= 0
+        && (!data.keys().hasAny(['size']) || (data.size is string && data.size.size() <= 40))
+        && (!data.keys().hasAny(['color']) || (data.color is string && data.color.size() <= 60))
+        && (!data.keys().hasAny(['imageUrl']) || (data.imageUrl is string && data.imageUrl.size() <= 2048))
+        && (!data.keys().hasAny(['description']) || (data.description is string && data.description.size() <= 400));
+    }
+
+    match /artifacts/suryajayasport-3fd5e-app/public/data/{group}/{id} {
+      allow read, write: if owner() && group in [
+        'settings', 'inventory', 'transactions', 'purchases', 'expenses', 'cashClosings'
+      ];
+    }
+
+    match /publicCatalog/{id} {
+      allow read: if true;
+      allow create, update: if owner() && validPublicCatalog(request.resource.data);
+      allow delete: if owner();
+    }
+  }
+}

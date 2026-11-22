@@ -9,7 +9,7 @@ async function refreshProductStock(card) {
       body: JSON.stringify({
         structuredQuery: {
           from: [{ collectionId: "publicCatalog" }],
-          select: { fields: [{ fieldPath: "price" }, { fieldPath: "stock" }] },
+          select: { fields: [{ fieldPath: "price" }, { fieldPath: "stock" }, { fieldPath: "description" }] },
           where: { fieldFilter: {
             field: { fieldPath: "code" },
             op: "EQUAL",
@@ -29,6 +29,12 @@ async function refreshProductStock(card) {
     }
     if (rows.length !== 1) return;
     const fields = rows[0].document.fields;
+    const description = document.querySelector("[data-product-description]");
+    const customDescription = fields?.description?.stringValue;
+    if (description && typeof customDescription === "string") {
+      description.textContent = customDescription;
+      description.hidden = !customDescription.trim();
+    }
     const price = Number(fields?.price?.integerValue ?? fields?.price?.doubleValue);
     const stock = Number(fields?.stock?.integerValue);
     if (Number.isFinite(price) && price > 0) {

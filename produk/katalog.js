@@ -45,6 +45,7 @@ const descriptions = new Map([
 ]);
 
 export function productDescription(item) {
+  if (typeof item?.description === "string") return item.description.trim();
   return descriptions.get(String(item?.code || "").trim().toUpperCase()) || "";
 }
 
