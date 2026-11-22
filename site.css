@@ -523,6 +523,9 @@
   font-weight: 750;
 }
 
+#niimbotCostCodeOption { justify-content: flex-start; min-height: 2.75rem; }
+#niimbotCostCodeOption[hidden] { display: none; }
+
 #niimbotMargin {
   min-height: 2.75rem;
   padding: .4rem .65rem;

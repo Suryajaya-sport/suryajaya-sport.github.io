@@ -32,7 +32,7 @@ function wrapName(ctx, name, width, maxLines) {
   return visible;
 }
 
-export function drawNiimbotLabel(canvas, qrTarget, { size, margin, store, product, price }) {
+export function drawNiimbotLabel(canvas, qrTarget, { size, margin, store, product, price, costCode = "" }) {
   const [widthMm, heightMm] = niimbotLabelSizes[size];
   const width = canvas.width = dots(widthMm);
   const height = canvas.height = dots(heightMm);
@@ -88,7 +88,8 @@ export function drawNiimbotLabel(canvas, qrTarget, { size, margin, store, produc
   const lineStep = productFont + dots(.45);
   const priceOffset = storeFont + dots(1.1);
   const nameOffset = priceOffset + priceFont + dots(1.35);
-  const detailsHeight = variants ? variantFont + dots(.65) : 0;
+  const detailStep = variantFont + dots(.65);
+  const detailsHeight = (Number(Boolean(variants)) + Number(Boolean(costCode))) * detailStep;
   const maxLines = Math.min(4, Math.max(1, Math.floor((innerHeight - nameOffset - detailsHeight) / lineStep)));
   ctx.font = `700 ${productFont}px Inter, Arial, sans-serif`;
   const lines = wrapName(ctx, name, textWidth, maxLines);
@@ -102,9 +103,15 @@ export function drawNiimbotLabel(canvas, qrTarget, { size, margin, store, produc
   ctx.fillText(price, insets.left, top + priceOffset, textWidth);
   ctx.font = `700 ${productFont}px Inter, Arial, sans-serif`;
   lines.forEach((line, i) => ctx.fillText(line, insets.left, nameY + i * lineStep, textWidth));
+  let detailY = nameY + lines.length * lineStep + dots(.3);
   if (variants) {
     ctx.font = `600 ${variantFont}px Inter, Arial, sans-serif`;
-    ctx.fillText(variants, insets.left, nameY + lines.length * lineStep + dots(.3), textWidth);
+    ctx.fillText(variants, insets.left, detailY, textWidth);
+    detailY += detailStep;
+  }
+  if (costCode) {
+    ctx.font = `700 ${variantFont}px monospace`;
+    ctx.fillText(costCode, insets.left, detailY, textWidth);
   }
   const divider = qrX - dots(1);
   ctx.fillRect(divider, qrY, 2, qrBox + captionHeight);
