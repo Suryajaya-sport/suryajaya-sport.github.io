@@ -4227,8 +4227,8 @@
         return tokens.every(token => label.includes(token));
       });
       if (matches.length === 1) return matches[0];
-      if (matches.length > 1) {
-        throw new Error("Pilih kode barang yang tepat:\n" + matches.slice(0, 5).map(formatItemLabel).join("\n"));
+     if (matches.length > 1) {
+        throw new Error("Pilih kode barang yang tepat:\n" + matches.slice(0, 5).map(i => `${formatItemLabel(i)} (sisa ${i.stock ?? 0} pcs)`).join("\n"));
       }
       throw new Error('Barang "' + term + '" tidak ditemukan di inventaris.');
     }
