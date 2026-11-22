@@ -56,22 +56,31 @@ function showProduct(item) {
   specs.hidden = !rows.length;
 
   const image = catalogImageUrl(item);
+  const photoFrame = get("product-photo-frame");
+  const photo = get("product-photo");
+  const placeholder = get("photo-placeholder");
+  photoFrame.dataset.hasPhoto = "false";
   if (image) {
-    const photo = get("product-photo");
-    const placeholder = get("photo-placeholder");
     const thumbnail = thumbnailUrl(image, 800);
+    photo.addEventListener("load", () => {
+      photoFrame.dataset.hasPhoto = "true";
+    }, { once: true });
     photo.addEventListener("error", () => {
       if (photo.getAttribute("src") === thumbnail && thumbnail !== image) {
         photo.src = image;
         return;
       }
+      photoFrame.dataset.hasPhoto = "false";
       photo.hidden = true;
       placeholder.hidden = false;
-    });
+    }, { once: true });
     photo.alt = `Foto katalog ${item.name}`;
     photo.src = thumbnail;
     photo.hidden = false;
     placeholder.hidden = true;
+  } else {
+    photo.hidden = true;
+    placeholder.hidden = false;
   }
 
   const label = item.code ? `${item.name} (${item.code})` : item.name;
