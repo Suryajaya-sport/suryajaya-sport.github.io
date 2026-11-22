@@ -1286,8 +1286,9 @@
     let saleFormSaving = false;
 
     function todayStr() {
-      const d = new Date();
-      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+      return new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Makassar"
+      }).format(new Date());
     }
     function shiftDate(str, days) {
       const [y, m, d] = str.split("-").map(Number);
@@ -4458,10 +4459,11 @@
       toggle.focus();
     }
 
-    async function assistantSubmit(raw) {
+  async function assistantSubmit(raw) {
       const text = raw.trim();
       if (!isAdmin || assistantBusy || !text) return;
       const session = assistantSession;
+      assistantDraft = null;
       assistantBusy = true;
       assistantRefreshControls();
       assistantAddMessage(text, true);
