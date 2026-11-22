@@ -37,13 +37,57 @@ a:focus-visible { outline: 2px solid #4860a5; outline-offset: 3px; }
   background: white;
   box-shadow: 0 12px 42px #11192f09;
 }
-.product-photo {
-  display: block; width: 100%; height: auto; align-self: start; border-radius: .75rem;
-  background: var(--paper);
+/* Match the square photo frame used on the main catalog cards. */
+.product-photo-frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: .75rem;
+  background: #fff;
 }
-.product-placeholder {
-  display: grid; min-height: 10rem; place-items: center; margin: 0; padding: 1rem;
-  border-radius: .75rem; color: var(--muted); background: var(--paper); text-align: center;
+.product-photo-frame .product-photo {
+  position: absolute;
+  inset: 8px;
+  display: block;
+  width: calc(100% - 16px);
+  height: calc(100% - 16px);
+  object-fit: contain;
+  object-position: center;
+  border-radius: 0;
+  background: #fff;
+}
+.product-photo-frame .product-placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  place-items: center;
+  margin: 0;
+  padding: 1rem;
+  border-radius: 0;
+  color: var(--muted);
+  background: #fff;
+  text-align: center;
+}
+.product-photo-frame[data-has-photo="true"]::after {
+  content: "";
+  position: absolute;
+  z-index: 2;
+  right: 10px;
+  bottom: 10px;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #fff url("/sjs-mark.png") center / 72% 72% no-repeat;
+  box-shadow: 0 1px 4px #0f172a20;
+  pointer-events: none;
 }
 .product[hidden], .product-photo[hidden], .product-placeholder[hidden], .product-body .category[hidden] { display: none; }
 .product-body h1 {
