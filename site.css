@@ -325,6 +325,7 @@
 .catalog-card-facts { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .55rem; margin-block: auto .65rem; padding-top: .6rem; }
 .catalog-card-price { margin: 0; color: var(--shop-primary); font-size: clamp(.97rem, 1.9vw, 1.2rem); font-weight: 800; }
 .catalog-stock { padding: .2rem .4rem; border-radius: .4rem; background: #eaf4e4; color: #305e36; font-size: .68rem; font-weight: 750; }
+.catalog-card-description { margin: 0 0 .65rem; color: var(--shop-muted); font-size: .79rem; line-height: 1.45; }
 .catalog-card-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .4rem; }
 .catalog-card-actions .shop-button { gap: .35rem; padding-inline: .25rem; font-size: .75rem; }
 
@@ -401,6 +402,21 @@
 }
 
 .workspace-books-heading label { display: flex; align-items: center; flex-wrap: wrap; gap: .5rem; font-size: .85rem; font-weight: 750; }
+.workspace-books-nav { display: flex; flex-wrap: wrap; gap: .45rem; }
+.workspace-books-nav > button { flex: 1 0 auto; }
+:is(.workspace-books-nav > button, .pay-option-btn).shop-button {
+  border-color: var(--shop-line);
+  background: #fff;
+  color: var(--shop-primary);
+}
+:is(.workspace-books-nav > button, .pay-option-btn).shop-button:hover { border-color: var(--shop-primary); }
+:is(.workspace-books-nav > button, .pay-option-btn).shop-button[aria-pressed="true"] {
+  border-color: var(--shop-primary);
+  background: var(--shop-primary);
+  color: #fff;
+}
+.workspace-book-page > * + * { margin-top: .75rem; }
+.workspace-books-actions { margin-top: .65rem; }
 .workspace-books :is(input, select) {
   min-width: 0;
   max-width: 100%;
@@ -432,13 +448,6 @@
 .workspace-books-metrics > div:last-child dt { color: var(--shop-accent); }
 .workspace-books-metrics dt { color: var(--shop-muted); font-size: .78rem; font-weight: 750; }
 .workspace-books-metrics dd { margin: .15rem 0 0; font-size: clamp(1rem, 2vw, 1.45rem); font-weight: 800; overflow-wrap: anywhere; }
-.workspace-books-forms {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
-  align-items: start;
-  gap: .75rem;
-}
-
 .workspace-form-fields {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.25rem), 1fr));
@@ -449,6 +458,23 @@
 .workspace-form-fields :is(input, select) { display: block; width: 100%; margin-top: .2rem; }
 .workspace-book-panel form > * + * { margin-top: .65rem; }
 .workspace-book-panel summary { font-weight: 750; cursor: pointer; }
+.workspace-optional {
+  padding: .45rem .65rem;
+  border: 1px solid var(--shop-line);
+  border-radius: .55rem;
+  background: #fff;
+}
+.workspace-optional summary { padding-block: .3rem; color: var(--shop-primary); font-size: .82rem; font-weight: 750; cursor: pointer; }
+.workspace-optional[open] > :not(summary) { margin-top: .55rem; }
+.workspace-optional :is(label, #saleDateSummary) { color: var(--shop-muted); }
+.item-manual-cost:not([hidden]) { display: block; font-size: .82rem; font-weight: 700; }
+.sale-row-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(7.5rem, 1fr); gap: .65rem; align-items: end; }
+.sale-row-product { grid-column: 1 / -1; }
+@media (min-width: 48rem) {
+  .sale-row-fields { grid-template-columns: minmax(0, 2fr) minmax(6rem, 1fr) minmax(8rem, 1fr); }
+  .sale-row-product { grid-column: auto; }
+}
+:is(.checkout-actions, .workspace-book-panel) .shop-button:disabled { opacity: .5; cursor: not-allowed; }
 .workspace-book-hint, .workspace-book-list { color: var(--shop-muted); font-size: .82rem; }
 .workspace-book-list:not(:empty) { margin-top: .65rem; }
 .workspace-book-list li { padding: .5rem 0; border-top: 1px solid var(--shop-line); overflow-wrap: anywhere; }

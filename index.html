@@ -40,7 +40,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&amp;family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="site.css?v=katalog-ringkas">
+  <link rel="stylesheet" href="site.css?v=katalog-kasir">
   <link rel="stylesheet" href="print.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
@@ -220,45 +220,75 @@
     <section id="viewBooks" class="hidden no-print" aria-labelledby="ownerBooksTitle">
       <section id="ownerBooks" class="hidden workspace-books">
         <div class="workspace-books-heading">
-          <h2 id="ownerBooksTitle" tabindex="-1">Pembukuan pemilik</h2>
-          <label for="bookMonth">Bulan laporan <input type="month" id="bookMonth"></label>
+          <h2 id="ownerBooksTitle" tabindex="-1">Pembukuan</h2>
         </div>
-        <dl id="ownerMonthlyReport" class="workspace-books-metrics"></dl>
-        <div class="workspace-books-forms">
-          <section class="workspace-book-panel" aria-labelledby="expenseTitle">
+        <div class="workspace-books-nav" role="group" aria-label="Tugas pembukuan">
+          <button type="button" class="shop-button" data-books-section="booksReport" aria-controls="booksReport" aria-pressed="true">Laporan</button>
+          <button type="button" class="shop-button" data-books-section="booksExpenses" aria-controls="booksExpenses" aria-pressed="false">Uang keluar</button>
+          <button type="button" class="shop-button" data-books-section="booksClosing" aria-controls="booksClosing" aria-pressed="false">Tutup kas</button>
+        </div>
+
+        <section id="booksReport" class="workspace-book-page" aria-labelledby="booksReportTitle">
+          <div class="workspace-books-heading">
+            <h3 id="booksReportTitle" class="workspace-section-title">Laporan bulanan</h3>
+            <label>Bulan laporan <input type="month" id="bookMonth"></label>
+          </div>
+          <dl id="ownerMonthlyReport" class="workspace-books-metrics"></dl>
+          <details class="workspace-book-panel"><summary>Pembelian stok bulan ini</summary><ul id="ownerPurchaseHistory" class="workspace-book-list"></ul></details>
+        </section>
+
+        <section id="booksExpenses" class="workspace-book-page" aria-labelledby="expenseTitle" hidden>
+          <div class="workspace-book-panel">
             <form id="expenseForm">
-              <h3 id="expenseTitle" class="workspace-section-title">Catat pengeluaran</h3>
+              <h3 id="expenseTitle" class="workspace-section-title">Catat uang keluar</h3>
               <div class="workspace-form-fields">
+                <label>Untuk apa? <input name="category" placeholder="Contoh: listrik" maxlength="80" required></label>
+                <label>Jumlah (Rp) <input name="amount" type="number" min="1" step="1" inputmode="numeric" required></label>
                 <label>Tanggal <input name="date" type="date" required></label>
-                <label>Kategori <input name="category" placeholder="Contoh: listrik" maxlength="80" required></label>
-                <label>Nominal <input name="amount" type="number" min="1" step="1" required></label>
-                <label>Cara bayar <select name="method"><option>Cash</option><option>Transfer</option><option>Kartu</option></select></label>
+                <label>Cara bayar <select name="method"><option value="Cash">Tunai</option><option>Transfer</option><option>Kartu</option></select></label>
               </div>
-              <button type="submit" class="shop-button shop-button-primary">Simpan pengeluaran</button>
+              <button type="submit" class="shop-button shop-button-primary">Simpan uang keluar</button>
             </form>
+          </div>
+          <div class="workspace-book-panel">
+            <h3 class="workspace-section-title">Riwayat uang keluar</h3>
+            <label for="expenseMonth" class="workspace-book-hint">Bulan riwayat</label>
+            <input type="month" id="expenseMonth">
             <ul id="expenseList" class="workspace-book-list"></ul>
-          </section>
-          <section class="workspace-book-panel" aria-labelledby="cashClosingTitle">
+          </div>
+        </section>
+
+        <section id="booksClosing" class="workspace-book-page" aria-labelledby="cashClosingTitle" hidden>
+          <div class="workspace-book-panel">
             <form id="cashClosingForm">
               <h3 id="cashClosingTitle" class="workspace-section-title">Tutup kas harian</h3>
+              <p class="workspace-book-hint">Hitung uang tunai di laci. Penjualan dan pengeluaran tunai sudah masuk hitungan.</p>
               <div class="workspace-form-fields">
                 <label>Tanggal <input name="date" type="date" required></label>
-                <label>Saldo awal <input name="opening" type="number" min="0" step="1" required></label>
-                <label>Kas masuk lainnya <input name="cashIn" type="number" min="0" step="1" value="0" required></label>
-                <label>Kas keluar lainnya <input name="cashOut" type="number" min="0" step="1" value="0" required></label>
-                <label>Uang fisik <input name="counted" type="number" min="0" step="1" required></label>
+                <label>Uang di laci saat buka (Rp) <input name="opening" type="number" min="0" step="1" inputmode="numeric" required></label>
+                <label>Uang di laci saat dihitung (Rp) <input name="counted" type="number" min="0" step="1" inputmode="numeric" required></label>
               </div>
-              <p class="workspace-book-hint">Isi arus kas lainnya untuk setoran, penarikan, atau pembelian tunai yang belum tercatat di buku pengeluaran.</p>
+              <details class="workspace-optional">
+                <summary>Uang tunai lain (opsional)</summary>
+                <div class="workspace-form-fields">
+                  <label>Uang masuk lain (Rp) <input name="cashIn" type="number" min="0" step="1" inputmode="numeric" value="0" required></label>
+                  <label>Uang keluar lain (Rp) <input name="cashOut" type="number" min="0" step="1" inputmode="numeric" value="0" required></label>
+                </div>
+                <p class="workspace-book-hint">Isi untuk setoran, penarikan, atau pembelian tunai yang belum masuk catatan pengeluaran.</p>
+              </details>
               <p id="cashClosingSummary" aria-live="polite"></p>
               <button type="submit" class="shop-button shop-button-primary">Simpan tutup kas</button>
             </form>
-          </section>
-        </div>
-        <details class="workspace-book-panel"><summary>Riwayat pembelian bulan terpilih</summary><ul id="ownerPurchaseHistory" class="workspace-book-list"></ul></details>
-        <div class="workspace-books-actions">
-          <button id="backUpBooks" type="button" class="shop-button shop-button-secondary">Unduh cadangan JSON</button>
-          <button id="copyWhatsAppGreeting" type="button" class="shop-button shop-button-secondary">Salin pesan sambutan WhatsApp</button>
-        </div>
+          </div>
+        </section>
+
+        <details class="workspace-book-panel">
+          <summary>Alat tambahan</summary>
+          <div class="workspace-books-actions">
+            <button id="backUpBooks" type="button" class="shop-button shop-button-secondary">Unduh cadangan data</button>
+            <button id="copyWhatsAppGreeting" type="button" class="shop-button shop-button-secondary">Salin pesan sambutan WhatsApp</button>
+          </div>
+        </details>
       </section>
     </section>
     <!-- VIEW 1: KASIR -->
@@ -306,61 +336,39 @@
         <div class="p-4 sm:p-6 space-y-5">
           <datalist id="inventoryDatalist"></datalist>
 
-          <div class="bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 space-y-4">
-            <h3 class="workspace-section-title">Detail transaksi</h3>
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-              <div class="lg:col-span-3">
-                <label for="inputDate" class="block text-sm font-bold text-slate-700 mb-1.5">Tanggal Jualan:</label>
-                <input type="date" id="inputDate"
-                  class="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-blue-600 transition">
-              </div>
-              <div class="lg:col-span-3">
-                <label for="inputCustomer" class="block text-sm font-bold text-slate-700 mb-1.5">Nama Pembeli (Opsional):</label>
-                <input type="text" id="inputCustomer" placeholder="Umum / Pelanggan"
-                  class="w-full px-4 py-3 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-blue-600 transition">
-              </div>
-              <div class="lg:col-span-6">
-                <div class="flex flex-wrap items-center justify-between gap-2 mb-1.5">
-                  <label class="block text-sm font-bold text-slate-700">Pembeli Bayar Pakai:</label>
-                  <button type="button" id="btnShowQrisPay"
-                    class="text-sm font-extrabold text-white bg-sky-600 hover:bg-sky-700 px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm transition cursor-pointer">
-                    <i class="fa-solid fa-qrcode"></i>
-                    <span>Tampilkan Layar QRIS</span>
-                  </button>
-                </div>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  <button type="button" data-pay="Cash"
-                    class="pay-option-btn py-3 px-2 rounded-xl border-2 border-emerald-700 bg-emerald-600 text-white font-extrabold text-sm flex items-center justify-center gap-1.5 shadow-xs transition cursor-pointer">
-                    <i class="fa-solid fa-money-bill-wave"></i><span>Cash</span>
-                  </button>
-                  <button type="button" data-pay="QRIS"
-                    class="pay-option-btn py-3 px-2 rounded-xl border-2 border-slate-300 bg-white text-slate-800 hover:bg-slate-100 font-bold text-sm flex items-center justify-center gap-1.5 transition cursor-pointer">
-                    <i class="fa-solid fa-qrcode"></i><span>QRIS</span>
-                  </button>
-                  <button type="button" data-pay="Kartu"
-                    class="pay-option-btn py-3 px-2 rounded-xl border-2 border-slate-300 bg-white text-slate-800 hover:bg-slate-100 font-bold text-sm flex items-center justify-center gap-1.5 transition cursor-pointer">
-                    <i class="fa-regular fa-credit-card"></i><span>Kartu</span>
-                  </button>
-                  <button type="button" data-pay="Transfer"
-                    class="pay-option-btn py-3 px-2 rounded-xl border-2 border-slate-300 bg-white text-slate-800 hover:bg-slate-100 font-bold text-sm flex items-center justify-center gap-1.5 transition cursor-pointer">
-                    <i class="fa-solid fa-building-columns"></i><span>Transfer</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <div class="space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-2.5">
-              <h3 class="workspace-section-title">Barang terjual</h3>
-              <button type="button" id="btnAddItemRow"
-                class="px-4 py-3 rounded-xl bg-blue-100 hover:bg-blue-200 text-blue-900 border-2 border-blue-300 font-extrabold text-sm sm:text-base flex items-center gap-2 transition cursor-pointer">
-                <i class="fa-solid fa-plus" aria-hidden="true"></i><span>Tambah barang</span>
+              <h3 class="workspace-section-title">1. Pilih barang</h3>
+              <button type="button" id="btnAddItemRow" class="shop-button shop-button-secondary">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Tambah barang
               </button>
             </div>
             <div id="saleItemsContainer" class="space-y-3"></div>
           </div>
 
+          <div class="bg-slate-50 border-2 border-slate-200 rounded-2xl p-4 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <h3 id="salePaymentTitle" class="workspace-section-title">2. Pilih cara bayar</h3>
+              <button type="button" id="btnShowQrisPay" class="shop-button shop-button-secondary">
+                <i class="fa-solid fa-qrcode" aria-hidden="true"></i> Tampilkan kode QRIS
+              </button>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2" role="group" aria-labelledby="salePaymentTitle">
+              <button type="button" data-pay="Cash" aria-pressed="true" class="shop-button pay-option-btn"><i class="fa-solid fa-money-bill-wave" aria-hidden="true"></i> Tunai</button>
+              <button type="button" data-pay="QRIS" aria-pressed="false" class="shop-button pay-option-btn"><i class="fa-solid fa-qrcode" aria-hidden="true"></i> QRIS</button>
+              <button type="button" data-pay="Kartu" aria-pressed="false" class="shop-button pay-option-btn"><i class="fa-solid fa-credit-card" aria-hidden="true"></i> Kartu</button>
+              <button type="button" data-pay="Transfer" aria-pressed="false" class="shop-button pay-option-btn"><i class="fa-solid fa-building-columns" aria-hidden="true"></i> Transfer</button>
+            </div>
+            <details id="saleExtraDetails" class="workspace-optional">
+              <summary>Tanggal dan nama pembeli <span id="saleDateSummary"></span></summary>
+              <div class="workspace-form-fields">
+                <label>Tanggal penjualan <input type="date" id="inputDate" class="w-full rounded-lg border border-slate-300 bg-white p-2"></label>
+                <label>Nama pembeli (opsional) <input type="text" id="inputCustomer" placeholder="Pelanggan umum" class="w-full rounded-lg border border-slate-300 bg-white p-2"></label>
+              </div>
+            </details>
+          </div>
+
+          <h3 class="workspace-section-title">3. Cek total dan simpan</h3>
           <div class="checkout-totals">
             <div class="checkout-amounts">
               <div>
@@ -368,7 +376,7 @@
                 <p id="previewTotalOmset" class="text-2xl sm:text-3xl font-extrabold text-slate-900 tabular-nums mt-0.5">Rp 0</p>
               </div>
               <div>
-                <span class="block text-sm font-bold text-slate-600">Laba kotor</span>
+                <span class="block text-sm font-bold text-slate-600">Perkiraan laba kotor</span>
                 <p id="previewTotalProfit" class="text-2xl sm:text-3xl font-extrabold text-emerald-700 tabular-nums mt-0.5">Rp 0</p>
               </div>
             </div>
@@ -390,7 +398,7 @@
       </section>
       <section id="salesHistoryWorkspace" class="workspace-pane" aria-labelledby="salesHistoryTitle" hidden>
       <header class="workspace-heading no-print">
-        <h2 id="salesHistoryTitle" tabindex="-1">Penjualan</h2>
+        <h2 id="salesHistoryTitle" tabindex="-1">Riwayat penjualan</h2>
         <button id="btnNewSaleView" type="button" class="shop-button shop-button-primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Transaksi baru</button>
       </header>
       <section id="salesReportControls" aria-labelledby="activeBookTitle" class="scroll-mt-4 space-y-4 rounded-2xl border-2 border-slate-200 bg-white p-4 shadow-sm sm:p-5 no-print">
@@ -599,8 +607,8 @@
       <header class="workspace-heading">
         <h2 id="inventoryWorkspaceTitle" tabindex="-1">Stok &amp; label QR</h2>
         <div class="workspace-actions">
-          <button id="btnOpenRestock" type="button" class="shop-button shop-button-secondary"><i class="fa-solid fa-truck-ramp-box" aria-hidden="true"></i> Catat pembelian</button>
-          <button id="btnOpenInventoryEntry" type="button" class="shop-button shop-button-primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Tambah barang</button>
+          <button id="btnOpenRestock" type="button" class="shop-button shop-button-secondary"><i class="fa-solid fa-truck-ramp-box" aria-hidden="true"></i> Tambah stok</button>
+          <button id="btnOpenInventoryEntry" type="button" class="shop-button shop-button-primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Barang baru</button>
         </div>
       </header>
       <section id="inventoryCatalogPanel" class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -1079,7 +1087,7 @@
 
   <script type="module">
     import { drawNiimbotLabel, encodeNiimbotPng, niimbotLabelSizes } from "./niimbot-label.js";
-    import { catalogImageUrl, chessBoardSpecs, productImageUrl, thumbnailUrl } from "./produk/katalog.js";
+    import { catalogImageUrl, chessBoardSpecs, productDescription, productImageUrl, thumbnailUrl } from "./produk/katalog.js?v=deskripsi";
     let initializeApp, getApps, getFirestore;
     let doc, setDoc, addDoc, deleteDoc, onSnapshot, collection, getDoc, getDocs, getDocsFromServer, query, where, writeBatch, runTransaction;
     let getStorage, storageRef, uploadBytes, getDownloadURL, storage = null;
@@ -1515,48 +1523,52 @@
       }) || null;
     }
 
+    let saleItemRowNumber = 0;
     function addSaleItemRow(prefill = null) {
       const container = document.getElementById("saleItemsContainer");
       const rowDiv = document.createElement("div");
       rowDiv.className = "bg-slate-50 border-2 border-slate-200 rounded-2xl p-3.5 space-y-3";
       rowDiv.dataset.invId = prefill?.id || "";
       const initialDisplay = prefill ? formatItemLabel(prefill) : "";
+      const rowKey = "sale-item-" + ++saleItemRowNumber;
 
       rowDiv.innerHTML = `
         <div class="flex items-center justify-between gap-2">
-          <span class="text-xs font-extrabold uppercase text-blue-900">Rincian Barang Terjual</span>
-          <button type="button" class="btn-remove-row text-rose-600 hover:text-rose-800 font-extrabold text-xs flex items-center gap-1 cursor-pointer shrink-0">
-            <i class="fa-solid fa-trash"></i> Hapus Baris
+          <label for="${rowKey}" class="text-sm font-bold text-slate-700">Nama atau kode barang</label>
+          <button type="button" class="btn-remove-row min-h-11 text-rose-700 hover:text-rose-900 font-bold text-xs flex items-center gap-1 cursor-pointer shrink-0">
+            <i class="fa-solid fa-trash" aria-hidden="true"></i> Hapus baris
           </button>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
-          <div class="sm:col-span-4">
-            <label class="block text-xs font-bold text-slate-600 mb-1">Cari Kode / Nama Barang:</label>
+        <div class="sale-row-fields">
+          <div class="sale-row-product">
             <div class="flex items-center gap-2">
               <div class="sale-entry-thumbnail shrink-0">${prefill ? productImageMarkup(prefill, "h-12 w-12 rounded-lg", 160, { eager: true }) : ""}</div>
-              <input type="text" list="inventoryDatalist" class="item-name-input min-w-0 w-full px-3 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-blue-600"
-                placeholder="Ketik nama atau kode..." value="${esc(initialDisplay)}">
+              <input type="text" id="${rowKey}" list="inventoryDatalist" autocomplete="off" class="item-name-input min-w-0 w-full px-3 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-900 focus:outline-none focus:border-blue-600"
+                placeholder="Ketik lalu pilih dari daftar" value="${esc(initialDisplay)}">
             </div>
           </div>
-          <div class="sm:col-span-2">
-            <label class="block text-xs font-bold text-slate-600 mb-1">Modal (Rp):</label>
-            <input type="number" min="0" step="1" inputmode="numeric" class="item-cost-input w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-800" placeholder="0" value="${prefill ? (prefill.cost || 0) : ""}" ${prefill?.id ? "readonly" : ""}>
+          <div>
+            <label for="${rowKey}-price" class="block text-xs font-bold text-slate-600 mb-1">Harga satuan (Rp)</label>
+            <input type="number" id="${rowKey}-price" min="0" step="1" inputmode="numeric" class="item-price-input w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-extrabold text-emerald-800" placeholder="0" value="${esc(prefill?.price ?? "")}">
           </div>
-          <div class="sm:col-span-3">
-            <label class="block text-xs font-bold text-slate-600 mb-1">Harga Jual (Rp):</label>
-            <input type="number" min="0" step="1" inputmode="numeric" class="item-price-input w-full px-2.5 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-extrabold text-emerald-800" placeholder="0" value="${prefill ? (prefill.price || 0) : ""}">
-          </div>
-          <div class="sm:col-span-3">
-            <label class="block text-xs font-bold text-slate-600 mb-1">Jumlah:</label>
+          <div>
+            <label for="${rowKey}-qty" class="block text-xs font-bold text-slate-600 mb-1">Jumlah</label>
             <div class="flex items-center gap-1">
-              <button type="button" class="btn-qty-minus w-9 h-11 shrink-0 rounded-xl bg-slate-200 hover:bg-slate-300 font-extrabold text-lg text-slate-800 flex items-center justify-center cursor-pointer">-</button>
-              <input type="number" min="1" step="1" inputmode="numeric" value="1" class="item-qty min-w-0 flex-1 px-1 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-extrabold text-center text-slate-900">
-              <button type="button" class="btn-qty-plus w-9 h-11 shrink-0 rounded-xl bg-blue-100 hover:bg-blue-200 font-extrabold text-lg text-blue-900 flex items-center justify-center cursor-pointer">+</button>
+              <button type="button" aria-label="Kurangi jumlah" class="btn-qty-minus w-9 h-11 shrink-0 rounded-xl bg-slate-200 hover:bg-slate-300 font-extrabold text-lg text-slate-800 flex items-center justify-center cursor-pointer">−</button>
+              <input type="number" id="${rowKey}-qty" min="1" step="1" inputmode="numeric" value="1" class="item-qty min-w-0 flex-1 px-1 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-extrabold text-center text-slate-900">
+              <button type="button" aria-label="Tambah jumlah" class="btn-qty-plus w-9 h-11 shrink-0 rounded-xl bg-blue-100 hover:bg-blue-200 font-extrabold text-lg text-blue-900 flex items-center justify-center cursor-pointer">+</button>
             </div>
           </div>
         </div>
+        <details class="workspace-optional">
+          <summary>Barang di luar stok</summary>
+          <label class="inline-flex min-h-11 items-center gap-2 text-sm font-semibold"><input type="checkbox" class="item-manual-entry h-4 w-4"> Catat tanpa mengurangi stok</label>
+          <label class="item-manual-cost" hidden>Modal satuan (Rp)
+            <input type="number" min="0" step="1" inputmode="numeric" class="item-cost-input block w-full max-w-48 px-2.5 py-2.5 bg-white border-2 border-slate-300 rounded-xl font-bold text-slate-800" placeholder="0" value="${esc(prefill?.cost ?? "")}">
+          </label>
+        </details>
         <div class="flex justify-end items-center gap-2 pt-1 border-t border-slate-200 text-xs">
-          <span class="font-bold text-slate-500">Subtotal:</span>
+          <span class="font-bold text-slate-500">Total barang ini</span>
           <span class="item-subtotal font-extrabold text-base text-slate-900">Rp 0</span>
         </div>`;
       container.appendChild(rowDiv);
@@ -1566,27 +1578,32 @@
       const priceInput = rowDiv.querySelector(".item-price-input");
       const qtyInput = rowDiv.querySelector(".item-qty");
       const preview = rowDiv.querySelector(".sale-entry-thumbnail");
+      const manual = rowDiv.querySelector(".item-manual-entry");
 
       const handleItemSelect = () => {
-        const match = matchInventoryFromText(nameInput.value);
+        const match = manual.checked ? null : matchInventoryFromText(nameInput.value);
         const previousId = rowDiv.dataset.invId;
         const nextId = match?.id || "";
         if (previousId !== nextId) {
           preview.innerHTML = match ? productImageMarkup(match, "h-12 w-12 rounded-lg", 160, { eager: true }) : "";
-          if (!match) costInput.value = "";
+          costInput.value = match?.cost ?? "";
+          priceInput.value = match?.price ?? "";
         }
         rowDiv.dataset.invId = nextId;
-        costInput.readOnly = Boolean(match);
-        if (match) {
-          costInput.value = match.cost || 0;
-          priceInput.value = match.price || 0;
-          nameInput.value = formatItemLabel(match);
-        }
+        if (match) nameInput.value = formatItemLabel(match);
         calculateSaleTotals();
       };
 
       nameInput.addEventListener("input", handleItemSelect);
       nameInput.addEventListener("change", handleItemSelect);
+      manual.addEventListener("change", () => {
+        rowDiv.querySelector(".item-manual-cost").hidden = !manual.checked;
+        if (manual.checked) nameInput.removeAttribute("list");
+        else nameInput.setAttribute("list", "inventoryDatalist");
+        nameInput.placeholder = manual.checked ? "Ketik nama barang" : "Ketik lalu pilih dari daftar";
+        handleItemSelect();
+        nameInput.focus();
+      });
       [costInput, priceInput, qtyInput].forEach(el => el.addEventListener("input", calculateSaleTotals));
       rowDiv.querySelector(".btn-qty-minus").addEventListener("click", () => {
         const q = parseInt(qtyInput.value) || 1;
@@ -1610,13 +1627,37 @@
       document.querySelectorAll("#saleItemsContainer > div").forEach(row => {
         const cost = parseFloat(row.querySelector(".item-cost-input").value) || 0;
         const price = parseFloat(row.querySelector(".item-price-input").value) || 0;
-        const qty = parseInt(row.querySelector(".item-qty").value) || 1;
+        const qtyInput = row.querySelector(".item-qty");
+        const qty = qtyInput.validity.valid ? Number(qtyInput.value) : 0;
         totalOmset += price * qty;
         totalProfit += (price - cost) * qty;
         row.querySelector(".item-subtotal").textContent = rp(price * qty);
       });
       document.getElementById("previewTotalOmset").textContent = rp(totalOmset);
       document.getElementById("previewTotalProfit").textContent = rp(totalProfit);
+    }
+
+    function selectSalePayment(method) {
+      selectedPaymentMethod = method;
+      for (const button of document.querySelectorAll(".pay-option-btn")) {
+        button.setAttribute("aria-pressed", String(button.dataset.pay === method));
+      }
+    }
+
+    function updateSaleDateSummary() {
+      const date = document.getElementById("inputDate").value || todayStr();
+      const label = date === todayStr() ? "Hari ini" : parseLocalDate(date).toLocaleDateString("id-ID", { dateStyle: "medium" });
+      document.getElementById("saleDateSummary").textContent = "· " + label;
+    }
+
+    function resetSaleDraft() {
+      document.getElementById("inputCustomer").value = "";
+      document.getElementById("inputDate").value = todayStr();
+      document.getElementById("saleExtraDetails").open = false;
+      document.getElementById("saleItemsContainer").replaceChildren();
+      selectSalePayment("Cash");
+      updateSaleDateSummary();
+      addSaleItemRow();
     }
 
     async function cancelSaleAndRestoreStock(id, reason) {
@@ -1659,19 +1700,33 @@
 
     async function saveSale(printAfterSave = false) {
       if (!db || !isAdmin) return showToast("Masuk ke akun pemilik terlebih dahulu.");
+      if (saleSaveInProgress) return showToast("Penjualan sedang disimpan. Tunggu sebentar.");
       const rows = document.querySelectorAll("#saleItemsContainer > div");
       const itemsToSave = [];
 
       for (const row of rows) {
         let name = row.querySelector(".item-name-input").value.trim();
-        const invId = row.dataset.invId || "";
-        const cost = invId ? 0 : Number(row.querySelector(".item-cost-input").value);
-        const price = Number(row.querySelector(".item-price-input").value);
+        const manual = row.querySelector(".item-manual-entry").checked;
+        const invId = manual ? "" : row.dataset.invId || "";
+        const costValue = row.querySelector(".item-cost-input").value;
+        const priceValue = row.querySelector(".item-price-input").value;
+        const cost = invId ? 0 : Number(costValue);
+        const price = Number(priceValue);
         const qty = Number(row.querySelector(".item-qty").value);
-        if (!name) { showToast("Isi nama barang terlebih dahulu!"); return; }
+        if (!name || (!manual && !invId)) {
+          row.querySelector(".item-name-input").focus();
+          showToast("Pilih barang dari daftar stok. Untuk barang lain, buka Barang di luar stok.");
+          return;
+        }
         if (!Number.isSafeInteger(qty) || qty < 1) { showToast("Jumlah barang harus bilangan bulat minimal 1."); return; }
-        if (!Number.isSafeInteger(cost) || cost < 0 || !Number.isSafeInteger(price) || price < 0) {
-          showToast("Modal dan harga jual harus berupa angka Rupiah yang valid."); return;
+        if (!priceValue || !Number.isSafeInteger(price) || price < 0) {
+          row.querySelector(".item-price-input").focus();
+          showToast("Isi harga satuan dalam Rupiah."); return;
+        }
+        if (manual && (!costValue || !Number.isSafeInteger(cost) || cost < 0)) {
+          row.querySelector("details").open = true;
+          row.querySelector(".item-cost-input").focus();
+          showToast("Isi modal satuan untuk barang di luar stok."); return;
         }
         const invObj = invId ? inventory.find(i => i.id === invId) : null;
         if (invId && !invObj) { showToast("Barang sudah tidak ada di stok. Pilih ulang barang."); return; }
@@ -1695,13 +1750,13 @@
         createdAt: new Date().toISOString()
       };
 
+      const controls = document.querySelectorAll("#btnSaveTx, #btnSaveAndPrintTx, #btnResetForm");
+      controls.forEach(button => { button.disabled = true; });
       try {
         const savedSale = await saveSaleAndUpdateStock(txData);
         selectedDateStr = txDate;
         document.getElementById("bookDatePicker").value = txDate;
-        document.getElementById("inputCustomer").value = "";
-        document.getElementById("saleItemsContainer").innerHTML = "";
-        addSaleItemRow();
+        resetSaleDraft();
         showToast("Penjualan tersimpan. No. nota " + receiptNumber(savedSale));
         renderApp();
 
@@ -1710,6 +1765,8 @@
         }
       } catch (err) {
         showToast(err?.message || "Gagal menyimpan transaksi.");
+      } finally {
+        controls.forEach(button => { button.disabled = false; });
       }
     }
 
@@ -1975,12 +2032,10 @@
       section.classList.toggle("hidden", !isAdmin);
       const report = document.getElementById("ownerMonthlyReport");
       const expenseList = document.getElementById("expenseList");
-      const summary = document.getElementById("cashClosingSummary");
       const purchaseHistory = document.getElementById("ownerPurchaseHistory");
       purchaseHistory.replaceChildren();
       report.replaceChildren();
       expenseList.replaceChildren();
-      summary.textContent = "";
       if (!isAdmin) return;
       const month = document.getElementById("bookMonth").value;
       const sales = transactions.filter(row => month && row.date?.startsWith(month + "-"));
@@ -1989,8 +2044,8 @@
       const cost = sales.reduce((sum, row) => sum + Number(row.totalModal || 0), 0);
       const spending = expenses.reduce((sum, row) => sum + row.amount, 0);
       for (const [label, amount] of Object.entries({
-        Penjualan: revenue, HPP: cost, "Laba kotor": revenue - cost,
-        Pengeluaran: spending, "Laba usaha": revenue - cost - spending
+        "Uang dari penjualan": revenue, "Modal barang terjual": cost, "Laba sebelum pengeluaran": revenue - cost,
+        "Pengeluaran toko": spending, "Untung / rugi usaha": revenue - cost - spending
       })) {
         const line = document.createElement("div");
         const title = document.createElement("dt");
@@ -2000,10 +2055,18 @@
         line.append(title, value);
         report.append(line);
       }
-      for (const row of expenses.sort((a, b) => b.date.localeCompare(a.date))) {
+      const expenseMonth = document.getElementById("expenseMonth").value;
+      const history = books.expenses.filter(row => expenseMonth && row.date?.startsWith(expenseMonth + "-"));
+      for (const row of history.sort((a, b) => b.date.localeCompare(a.date))) {
         const item = document.createElement("li");
-        item.textContent = [row.date, row.category, row.method, rp(row.amount)].join(" · ");
+        item.textContent = [row.category, rp(row.amount), parseLocalDate(row.date).toLocaleDateString("id-ID", { dateStyle: "medium" }),
+          row.method === "Cash" ? "Tunai" : row.method].join(" · ");
         expenseList.append(item);
+      }
+      if (!expenseList.childElementCount) {
+        const empty = document.createElement("li");
+        empty.textContent = "Belum ada catatan uang keluar untuk bulan ini.";
+        expenseList.append(empty);
       }
       for (const row of purchases.filter(entry => month && entry.date?.startsWith(month + "-"))
         .sort((a, b) => b.date.localeCompare(a.date))) {
@@ -2012,34 +2075,76 @@
           row.supplier, row.invoice].filter(Boolean).join(" · ");
         purchaseHistory.append(item);
       }
+      if (!purchaseHistory.childElementCount) {
+        const empty = document.createElement("li");
+        empty.textContent = "Belum ada pembelian stok untuk bulan ini.";
+        purchaseHistory.append(empty);
+      }
+      renderCashClosing();
+    }
+
+    function renderCashClosing() {
       const form = document.getElementById("cashClosingForm");
+      const summary = document.getElementById("cashClosingSummary");
       const live = cashSnapshot(form);
       const saved = books.cashClosings.find(row => row.id === live.date);
-      summary.textContent = "Seharusnya ada " + rp(live.expected) + " · Selisih " + rp(live.difference);
-      if (saved) summary.textContent += " · Selisih tersimpan " + rp(saved.difference);
+      const submit = form.querySelector('button[type="submit"]');
+      submit.disabled = Boolean(saved) || form.dataset.saving === "true";
+      if (saved) {
+        summary.textContent = "Sudah ditutup · Seharusnya ada " + rp(saved.expected) + " · Uang dihitung " + rp(saved.counted)
+          + " · Selisih " + rp(saved.difference);
+        return;
+      }
+      if (!form.elements.date.value || !form.elements.opening.validity.valid) {
+        summary.textContent = "Isi tanggal dan uang di laci saat buka untuk melihat hitungan.";
+        return;
+      }
+      summary.textContent = "Seharusnya ada " + rp(live.expected);
+      if (form.elements.counted.validity.valid) summary.textContent += " · Selisih " + rp(live.difference);
     }
 
     function wireOwnerBooks() {
       const month = document.getElementById("bookMonth");
+      const expenseMonth = document.getElementById("expenseMonth");
       const expense = document.getElementById("expenseForm");
       const closing = document.getElementById("cashClosingForm");
-      month.value = todayStr().slice(0, 7);
+      month.value = expenseMonth.value = todayStr().slice(0, 7);
       expense.elements.date.value = closing.elements.date.value = todayStr();
       month.addEventListener("change", renderOwnerBooks);
-      closing.addEventListener("input", renderOwnerBooks);
-      function saveForm(form, save) {
+      expenseMonth.addEventListener("change", renderOwnerBooks);
+      closing.addEventListener("input", renderCashClosing);
+      closing.elements.date.addEventListener("change", () => {
+        closing.elements.opening.value = closing.elements.counted.value = "";
+        closing.elements.cashIn.value = closing.elements.cashOut.value = "0";
+        renderCashClosing();
+      });
+      const sectionButtons = document.querySelectorAll("[data-books-section]");
+      for (const button of sectionButtons) {
+        button.addEventListener("click", () => {
+          for (const tab of sectionButtons) {
+            const selected = tab === button;
+            tab.setAttribute("aria-pressed", String(selected));
+            document.getElementById(tab.dataset.booksSection).hidden = !selected;
+          }
+        });
+      }
+      function saveForm(form, save, success) {
         form.addEventListener("submit", async event => {
           event.preventDefault();
-          if (!db || !isAdmin) return;
-          const button = form.querySelector("button");
+          if (!db || !isAdmin || form.dataset.saving === "true") return;
+          const button = form.querySelector('button[type="submit"]');
+          form.dataset.saving = "true";
           button.disabled = true;
           try {
             await save();
-            showToast("Catatan tersimpan.");
-          } catch {
-            showToast("Gagal menyimpan catatan. Periksa akses cloud.");
+            showToast(success);
+          } catch (error) {
+            const message = error instanceof Error && !error.code ? error.message : "Gagal menyimpan. Periksa koneksi dan coba lagi.";
+            showToast(message);
           } finally {
+            delete form.dataset.saving;
             button.disabled = false;
+            if (form === closing) renderCashClosing();
           }
         });
       }
@@ -2047,22 +2152,24 @@
         const fields = new FormData(expense);
         const category = fields.get("category").trim();
         const amount = Number(fields.get("amount"));
-        if (!category || !Number.isSafeInteger(amount) || amount <= 0) throw new Error("Data tidak valid");
+        if (!category || !Number.isSafeInteger(amount) || amount <= 0) throw new Error("Isi tujuan dan jumlah uang keluar.");
         await addDoc(collection(db, ...paths("expenses")), {
           date: fields.get("date"), category, amount, method: fields.get("method"),
           createdAt: new Date().toISOString()
         });
         expense.elements.category.value = "";
         expense.elements.amount.value = "";
-      });
+        expenseMonth.value = String(fields.get("date")).slice(0, 7);
+        renderOwnerBooks();
+      }, "Catatan uang keluar tersimpan.");
       saveForm(closing, async () => {
         const snapshot = cashSnapshot(closing);
         const target = doc(db, ...paths("cashClosings", snapshot.date));
         await runTransaction(db, async transaction => {
-          if ((await transaction.get(target)).exists()) throw new Error("Hari sudah ditutup");
+          if ((await transaction.get(target)).exists()) throw new Error("Kas tanggal ini sudah ditutup.");
           transaction.set(target, { ...snapshot, createdAt: new Date().toISOString() });
         });
-      });
+      }, "Tutup kas tersimpan.");
       document.getElementById("backUpBooks").addEventListener("click", async event => {
         if (!isAdmin || !db) return;
         const button = event.currentTarget;
@@ -2547,6 +2654,7 @@
         const productName = item.name || "Produk";
         const chess = chessBoardSpecs(item);
         const productDetails = chess ? item.code : [item.code, item.size, item.color].filter(Boolean).join(" · ");
+        const description = productDescription(item);
         const detailUrl = productLinks.get(item.code) || `/produk/?id=${encodeURIComponent(item.id)}`;
         const message = `Halo Surya Jaya Sport, saya ingin bertanya tentang ${productName}${item.code ? ` (${item.code})` : ""} dengan harga ${rp(item.price)}. Apakah stoknya tersedia?`;
         const whatsappUrl = `https://wa.me/6282320033333?text=${encodeURIComponent(message)}`;
@@ -2560,6 +2668,7 @@
               <p class="catalog-card-price">${rp(item.price)}</p>
               <span class="catalog-stock">Stok ${stock} pcs</span>
             </div>
+            ${description ? `<p class="catalog-card-description">${esc(description)}</p>` : ""}
             <div class="catalog-card-actions">
               <button type="button" data-add-cart="${esc(item.id)}" class="shop-button shop-button-primary" aria-label="Tambah ${esc(productName)} ke keranjang"><i class="fa-solid fa-plus" aria-hidden="true"></i> Keranjang</button>
               <a href="${esc(whatsappUrl)}" target="_blank" rel="noopener noreferrer" aria-label="Tanya tentang ${esc(productName)} lewat WhatsApp" class="shop-button shop-button-secondary">
@@ -3149,11 +3258,9 @@
       });
 
       document.getElementById("btnAddItemRow").addEventListener("click", () => addSaleItemRow());
-      document.getElementById("btnResetForm").addEventListener("click", () => {
-        document.getElementById("saleItemsContainer").innerHTML = "";
-        document.getElementById("inputCustomer").value = "";
-        addSaleItemRow();
-      });
+      document.getElementById("btnResetForm").addEventListener("click", resetSaleDraft);
+      document.getElementById("inputDate").addEventListener("change", updateSaleDateSummary);
+      updateSaleDateSummary();
       document.getElementById("btnSaveTx").addEventListener("click", () => saveSale(false));
       document.getElementById("btnSaveAndPrintTx").addEventListener("click", () => saveSale(true));
 
@@ -3169,19 +3276,10 @@
       document.getElementById("btnTriggerPrintReceipt").addEventListener("click", () => printDocument("receipt"));
 
       document.querySelectorAll(".pay-option-btn").forEach(btn => {
-        btn.addEventListener("click", () => {
-          document.querySelectorAll(".pay-option-btn").forEach(b => {
-            b.className = "pay-option-btn py-3 px-2 rounded-xl border-2 border-slate-300 bg-white text-slate-800 hover:bg-slate-100 font-bold text-sm flex items-center justify-center gap-1.5 transition cursor-pointer";
-          });
-          btn.className = "pay-option-btn py-3 px-2 rounded-xl border-2 border-emerald-700 bg-emerald-600 text-white font-extrabold text-sm flex items-center justify-center gap-1.5 shadow-xs transition cursor-pointer";
-          selectedPaymentMethod = btn.dataset.pay;
-          if (selectedPaymentMethod === "QRIS") {
-            document.getElementById("qrisPayModal").classList.remove("hidden");
-            renderQrisPaymentScreen();
-          }
-        });
+        btn.addEventListener("click", () => selectSalePayment(btn.dataset.pay));
       });
       document.getElementById("btnShowQrisPay").addEventListener("click", () => {
+        selectSalePayment("QRIS");
         document.getElementById("qrisPayModal").classList.remove("hidden");
         renderQrisPaymentScreen();
       });

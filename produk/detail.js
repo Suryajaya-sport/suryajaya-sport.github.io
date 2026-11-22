@@ -1,4 +1,4 @@
-import { catalogImageUrl, chessBoardSpecs, thumbnailUrl } from "./katalog.js";
+import { catalogImageUrl, chessBoardSpecs, productDescription, thumbnailUrl } from "./katalog.js?v=deskripsi";
 
 const endpoint = "https://firestore.googleapis.com/v1/projects/suryajayasport-3fd5e/databases/(default)/documents/publicCatalog/";
 const status = document.getElementById("detail-status");
@@ -28,6 +28,9 @@ function showProduct(item) {
   document.title = `${item.name} | Surya Jaya Sport`;
   get("breadcrumb-product").textContent = item.name;
   get("product-name").textContent = item.name;
+  const description = productDescription(item);
+  get("product-description").textContent = description;
+  get("product-description").hidden = !description;
   get("product-code").textContent = item.code;
   get("product-code").hidden = !item.code;
   get("product-price").textContent = new Intl.NumberFormat("id-ID", {
