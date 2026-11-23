@@ -1323,7 +1323,9 @@
     const el = id => document.getElementById(id);
     const fmtRp = n => "Rp " + Math.round(Number(n) || 0).toLocaleString("id-ID");
     const escHtml = s => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-    const todayStr = () => new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Makassar" });
+  function todayStr() {
+  return new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Makassar" });
+}
     const monthStr = () => todayStr().slice(0, 7);
 
     function verifyOwnerSession() {
