@@ -169,7 +169,7 @@
       </div>
       <nav class="shop-links" aria-label="Navigasi toko">
         <a href="#publicProductCatalog">Katalog</a>
-        <a href="#lokasi-toko">Lokasi toko</a>
+        <a href="https://www.google.com/maps/search/?api=1&amp;query=Surya+Jaya+Sport+Tanjung+Redeb" target="_blank" rel="noopener noreferrer">Lokasi toko</a>
       </nav>
       <div class="shop-header-actions">
         <button type="button" id="adminModeBadge" class="shop-owner-button">
@@ -2365,7 +2365,7 @@
       });
 
       // Link navigasi header & tombol hero: buka tab Katalog dulu (jika admin), lalu scroll
-      for (const a of document.querySelectorAll('.shop-links a, .shop-hero-actions a[href^="#"]')) {
+      for (const a of document.querySelectorAll('.shop-links a[href^="#"], .shop-hero-actions a[href^="#"]')) {
         a.addEventListener("click", e => {
           e.preventDefault();
           if (isAdmin) switchWorkspace("catalog");
