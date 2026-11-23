@@ -622,8 +622,23 @@
           </div>
           <p id="totalTerjual" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2 tabular-nums">0 Pcs</p>
           <p class="text-sm text-indigo-800 font-extrabold mt-1 flex items-center gap-1.5 underline">
-            <span>Klik lihat rincian barang</span><i class="fa-solid fa-arrow-right"></i>
+                      <span>Klik lihat rincian barang</span><i class="fa-solid fa-arrow-right"></i>
           </p>
+        </div>
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border-2 border-teal-200 shadow-sm">
+          <span class="text-sm font-extrabold uppercase text-teal-900">Margin laba kotor</span>
+          <p id="grossMarginPct" class="text-2xl sm:text-3xl font-extrabold text-teal-900 mt-2 tabular-nums">0%</p>
+          <p class="text-sm text-slate-600 font-medium mt-1">Laba kotor dibanding penjualan</p>
+        </div>
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border-2 border-sky-200 shadow-sm">
+          <span class="text-sm font-extrabold uppercase text-sky-900">Jumlah transaksi</span>
+          <p id="totalTransaksi" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2 tabular-nums">0 Transaksi</p>
+          <p class="text-sm text-slate-600 font-medium mt-1">Nota aktif pada periode ini</p>
+        </div>
+        <div class="bg-white p-4 sm:p-5 rounded-2xl border-2 border-violet-200 shadow-sm">
+          <span class="text-sm font-extrabold uppercase text-violet-900">Rata-rata transaksi</span>
+          <p id="avgTransaksi" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2 tabular-nums break-words">Rp 0</p>
+          <p class="text-sm text-slate-600 font-medium mt-1">Penjualan per nota</p>
         </div>
       </section>
 
@@ -2483,8 +2498,21 @@
             const snapshot = await getDocsFromServer(collection(db, ...(name === "publicCatalog" ? [name] : paths(name))));
             return [name, snapshot.docs.map(row => ({ ...row.data(), id: row.id }))];
           }));
+                    const exportedAt = new Date().toISOString();
+          const counts = Object.fromEntries(entries.map(([name, rows]) => [name, rows.length]));
           const blob = new Blob([JSON.stringify({
-            version: 2, exportedAt: new Date().toISOString(), ...Object.fromEntries(entries)
+            version: 2,
+            exportedAt,
+            manifest: {
+              appName: "Surya Jaya Sport POS & Stok QR",
+              projectId: EMBEDDED_FIREBASE_CONFIG.projectId,
+              appId: APP_ID,
+              storeName: shopName,
+              exportedAt,
+              counts,
+              totalRecords: Object.values(counts).reduce((sum, n) => sum + n, 0)
+            },
+            ...Object.fromEntries(entries)
           }, null, 2)], { type: "application/json" });
           const url = URL.createObjectURL(blob);
           const link = document.createElement("a");
@@ -2785,7 +2813,12 @@
       document.getElementById("totalModal").textContent = rp(sumModal);
       document.getElementById("totalUntung").textContent = rp(sumProfit);
       document.getElementById("totalTerjual").textContent = sumTerjual + " Pcs";
-      document.getElementById("recordCountBadge").textContent = filtered.length + " Transaksi";
+                       document.getElementById("recordCountBadge").textContent = filtered.length + " Transaksi";
+      document.getElementById("grossMarginPct").textContent = sumOmset > 0
+        ? (sumProfit / sumOmset * 100).toLocaleString("id-ID", { maximumFractionDigits: 1 }) + "%"
+        : "0%";
+      document.getElementById("totalTransaksi").textContent = filtered.length + " Transaksi";
+      document.getElementById("avgTransaksi").textContent = rp(filtered.length ? Math.round(sumOmset / filtered.length) : 0);
       document.getElementById("payCash").textContent = rp(pay.Cash[1]);
       document.getElementById("countCash").textContent = pay.Cash[0] + "x";
       document.getElementById("payQris").textContent = rp(pay.QRIS[1]);
