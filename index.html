@@ -746,7 +746,32 @@
       overflow: hidden;
       z-index: 40;
     }
-    #sjsAiBox.hidden, #sjsAssistantSaleActions[hidden] { display: none !important; }
+   #sjsAiBox.hidden, #sjsAssistantSaleActions[hidden] { display: none !important; }
+
+    /* 1. Perbaiki kontras angka pada kartu terakhir "Untung / rugi usaha" */
+    #ownerMonthlyReport > div:last-child {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a) !important;
+      border-color: #1e3a8a !important;
+    }
+    #ownerMonthlyReport > div:last-child dt {
+      color: #fbbf24 !important;
+    }
+    #ownerMonthlyReport > div:last-child dd {
+      color: #ffffff !important;
+    }
+
+    /* 2. Tingkatkan keterbacaan menu sidebar Ruang Kerja */
+    #mainNavigation button[data-workspace] {
+      color: #cbd5e1 !important;
+    }
+    #mainNavigation button[data-workspace]:hover {
+      background: rgba(255, 255, 255, 0.1) !important;
+      color: #ffffff !important;
+    }
+    #mainNavigation button[data-workspace][aria-current="page"] {
+      background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
+      color: #ffffff !important;
+    }
   </style>
 </head>
 <body class="text-slate-900 antialiased min-h-screen flex flex-col">
