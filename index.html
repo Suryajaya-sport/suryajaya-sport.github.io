@@ -1712,7 +1712,7 @@
         const sub = qty * price;
         omset += sub;
         profit += sub - (qty * cost);
-        row.querySelector(".item-subtotal").textContent = fmtRp(sub);
+        row.querySelectorAll(".item-subtotal").forEach(n => n.textContent = fmtRp(sub));
       });
       el("previewTotalOmset").textContent = fmtRp(omset);
       el("previewTotalProfit").textContent = `Laba kotor: ${fmtRp(profit)}`;
