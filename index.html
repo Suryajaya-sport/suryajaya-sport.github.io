@@ -2359,14 +2359,25 @@
           showToast("Login gagal. Periksa email dan kata sandi.");
         }
       });
-      document.getElementById("btnLockToReadOnly").addEventListener("click", async () => {
+         document.getElementById("btnLockToReadOnly").addEventListener("click", async () => {
         await authM.signOut(auth);
         document.getElementById("adminAuthModal").classList.add("hidden");
       });
 
-      for (const b of document.querySelectorAll("[data-workspace]")) {
+      // Link navigasi header & tombol hero: buka tab Katalog dulu (jika admin), lalu scroll
+      for (const a of document.querySelectorAll('.shop-links a, .shop-hero-actions a[href^="#"]')) {
+        a.addEventListener("click", e => {
+          e.preventDefault();
+          if (isAdmin) switchWorkspace("catalog");
+          const target = document.querySelector(a.getAttribute("href"));
+          requestAnimationFrame(() => target?.scrollIntoView({ behavior: "smooth", block: "start" }));
+        });
+      }
+
+           for (const b of document.querySelectorAll("[data-workspace]")) {
         b.addEventListener("click", () => switchWorkspace(b.dataset.workspace));
       }
+      
       document.getElementById("btnOpenSalesView").addEventListener("click", () => switchWorkspace("sales"));
       document.getElementById("btnNewSaleView").addEventListener("click", () => switchWorkspace("kasir"));
 
