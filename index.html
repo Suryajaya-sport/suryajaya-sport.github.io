@@ -167,7 +167,7 @@
       @page { margin: 4mm; }
     }
   .workspace-pane > * { flex-shrink: 0; }
-    #reportPrintSheet { display: none; }
+    #receiptPrintSheet, #reportPrintSheet, #stickerPrintSheet { display: none; }
     .rcpt { max-width: 340px; margin: 0 auto; padding: 14px; background: #fff; border: 1px dashed #cbd5e1; font-family: ui-monospace, "Courier New", monospace; font-size: 12px; line-height: 1.4; color: #000; }
     .rcpt .rc-center { text-align: center; }
     .rcpt .rc-shop { font-size: 15px; font-weight: 800; text-transform: uppercase; }
@@ -201,7 +201,7 @@
 
   <div id="receiptPrintSheet"></div>
   <div id="reportPrintSheet" class="rpt"></div>
-  <div id="stickerPrintSheet" aria-hidden="true"><canvas></canvas></div>
+  <div id="stickerPrintSheet" aria-hidden="true"></div>
 
   <header class="shop-header no-print">
     <div class="shop-header-inner">
