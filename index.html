@@ -1192,7 +1192,7 @@
         </button>
       </div>
       <div id="cloudStatusBox" class="p-4 rounded-2xl bg-slate-50 border border-slate-300 text-sm text-slate-800 space-y-1.5 font-medium">
-        <p><span class="font-bold">Project ID:</span> <span class="font-mono text-xs">surya-jaya-sport-pos</span></p>
+        <p><span class="font-bold">Project ID:</span> <span class="font-mono text-xs">suryajayasport-3fd5e</span></p>
         <p><span class="font-bold">Status Koneksi:</span> <span id="cloudStatusLine">Terhubung</span></p>
       </div>
       <button type="button" id="btnDownloadConfiguredHtml" class="w-full py-3 rounded-xl bg-brand-700 hover:bg-brand-800 text-white font-bold text-sm flex items-center justify-center gap-2">
@@ -1296,21 +1296,20 @@
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, doc, setDoc, addDoc, updateDoc, deleteDoc, onSnapshot, query, runTransaction, getDocsFromServer } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    const EMBEDDED_FIREBASE_CONFIG = {
-      apiKey: "AIzaSyBc" + "L8z_mF7lBffB3r29u4R1M-2Y4U5d8x4",
-      authDomain: "surya-jaya-sport-pos.firebaseapp.com",
-      projectId: "surya-jaya-sport-pos",
-      storageBucket: "surya-jaya-sport-pos.firebasestorage.app",
-      messagingSenderId: "12352348224",
-      appId: "1:12352348224:web:a9e2b6ab5b920740a8a3f6"
+  const EMBEDDED_FIREBASE_CONFIG = {
+      apiKey: "AIzaSyBFtI_lwLU7cDcioDE1GpgC0AjKPZ1mHag",
+      authDomain: "suryajayasport-3fd5e.firebaseapp.com",
+      projectId: "suryajayasport-3fd5e",
+      storageBucket: "suryajayasport-3fd5e.firebasestorage.app",
+      messagingSenderId: "501860315687",
+      appId: "1:501860315687:web:3692f12c2b59a1e16d9402"
     };
-    const APP_ID = "surya-jaya-sport";
-    const OWNER_UID = "F3Q7uC5m6jQ51z7nJ2xW7wG1J0P2";
+    const APP_ID = "suryajayasport-3fd5e-app";
+    const OWNER_UID = "ijWilxxrxRabwOX7KcndkuqrBOw1";
     const BACKUP_COLLECTIONS = ["inventory", "transactions", "purchases", "expenses", "cashClosings", "publicCatalog"];
     const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
     const MAX_PRODUCT_IMAGE_BYTES = 5 * 1024 * 1024;
     const isEmbeddedConfigValid = EMBEDDED_FIREBASE_CONFIG && !String(EMBEDDED_FIREBASE_CONFIG.apiKey).includes("TEMPEL_");
-
     let app = null, auth = null, db = null, isAdmin = false, shopName = "Surya Jaya Sport";
     let inventory = [], transactions = [], purchases = [], expenses = [], cashClosings = [];
     let activeWorkspace = "catalog", activeBookMode = "day", selectedBookDate = todayStr();
