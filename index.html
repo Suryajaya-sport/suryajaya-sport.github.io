@@ -414,8 +414,24 @@
       <h2 class="workspace-heading text-3xl font-extrabold uppercase">Cadangan data</h2>
       <div class="grid gap-4 sm:grid-cols-2">
         <div class="bg-white rounded-3xl border border-slate-200 p-5 space-y-3">
+          <h3 class="workspace-section-title">Cadangan manual</h3>
           <button id="backUpBooks" type="button" class="shop-button shop-button-primary"><i class="fa-solid fa-download" aria-hidden="true"></i> Unduh cadangan data</button>
           <p class="text-sm text-slate-600">Simpan salinan stok, penjualan, pembukuan, dan katalog dalam satu file JSON.</p>
+        </div>
+        <div class="bg-white rounded-3xl border border-slate-200 p-5 space-y-3">
+          <div class="flex items-center justify-between gap-2">
+            <h3 class="workspace-section-title">Jadwal otomatis (Senin–Sabtu, 22:00 WITA)</h3>
+            <label class="inline-flex items-center gap-2 text-sm font-bold text-slate-700 cursor-pointer">
+              <input type="checkbox" id="autoBackupEnabled" class="h-4 w-4">
+              <span>Aktif</span>
+            </label>
+          </div>
+          <p class="text-sm text-slate-600">Menyimpan otomatis file per hari (<code>cadangan-sjs-senin.json</code> s/d <code>cadangan-sjs-sabtu.json</code>) dan menimpa file hari yang sama pada minggu berikutnya saat halaman admin terbuka.</p>
+          <div class="flex flex-wrap gap-2">
+            <button id="btnPickBackupDir" type="button" class="shop-button shop-button-secondary"><i class="fa-solid fa-folder-open" aria-hidden="true"></i> Pilih folder cadangan</button>
+            <button id="btnRunWeekdayBackupNow" type="button" class="shop-button shop-button-primary"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Cadangkan hari ini</button>
+          </div>
+          <p id="autoBackupStatus" class="text-xs font-semibold text-slate-600" aria-live="polite"></p>
         </div>
       </div>
     </section>
@@ -551,6 +567,17 @@
           <div class="bg-white px-4 py-3.5 rounded-2xl border border-slate-200 flex justify-between"><div><span class="text-xs font-extrabold uppercase text-sky-800">Bayar QRIS</span><p id="payQris" class="text-lg font-extrabold mt-0.5 tabular-nums">Rp 0</p></div><span id="countQris" class="text-xs font-extrabold bg-sky-100 px-2.5 py-1 rounded-full">0x</span></div>
           <div class="bg-white px-4 py-3.5 rounded-2xl border border-slate-200 flex justify-between"><div><span class="text-xs font-extrabold uppercase text-amber-900">Bayar Kartu</span><p id="payCard" class="text-lg font-extrabold mt-0.5 tabular-nums">Rp 0</p></div><span id="countCard" class="text-xs font-extrabold bg-amber-100 px-2.5 py-1 rounded-full">0x</span></div>
           <div class="bg-white px-4 py-3.5 rounded-2xl border border-slate-200 flex justify-between"><div><span class="text-xs font-extrabold uppercase text-purple-900">Transfer Bank</span><p id="payTransfer" class="text-lg font-extrabold mt-0.5 tabular-nums">Rp 0</p></div><span id="countTransfer" class="text-xs font-extrabold bg-purple-100 px-2.5 py-1 rounded-full">0x</span></div>
+        </section>
+
+        <section id="salesCharts" class="grid grid-cols-1 lg:grid-cols-2 gap-4 no-print">
+          <div class="bg-white rounded-3xl border border-slate-200 p-5">
+            <h3 id="salesTrendChartTitle" class="workspace-section-title mb-3">Omzet &amp; laba per jam</h3>
+            <div class="h-64"><canvas id="chartSalesTrend"></canvas></div>
+          </div>
+          <div class="bg-white rounded-3xl border border-slate-200 p-5">
+            <h3 class="workspace-section-title mb-3">Komposisi cara bayar</h3>
+            <div class="h-64"><canvas id="chartSalesPayment"></canvas></div>
+          </div>
         </section>
 
         <section class="bg-white rounded-3xl border border-slate-200 overflow-hidden">
@@ -1883,6 +1910,96 @@
           </div>`;
         mobile.appendChild(card);
       }
+      renderSalesCharts(rows);
+    }
+
+    function renderSalesCharts(rows) {
+      if (!isAdmin) return;
+      const rpTick = v => "Rp " + Number(v).toLocaleString("id-ID");
+      const rpTooltip = {
+        callbacks: {
+          label: ctx => {
+            const val = ctx.parsed?.y !== undefined ? ctx.parsed.y : ctx.parsed;
+            const prefix = ctx.dataset?.label ? ctx.dataset.label + ": " : (ctx.label ? ctx.label + ": " : "");
+            return prefix + rp(val);
+          }
+        }
+      };
+
+      const titleEl = document.getElementById("salesTrendChartTitle");
+      let labels = [], omzetData = [], labaData = [];
+      if (currentViewMode === "day") {
+        if (titleEl) titleEl.textContent = "Omzet & laba per jam (WITA)";
+        const hourMap = new Map();
+        for (let h = 8; h <= 22; h++) hourMap.set(String(h).padStart(2, "0") + ":00", { omset: 0, laba: 0 });
+        for (const tx of rows) {
+          let label = "Lainnya";
+          if (tx.createdAt) {
+            const dt = new Date(tx.createdAt);
+            if (!isNaN(dt)) {
+              const hr = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Makassar", hour: "2-digit", hour12: false }).format(dt);
+              label = hr + ":00";
+            }
+          }
+          const cur = hourMap.get(label) || { omset: 0, laba: 0 };
+          cur.omset += Number(tx.totalOmset || 0);
+          cur.laba += Number(tx.totalProfit || 0);
+          hourMap.set(label, cur);
+        }
+        const entries = [...hourMap.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+        labels = entries.map(e => e[0]);
+        omzetData = entries.map(e => e[1].omset);
+        labaData = entries.map(e => e[1].laba);
+      } else {
+        if (titleEl) titleEl.textContent = "Omzet & laba per hari";
+        const dayMap = new Map();
+        for (const tx of rows) {
+          const d = tx.date || "-";
+          const cur = dayMap.get(d) || { omset: 0, laba: 0 };
+          cur.omset += Number(tx.totalOmset || 0);
+          cur.laba += Number(tx.totalProfit || 0);
+          dayMap.set(d, cur);
+        }
+        const entries = [...dayMap.entries()].sort((a, b) => a[0].localeCompare(b[0])).slice(-30);
+        labels = entries.map(e => e[0].slice(5));
+        omzetData = entries.map(e => e[1].omset);
+        labaData = entries.map(e => e[1].laba);
+      }
+
+      upsertChart("chartSalesTrend", {
+        type: "bar",
+        data: {
+          labels,
+          datasets: [
+            { label: "Omzet", data: omzetData, backgroundColor: "#2563eb" },
+            { label: "Laba kotor", data: labaData, backgroundColor: "#059669" }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { tooltip: rpTooltip },
+          scales: { y: { ticks: { callback: rpTick } } }
+        }
+      });
+
+      const pay = { Cash: 0, QRIS: 0, Kartu: 0, Transfer: 0 };
+      for (const tx of rows) {
+        const m = tx.paymentMethod || "Cash";
+        if (m in pay) pay[m] += Number(tx.totalOmset || 0);
+      }
+      upsertChart("chartSalesPayment", {
+        type: "doughnut",
+        data: {
+          labels: ["Tunai", "QRIS", "Kartu", "Transfer"],
+          datasets: [{ data: Object.values(pay), backgroundColor: ["#059669", "#0284c7", "#d97706", "#7c3aed"] }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { tooltip: rpTooltip }
+        }
+      });
     }
 
     // ==================== RENDER: PEMBUKUAN & GRAFIK ====================
@@ -2344,7 +2461,10 @@
       }
       document.getElementById("cashierWorkspace").hidden = target !== "kasir";
       document.getElementById("salesHistoryWorkspace").hidden = target !== "sales";
-      if (target === "sales") renderTransactions();
+      if (target === "sales") {
+        renderTransactions();
+        requestAnimationFrame(() => Object.values(charts).forEach(c => c.resize()));
+      }
       if (target === "books") {
         renderOwnerBooks();
         requestAnimationFrame(() => Object.values(charts).forEach(c => c.resize()));
@@ -2750,15 +2870,167 @@
           }
         });
       }
-      document.getElementById("backUpBooks").addEventListener("click", async () => {
-        if (!isAdmin) return;
+      async function buildBackupPayload() {
         const names = ["inventory", "transactions", "purchases", "expenses", "cashClosings"];
         const entries = await Promise.all(names.map(async name => {
           const snap = await getDocsFromServer(collection(db, ...paths(name)));
           return [name, snap.docs.map(d => ({ ...d.data(), id: d.id }))];
         }));
         const pub = await getDocsFromServer(collection(db, "publicCatalog"));
-        const payload = { version: 2, exportedAt: new Date().toISOString(), publicCatalog: pub.docs.map(d => ({ ...d.data(), id: d.id })), settings: { shopName, qrisPayload: savedQrisPayload, costCodeDigits }, ...Object.fromEntries(entries) };
+        return {
+          version: 2,
+          exportedAt: new Date().toISOString(),
+          publicCatalog: pub.docs.map(d => ({ ...d.data(), id: d.id })),
+          settings: { shopName, qrisPayload: savedQrisPayload, costCodeDigits },
+          ...Object.fromEntries(entries)
+        };
+      }
+
+      const AUTO_BACKUP_ENABLED_KEY = "sjs-auto-backup-enabled";
+      const AUTO_BACKUP_LAST_KEY = "sjs-auto-backup-last";
+      const WEEKDAY_NAMES_ID = { Mon: "senin", Tue: "selasa", Wed: "rabu", Thu: "kamis", Fri: "jumat", Sat: "sabtu" };
+      let backupDirHandle = null;
+      let autoBackupRunning = false;
+
+      function openBackupDb() {
+        return new Promise((resolve, reject) => {
+          const req = indexedDB.open("sjs-backup-store", 1);
+          req.onupgradeneeded = () => req.result.createObjectStore("handles");
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error);
+        });
+      }
+      async function saveBackupDirHandle(handle) {
+        backupDirHandle = handle;
+        try {
+          const idb = await openBackupDb();
+          await new Promise((res, rej) => {
+            const tx = idb.transaction("handles", "readwrite");
+            tx.objectStore("handles").put(handle, "dir");
+            tx.oncomplete = res;
+            tx.onerror = () => rej(tx.error);
+          });
+        } catch {}
+      }
+      async function loadBackupDirHandle() {
+        try {
+          const idb = await openBackupDb();
+          backupDirHandle = await new Promise((res, rej) => {
+            const tx = idb.transaction("handles", "readonly");
+            const r = tx.objectStore("handles").get("dir");
+            r.onsuccess = () => res(r.result || null);
+            r.onerror = () => rej(r.error);
+          });
+        } catch {
+          backupDirHandle = null;
+        }
+        renderAutoBackupStatus();
+      }
+      function getWitaClock() {
+        const parts = Object.fromEntries(
+          new Intl.DateTimeFormat("en-US", {
+            timeZone: "Asia/Makassar",
+            weekday: "short",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false
+          }).formatToParts(new Date()).map(p => [p.type, p.value])
+        );
+        return {
+          weekday: WEEKDAY_NAMES_ID[parts.weekday] || "",
+          date: `${parts.year}-${parts.month}-${parts.day}`,
+          hour: Number(parts.hour) % 24,
+          minute: Number(parts.minute)
+        };
+      }
+      function renderAutoBackupStatus() {
+        const chk = document.getElementById("autoBackupEnabled");
+        const el = document.getElementById("autoBackupStatus");
+        if (!chk || !el) return;
+        const enabled = localStorage.getItem(AUTO_BACKUP_ENABLED_KEY) === "1";
+        chk.checked = enabled;
+        const last = localStorage.getItem(AUTO_BACKUP_LAST_KEY) || "Belum pernah";
+        const dirText = backupDirHandle ? `Folder: ${backupDirHandle.name}` : "Folder belum dipilih (akan unduh file)";
+        const wita = getWitaClock();
+        const fileText = wita.weekday ? `cadangan-sjs-${wita.weekday}.json` : "Libur (Minggu)";
+        el.textContent = `${enabled ? "Jadwal aktif" : "Jadwal nonaktif"} · ${dirText} · File hari ini: ${fileText} · Terakhir: ${last}`;
+      }
+      async function runWeekdayBackup(manual = false) {
+        if (!isAdmin || autoBackupRunning) return;
+        const wita = getWitaClock();
+        if (!wita.weekday) {
+          if (manual) showToast("Hari Minggu tidak termasuk jadwal cadangan Senin–Sabtu.");
+          return;
+        }
+        autoBackupRunning = true;
+        try {
+          const payload = await buildBackupPayload();
+          const jsonText = JSON.stringify(payload, null, 2);
+          const filename = `cadangan-sjs-${wita.weekday}.json`;
+          let savedToFolder = false;
+          if (backupDirHandle && typeof backupDirHandle.getFileHandle === "function") {
+            let perm = await backupDirHandle.queryPermission?.({ mode: "readwrite" });
+            if (perm !== "granted" && manual) {
+              perm = await backupDirHandle.requestPermission?.({ mode: "readwrite" });
+            }
+            if (perm === "granted") {
+              const fh = await backupDirHandle.getFileHandle(filename, { create: true });
+              const writable = await fh.createWritable();
+              await writable.write(jsonText);
+              await writable.close();
+              savedToFolder = true;
+            }
+          }
+          if (!savedToFolder) {
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(new Blob([jsonText], { type: "application/json" }));
+            a.download = filename;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+          }
+          localStorage.setItem(AUTO_BACKUP_LAST_KEY, `${wita.date} ${String(wita.hour).padStart(2, "0")}:${String(wita.minute).padStart(2, "0")} WITA (${filename})`);
+          renderAutoBackupStatus();
+          showToast(savedToFolder ? `Cadangan menimpa ${filename} di folder ${backupDirHandle.name}.` : `Cadangan diunduh: ${filename}.`);
+        } catch (err) {
+          console.error(err);
+          if (manual) showToast("Gagal membuat cadangan: " + (err.message || "kesalahan tidak diketahui"));
+        } finally {
+          autoBackupRunning = false;
+        }
+      }
+      function checkScheduledBackup() {
+        if (!isAdmin || localStorage.getItem(AUTO_BACKUP_ENABLED_KEY) !== "1") return;
+        const wita = getWitaClock();
+        if (!wita.weekday || wita.hour < 22) return;
+        const last = localStorage.getItem(AUTO_BACKUP_LAST_KEY) || "";
+        if (last.startsWith(wita.date)) return;
+        runWeekdayBackup(false);
+      }
+      document.getElementById("autoBackupEnabled").addEventListener("change", e => {
+        localStorage.setItem(AUTO_BACKUP_ENABLED_KEY, e.target.checked ? "1" : "0");
+        renderAutoBackupStatus();
+        if (e.target.checked) checkScheduledBackup();
+      });
+      document.getElementById("btnPickBackupDir").addEventListener("click", async () => {
+        if (!window.showDirectoryPicker) return showToast("Browser ini belum mendukung pilih folder otomatis. Gunakan Chrome/Edge atau skrip Python.");
+        try {
+          const handle = await window.showDirectoryPicker({ mode: "readwrite" });
+          await saveBackupDirHandle(handle);
+          localStorage.setItem(AUTO_BACKUP_ENABLED_KEY, "1");
+          renderAutoBackupStatus();
+          showToast(`Folder cadangan diatur ke "${handle.name}".`);
+        } catch {}
+      });
+      document.getElementById("btnRunWeekdayBackupNow").addEventListener("click", () => runWeekdayBackup(true));
+      loadBackupDirHandle();
+      setInterval(checkScheduledBackup, 60000);
+
+      document.getElementById("backUpBooks").addEventListener("click", async () => {
+        if (!isAdmin) return;
+        const payload = await buildBackupPayload();
         const a = document.createElement("a");
         a.href = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }));
         a.download = `cadangan-sjs-${todayStr()}.json`;
