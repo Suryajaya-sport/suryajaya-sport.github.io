@@ -265,7 +265,7 @@
 
     <!-- PEMBUKUAN -->
     <section id="viewBooks" class="hidden no-print">
-      <section id="ownerBooks" class="hidden space-y-4">
+     <section id="ownerBooks" class="space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <h2 class="font-display text-3xl font-extrabold uppercase">Pembukuan</h2>
           <div class="flex flex-wrap gap-2" role="group" aria-label="Tugas pembukuan">
@@ -2071,7 +2071,7 @@
       document.getElementById("cashierWorkspace").hidden = target !== "kasir";
       document.getElementById("salesHistoryWorkspace").hidden = target !== "sales";
       if (target === "sales") renderTransactions();
-      if (target === "books") renderOwnerBooks();
+      if (target === "books") { renderOwnerBooks(); }
       if (target === "inventory") renderInventory();
     }
     function openDialog(id) {
