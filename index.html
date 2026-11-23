@@ -142,6 +142,14 @@
     #sjsAiBox { position: fixed; bottom: 92px; right: 24px; width: 420px; max-width: calc(100vw - 28px); height: 600px; max-height: calc(100vh - 116px); background: #fff; border-radius: 1.6rem; border: 1.5px solid #cbd5e1; box-shadow: 0 24px 55px rgba(15,23,42,.28); display: flex; flex-direction: column; overflow: hidden; z-index: 40; }
     #sjsAiBox.hidden { display: none !important; }
     #sjsAssistantSaleActions[hidden] { display: none !important; }
+
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #fff !important; }
+      #booksCharts { grid-template-columns: 1fr 1fr !important; break-inside: avoid; }
+      #booksCharts > div { break-inside: avoid; border: 1px solid #cbd5e1 !important; box-shadow: none !important; }
+      #booksCharts canvas { max-width: 100% !important; height: auto !important; }
+    }
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -265,9 +273,9 @@
     </dialog>
 
     <!-- PEMBUKUAN -->
-    <section id="viewBooks" class="hidden no-print">
+    <section id="viewBooks" class="hidden">
       <section id="ownerBooks" class="space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center justify-between gap-3 no-print">
           <h2 class="font-display text-3xl font-extrabold uppercase">Pembukuan</h2>
           <div class="flex flex-wrap gap-2" role="group" aria-label="Tugas pembukuan">
             <button type="button" class="shop-button shop-button-secondary" data-books-section="booksReport" aria-pressed="true">Laporan</button>
@@ -304,7 +312,7 @@
           </div>
         </section>
 
-        <section id="booksExpenses" class="space-y-4" hidden>
+        <section id="booksExpenses" class="space-y-4 no-print" hidden>
           <div class="bg-white rounded-3xl border border-slate-200 p-5">
             <form id="expenseForm" class="space-y-4">
               <h3 class="workspace-section-title">Catat uang keluar</h3>
@@ -326,7 +334,7 @@
           </div>
         </section>
 
-        <section id="booksClosing" class="space-y-4" hidden>
+        <section id="booksClosing" class="space-y-4 no-print" hidden>
           <div class="bg-white rounded-3xl border border-slate-200 p-5">
             <form id="cashClosingForm" class="space-y-4">
               <h3 class="workspace-section-title">Tutup kas harian</h3>
@@ -960,7 +968,6 @@
     const CART_KEY = "sjs-catalog-cart-v1";
     const salePaymentMethods = new Set(["Cash", "QRIS", "Kartu", "Transfer"]);
     const activeInventory = () => inventory.filter(item => !item.archivedAt);
-    const charts = {};
 
     // ==================== UTILITAS ====================
     function todayStr() {
@@ -1478,13 +1485,13 @@
     function matchesCatalogCategory(item, category) {
       if (category === "all") return true;
       const name = item.name || "";
-      const badminton = /\b(badminton|raket|shuttlecock|kok|yonex|lining|li-ning|victor)\b/i.test(name);
-      const music = /\b(gitar|ukulele|bass|capo|plektrum|musik)\b/i.test(name) || (!badminton && /\bsenar\b/i.test(name));
+      const badminton = / (badminton|raket|shuttlecock|kok|yonex|lining|li-ning|victor) /i.test(name);
+      const music = / (gitar|ukulele|bass|capo|plektrum|musik) /i.test(name) || (!badminton && / senar /i.test(name));
       if (category === "music") return music;
       if (category === "sport") return !music;
       if (category === "badminton") return !music && badminton;
-      if (category === "ball") return !music && /\b(futsal|bola|sepak|basket|voli|volley|football|soccer)\b/i.test(name);
-      if (category === "chess") return /\b(catur|chess)\b/i.test(name);
+      if (category === "ball") return !music && / (futsal|bola|sepak|basket|voli|volley|football|soccer) /i.test(name);
+      if (category === "chess") return / (catur|chess) /i.test(name);
       return false;
     }
 
@@ -1559,7 +1566,8 @@
       if (!canSend) { link.removeAttribute("href"); return; }
       const text = ["Halo Surya Jaya Sport, saya mau cek stok:",
         ...lines.map(({ item, line }, i) => `${i + 1}. ${item.name}${item.code ? ` (${item.code})` : ""} × ${line.qty}${line.note ? ` — ${line.note}` : ""}`),
-        `Perkiraan total: ${rp(total)}. Apakah stoknya tersedia?`].join("\n");
+        `Perkiraan total: ${rp(total)}. Apakah stoknya tersedia?`].join("
+");
       link.href = CATALOG_WA + "?" + new URLSearchParams({ text });
     }
     function renderCart() {
@@ -1752,7 +1760,7 @@
       }
     }
 
-    // ==================== RENDER: PEMBUKUAN ====================
+    // ==================== RENDER: PEMBUKUAN & GRAFIK ====================
     function monthlyTotals(month) {
       const sales = transactions.filter(t => month && String(t.date || "").startsWith(month + "-"));
       const expenses = books.expenses.filter(e => month && String(e.date || "").startsWith(month + "-"));
@@ -1762,13 +1770,12 @@
       return { revenue, cost, spending, profit: revenue - cost - spending };
     }
 
-    // ==================== GRAFIK ====================
+    const charts = {};
     function upsertChart(id, config) {
       const el = document.getElementById(id);
       if (!el || typeof Chart === "undefined") return;
       if (charts[id]) {
         charts[id].data = config.data;
-        charts[id].options = config.options;
         charts[id].update();
         return;
       }
@@ -1776,12 +1783,24 @@
     }
 
     function renderCharts() {
-      if (!isAdmin || typeof Chart === "undefined") return;
+      if (!isAdmin) return;
       const month = document.getElementById("bookMonth").value || todayStr().slice(0, 7);
+      const yearNum = Number(month.slice(0, 4));
+      const monthNum = Number(month.slice(5, 7));
+
+      const rpTick = v => "Rp " + Number(v).toLocaleString("id-ID");
+      const rpTooltip = {
+        callbacks: {
+          label: ctx => {
+            const val = ctx.parsed?.y !== undefined ? ctx.parsed.y : ctx.parsed;
+            const prefix = ctx.dataset?.label ? ctx.dataset.label + ": " : (ctx.label ? ctx.label + ": " : "");
+            return prefix + rp(val);
+          }
+        }
+      };
 
       // 1. Omzet & laba per hari (bulan terpilih)
-      const [yy, mm] = month.split("-").map(Number);
-      const daysInMonth = new Date(yy, mm, 0).getDate();
+      const daysInMonth = new Date(yearNum, monthNum, 0).getDate();
       const dayLabels = Array.from({ length: daysInMonth }, (_, i) => month + "-" + String(i + 1).padStart(2, "0"));
       const omzetPerDay = dayLabels.map(d => transactions.filter(t => t.date === d).reduce((s, t) => s + Number(t.totalOmset || 0), 0));
       const labaPerDay = dayLabels.map(d => transactions.filter(t => t.date === d).reduce((s, t) => s + Number(t.totalProfit || 0), 0));
@@ -1795,12 +1814,14 @@
           ]
         },
         options: {
-          responsive: true, maintainAspectRatio: false,
-          scales: { y: { ticks: { callback: v => "Rp " + Number(v).toLocaleString("id-ID") } } }
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { tooltip: rpTooltip },
+          scales: { y: { ticks: { callback: rpTick } } }
         }
       });
 
-      // 2. Komposisi cara bayar (bulan terpilih)
+      // 2. Pembayaran (bulan terpilih)
       const pay = { Cash: 0, QRIS: 0, Kartu: 0, Transfer: 0 };
       for (const t of transactions) {
         if (!String(t.date || "").startsWith(month + "-")) continue;
@@ -1813,25 +1834,32 @@
           labels: ["Tunai", "QRIS", "Kartu", "Transfer"],
           datasets: [{ data: Object.values(pay), backgroundColor: ["#059669", "#0284c7", "#d97706", "#7c3aed"] }]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { tooltip: rpTooltip }
+        }
       });
 
-      // 3 & 4. Enam bulan terakhir hingga bulan terpilih
+      // 3. Pembelian stok per bulan (6 bulan terakhir aman lintas tanggal akhir bulan)
       const months = [];
       for (let i = 5; i >= 0; i--) {
-        const d = new Date(yy, mm - 1 - i, 1);
+        const d = new Date(yearNum, monthNum - 1 - i, 1);
         months.push(d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"));
       }
-
-      const beli = months.map(m => purchases
-        .filter(p => String(p.date || "").startsWith(m + "-"))
-        .reduce((s, p) => s + Number(p.totalCost || 0), 0));
+      const beli = months.map(m => purchases.filter(p => String(p.date || "").startsWith(m + "-")).reduce((s, p) => s + Number(p.totalCost || 0), 0));
       upsertChart("chartPembelian", {
         type: "bar",
         data: { labels: months, datasets: [{ label: "Total pembelian", data: beli, backgroundColor: "#f59e0b" }] },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { tooltip: rpTooltip },
+          scales: { y: { ticks: { callback: rpTick } } }
+        }
       });
 
+      // 4. Untung usaha per bulan (6 bulan terakhir)
       const untung = months.map(m => {
         const sales = transactions.filter(t => String(t.date || "").startsWith(m + "-"));
         const exp = books.expenses.filter(e => String(e.date || "").startsWith(m + "-"));
@@ -1840,8 +1868,16 @@
       });
       upsertChart("chartProfit", {
         type: "line",
-        data: { labels: months, datasets: [{ label: "Untung / rugi usaha", data: untung, borderColor: "#1e3a8a", backgroundColor: "#93c5fd", fill: true, tension: 0.3 }] },
-        options: { responsive: true, maintainAspectRatio: false }
+        data: {
+          labels: months,
+          datasets: [{ label: "Untung / rugi usaha", data: untung, borderColor: "#1e3a8a", backgroundColor: "#93c5fd", fill: true, tension: 0.3 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { tooltip: rpTooltip },
+          scales: { y: { ticks: { callback: rpTick } } }
+        }
       });
     }
 
@@ -2113,7 +2149,10 @@
       watch("transactions", rows => {
         transactions = rows.filter(r => !r.cancelledAt);
         cancelledTransactions = rows.filter(r => r.cancelledAt);
-      }, () => { renderTransactions(); renderOwnerBooks(); });
+      }, () => {
+        renderTransactions();
+        renderOwnerBooks();
+      });
       watch("purchases", rows => { purchases = rows; }, () => renderOwnerBooks());
       watch("expenses", rows => { books.expenses = rows; }, () => renderOwnerBooks());
       watch("cashClosings", rows => { books.cashClosings = rows; }, () => renderOwnerBooks());
@@ -2177,7 +2216,10 @@
       document.getElementById("cashierWorkspace").hidden = target !== "kasir";
       document.getElementById("salesHistoryWorkspace").hidden = target !== "sales";
       if (target === "sales") renderTransactions();
-      if (target === "books") renderOwnerBooks();
+      if (target === "books") {
+        renderOwnerBooks();
+        requestAnimationFrame(() => Object.values(charts).forEach(c => c.resize()));
+      }
       if (target === "inventory") renderInventory();
     }
     function openDialog(id) {
@@ -2225,7 +2267,9 @@
       if (/perlu dibeli|beli lagi|restok|stok hampir habis|stok menipis/.test(t)) {
         const low = activeInventory().filter(i => Number(i.stock || 0) < LOW_STOCK_LIMIT);
         return low.length
-          ? "Stok menipis, prioritaskan kulakan:\n" + low.map(i => `• ${formatItemLabel(i)} — sisa ${Number(i.stock || 0)} pcs`).join("\n")
+          ? "Stok menipis, prioritaskan kulakan:
+" + low.map(i => `• ${formatItemLabel(i)} — sisa ${Number(i.stock || 0)} pcs`).join("
+")
           : "Semua stok aktif masih di atas batas menipis.";
       }
       if (/terlaris/.test(t)) {
@@ -2235,16 +2279,19 @@
           map.set(it.name, (map.get(it.name) || 0) + Number(it.qty || 0));
         }
         const rows = [...map].sort((a, b) => b[1] - a[1]).slice(0, 5);
-        return rows.length ? "Terlaris 30 hari:\n" + rows.map(([n, q], i) => `${i + 1}. ${n} — ${q} pcs`).join("\n") : "Belum ada penjualan 30 hari terakhir.";
+        return rows.length ? "Terlaris 30 hari:
+" + rows.map(([n, q], i) => `${i + 1}. ${n} — ${q} pcs`).join("
+") : "Belum ada penjualan 30 hari terakhir.";
       }
       const stokMatch = text.match(/stok\s+(.+)$/i) || text.match(/cek\s+(.+)$/i);
       if (stokMatch) {
         const term = assistantKey(stokMatch[1]);
         const matches = activeInventory().filter(i => assistantKey([i.code, i.name, i.size, i.color].join(" ")).includes(term));
         if (!matches.length) return `Tidak ada barang aktif yang cocok dengan "${stokMatch[1]}".`;
-        return matches.slice(0, 8).map(i => `• ${formatItemLabel(i)} — sisa ${Number(i.stock || 0)} pcs | ${rp(i.price)}`).join("\n");
+        return matches.slice(0, 8).map(i => `• ${formatItemLabel(i)} — sisa ${Number(i.stock || 0)} pcs | ${rp(i.price)}`).join("
+");
       }
-      return "Perintah belum dikenali. Coba: \"Omzet hari ini\", \"Laba rugi bulan ini\", \"Terlaris 30 hari\", \"Barang apa yang perlu dibeli lagi?\", \"Cek stok raket\", \"Catat jual 2 SJS-001 bayar QRIS\", atau \"Catat pengeluaran listrik 150000 tunai\".";
+      return "Perintah belum dikenali. Coba: "Omzet hari ini", "Laba rugi bulan ini", "Terlaris 30 hari", "Barang apa yang perlu dibeli lagi?", "Cek stok raket", "Catat jual 2 SJS-001 bayar QRIS", atau "Catat pengeluaran listrik 150000 tunai".";
     }
     async function handleAssistantInput(raw) {
       const text = String(raw || "").trim();
@@ -2431,7 +2478,8 @@
           receiptNumber(tx), tx.date, `"${(tx.customer || "").replace(/"/g, '""')}"`, `"${(it.name || "").replace(/"/g, '""')}"`,
           it.qty, it.price, it.subtotal ?? it.price * it.qty, tx.paymentMethod, tx.totalModal, tx.totalProfit
         ]);
-        const blob = new Blob(["\uFEFF" + rows.map(r => r.join(",")).join("\n")], { type: "text/csv;charset=utf-8" });
+        const blob = new Blob(["﻿" + rows.map(r => r.join(",")).join("
+")], { type: "text/csv;charset=utf-8" });
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
         a.download = `Laporan-SuryaJayaSport-${todayStr()}.csv`;
@@ -2527,7 +2575,7 @@
         const open = box.classList.contains("hidden");
         box.classList.toggle("hidden", !open);
         if (open && !document.getElementById("sjsAiChatLog").childElementCount) {
-          assistantAdd("assistant", "Asisten Toko siap. Contoh: \"Omzet hari ini\", \"Laba rugi bulan ini\", \"Terlaris 30 hari\", \"Barang apa yang perlu dibeli lagi?\", \"Cek stok raket\", \"Catat jual 2 SJS-001 bayar QRIS\", atau \"Catat pengeluaran listrik 150000 tunai\".");
+          assistantAdd("assistant", "Asisten Toko siap. Contoh: "Omzet hari ini", "Laba rugi bulan ini", "Terlaris 30 hari", "Barang apa yang perlu dibeli lagi?", "Cek stok raket", "Catat jual 2 SJS-001 bayar QRIS", atau "Catat pengeluaran listrik 150000 tunai".");
         }
       });
       document.getElementById("sjsAiCloseBtn").addEventListener("click", () => document.getElementById("sjsAiBox").classList.add("hidden"));
@@ -2570,6 +2618,10 @@
           for (const x of document.querySelectorAll("[data-books-section]")) {
             x.setAttribute("aria-pressed", String(x === b));
             document.getElementById(x.dataset.booksSection).hidden = x !== b;
+          }
+          document.getElementById("booksCharts").hidden = b.dataset.booksSection !== "booksReport";
+          if (b.dataset.booksSection === "booksReport") {
+            requestAnimationFrame(() => Object.values(charts).forEach(c => c.resize()));
           }
         });
       }
