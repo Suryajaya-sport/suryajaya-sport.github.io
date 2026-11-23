@@ -36,26 +36,20 @@
 
   <style>
     :root { --sjs-navy: #0b1220; }
-    body { margin: 0; }
     *, *::before, *::after { box-sizing: border-box; }
     html, body { max-width: 100%; overflow-x: clip; scroll-behavior: smooth; }
     body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f4f7fc; color: #0f172a; }
     input, select, textarea { font-size: 16px !important; max-width: 100%; }
     [hidden] { display: none !important; }
-    #receiptPrintSheet, #stickerPrintSheet { display: none; }
-    @media print {
-      #receiptPrintSheet, #stickerPrintSheet { display: block; }
-    }
 
-    .shop-header { background: #fff; border-bottom: 2px solid #dbeafe; position: sticky; top: 0; z-index: 50; box-shadow: 0 2px 10px rgba(30,58,138,.06); }
+    .shop-header { background: #fff; border-bottom: 2px solid #dbeafe; position: sticky; top: 0; z-index: 35; box-shadow: 0 2px 10px rgba(30,58,138,.06); }
     .shop-header-inner { max-width: 82rem; margin: 0 auto; padding: .7rem 1.15rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; }
     .shop-brand { display: flex; align-items: center; gap: .8rem; }
     .shop-brand img { width: 44px; height: 50px; object-fit: contain; border-radius: .85rem; background: #fff; padding: 3px; border: 1.5px solid #bfdbfe; }
     .shop-brand h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.6rem; font-weight: 800; text-transform: uppercase; color: var(--sjs-navy); line-height: 1.05; }
     .shop-links { display: flex; gap: .35rem; background: #f1f5f9; padding: .25rem; border-radius: 9999px; }
-    .shop-links a { position: relative; z-index: 36; cursor: pointer; font-size: .8125rem; font-weight: 700; color: #475569; padding: .4rem .9rem; border-radius: 9999px; }
+    .shop-links a { font-size: .8125rem; font-weight: 700; color: #475569; padding: .4rem .9rem; border-radius: 9999px; }
     .shop-links a:hover { background: #fff; color: #2563eb; }
-    #publicProductCatalog, #lokasi-toko { scroll-margin-top: 90px; }
     .shop-header-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
     .shop-owner-button, .shop-status, .shop-date { display: inline-flex; align-items: center; gap: .5rem; padding: .55rem 1.05rem; border-radius: 9999px; font-size: .8125rem; font-weight: 700; cursor: pointer; }
     .shop-owner-button { background: #1d4ed8; color: #fff; border: 1.5px solid #1d4ed8; }
@@ -148,6 +142,14 @@
     #sjsAiBox { position: fixed; bottom: 92px; right: 24px; width: 420px; max-width: calc(100vw - 28px); height: 600px; max-height: calc(100vh - 116px); background: #fff; border-radius: 1.6rem; border: 1.5px solid #cbd5e1; box-shadow: 0 24px 55px rgba(15,23,42,.28); display: flex; flex-direction: column; overflow: hidden; z-index: 40; }
     #sjsAiBox.hidden { display: none !important; }
     #sjsAssistantSaleActions[hidden] { display: none !important; }
+
+    @media print {
+      .no-print { display: none !important; }
+      body { background: #fff !important; }
+      #booksCharts { grid-template-columns: 1fr 1fr !important; break-inside: avoid; }
+      #booksCharts > div { break-inside: avoid; border: 1px solid #cbd5e1 !important; box-shadow: none !important; }
+      #booksCharts canvas { max-width: 100% !important; height: auto !important; }
+    }
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -169,7 +171,7 @@
       </div>
       <nav class="shop-links" aria-label="Navigasi toko">
         <a href="#publicProductCatalog">Katalog</a>
-        <a href="https://www.google.com/maps/search/?api=1&amp;query=Surya+Jaya+Sport+Tanjung+Redeb" target="_blank" rel="noopener noreferrer">Lokasi toko</a>
+        <a href="#lokasi-toko">Lokasi toko</a>
       </nav>
       <div class="shop-header-actions">
         <button type="button" id="adminModeBadge" class="shop-owner-button">
@@ -271,9 +273,9 @@
     </dialog>
 
     <!-- PEMBUKUAN -->
-    <section id="viewBooks" class="hidden no-print">
+    <section id="viewBooks" class="hidden">
       <section id="ownerBooks" class="space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center justify-between gap-3 no-print">
           <h2 class="font-display text-3xl font-extrabold uppercase">Pembukuan</h2>
           <div class="flex flex-wrap gap-2" role="group" aria-label="Tugas pembukuan">
             <button type="button" class="shop-button shop-button-secondary" data-books-section="booksReport" aria-pressed="true">Laporan</button>
@@ -310,7 +312,7 @@
           </div>
         </section>
 
-        <section id="booksExpenses" class="space-y-4" hidden>
+        <section id="booksExpenses" class="space-y-4 no-print" hidden>
           <div class="bg-white rounded-3xl border border-slate-200 p-5">
             <form id="expenseForm" class="space-y-4">
               <h3 class="workspace-section-title">Catat uang keluar</h3>
@@ -332,7 +334,7 @@
           </div>
         </section>
 
-        <section id="booksClosing" class="space-y-4" hidden>
+        <section id="booksClosing" class="space-y-4 no-print" hidden>
           <div class="bg-white rounded-3xl border border-slate-200 p-5">
             <form id="cashClosingForm" class="space-y-4">
               <h3 class="workspace-section-title">Tutup kas harian</h3>
@@ -966,7 +968,6 @@
     const CART_KEY = "sjs-catalog-cart-v1";
     const salePaymentMethods = new Set(["Cash", "QRIS", "Kartu", "Transfer"]);
     const activeInventory = () => inventory.filter(item => !item.archivedAt);
-    const charts = {};
 
     // ==================== UTILITAS ====================
     function todayStr() {
@@ -1293,16 +1294,12 @@
       const row = document.createElement("div");
       row.className = "bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3";
       row.dataset.invId = prefill?.id || "";
-      row.dataset.manual = "false";
       const key = "sale-item-" + ++saleItemRowNumber;
       row.innerHTML = `
         <div class="flex items-center justify-between gap-2">
           <label for="${key}" class="text-sm font-bold text-slate-700">Nama atau kode barang</label>
           <button type="button" class="btn-remove-row px-2.5 py-1.5 rounded-lg text-rose-700 hover:bg-rose-50 font-bold text-xs"><i class="fa-solid fa-trash" aria-hidden="true"></i> Hapus baris</button>
         </div>
-        <label class="inline-flex items-center gap-2 text-sm font-bold text-slate-700">
-          <input type="checkbox" class="item-manual-toggle h-4 w-4"> Barang di luar stok
-        </label>
         <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
           <div class="md:col-span-6 flex items-center gap-2.5">
             <div class="sale-entry-thumbnail shrink-0 w-12 h-12">${prefill ? productImageMarkup(prefill, "h-12 w-12 rounded-xl border border-slate-200", 160, true) : ""}</div>
@@ -1321,10 +1318,6 @@
             </div>
           </div>
         </div>
-        <div class="manual-cost-wrap hidden">
-          <label class="block text-xs font-bold text-slate-600 mb-1">Modal satuan (Rp)</label>
-          <input type="number" min="0" step="1" inputmode="numeric" class="item-cost-input w-full md:w-60 px-3 py-2.5 border border-slate-300 rounded-xl font-bold" placeholder="0">
-        </div>
         <div class="flex justify-end items-center gap-2 pt-2 border-t border-slate-200/80 text-xs">
           <span class="font-bold text-slate-500">Total barang ini</span>
           <span class="item-subtotal font-extrabold text-base tabular-nums">Rp 0</span>
@@ -1334,30 +1327,9 @@
       const nameInput = row.querySelector(".item-name-input");
       const priceInput = row.querySelector(".item-price-input");
       const qtyInput = row.querySelector(".item-qty");
-      const costInput = row.querySelector(".item-cost-input");
-      const manualToggle = row.querySelector(".item-manual-toggle");
-      const manualCostWrap = row.querySelector(".manual-cost-wrap");
       const preview = row.querySelector(".sale-entry-thumbnail");
 
-      const applyManualMode = () => {
-        const manual = manualToggle.checked;
-        row.dataset.manual = String(manual);
-        manualCostWrap.classList.toggle("hidden", !manual);
-        nameInput.setAttribute("placeholder", manual ? "Ketik nama barang" : "Ketik lalu pilih dari daftar");
-        if (manual) {
-          nameInput.removeAttribute("list");
-          row.dataset.invId = "";
-          preview.innerHTML = "";
-        } else {
-          nameInput.setAttribute("list", "inventoryDatalist");
-          costInput.value = "";
-        }
-        calculateSaleTotals();
-      };
-      manualToggle.addEventListener("change", applyManualMode);
-
       const handleSelect = () => {
-        if (row.dataset.manual === "true") { calculateSaleTotals(); return; }
         const val = nameInput.value.trim().toLowerCase();
         const match = activeInventory().find(inv => formatDropdownOption(inv).toLowerCase() === val
           || formatItemLabel(inv).toLowerCase() === val
@@ -1373,7 +1345,6 @@
       nameInput.addEventListener("input", handleSelect);
       nameInput.addEventListener("change", handleSelect);
       priceInput.addEventListener("input", calculateSaleTotals);
-      costInput.addEventListener("input", calculateSaleTotals);
       qtyInput.addEventListener("input", calculateSaleTotals);
       row.querySelector(".btn-qty-minus").addEventListener("click", () => {
         qtyInput.value = Math.max(1, (parseInt(qtyInput.value, 10) || 1) - 1);
@@ -1398,12 +1369,10 @@
         const price = parseFloat(row.querySelector(".item-price-input").value) || 0;
         const qtyInput = row.querySelector(".item-qty");
         const qty = qtyInput.validity.valid ? Number(qtyInput.value) : 0;
-        const manual = row.dataset.manual === "true";
-        const cost = manual
-          ? (parseFloat(row.querySelector(".item-cost-input").value) || 0)
-          : (activeInventory().find(i => i.id === row.dataset.invId)?.cost ?? 0);
+        const inv = activeInventory().find(i => i.id === row.dataset.invId);
+        const cost = inv ? Number(inv.cost || 0) : 0;
         total += price * qty;
-        profit += (price - Number(cost)) * qty;
+        profit += (price - cost) * qty;
         row.querySelector(".item-subtotal").textContent = rp(price * qty);
       }
       document.getElementById("previewTotalOmset").textContent = rp(total);
@@ -1443,24 +1412,13 @@
       if (!salePaymentMethods.has(selectedPaymentMethod)) return showToast("Pilih cara bayar sebelum menyimpan.");
       const itemsToSave = [];
       for (const row of document.querySelectorAll("#saleItemsContainer > div")) {
-        const manual = row.dataset.manual === "true";
-        const qty = Number(row.querySelector(".item-qty").value);
-        const price = Number(row.querySelector(".item-price-input").value);
-        if (!Number.isSafeInteger(qty) || qty < 1) return showToast("Jumlah minimal 1 pcs.");
-        if (!Number.isSafeInteger(price) || price < 0) return showToast("Isi harga satuan dalam Rupiah.");
-
-        if (manual) {
-          const name = row.querySelector(".item-name-input").value.trim();
-          const cost = Number(row.querySelector(".item-cost-input").value);
-          if (!name) { row.querySelector(".item-name-input").focus(); return showToast("Isi nama barang di luar stok."); }
-          if (!Number.isSafeInteger(cost) || cost < 0) { row.querySelector(".item-cost-input").focus(); return showToast("Isi modal satuan dalam Rupiah."); }
-          itemsToSave.push({ inventoryId: "", name, qty, price, cost, imageUrl: "", manual: true });
-          continue;
-        }
-
         const invId = row.dataset.invId;
         const inv = activeInventory().find(i => i.id === invId);
-        if (!inv) { showToast("Pilih barang dari daftar stok, atau centang 'Barang di luar stok'."); row.querySelector(".item-name-input").focus(); return; }
+        const qty = Number(row.querySelector(".item-qty").value);
+        const price = Number(row.querySelector(".item-price-input").value);
+        if (!inv) { showToast("Pilih barang dari daftar stok."); row.querySelector(".item-name-input").focus(); return; }
+        if (!Number.isSafeInteger(qty) || qty < 1) return showToast("Jumlah minimal 1 pcs.");
+        if (!Number.isSafeInteger(price) || price < 0) return showToast("Isi harga satuan dalam Rupiah.");
         itemsToSave.push({ inventoryId: invId, name: formatItemLabel(inv), qty, price, cost: Number(inv.cost || 0), imageUrl: inv.imageUrl || "" });
       }
       if (!itemsToSave.length) return showToast("Tambahkan minimal 1 barang.");
@@ -1527,13 +1485,13 @@
     function matchesCatalogCategory(item, category) {
       if (category === "all") return true;
       const name = item.name || "";
-      const badminton = /\b(badminton|raket|shuttlecock|kok|yonex|lining|li-ning|victor)\b/i.test(name);
-      const music = /\b(gitar|ukulele|bass|capo|plektrum|musik)\b/i.test(name) || (!badminton && /\bsenar\b/i.test(name));
+      const badminton = / (badminton|raket|shuttlecock|kok|yonex|lining|li-ning|victor) /i.test(name);
+      const music = / (gitar|ukulele|bass|capo|plektrum|musik) /i.test(name) || (!badminton && / senar /i.test(name));
       if (category === "music") return music;
       if (category === "sport") return !music;
       if (category === "badminton") return !music && badminton;
-      if (category === "ball") return !music && /\b(futsal|bola|sepak|basket|voli|volley|football|soccer)\b/i.test(name);
-      if (category === "chess") return /\b(catur|chess)\b/i.test(name);
+      if (category === "ball") return !music && / (futsal|bola|sepak|basket|voli|volley|football|soccer) /i.test(name);
+      if (category === "chess") return / (catur|chess) /i.test(name);
       return false;
     }
 
@@ -1608,7 +1566,8 @@
       if (!canSend) { link.removeAttribute("href"); return; }
       const text = ["Halo Surya Jaya Sport, saya mau cek stok:",
         ...lines.map(({ item, line }, i) => `${i + 1}. ${item.name}${item.code ? ` (${item.code})` : ""} × ${line.qty}${line.note ? ` — ${line.note}` : ""}`),
-        `Perkiraan total: ${rp(total)}. Apakah stoknya tersedia?`].join("\n");
+        `Perkiraan total: ${rp(total)}. Apakah stoknya tersedia?`].join("
+");
       link.href = CATALOG_WA + "?" + new URLSearchParams({ text });
     }
     function renderCart() {
@@ -1770,13 +1729,12 @@
         const rs = items.length > 1 ? ` rowspan="${items.length}"` : "";
         const pm = esc(tx.paymentMethod || "Cash");
         const id = esc(tx.id);
-        const tag = it => it.manual ? ' <span class="ml-1 text-[10px] font-extrabold text-amber-700 bg-amber-100 px-1.5 py-0.5 rounded">LUAR STOK</span>' : "";
         items.forEach((it, idx) => {
           const tr = document.createElement("tr");
           tr.className = "hover:bg-slate-50 border-b border-slate-100";
           tr.innerHTML = `
             ${idx === 0 ? `<td${rs} class="py-2 px-3 align-middle font-semibold whitespace-nowrap">${esc(tx.date)}<span class="block text-xs font-mono text-blue-900">${esc(receiptNumber(tx))}</span></td>` : ""}
-            <td class="py-2 px-3 font-bold">${esc(it.name)}${tag(it)} <span class="text-slate-500">(${Number(it.qty || 0)}x)</span></td>
+            <td class="py-2 px-3 font-bold">${esc(it.name)} <span class="text-slate-500">(${Number(it.qty || 0)}x)</span></td>
             <td class="py-2 px-3 text-right tabular-nums">${rp(it.price)}</td>
             <td class="py-2 px-3 text-right font-bold tabular-nums">${rp(it.subtotal ?? it.price * it.qty)}</td>
             ${idx === 0 ? `<td${rs} class="py-2 px-3 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-blue-100 text-blue-900">${pm}</span></td>
@@ -1792,7 +1750,7 @@
         card.className = "workspace-record";
         card.innerHTML = `
           <div class="flex justify-between text-xs font-bold text-slate-600"><span class="font-mono">${esc(receiptNumber(tx))} · ${esc(tx.date)}</span><span class="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-900">${pm}</span></div>
-          ${items.map(it => `<p class="text-sm">${esc(it.name)}${tag(it)} <span class="text-slate-500">${Number(it.qty || 0)} × ${rp(it.price)}</span></p>`).join("")}
+          ${items.map(it => `<p class="text-sm">${esc(it.name)} <span class="text-slate-500">${Number(it.qty || 0)} × ${rp(it.price)}</span></p>`).join("")}
           <p class="font-extrabold">Total: ${rp(tx.totalOmset)}</p>
           <div class="flex gap-2">
             <button type="button" onclick="window.openReceiptModal('${id}')" class="px-3 py-2 rounded-xl bg-blue-100 text-blue-900 font-bold text-xs"><i class="fa-solid fa-print"></i> Nota</button>
@@ -1802,7 +1760,7 @@
       }
     }
 
-    // ==================== RENDER: PEMBUKUAN ====================
+    // ==================== RENDER: PEMBUKUAN & GRAFIK ====================
     function monthlyTotals(month) {
       const sales = transactions.filter(t => month && String(t.date || "").startsWith(month + "-"));
       const expenses = books.expenses.filter(e => month && String(e.date || "").startsWith(month + "-"));
@@ -1812,13 +1770,12 @@
       return { revenue, cost, spending, profit: revenue - cost - spending };
     }
 
-    // ==================== GRAFIK ====================
+    const charts = {};
     function upsertChart(id, config) {
       const el = document.getElementById(id);
       if (!el || typeof Chart === "undefined") return;
       if (charts[id]) {
         charts[id].data = config.data;
-        charts[id].options = config.options;
         charts[id].update();
         return;
       }
@@ -1826,12 +1783,24 @@
     }
 
     function renderCharts() {
-      if (!isAdmin || typeof Chart === "undefined") return;
+      if (!isAdmin) return;
       const month = document.getElementById("bookMonth").value || todayStr().slice(0, 7);
+      const yearNum = Number(month.slice(0, 4));
+      const monthNum = Number(month.slice(5, 7));
+
+      const rpTick = v => "Rp " + Number(v).toLocaleString("id-ID");
+      const rpTooltip = {
+        callbacks: {
+          label: ctx => {
+            const val = ctx.parsed?.y !== undefined ? ctx.parsed.y : ctx.parsed;
+            const prefix = ctx.dataset?.label ? ctx.dataset.label + ": " : (ctx.label ? ctx.label + ": " : "");
+            return prefix + rp(val);
+          }
+        }
+      };
 
       // 1. Omzet & laba per hari (bulan terpilih)
-      const [yy, mm] = month.split("-").map(Number);
-      const daysInMonth = new Date(yy, mm, 0).getDate();
+      const daysInMonth = new Date(yearNum, monthNum, 0).getDate();
       const dayLabels = Array.from({ length: daysInMonth }, (_, i) => month + "-" + String(i + 1).padStart(2, "0"));
       const omzetPerDay = dayLabels.map(d => transactions.filter(t => t.date === d).reduce((s, t) => s + Number(t.totalOmset || 0), 0));
       const labaPerDay = dayLabels.map(d => transactions.filter(t => t.date === d).reduce((s, t) => s + Number(t.totalProfit || 0), 0));
@@ -1845,12 +1814,14 @@
           ]
         },
         options: {
-          responsive: true, maintainAspectRatio: false,
-          scales: { y: { ticks: { callback: v => "Rp " + Number(v).toLocaleString("id-ID") } } }
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { tooltip: rpTooltip },
+          scales: { y: { ticks: { callback: rpTick } } }
         }
       });
 
-      // 2. Komposisi cara bayar (bulan terpilih)
+      // 2. Pembayaran (bulan terpilih)
       const pay = { Cash: 0, QRIS: 0, Kartu: 0, Transfer: 0 };
       for (const t of transactions) {
         if (!String(t.date || "").startsWith(month + "-")) continue;
@@ -1863,25 +1834,32 @@
           labels: ["Tunai", "QRIS", "Kartu", "Transfer"],
           datasets: [{ data: Object.values(pay), backgroundColor: ["#059669", "#0284c7", "#d97706", "#7c3aed"] }]
         },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { tooltip: rpTooltip }
+        }
       });
 
-      // 3 & 4. Enam bulan terakhir hingga bulan terpilih
+      // 3. Pembelian stok per bulan (6 bulan terakhir aman lintas tanggal akhir bulan)
       const months = [];
       for (let i = 5; i >= 0; i--) {
-        const d = new Date(yy, mm - 1 - i, 1);
+        const d = new Date(yearNum, monthNum - 1 - i, 1);
         months.push(d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"));
       }
-
-      const beli = months.map(m => purchases
-        .filter(p => String(p.date || "").startsWith(m + "-"))
-        .reduce((s, p) => s + Number(p.totalCost || 0), 0));
+      const beli = months.map(m => purchases.filter(p => String(p.date || "").startsWith(m + "-")).reduce((s, p) => s + Number(p.totalCost || 0), 0));
       upsertChart("chartPembelian", {
         type: "bar",
         data: { labels: months, datasets: [{ label: "Total pembelian", data: beli, backgroundColor: "#f59e0b" }] },
-        options: { responsive: true, maintainAspectRatio: false }
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { tooltip: rpTooltip },
+          scales: { y: { ticks: { callback: rpTick } } }
+        }
       });
 
+      // 4. Untung usaha per bulan (6 bulan terakhir)
       const untung = months.map(m => {
         const sales = transactions.filter(t => String(t.date || "").startsWith(m + "-"));
         const exp = books.expenses.filter(e => String(e.date || "").startsWith(m + "-"));
@@ -1890,8 +1868,16 @@
       });
       upsertChart("chartProfit", {
         type: "line",
-        data: { labels: months, datasets: [{ label: "Untung / rugi usaha", data: untung, borderColor: "#1e3a8a", backgroundColor: "#93c5fd", fill: true, tension: 0.3 }] },
-        options: { responsive: true, maintainAspectRatio: false }
+        data: {
+          labels: months,
+          datasets: [{ label: "Untung / rugi usaha", data: untung, borderColor: "#1e3a8a", backgroundColor: "#93c5fd", fill: true, tension: 0.3 }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { tooltip: rpTooltip },
+          scales: { y: { ticks: { callback: rpTick } } }
+        }
       });
     }
 
@@ -2163,7 +2149,10 @@
       watch("transactions", rows => {
         transactions = rows.filter(r => !r.cancelledAt);
         cancelledTransactions = rows.filter(r => r.cancelledAt);
-      }, () => { renderTransactions(); renderOwnerBooks(); });
+      }, () => {
+        renderTransactions();
+        renderOwnerBooks();
+      });
       watch("purchases", rows => { purchases = rows; }, () => renderOwnerBooks());
       watch("expenses", rows => { books.expenses = rows; }, () => renderOwnerBooks());
       watch("cashClosings", rows => { books.cashClosings = rows; }, () => renderOwnerBooks());
@@ -2227,7 +2216,10 @@
       document.getElementById("cashierWorkspace").hidden = target !== "kasir";
       document.getElementById("salesHistoryWorkspace").hidden = target !== "sales";
       if (target === "sales") renderTransactions();
-      if (target === "books") renderOwnerBooks();
+      if (target === "books") {
+        renderOwnerBooks();
+        requestAnimationFrame(() => Object.values(charts).forEach(c => c.resize()));
+      }
       if (target === "inventory") renderInventory();
     }
     function openDialog(id) {
@@ -2275,7 +2267,9 @@
       if (/perlu dibeli|beli lagi|restok|stok hampir habis|stok menipis/.test(t)) {
         const low = activeInventory().filter(i => Number(i.stock || 0) < LOW_STOCK_LIMIT);
         return low.length
-          ? "Stok menipis, prioritaskan kulakan:\n" + low.map(i => `• ${formatItemLabel(i)} — sisa ${Number(i.stock || 0)} pcs`).join("\n")
+          ? "Stok menipis, prioritaskan kulakan:
+" + low.map(i => `• ${formatItemLabel(i)} — sisa ${Number(i.stock || 0)} pcs`).join("
+")
           : "Semua stok aktif masih di atas batas menipis.";
       }
       if (/terlaris/.test(t)) {
@@ -2285,16 +2279,19 @@
           map.set(it.name, (map.get(it.name) || 0) + Number(it.qty || 0));
         }
         const rows = [...map].sort((a, b) => b[1] - a[1]).slice(0, 5);
-        return rows.length ? "Terlaris 30 hari:\n" + rows.map(([n, q], i) => `${i + 1}. ${n} — ${q} pcs`).join("\n") : "Belum ada penjualan 30 hari terakhir.";
+        return rows.length ? "Terlaris 30 hari:
+" + rows.map(([n, q], i) => `${i + 1}. ${n} — ${q} pcs`).join("
+") : "Belum ada penjualan 30 hari terakhir.";
       }
       const stokMatch = text.match(/stok\s+(.+)$/i) || text.match(/cek\s+(.+)$/i);
       if (stokMatch) {
         const term = assistantKey(stokMatch[1]);
         const matches = activeInventory().filter(i => assistantKey([i.code, i.name, i.size, i.color].join(" ")).includes(term));
         if (!matches.length) return `Tidak ada barang aktif yang cocok dengan "${stokMatch[1]}".`;
-        return matches.slice(0, 8).map(i => `• ${formatItemLabel(i)} — sisa ${Number(i.stock || 0)} pcs | ${rp(i.price)}`).join("\n");
+        return matches.slice(0, 8).map(i => `• ${formatItemLabel(i)} — sisa ${Number(i.stock || 0)} pcs | ${rp(i.price)}`).join("
+");
       }
-      return "Perintah belum dikenali. Coba: \"Omzet hari ini\", \"Laba rugi bulan ini\", \"Terlaris 30 hari\", \"Barang apa yang perlu dibeli lagi?\", \"Cek stok raket\", \"Catat jual 2 SJS-001 bayar QRIS\", atau \"Catat pengeluaran listrik 150000 tunai\".";
+      return "Perintah belum dikenali. Coba: "Omzet hari ini", "Laba rugi bulan ini", "Terlaris 30 hari", "Barang apa yang perlu dibeli lagi?", "Cek stok raket", "Catat jual 2 SJS-001 bayar QRIS", atau "Catat pengeluaran listrik 150000 tunai".";
     }
     async function handleAssistantInput(raw) {
       const text = String(raw || "").trim();
@@ -2359,25 +2356,14 @@
           showToast("Login gagal. Periksa email dan kata sandi.");
         }
       });
-         document.getElementById("btnLockToReadOnly").addEventListener("click", async () => {
+      document.getElementById("btnLockToReadOnly").addEventListener("click", async () => {
         await authM.signOut(auth);
         document.getElementById("adminAuthModal").classList.add("hidden");
       });
 
-      // Link navigasi header & tombol hero: buka tab Katalog dulu (jika admin), lalu scroll
-      for (const a of document.querySelectorAll('.shop-links a[href^="#"], .shop-hero-actions a[href^="#"]')) {
-        a.addEventListener("click", e => {
-          e.preventDefault();
-          if (isAdmin) switchWorkspace("catalog");
-          const target = document.querySelector(a.getAttribute("href"));
-          requestAnimationFrame(() => target?.scrollIntoView({ behavior: "smooth", block: "start" }));
-        });
-      }
-
-           for (const b of document.querySelectorAll("[data-workspace]")) {
+      for (const b of document.querySelectorAll("[data-workspace]")) {
         b.addEventListener("click", () => switchWorkspace(b.dataset.workspace));
       }
-      
       document.getElementById("btnOpenSalesView").addEventListener("click", () => switchWorkspace("sales"));
       document.getElementById("btnNewSaleView").addEventListener("click", () => switchWorkspace("kasir"));
 
@@ -2492,7 +2478,8 @@
           receiptNumber(tx), tx.date, `"${(tx.customer || "").replace(/"/g, '""')}"`, `"${(it.name || "").replace(/"/g, '""')}"`,
           it.qty, it.price, it.subtotal ?? it.price * it.qty, tx.paymentMethod, tx.totalModal, tx.totalProfit
         ]);
-        const blob = new Blob(["\uFEFF" + rows.map(r => r.join(",")).join("\n")], { type: "text/csv;charset=utf-8" });
+        const blob = new Blob(["﻿" + rows.map(r => r.join(",")).join("
+")], { type: "text/csv;charset=utf-8" });
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
         a.download = `Laporan-SuryaJayaSport-${todayStr()}.csv`;
@@ -2588,7 +2575,7 @@
         const open = box.classList.contains("hidden");
         box.classList.toggle("hidden", !open);
         if (open && !document.getElementById("sjsAiChatLog").childElementCount) {
-          assistantAdd("assistant", "Asisten Toko siap. Contoh: \"Omzet hari ini\", \"Laba rugi bulan ini\", \"Terlaris 30 hari\", \"Barang apa yang perlu dibeli lagi?\", \"Cek stok raket\", \"Catat jual 2 SJS-001 bayar QRIS\", atau \"Catat pengeluaran listrik 150000 tunai\".");
+          assistantAdd("assistant", "Asisten Toko siap. Contoh: "Omzet hari ini", "Laba rugi bulan ini", "Terlaris 30 hari", "Barang apa yang perlu dibeli lagi?", "Cek stok raket", "Catat jual 2 SJS-001 bayar QRIS", atau "Catat pengeluaran listrik 150000 tunai".");
         }
       });
       document.getElementById("sjsAiCloseBtn").addEventListener("click", () => document.getElementById("sjsAiBox").classList.add("hidden"));
@@ -2631,6 +2618,10 @@
           for (const x of document.querySelectorAll("[data-books-section]")) {
             x.setAttribute("aria-pressed", String(x === b));
             document.getElementById(x.dataset.booksSection).hidden = x !== b;
+          }
+          document.getElementById("booksCharts").hidden = b.dataset.booksSection !== "booksReport";
+          if (b.dataset.booksSection === "booksReport") {
+            requestAnimationFrame(() => Object.values(charts).forEach(c => c.resize()));
           }
         });
       }
