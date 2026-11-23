@@ -1385,9 +1385,10 @@
       if (!db) throw new Error("Database Firebase tidak terhubung.");
       if (!salePaymentMethods.has(txData.paymentMethod)) throw new Error("Pilih cara bayar sebelum menyimpan penjualan.");
       if (saleSaveInProgress) throw new Error("Penjualan sedang disimpan. Tunggu sebentar.");
-      saleSaveInProgress = true;
+            saleSaveInProgress = true;
 
       try {
+        const createdBy = ownerActor();
         const quantitiesByInventory = saleInventoryQuantities(txData.items);
 
         const transactionRef = doc(collection(db, ...paths("transactions")));
@@ -1437,7 +1438,7 @@
           if (!Number.isFinite(totalOmset) || !Number.isFinite(totalModal)) {
             throw new Error("Total penjualan atau harga pokok tidak valid.");
           }
-          const sale = { ...txData, items, totalOmset, totalModal, totalProfit: totalOmset - totalModal,
+                   const sale = { ...txData, createdBy, items, totalOmset, totalModal, totalProfit: totalOmset - totalModal,
             ...(originalRef ? { replacesSaleId: replacementFor } : {}) };
           cloudTransaction.set(transactionRef, sale);
           if (originalRef) cloudTransaction.update(originalRef, { replacementSaleId: transactionRef.id });
