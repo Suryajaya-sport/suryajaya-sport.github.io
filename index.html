@@ -235,7 +235,7 @@
       border-radius: 0.875rem;
       font-size: 0.875rem;
       font-weight: 700;
-      color: #475569;
+      color: #334155;
       background: transparent;
       transition: all 0.15s;
       cursor: pointer;
@@ -659,6 +659,18 @@
     .stock-indicator.is-low { background: #fef3c7; color: #b45309; }
     .stock-indicator.is-empty { background: #ffe4e6; color: #be123c; }
 
+    /* Kontras kartu terakhir "Untung / rugi usaha" pada Pembukuan */
+    #ownerMonthlyReport > div:last-child {
+      background: linear-gradient(135deg, #0f172a, #1e3a8a);
+      border-color: #1e3a8a;
+    }
+    #ownerMonthlyReport > div:last-child dt {
+      color: #fbbf24;
+    }
+    #ownerMonthlyReport > div:last-child dd {
+      color: #ffffff;
+    }
+
     /* --- DIALOGS & AI ASSISTANT --- */
     .workspace-dialog {
       margin: auto;
@@ -746,32 +758,7 @@
       overflow: hidden;
       z-index: 40;
     }
-   #sjsAiBox.hidden, #sjsAssistantSaleActions[hidden] { display: none !important; }
-
-    /* 1. Perbaiki kontras angka pada kartu terakhir "Untung / rugi usaha" */
-    #ownerMonthlyReport > div:last-child {
-      background: linear-gradient(135deg, #0f172a, #1e3a8a) !important;
-      border-color: #1e3a8a !important;
-    }
-    #ownerMonthlyReport > div:last-child dt {
-      color: #fbbf24 !important;
-    }
-    #ownerMonthlyReport > div:last-child dd {
-      color: #ffffff !important;
-    }
-
-    /* 2. Tingkatkan keterbacaan menu sidebar Ruang Kerja */
-    #mainNavigation button[data-workspace] {
-      color: #cbd5e1 !important;
-    }
-    #mainNavigation button[data-workspace]:hover {
-      background: rgba(255, 255, 255, 0.1) !important;
-      color: #ffffff !important;
-    }
-    #mainNavigation button[data-workspace][aria-current="page"] {
-      background: linear-gradient(135deg, #2563eb, #3b82f6) !important;
-      color: #ffffff !important;
-    }
+    #sjsAiBox.hidden, #sjsAssistantSaleActions[hidden] { display: none !important; }
   </style>
 </head>
 <body class="text-slate-900 antialiased min-h-screen flex flex-col">
@@ -1506,7 +1493,7 @@
         </button>
       </section>
 
-      <dialog id="restockCard" class="hidden workspace-dialog" aria-labelledby="restockTitle">
+      <dialog id="restockCard" class="workspace-dialog" aria-labelledby="restockTitle">
         <div class="workspace-dialog-heading">
           <h2 id="restockTitle">Catat pembelian stok</h2>
           <form method="dialog"><button class="workspace-dialog-close" type="submit">Tutup</button></form>
@@ -1951,7 +1938,7 @@
     </form>
   </section>
 
-  <!-- SCRIPT UTAMA: tidak diubah sama sekali agar seluruh fungsi & Firebase tetap 100% kompatibel -->
+  <!-- SCRIPT UTAMA -->
   <script type="module">
     import { drawNiimbotLabel, encodeNiimbotPng, niimbotLabelSizes } from "./niimbot-label.js?v=kode-modal";
     import { normalizeCostCodeDigits, productCostCode } from "./cost-code.js";
@@ -3933,53 +3920,47 @@
         const title = productTitleMarkup(item.name || "-");
         const hasPhoto = Boolean(productImageUrl(item));
         const photoAction = isAdmin && !hasPhoto
-          ? `<button type="button" onclick="window.editInventoryItem('${esc(item.id)}', true)" class="block py-1 text-left text-xs font-bold text-blue-800 underline underline-offset-2 cursor-pointer">Tambah foto</button>`
+          ? `<button type="button" onclick="window.editInventoryItem('${esc(item.id)}', true)" class="block py-1 text-xs font-bold text-blue-800 underline underline-offset-2">Tambah foto</button>`
           : "";
-        const varian = [item.size, item.color].filter(Boolean).join(" / ");
-        const catalogBadge = item.archivedAt
-          ? '<span class="ml-1 rounded-full bg-slate-200 px-2 py-0.5 text-xs font-bold text-slate-700">Arsip</span>'
+        const varian = [item.size ? `Uk: ${esc(item.size)}` : "", item.color ? esc(item.color) : ""].filter(Boolean).join(" • ");
+        const archived = Boolean(item.archivedAt);
+        const catalogState = archived
+          ? '<span class="rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-bold text-slate-700">Diarsipkan</span>'
           : catalogLoadState === "ready"
             ? published.has(item.id)
-              ? '<span class="ml-1 rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-bold text-emerald-900">Terbit</span>'
-              : '<span class="ml-1 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700">Belum terbit</span>'
+              ? '<span class="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-900">Terbit</span>'
+              : '<span class="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-950">Belum terbit</span>'
             : "";
-        const archiveAction = item.archivedAt
-          ? `<button type="button" onclick="window.setProductArchived('${esc(item.id)}', false)" class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-950 font-bold text-xs cursor-pointer ${delClass}">Pulihkan</button>`
-          : `<button type="button" onclick="window.setProductArchived('${esc(item.id)}', true)" class="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-800 font-bold text-xs cursor-pointer ${delClass}">Arsipkan</button>`;
+        const statusButtons = isAdmin ? (archived
+          ? `<button type="button" data-restore-item="${esc(item.id)}" class="min-h-8 rounded-lg bg-blue-100 px-2.5 text-xs font-bold text-blue-950">Pulihkan</button>`
+          : `<button type="button" data-archive-item="${esc(item.id)}" class="min-h-8 rounded-lg bg-slate-100 px-2.5 text-xs font-bold text-slate-700">Arsipkan</button>`) : "";
 
         const tr = document.createElement("tr");
         tr.className = "hover:bg-slate-50 transition";
         tr.innerHTML = `
-          <td class="py-3 px-3 font-mono font-extrabold text-blue-800">${code}${costCodeBadge}</td>
-          <td class="py-3 px-3">
-            <div class="flex items-center gap-3">
-              ${productImageMarkup(item, "w-14 h-14 rounded-xl border border-slate-200 shrink-0")}
+          <td class="py-3.5 px-3 font-extrabold text-blue-900 whitespace-nowrap">${code}${costCodeBadge}</td>
+          <td class="py-3.5 px-3 font-extrabold text-slate-900">
+            <div class="flex items-center gap-3 min-w-0">
+              ${productImageMarkup(item, "w-14 h-14 rounded-xl border border-slate-200 shrink-0", 160)}
               <div class="min-w-0">
-                <span class="font-extrabold text-slate-900">${title}</span>${catalogBadge}
-                ${varian ? `<span class="block text-xs text-slate-500 font-semibold mt-0.5">Varian: ${esc(varian)}</span>` : ""}
+                <p class="break-words">${title}</p>
+                ${varian ? `<span class="block text-xs font-semibold text-slate-500 mt-0.5">${varian}</span>` : ""}
+                <div class="mt-1 flex flex-wrap items-center gap-1.5">${catalogState}${statusButtons}</div>
                 ${photoAction}
               </div>
             </div>
           </td>
-          <td class="py-3 px-3 text-center"><span class="stock-indicator ${badge}">${stock} Pcs</span></td>
-          <td class="py-3 px-3 text-right text-slate-600 font-semibold tabular-nums">${rp(cost)}</td>
-          <td class="py-3 px-3 text-right font-extrabold text-slate-900 tabular-nums">${rp(price)}</td>
-          <td class="py-3 px-3 text-right font-bold text-emerald-700 tabular-nums">${rp(price - cost)}</td>
-          <td class="py-3 px-3 text-center">
-            <div class="flex items-center justify-center gap-1.5 flex-wrap">
-              <button type="button" onclick="window.openProductQr('${esc(item.id)}')" title="Stiker QR Niimbot"
-                class="px-2.5 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 font-extrabold text-xs cursor-pointer flex items-center gap-1">
-                <i class="fa-solid fa-qrcode"></i><span>QR</span>
-              </button>
-              <button type="button" onclick="window.editInventoryItem('${esc(item.id)}')" title="Ubah Barang"
-                class="px-2.5 py-1.5 rounded-xl bg-blue-100 hover:bg-blue-200 text-blue-900 font-extrabold text-xs cursor-pointer ${delClass}">
-                <i class="fa-solid fa-pen"></i>
-              </button>
-              ${archiveAction}
-              <button type="button" onclick="window.promptDeleteItem('${esc(item.id)}', 'inventory', '${esc(item.name || "")}')" title="Hapus"
-                class="w-7 h-7 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-900 cursor-pointer flex items-center justify-center ${delClass}">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
+          <td class="py-3.5 px-3 text-center whitespace-nowrap">
+            <span class="stock-indicator ${badge}">${stock} Pcs</span>
+          </td>
+          <td class="py-3.5 px-3 text-right whitespace-nowrap text-slate-700 font-semibold">${rp(cost)}</td>
+          <td class="py-3.5 px-3 text-right whitespace-nowrap font-extrabold text-emerald-800">${rp(price)}</td>
+          <td class="py-3.5 px-3 text-right whitespace-nowrap font-bold text-blue-800">${rp(price - cost)}</td>
+          <td class="py-3.5 px-3 text-center whitespace-nowrap">
+            <div class="flex items-center justify-center gap-1.5">
+              <button type="button" onclick="window.openProductQrModal('${esc(item.id)}')" class="px-3 py-1.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 font-extrabold text-xs cursor-pointer"><i class="fa-solid fa-qrcode mr-1"></i>Stiker QR</button>
+              <button type="button" onclick="window.editInventoryItem('${esc(item.id)}')" title="Ubah barang" aria-label="Ubah barang" class="p-2 rounded-xl bg-blue-100 hover:bg-blue-200 text-blue-800 cursor-pointer ${delClass}"><i class="fa-solid fa-pen-to-square" aria-hidden="true"></i></button>
+              <button type="button" onclick="window.promptDelete('${esc(item.id)}', 'inventory')" title="Hapus barang" aria-label="Hapus barang" class="p-2 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-700 cursor-pointer ${delClass}"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
             </div>
           </td>`;
         tbody.appendChild(tr);
@@ -3987,153 +3968,126 @@
         const card = document.createElement("div");
         card.className = "workspace-record";
         card.innerHTML = `
-          <div class="flex items-start justify-between gap-2.5">
-            <div class="flex items-start gap-3 min-w-0">
-              ${productImageMarkup(item, "w-16 h-16 rounded-xl border border-slate-200 shrink-0")}
-              <div class="min-w-0">
-                <span class="text-xs font-mono font-extrabold text-blue-800">${code}${costCode ? ` · Modal ${esc(costCode)}` : ""}</span>
-                <p class="font-extrabold text-base text-slate-900 mt-0.5 break-words">${title}${catalogBadge}</p>
-                ${varian ? `<p class="text-xs text-slate-500 font-semibold">${esc(varian)}</p>` : ""}
-                ${photoAction}
-              </div>
+          <div class="flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
+            <div><span class="font-extrabold text-xs text-blue-900">${code}</span>${costCodeBadge}</div>
+            <span class="stock-indicator ${badge}">Sisa: ${stock} Pcs</span>
+          </div>
+          <div class="flex items-center gap-3 min-w-0">
+            ${productImageMarkup(item, "w-16 h-16 rounded-2xl border border-slate-200 shrink-0", 160)}
+            <div class="min-w-0">
+              <p class="font-extrabold text-base text-slate-900 break-words">${title}</p>
+              ${varian ? `<p class="text-xs font-semibold text-slate-500 mt-0.5">${varian}</p>` : ""}
+              <div class="mt-1.5 flex flex-wrap items-center gap-1.5">${catalogState}${statusButtons}</div>
+              ${photoAction}
             </div>
-            <span class="stock-indicator ${badge}">${stock} Pcs</span>
           </div>
-          <div class="grid grid-cols-3 gap-2 bg-slate-50 p-2.5 rounded-xl text-xs">
-            <div>Modal<span class="block font-bold text-slate-800 tabular-nums">${rp(cost)}</span></div>
-            <div>Jual<span class="block font-extrabold text-slate-900 tabular-nums">${rp(price)}</span></div>
-            <div>Untung<span class="block font-bold text-emerald-700 tabular-nums">${rp(price - cost)}</span></div>
+          <div class="grid grid-cols-3 gap-2 bg-slate-50 p-2.5 rounded-xl text-xs font-semibold text-center">
+            <div>Modal<br><strong class="text-slate-800">${rp(cost)}</strong></div>
+            <div>Jual<br><strong class="text-emerald-800">${rp(price)}</strong></div>
+            <div>Untung<br><strong class="text-blue-800">${rp(price - cost)}</strong></div>
           </div>
-          <div class="flex items-center justify-end gap-2 flex-wrap">
-            <button type="button" onclick="window.openProductQr('${esc(item.id)}')" class="py-2 px-3 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-950 font-extrabold text-xs cursor-pointer flex items-center gap-1.5"><i class="fa-solid fa-qrcode"></i><span>Stiker QR</span></button>
-            <button type="button" onclick="window.editInventoryItem('${esc(item.id)}')" class="py-2 px-3 rounded-xl bg-blue-100 hover:bg-blue-200 text-blue-900 font-extrabold text-xs cursor-pointer ${delClass}">Ubah</button>
-            ${archiveAction}
-            <button type="button" onclick="window.promptDeleteItem('${esc(item.id)}', 'inventory', '${esc(item.name || "")}')" class="py-2 px-3 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-900 font-extrabold text-xs cursor-pointer ${delClass}">Hapus</button>
+          <div class="flex gap-2">
+            <button type="button" onclick="window.openProductQrModal('${esc(item.id)}')" class="flex-1 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs cursor-pointer"><i class="fa-solid fa-qrcode mr-1"></i>Stiker QR</button>
+            <button type="button" onclick="window.editInventoryItem('${esc(item.id)}')" class="px-3.5 py-2.5 rounded-xl bg-blue-100 text-blue-800 font-bold text-xs cursor-pointer ${delClass}">Ubah</button>
+            <button type="button" onclick="window.promptDelete('${esc(item.id)}', 'inventory')" aria-label="Hapus barang" class="px-3.5 py-2.5 rounded-xl bg-rose-100 text-rose-700 font-bold text-xs cursor-pointer ${delClass}"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
           </div>`;
         listDiv.appendChild(card);
       });
     }
 
-    const activeNiimbotLabel = () => niimbotLabelSizes[document.querySelector(".niimbot-size-btn[aria-pressed='true']")?.dataset.labelSize] || niimbotLabelSizes["50x30"];
-
-    function updateNiimbotCostCodeOption() {
-      const option = document.getElementById("niimbotCostCodeOption");
-      const toggle = document.getElementById("niimbotIncludeCostCode");
-      const code = isAdmin && activeQrProduct ? productCostCode(activeQrProduct.cost, costCodeDigits) : "";
-      option.hidden = !code;
-      document.getElementById("niimbotCostCodeLabel").textContent = code ? `Cetak kode modal (${code})` : "Cetak kode modal";
-      if (!code) toggle.checked = false;
+    function openInventoryTool(title, rows, emptyText) {
+      document.getElementById("inventoryToolTitle").textContent = title;
+      document.getElementById("inventoryToolStatus").textContent = "";
+      document.getElementById("inventoryToolContent").innerHTML = rows.length
+        ? `<div class="space-y-2.5">${rows.join("")}</div>`
+        : `<p class="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">${esc(emptyText)}</p>`;
+      document.getElementById("inventoryToolDialog").showModal();
     }
 
-    function renderNiimbotLabel(preview = false) {
-      if (!isAdmin || !activeQrProduct) return;
-      const size = activeNiimbotLabel();
-      const margin = Number(document.getElementById("niimbotMargin").value);
-      const code = document.getElementById("niimbotIncludeCostCode").checked ? productCostCode(activeQrProduct.cost, costCodeDigits) : "";
-      const product = { ...activeQrProduct, costCode: code };
-      const qrBox = document.getElementById("qrCodeRenderTarget");
-      const canvas = preview ? document.getElementById("niimbotPreviewCanvas") : document.createElement("canvas");
-      qrBox.innerHTML = "";
-      new QRCode(qrBox, { text: activeQrProduct.code || activeQrProduct.name, width: 320, height: 320, colorDark: "#000000", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.H });
-      const qrSource = qrBox.querySelector("canvas") || qrBox.querySelector("img");
-      if (preview) {
-        const frame = document.getElementById("niimbotPreviewFrame");
-        frame.dataset.labelSize = size.id;
-        canvas.width = size.width;
-        canvas.height = size.height;
-      }
-      drawNiimbotLabel(canvas, product, qrSource, { size, marginMm: margin, showSafeArea: preview });
-      if (!preview) return canvas;
-      const printCanvas = document.querySelector("#stickerPrintSheet canvas");
-      printCanvas.width = size.width;
-      printCanvas.height = size.height;
-      drawNiimbotLabel(printCanvas, product, qrSource, { size, marginMm: margin });
-      document.getElementById("niimbotPrintHint").textContent = `Di aplikasi NIIMBOT, pilih ${size.widthMm} × ${size.heightMm} mm dan pasangkan seluruh PNG ke bidang label. Jika cetak dari browser, pilih ukuran kertas yang sama dan skala 100%.`;
+    function openReorderList() {
+      const low = activeInventory().filter(item => Number(item.stock || 0) < LOW_STOCK_LIMIT)
+        .sort((a, b) => Number(a.stock || 0) - Number(b.stock || 0));
+      openInventoryTool("Daftar belanja stok", low.map(item => `<div class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-slate-200 p-3">
+        <div><p class="font-bold">${esc(item.name || "")}</p><p class="text-sm text-slate-600">${esc(item.code || "")} · Sisa ${Number(item.stock || 0)} pcs · Modal ${rp(item.cost)}</p></div>
+        <button type="button" data-tool-restock="${esc(item.id)}" class="shop-button shop-button-primary">Catat belanja</button>
+      </div>`), "Tidak ada barang dengan stok menipis.");
     }
 
-    function refreshOpenNiimbotLabel() {
-      if (!isAdmin || document.getElementById("productQrModal").classList.contains("hidden") || !activeQrProduct) return;
-      activeQrProduct = inventory.find(item => item.id === activeQrProduct.id) || activeQrProduct;
-      updateNiimbotCostCodeOption();
-      renderNiimbotLabel(true);
-    }
-
-    window.openProductQr = function (invId) {
-      const item = inventory.find(i => i.id === invId);
-      if (!isAdmin || !item) return;
-      activeQrProduct = item;
-      updateNiimbotCostCodeOption();
-      document.getElementById("productQrModal").classList.remove("hidden");
-      renderNiimbotLabel(true);
-    };
-
-    function openCostCodeSettings() {
-      if (!isAdmin) return;
-      const fields = document.getElementById("costCodeDigitFields");
-      fields.querySelectorAll("label").forEach(field => field.remove());
-      for (const digit of "1234567890") {
-        const field = document.createElement("label");
-        field.className = "block text-center text-sm font-bold text-slate-800";
-        field.textContent = digit;
-        const input = document.createElement("input");
-        input.type = "text";
-        input.name = "digit-" + digit;
-        input.maxLength = 1;
-        input.pattern = "[A-Za-z]";
-        input.required = true;
-        input.autocomplete = "off";
-        input.spellcheck = false;
-        input.value = costCodeDigits[Number(digit)] || "";
-        input.className = "mt-1 w-full rounded-xl border border-slate-300 bg-white py-2 text-center font-mono text-base font-extrabold uppercase text-slate-900";
-        field.appendChild(input);
-        fields.appendChild(field);
-      }
-      openWorkspaceDialog("costCodeDialog");
-      fields.querySelector("input")?.focus();
-    }
-
-    function wireCostCodeSettings() {
-      const dialog = document.getElementById("costCodeDialog");
-      const form = document.getElementById("costCodeForm");
-      const status = dialog.querySelector("[data-dialog-status]");
-      const submit = form.querySelector('button[type="submit"]');
-      const close = dialog.querySelector(".workspace-dialog-close");
-      const inputs = () => [...form.querySelectorAll('input[name^="digit-"]')];
-      dialog.addEventListener("cancel", event => {
-        if (submit.disabled) event.preventDefault();
+    function openSalePhotoPicker(saleId, lineIndex) {
+      const sale = transactions.find(row => row.id === saleId);
+      const item = sale?.items?.[lineIndex];
+      if (!sale || !item) return;
+      const query = normalizedProductName(item.name);
+      const candidates = [...inventory].sort((a, b) => {
+        const aScore = (productImageUrl(a) ? 0 : 10) + (query && normalizedProductName(a.name).includes(query) ? 0 : 5);
+        const bScore = (productImageUrl(b) ? 0 : 10) + (query && normalizedProductName(b.name).includes(query) ? 0 : 5);
+        return aScore - bScore || String(a.name || "").localeCompare(String(b.name || ""), "id");
       });
-      form.addEventListener("input", event => {
-        const input = event.target;
-        if (input instanceof HTMLInputElement) input.value = input.value.replace(/[^A-Za-z]/g, "").toUpperCase();
-      });
-      form.addEventListener("submit", async event => {
-        event.preventDefault();
-        if (!isAdmin || !db || submit.disabled) return;
-        const entered = new Array(10).fill("");
-        for (const input of inputs()) {
-          const digit = Number(input.name.slice(6));
-          entered[digit] = input.value.trim().toUpperCase();
+      openInventoryTool(`Pilih foto untuk ${item.name || "barang"}`, candidates.map(product => `<div class="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 p-3">
+        <div class="flex min-w-0 items-center gap-3">${productImageMarkup(product, "h-12 w-12 shrink-0 rounded-xl border border-slate-200", 160)}
+        <div class="min-w-0"><p class="truncate font-bold">${esc(product.name || "")}</p><p class="text-xs text-slate-600">${esc(product.code || "")}${productImageUrl(product) ? "" : " · Belum ada foto"}</p></div></div>
+        <button type="button" data-link-sale="${esc(sale.id)}" data-link-line="${lineIndex}" data-link-product="${esc(product.id)}" ${productImageUrl(product) ? "" : "disabled"} class="shop-button shop-button-primary shrink-0 disabled:opacity-40">Pakai foto</button>
+      </div>`), "Belum ada barang di stok.");
+    }
+
+    function wireInventoryTools() {
+      const dialog = document.getElementById("inventoryToolDialog");
+      document.getElementById("openReorderList").addEventListener("click", openReorderList);
+      document.getElementById("inventoryLedger").addEventListener("click", async event => {
+        const archive = event.target.closest("[data-archive-item]");
+        const restore = event.target.closest("[data-restore-item]");
+        const id = archive?.dataset.archiveItem || restore?.dataset.restoreItem;
+        if (!id || !isAdmin || !db) return;
+        const item = inventory.find(product => product.id === id);
+        if (!item) return;
+        if (archive && !window.confirm(`Arsipkan ${item.name || "barang"} dari katalog, kasir, dan stok aktif?`)) return;
+        const archivedAt = archive ? new Date().toISOString() : "";
+        try {
+          await runTransaction(db, async transaction => {
+            const publicRef = doc(db, "publicCatalog", id);
+            const published = await transaction.get(publicRef);
+            transaction.set(doc(db, ...paths("inventory", id)), { archivedAt, updatedAt: new Date().toISOString() }, { merge: true });
+            if (archive && published.exists()) transaction.delete(publicRef);
+          });
+          showToast(archive ? "Barang diarsipkan." : "Barang dipulihkan.");
+        } catch {
+          showToast("Gagal memperbarui status barang.");
         }
-        const digits = normalizeCostCodeDigits(entered.join(""));
-        if (!digits) {
-          status.textContent = "Isi 10 huruf berbeda dari A sampai Z untuk setiap angka.";
+      });
+      document.getElementById("salesReportRows").addEventListener("click", event => {
+        const button = event.target.closest("[data-sale-photo-tx]");
+        if (button) openSalePhotoPicker(button.dataset.salePhotoTx, Number(button.dataset.salePhotoLine));
+      });
+      dialog.addEventListener("click", async event => {
+        const restock = event.target.closest("[data-tool-restock]");
+        if (restock) {
+          dialog.close();
+          document.getElementById("restockItem").value = restock.dataset.toolRestock;
+          openWorkspaceDialog("restockCard");
+          document.getElementById("restockQty").focus();
           return;
         }
-        submit.disabled = close.disabled = true;
-        for (const input of inputs()) input.disabled = true;
-        status.textContent = "Menyimpan kode modal…";
+        const link = event.target.closest("[data-link-sale]");
+        if (!link || !isAdmin || !db) return;
+        const product = inventory.find(item => item.id === link.dataset.linkProduct);
+        if (!product) return;
+        link.disabled = true;
+        document.getElementById("inventoryToolStatus").textContent = "Menyimpan foto...";
         try {
-          if (!await saveConfig({ costCodeDigits: digits })) throw new Error();
-          costCodeDigits = digits;
-          renderInventory();
-          refreshOpenNiimbotLabel();
-          if (dialog.open) dialog.close();
-          if (isAdmin) showToast("Kode modal diperbarui.");
+          const lineIndex = Number(link.dataset.linkLine);
+          await runTransaction(db, async transaction => {
+            const saleRef = doc(db, ...paths("transactions", link.dataset.linkSale));
+            const snapshot = await transaction.get(saleRef);
+            const items = [...(snapshot.data()?.items || [])];
+            if (!items[lineIndex]) throw new Error("Baris penjualan tidak ditemukan");
+            items[lineIndex] = { ...items[lineIndex], photoInventoryId: product.id, imageUrl: productImageUrl(product) };
+            transaction.update(saleRef, { items });
+          });
+          dialog.close();
+          showToast("Foto penjualan diperbarui.");
         } catch {
-          status.textContent = "Kode modal gagal disimpan. Periksa koneksi dan coba lagi.";
-        } finally {
-          submit.disabled = close.disabled = false;
-          for (const input of inputs()) input.disabled = false;
+          link.disabled = false;
+          document.getElementById("inventoryToolStatus").textContent = "Gagal menyimpan foto.";
         }
       });
     }
@@ -4142,302 +4096,541 @@
       const dialog = document.getElementById(id);
       const status = dialog.querySelector("[data-dialog-status]");
       if (status) status.textContent = "";
-      dialog.showModal();
+      dialog.classList.remove("hidden");
+      if (!dialog.open) dialog.showModal();
     }
 
-    function openProductBreakdownModal() {
-      const filtered = reportSales();
-      const map = new Map();
-      filtered.forEach(tx => (tx.items || []).forEach(it => {
-        const key = it.name || "Barang Lain";
-        const cur = map.get(key) || { name: key, qty: 0, omset: 0, profit: 0 };
-        const qty = Number(it.qty || 0), price = Number(it.price || 0), cost = Number(it.cost || 0);
-        cur.qty += qty;
-        cur.omset += price * qty;
-        cur.profit += (price - cost) * qty;
-        map.set(key, cur);
-      }));
-      const items = [...map.values()].sort((a, b) => b.qty - a.qty);
-      document.getElementById("productBreakdownList").innerHTML = items.length === 0
-        ? `<p class="text-center text-slate-400 py-8 text-sm">Belum ada barang terjual pada periode ini.</p>`
-        : items.map((it, idx) => `
-          <div class="py-3 flex items-center justify-between gap-3">
-            <div>
-              <span class="text-xs font-extrabold text-blue-700 mr-1.5">#${idx + 1}</span>
-              <span class="font-bold text-sm text-slate-800">${esc(it.name)}</span>
-              <p class="text-xs text-slate-500 mt-0.5">Omzet: ${rp(it.omset)} • Untung: <span class="text-emerald-700 font-bold">${rp(it.profit)}</span></p>
-            </div>
-            <span class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-800 font-extrabold text-xs shrink-0">${it.qty} Pcs</span>
-          </div>`).join("");
-      document.getElementById("productBreakdownModal").classList.remove("hidden");
+    let selectedNiimbotSize = "50x30";
+    let lastStickerCanvas = null;
+
+    function niimbotMarginMm() {
+      return Number(document.getElementById("niimbotMargin")?.value) || 4;
+    }
+
+    function niimbotQrUrl(product) {
+      const base = location.origin.startsWith("http") ? location.origin : "https://suryajaya-sport.github.io";
+      const url = new URL("/produk/", base);
+      if (product?.id) url.searchParams.set("id", product.id);
+      return url.toString();
+    }
+
+    function updateNiimbotCostCodeOption(product) {
+      const option = document.getElementById("niimbotCostCodeOption");
+      const checkbox = document.getElementById("niimbotIncludeCostCode");
+      const label = document.getElementById("niimbotCostCodeLabel");
+      const code = isAdmin ? productCostCode(product?.cost, costCodeDigits) : "";
+      option.hidden = !code;
+      if (!code) {
+        checkbox.checked = false;
+        label.textContent = "Cetak kode modal";
+        return "";
+      }
+      label.textContent = `Cetak kode modal (${code})`;
+      return checkbox.checked ? code : "";
+    }
+
+    function niimbotLabelData(product) {
+      const costCode = updateNiimbotCostCodeOption(product);
+      return {
+        shopName,
+        code: product.code || "",
+        costCode,
+        name: product.name || "",
+        variant: [product.size, product.color].filter(Boolean).join(" • "),
+        priceText: rp(product.price),
+        qrText: niimbotQrUrl(product)
+      };
+    }
+
+    function niimbotSizeText(sizeKey) {
+      return sizeKey.replace("x", " × ") + " mm";
+    }
+
+    function updateNiimbotPrintHint() {
+      const label = niimbotSizeText(selectedNiimbotSize);
+      document.getElementById("niimbotPrintHint").textContent =
+        `Di aplikasi NIIMBOT, pilih ${label} dan pasangkan seluruh PNG ke bidang label. Jika cetak dari browser, pilih ukuran kertas yang sama dan skala 100%.`;
+    }
+
+    function syncNiimbotSizeButtons() {
+      for (const button of document.querySelectorAll(".niimbot-size-btn")) {
+        button.setAttribute("aria-pressed", String(button.dataset.labelSize === selectedNiimbotSize));
+      }
+    }
+
+    function renderNiimbotLabel(product) {
+      const size = niimbotLabelSizes[selectedNiimbotSize] || niimbotLabelSizes["50x30"];
+      const frame = document.getElementById("niimbotPreviewFrame");
+      const previewCanvas = document.getElementById("niimbotPreviewCanvas");
+      const renderTarget = document.getElementById("qrCodeRenderTarget");
+      const marginMm = niimbotMarginMm();
+
+      frame.dataset.labelSize = selectedNiimbotSize;
+      previewCanvas.width = size.width;
+      previewCanvas.height = size.height;
+      renderTarget.innerHTML = "";
+
+      const data = niimbotLabelData(product);
+      new QRCode(renderTarget, {
+        text: data.qrText,
+        width: size.qrSourceSize,
+        height: size.qrSourceSize,
+        colorDark: "#000000",
+        colorLight: "#ffffff",
+        correctLevel: QRCode.CorrectLevel.H
+      });
+      const qrSource = renderTarget.querySelector("canvas") || renderTarget.querySelector("img");
+      drawNiimbotLabel(previewCanvas, qrSource, data, selectedNiimbotSize, { showGuides: true, marginMm });
+
+      const cleanCanvas = document.createElement("canvas");
+      cleanCanvas.width = size.width;
+      cleanCanvas.height = size.height;
+      drawNiimbotLabel(cleanCanvas, qrSource, data, selectedNiimbotSize, { showGuides: false, marginMm });
+      lastStickerCanvas = cleanCanvas;
+
+      syncNiimbotSizeButtons();
+      updateNiimbotPrintHint();
+    }
+
+    function refreshOpenNiimbotLabel() {
+      if (!isAdmin || !activeQrProduct || document.getElementById("productQrModal").classList.contains("hidden")) return;
+      const latest = inventory.find(item => item.id === activeQrProduct.id);
+      if (!latest) return;
+      activeQrProduct = latest;
+      renderNiimbotLabel(latest);
+    }
+
+    function wireCostCodeSettings() {
+      const dialog = document.getElementById("costCodeDialog");
+      const form = document.getElementById("costCodeForm");
+      const fieldset = document.getElementById("costCodeDigitFields");
+      const status = dialog.querySelector("[data-dialog-status]");
+      const submit = form.querySelector('button[type="submit"]');
+      const close = dialog.querySelector(".workspace-dialog-close");
+      const inputs = [];
+
+      for (let digit = 0; digit < 10; digit++) {
+        const label = document.createElement("label");
+        label.className = "rounded-xl border border-slate-200 bg-slate-50 p-2 text-center text-sm font-extrabold text-slate-800";
+        label.textContent = String(digit);
+        const input = document.createElement("input");
+        input.type = "text";
+        input.name = "digit" + digit;
+        input.maxLength = 1;
+        input.required = true;
+        input.autocomplete = "off";
+        input.autocapitalize = "characters";
+        input.spellcheck = false;
+        input.ariaLabel = "Huruf untuk angka " + digit;
+        input.className = "mt-1 w-full rounded-lg border border-slate-300 bg-white p-1.5 text-center font-mono text-base font-extrabold uppercase text-blue-950";
+        input.addEventListener("input", () => {
+          input.value = input.value.replace(/[^A-Za-z]/g, "").toUpperCase().slice(0, 1);
+          status.textContent = "";
+        });
+        label.append(input);
+        fieldset.append(label);
+        inputs.push(input);
+      }
+
+      document.getElementById("openCostCodeSettings").addEventListener("click", () => {
+        if (!isAdmin) return;
+        inputs.forEach((input, digit) => {
+          input.value = costCodeDigits[digit] || "";
+        });
+        openWorkspaceDialog("costCodeDialog");
+        inputs[0].focus();
+      });
+
+      form.addEventListener("submit", async event => {
+        event.preventDefault();
+        if (!isAdmin || !db || submit.disabled) return;
+        const nextDigits = normalizeCostCodeDigits(inputs.map(input => input.value).join(""));
+        if (!nextDigits) {
+          status.textContent = "Isi 10 huruf A–Z yang semuanya berbeda.";
+          return;
+        }
+        submit.disabled = close.disabled = true;
+        for (const input of inputs) input.disabled = true;
+        status.textContent = "Menyimpan kode modal…";
+        try {
+          const saved = await saveConfig({ costCodeDigits: nextDigits });
+          if (!saved) throw new Error("Gagal menyimpan kode modal.");
+          costCodeDigits = nextDigits;
+          renderInventory();
+          refreshOpenNiimbotLabel();
+          if (dialog.open) dialog.close();
+          if (isAdmin) showToast("Kode modal disimpan.");
+        } catch {
+          status.textContent = "Gagal menyimpan kode modal. Periksa koneksi dan coba lagi.";
+        } finally {
+          submit.disabled = close.disabled = false;
+          for (const input of inputs) input.disabled = false;
+        }
+      });
+    }
+
+    window.openProductQrModal = function (id) {
+      const p = inventory.find(i => i.id === id);
+      if (!p) return;
+      activeQrProduct = p;
+      renderNiimbotLabel(p);
+      document.getElementById("productQrModal").classList.remove("hidden");
+    };
+
+    function sanitizeFilenamePart(value, fallback) {
+      return String(value || fallback)
+        .trim()
+        .replace(/[^a-zA-Z0-9._-]+/g, "-")
+        .replace(/^-+|-+$/g, "") || fallback;
+    }
+
+    function downloadStickerPng() {
+      if (!lastStickerCanvas || !activeQrProduct) return;
+      const bytes = encodeNiimbotPng(lastStickerCanvas);
+      const blob = new Blob([bytes], { type: "image/png" });
+      const url = URL.createObjectURL(blob);
+      const code = sanitizeFilenamePart(activeQrProduct.code, "label");
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `label-niimbot-${code}-${selectedNiimbotSize}.png`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function printStickerLabel() {
+      if (!lastStickerCanvas) return;
+      const size = niimbotLabelSizes[selectedNiimbotSize] || niimbotLabelSizes["50x30"];
+      const printSheet = document.getElementById("stickerPrintSheet");
+      const printCanvas = printSheet.querySelector("canvas");
+      const dynamicPageStyle = document.getElementById("dynamicStickerPageStyle") || document.createElement("style");
+
+      printCanvas.width = lastStickerCanvas.width;
+      printCanvas.height = lastStickerCanvas.height;
+      printCanvas.style.width = `${size.widthMm}mm`;
+      printCanvas.style.height = `${size.heightMm}mm`;
+      printCanvas.getContext("2d").drawImage(lastStickerCanvas, 0, 0);
+
+      dynamicPageStyle.id = "dynamicStickerPageStyle";
+      dynamicPageStyle.textContent = `@media print { @page { size: ${size.widthMm}mm ${size.heightMm}mm; margin: 0; } }`;
+      document.head.appendChild(dynamicPageStyle);
+
+      try {
+        printDocument("sticker");
+      } finally {
+        dynamicPageStyle.remove();
+      }
     }
 
     function openDailyRecapModal() {
+      const list = document.getElementById("dailyRecapList");
+      list.innerHTML = "";
       const map = new Map();
       transactions.forEach(tx => {
-        const d = tx.date || "Tanpa Tanggal";
-        const cur = map.get(d) || { date: d, count: 0, omset: 0, profit: 0 };
-        cur.count++;
-        cur.omset += Number(tx.totalOmset || 0);
-        cur.profit += Number(tx.totalProfit || 0);
-        map.set(d, cur);
+        const d = tx.date || "Tidak Diketahui";
+        if (!map.has(d)) map.set(d, { count: 0, omset: 0, profit: 0 });
+        const cur = map.get(d);
+        cur.count++; cur.omset += Number(tx.totalOmset || 0); cur.profit += Number(tx.totalProfit || 0);
       });
-      const days = [...map.values()].sort((a, b) => b.date.localeCompare(a.date));
-      document.getElementById("dailyRecapList").innerHTML = days.length === 0
-        ? `<p class="text-center text-slate-400 py-8 text-sm">Belum ada riwayat penjualan tersimpan.</p>`
-        : days.map(d => `
-          <div class="py-3 flex items-center justify-between gap-2 hover:bg-slate-50 px-2 rounded-xl cursor-pointer transition" onclick="window.selectRecapDate('${esc(d.date)}')">
+      const days = [...map.entries()].sort((a, b) => b[0].localeCompare(a[0]));
+      if (!days.length) {
+        list.innerHTML = `<p class="text-sm text-slate-500 text-center py-8">Belum ada catatan penjualan sama sekali.</p>`;
+      } else {
+        days.forEach(([d, info]) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "w-full text-left py-3 px-3 rounded-xl hover:bg-blue-50 flex items-center justify-between gap-2 transition cursor-pointer";
+          btn.innerHTML = `
             <div>
-              <p class="font-extrabold text-sm text-slate-800">${parseLocalDate(d.date).toLocaleDateString("id-ID", { dateStyle: "full" })}</p>
-              <p class="text-xs text-slate-500">${d.count} transaksi • Untung <span class="text-emerald-700 font-bold">${rp(d.profit)}</span></p>
+              <p class="font-extrabold text-sm text-slate-900">${parseLocalDate(d).toLocaleDateString("id-ID", { dateStyle: "full" })}</p>
+              <p class="text-xs text-slate-500 font-semibold">${info.count} transaksi tercatat</p>
             </div>
             <div class="text-right">
-              <p class="font-extrabold text-sm text-blue-700">${rp(d.omset)}</p>
-              <span class="text-[11px] font-bold text-slate-400">Lihat &rarr;</span>
-            </div>
-          </div>`).join("");
+              <p class="font-extrabold text-sm text-slate-900 tabular-nums">${rp(info.omset)}</p>
+              <p class="text-xs font-extrabold text-emerald-700 tabular-nums">Untung: ${rp(info.profit)}</p>
+            </div>`;
+          btn.onclick = () => {
+            selectedDateStr = d;
+            document.getElementById("bookDatePicker").value = d;
+            setViewMode("day");
+            document.getElementById("dailyRecapModal").classList.add("hidden");
+          };
+          list.appendChild(btn);
+        });
+      }
       document.getElementById("dailyRecapModal").classList.remove("hidden");
     }
 
-    window.selectRecapDate = function (dateStr) {
-      selectedDateStr = dateStr;
-      currentViewMode = "day";
-      document.getElementById("bookDatePicker").value = dateStr;
-      document.getElementById("dailyRecapModal").classList.add("hidden");
-      updateViewModeButtons();
-      renderTransactions();
-    };
+    function openProductBreakdownModal() {
+      const list = document.getElementById("productBreakdownList");
+      list.innerHTML = "";
+      const map = new Map();
+      reportSales().forEach(tx => {
+        (tx.items || []).forEach(it => {
+          const key = (it.name || "-").trim();
+          if (!map.has(key)) map.set(key, { qty: 0, omset: 0, profit: 0 });
+          const cur = map.get(key);
+          const q = Number(it.qty || 0);
+          cur.qty += q; cur.omset += Number(it.price || 0) * q; cur.profit += (Number(it.price || 0) - Number(it.cost || 0)) * q;
+        });
+      });
+      const rows = [...map.entries()].sort((a, b) => b[1].qty - a[1].qty);
+      if (!rows.length) {
+        list.innerHTML = `<p class="text-sm text-slate-500 text-center py-8">Belum ada barang terjual pada tampilan ini.</p>`;
+      } else {
+        rows.forEach(([name, info]) => {
+          const div = document.createElement("div");
+          div.className = "py-3 flex items-center justify-between gap-3";
+          div.innerHTML = `
+            <div>
+              <p class="font-extrabold text-sm text-slate-900">${esc(name)}</p>
+              <p class="text-xs text-slate-500 font-semibold">Omzet: ${rp(info.omset)}</p>
+            </div>
+            <div class="text-right">
+              <span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-indigo-100 text-indigo-900">${info.qty} Pcs</span>
+              <p class="text-xs font-extrabold text-emerald-700 mt-1 tabular-nums">+${rp(info.profit)}</p>
+            </div>`;
+          list.appendChild(div);
+        });
+      }
+      document.getElementById("productBreakdownModal").classList.remove("hidden");
+    }
 
-    function updateViewModeButtons() {
-      const btnToday = document.getElementById("btnTodayMode");
+    function setViewMode(mode) {
+      currentViewMode = mode;
+      const btnDay = document.getElementById("btnTodayMode");
       const btnAll = document.getElementById("btnAllDaysMode");
-      if (currentViewMode === "day") {
-        btnToday.className = "flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-sm font-extrabold bg-blue-700 text-white shadow-sm transition cursor-pointer flex items-center justify-center gap-1.5";
+      if (mode === "day") {
+        btnDay.className = "flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-sm font-extrabold bg-blue-700 text-white shadow-sm transition cursor-pointer flex items-center justify-center gap-1.5";
         btnAll.className = "flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-sm font-extrabold bg-slate-100 text-slate-800 border border-slate-200 hover:bg-slate-200 transition cursor-pointer flex items-center justify-center gap-1.5";
       } else {
         btnAll.className = "flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-sm font-extrabold bg-blue-700 text-white shadow-sm transition cursor-pointer flex items-center justify-center gap-1.5";
-        btnToday.className = "flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-sm font-extrabold bg-slate-100 text-slate-800 border border-slate-200 hover:bg-slate-200 transition cursor-pointer flex items-center justify-center gap-1.5";
+        btnDay.className = "flex-1 sm:flex-initial px-4 py-2.5 rounded-xl text-sm font-extrabold bg-slate-100 text-slate-800 border border-slate-200 hover:bg-slate-200 transition cursor-pointer flex items-center justify-center gap-1.5";
+      }
+      renderTransactions();
+    }
+
+    const workspaces = {
+      kasir: { button: "tabBtnKasir", panel: "viewKasir", heading: "cashierTitle" },
+      sales: { button: "tabBtnSales", panel: "viewKasir", heading: "salesHistoryTitle" },
+      inventory: { button: "tabBtnInventory", panel: "viewInventory", heading: "inventoryWorkspaceTitle" },
+      books: { button: "tabBtnBooks", panel: "viewBooks", heading: "ownerBooksTitle" },
+      backup: { button: "tabBtnBackup", panel: "viewBackup", heading: "backupWorkspaceTitle" },
+      catalog: { button: "tabBtnCatalog", panel: "viewCatalog", heading: "catalogPageTitle" }
+    };
+    let activeWorkspace = "catalog";
+
+    function switchWorkspace(tab, focusHeading = false) {
+      const requested = Object.hasOwn(workspaces, tab) ? tab : "catalog";
+      const next = isAdmin ? requested : "catalog";
+      activeWorkspace = next;
+      const targetPanel = workspaces[next].panel;
+      for (const [key, { button, panel }] of Object.entries(workspaces)) {
+        const selected = key === next;
+        document.getElementById(button).setAttribute("aria-current", selected ? "page" : "false");
+        document.getElementById(panel).classList.toggle("hidden", panel !== targetPanel);
+      }
+      document.getElementById("cashierWorkspace").hidden = !isAdmin || next !== "kasir";
+      document.getElementById("salesHistoryWorkspace").hidden = !isAdmin || next !== "sales";
+      if (next === "sales") renderTransactions();
+      if (focusHeading) {
+        document.getElementById(workspaces[next].heading)?.focus({ preventScroll: true });
       }
     }
 
     function updateAdminUI() {
-      const badge = document.getElementById("adminModeBadge");
-      const icon = document.getElementById("adminModeIcon");
-      const text = document.getElementById("adminModeText");
+      document.body.classList.toggle("sjs-admin", isAdmin);
       document.getElementById("mainNavigation").hidden = !isAdmin;
       document.getElementById("syncStatusBadge").classList.toggle("hidden", !isAdmin);
       document.getElementById("currentDateBadge").classList.toggle("hidden", !isAdmin);
-      document.getElementById("shopHeaderTrigger").classList.toggle("hidden", !isAdmin);
       document.getElementById("sjsAiFab").classList.toggle("hidden", !isAdmin);
       if (!isAdmin) document.getElementById("sjsAiBox").classList.add("hidden");
-      document.body.classList.toggle("sjs-admin", isAdmin);
-      if (isAdmin) {
-        badge.className = "shop-owner-button";
-        badge.title = "Mode Pemilik Aktif";
-        icon.className = "fa-solid fa-unlock text-emerald-700";
-        text.textContent = "Pemilik Aktif";
-        document.getElementById("adminLoginPanel").classList.add("hidden");
-        document.getElementById("adminActivePanel").classList.remove("hidden");
-        document.getElementById("salesEntryCard").classList.remove("hidden");
-        document.getElementById("readOnlyBannerKasir").classList.add("hidden");
-        document.getElementById("readOnlyBannerInv").classList.add("hidden");
-        document.getElementById("thTxAction").classList.remove("hidden");
-        switchWorkspace("kasir");
-      } else {
-        badge.className = "shop-owner-button";
-        badge.title = "Masuk untuk mengelola toko";
-        icon.className = "fa-solid fa-lock text-amber-400";
-        text.textContent = "Login Pemilik";
-        document.getElementById("adminLoginPanel").classList.remove("hidden");
-        document.getElementById("adminActivePanel").classList.add("hidden");
-        document.getElementById("salesEntryCard").classList.add("hidden");
-        document.getElementById("readOnlyBannerKasir").classList.remove("hidden");
-        document.getElementById("readOnlyBannerInv").classList.remove("hidden");
-        document.getElementById("thTxAction").classList.add("hidden");
-        switchWorkspace("catalog");
-      }
+      if (isAdmin && activeWorkspace === "catalog") switchWorkspace("kasir");
+      else switchWorkspace(activeWorkspace);
+      document.getElementById("adminModeText").textContent = isAdmin ? "Admin Aktif" : "Login Pemilik";
+      document.getElementById("adminModeIcon").className = isAdmin ? "fa-solid fa-unlock-keyhole" : "fa-solid fa-lock";
+      document.getElementById("shopHeaderTrigger").classList.toggle("hidden", !isAdmin);
+      document.getElementById("readOnlyBannerKasir").classList.toggle("hidden", isAdmin);
+      document.getElementById("salesEntryCard").classList.toggle("hidden", !isAdmin);
+      document.getElementById("readOnlyBannerInv").classList.toggle("hidden", isAdmin);
+      document.getElementById("thTxAction").classList.toggle("hidden", !isAdmin);
+      document.getElementById("adminLoginPanel").classList.toggle("hidden", isAdmin);
+      document.getElementById("adminActivePanel").classList.toggle("hidden", !isAdmin);
       renderApp();
     }
 
-    function openDeleteModal(id, type, title, desc) {
-      deleteTargetId = id;
-      deleteTargetType = type;
-      const cancelSale = type === "transaction";
-      document.getElementById("deleteModalTitle").textContent = title;
-      document.getElementById("deleteModalDesc").textContent = desc;
-      document.getElementById("cancelReasonField").classList.toggle("hidden", !cancelSale);
-      document.getElementById("cancelReasonInput").value = "";
-      document.getElementById("btnConfirmDelete").textContent = cancelSale ? "Batalkan transaksi" : "Ya, Hapus";
-      document.getElementById("deleteConfirmModal").classList.remove("hidden");
-      if (cancelSale) document.getElementById("cancelReasonInput").focus();
-    }
-
     window.promptCancelSale = function (id) {
-      const tx = transactions.find(t => t.id === id);
-      if (!isAdmin || !tx) return;
-      openDeleteModal(
-        id,
-        "transaction",
-        "Batalkan Transaksi Ini?",
-        `Penjualan ${receiptNumber(tx)} (${rp(tx.totalOmset)}) akan dibatalkan dan stok barang akan dikembalikan otomatis.`
-      );
+      if (!isAdmin) return;
+      deleteTargetId = id;
+      deleteTargetType = "transaction";
+      document.getElementById("deleteModalTitle").textContent = "Batalkan Penjualan Ini?";
+      document.getElementById("deleteModalDesc").textContent = "Transaksi akan ditandai batal, stok barang yang terjual dikembalikan, dan catatan tetap tersimpan.";
+      document.getElementById("cancelReasonField").classList.remove("hidden");
+      document.getElementById("cancelReasonInput").value = "";
+      document.getElementById("btnConfirmDelete").textContent = "Ya, Batalkan";
+      document.getElementById("deleteConfirmModal").classList.remove("hidden");
+      document.getElementById("cancelReasonInput").focus();
     };
 
-    window.promptDeleteItem = function (id, type, name) {
+    window.promptDelete = function (id, type) {
       if (!isAdmin) return;
-      openDeleteModal(
-        id,
-        type,
-        "Hapus Barang Ini?",
-        `Barang "${name}" akan dihapus dari daftar stok. Riwayat penjualan lama tetap aman.`
-      );
+      if (type === "transaction") return window.promptCancelSale(id);
+      deleteTargetId = id; deleteTargetType = type;
+      document.getElementById("cancelReasonField").classList.add("hidden");
+      document.getElementById("deleteModalTitle").textContent = "Hapus Barang dari Stok?";
+      document.getElementById("deleteModalDesc").textContent = "Catatan barang ini akan dihapus dari daftar stok.";
+      document.getElementById("btnConfirmDelete").textContent = "Ya, Hapus";
+      document.getElementById("deleteConfirmModal").classList.remove("hidden");
     };
 
-    window.setProductArchived = async function (id, archived) {
-      const item = inventory.find(record => record.id === id);
-      if (!isAdmin || !db || !item) return;
-      if (!window.confirm(archived
-        ? `Arsipkan "${item.name}"? Barang tidak tampil di kasir dan dihapus dari katalog publik, tetapi riwayat penjualan tetap tersimpan.`
-        : `Pulihkan "${item.name}" ke daftar barang aktif?`)) return;
-      try {
-        const archivedAt = archived ? new Date().toISOString() : "";
-        await runTransaction(db, async transaction => {
-          transaction.update(doc(db, ...paths("inventory", id)), { archivedAt, updatedAt: new Date().toISOString() });
-          if (archived) transaction.delete(doc(db, "publicCatalog", id));
-        });
-        showToast(archived ? "Barang diarsipkan." : "Barang dipulihkan.");
-      } catch {
-        showToast("Gagal mengubah status arsip.");
-      }
-    };
+    document.getElementById("btnConfirmDelete").addEventListener("click", async () => {
+      if (!deleteTargetId || !isAdmin || !db || deleteInProgress) return;
+      const targetId = deleteTargetId;
+      const targetType = deleteTargetType;
+      const button = document.getElementById("btnConfirmDelete");
+      const cancelButton = document.getElementById("btnCancelDelete");
 
-    function openReorderList() {
-      if (!isAdmin) return;
-      const sold30Days = new Map();
-      const cutoff = shiftDate(todayStr(), -30);
-      for (const tx of transactions) {
-        if (!tx.date || tx.date < cutoff) continue;
-        for (const line of tx.items || []) {
-          if (line.inventoryId) sold30Days.set(line.inventoryId, (sold30Days.get(line.inventoryId) || 0) + Number(line.qty || 0));
-        }
-      }
-      const items = activeInventory().filter(item => Number(item.stock || 0) < LOW_STOCK_LIMIT)
-        .sort((a, b) => Number(a.stock || 0) - Number(b.stock || 0) || (sold30Days.get(b.id) || 0) - (sold30Days.get(a.id) || 0));
-      document.getElementById("inventoryToolTitle").textContent = "Daftar belanja stok";
-      document.getElementById("inventoryToolStatus").textContent = "";
-      document.getElementById("inventoryToolContent").innerHTML = items.length
-        ? `<p class="mb-2 text-sm text-slate-600">${items.length} barang aktif dengan stok kurang dari ${LOW_STOCK_LIMIT} pcs.</p>
-          <ul class="divide-y divide-slate-200">${items.map(item => `<li class="flex items-center justify-between gap-2 py-2 text-sm">
-            <div><p class="font-bold">${esc(item.name || "-")}</p><p class="text-xs text-slate-600">${esc(item.code || "-")} · Sisa ${Number(item.stock || 0)} pcs · Terjual 30 hari: ${sold30Days.get(item.id) || 0} pcs</p></div>
-            <button type="button" data-quick-restock="${esc(item.id)}" class="shop-button shop-button-secondary">Tambah stok</button>
-          </li>`).join("")}</ul>`
-        : '<p class="text-sm text-slate-600">Semua stok barang aktif mencukupi.</p>';
-      document.getElementById("inventoryToolDialog").showModal();
-    }
-
-    function openSalePhotoPicker(txId, lineIndex) {
-      if (!isAdmin) return;
-      const sale = transactions.find(tx => tx.id === txId);
-      const line = sale?.items?.[lineIndex];
-      if (!line) return;
-      const active = activeInventory();
-      document.getElementById("inventoryToolTitle").textContent = "Pilih foto untuk " + (line.name || "barang terjual");
-      document.getElementById("inventoryToolStatus").textContent = "";
-      document.getElementById("inventoryToolContent").innerHTML = active.length
-        ? `<div class="space-y-3">
-          <input type="search" id="salePhotoSearch" placeholder="Cari barang dengan foto" class="w-full rounded-xl border border-slate-300 p-2.5 text-sm">
-          <div id="salePhotoChoices" class="divide-y divide-slate-200">${active.map(item => `<button type="button" data-pick-sale-photo="${esc(item.id)}" data-tx-id="${esc(txId)}" data-line-index="${lineIndex}" class="flex w-full items-center gap-3 py-2 text-left hover:bg-slate-50 rounded-xl px-1">
-            ${productImageMarkup(item, "h-12 w-12 shrink-0 rounded-xl border border-slate-200")}
-            <span class="min-w-0 flex-1 text-sm font-bold">${esc(formatItemLabel(item))}</span>
-          </button>`).join("")}</div></div>`
-        : '<p class="text-sm text-slate-600">Belum ada barang aktif untuk dipilih.</p>';
-      document.getElementById("inventoryToolDialog").showModal();
-    }
-
-    function wireInventoryTools() {
-      const dialog = document.getElementById("inventoryToolDialog");
-      const content = document.getElementById("inventoryToolContent");
-      document.getElementById("openReorderList").addEventListener("click", openReorderList);
-      content.addEventListener("input", event => {
-        if (event.target.id !== "salePhotoSearch") return;
-        const term = event.target.value.trim().toLocaleLowerCase("id");
-        for (const button of content.querySelectorAll("[data-pick-sale-photo]")) {
-          button.hidden = Boolean(term) && !button.textContent.toLocaleLowerCase("id").includes(term);
-        }
-      });
-      content.addEventListener("click", async event => {
-        const restock = event.target.closest("[data-quick-restock]");
-        if (restock) {
-          dialog.close();
-          document.getElementById("restockItem").value = restock.dataset.quickRestock;
-          openWorkspaceDialog("restockCard");
+      if (targetType === "transaction") {
+        const reasonInput = document.getElementById("cancelReasonInput");
+        const reason = reasonInput.value.trim();
+        if (!reason) {
+          reasonInput.focus();
+          showToast("Isi alasan pembatalan terlebih dahulu.");
           return;
         }
-        const pick = event.target.closest("[data-pick-sale-photo]");
-        if (!pick || !db || !isAdmin) return;
-        const txId = pick.dataset.txId;
-        const lineIndex = Number(pick.dataset.lineIndex);
-        const itemId = pick.dataset.pickSalePhoto;
-        const product = activeInventory().find(item => item.id === itemId);
-        if (!product) return;
-        const status = document.getElementById("inventoryToolStatus");
-        const buttons = [...content.querySelectorAll("[data-pick-sale-photo]")];
-        for (const button of buttons) button.disabled = true;
-        status.textContent = "Menyimpan pilihan foto…";
+        deleteInProgress = true;
+        button.disabled = true;
+        cancelButton.disabled = true;
         try {
-          await runTransaction(db, async transaction => {
-            const ref = doc(db, ...paths("transactions", txId));
-            const snap = await transaction.get(ref);
-            const items = Array.isArray(snap.data()?.items) ? snap.data().items.map(line => ({ ...line })) : [];
-            if (!items[lineIndex]) throw new Error("Baris penjualan tidak ditemukan.");
-            items[lineIndex].photoInventoryId = itemId;
-            if (productImageUrl(product)) items[lineIndex].imageUrl = productImageUrl(product);
-            transaction.update(ref, { items });
-          });
-          dialog.close();
-          showToast("Foto penjualan diperbarui.");
-        } catch (error) {
-          for (const button of buttons) button.disabled = false;
-          status.textContent = error?.code ? "Gagal menyimpan foto penjualan." : error.message;
+          const result = await cancelSaleAndRestoreStock(targetId, reason);
+          deleteTargetId = null;
+          deleteTargetType = null;
+          document.getElementById("deleteConfirmModal").classList.add("hidden");
+          showToast(result.alreadyCancelled ? "Transaksi sudah dibatalkan." : "Transaksi dibatalkan dan stok dikembalikan.");
+        } catch (err) {
+          showToast(err?.message || "Gagal membatalkan transaksi.");
+        } finally {
+          deleteInProgress = false;
+          button.disabled = false;
+          cancelButton.disabled = false;
         }
-      });
-    }
+        return;
+      }
 
-    async function saveRestock() {
-      const itemId = document.getElementById("restockItem").value;
-      const qty = Number(document.getElementById("restockQty").value);
-      const totalCost = Number(document.getElementById("restockTotal").value);
-      const date = document.getElementById("restockDate").value || todayStr();
-      const supplier = document.getElementById("restockSupplier").value.trim().slice(0, 120);
-      const invoice = document.getElementById("restockInvoice").value.trim().slice(0, 80);
-
-      if (!itemId || !Number.isSafeInteger(qty) || qty < 1) { showToast("Isi jumlah beli dengan angka bulat minimal 1."); return; }
-      if (!Number.isSafeInteger(totalCost) || totalCost < 0) { showToast("Isi total harga beli dalam Rupiah."); return; }
-      const item = inventory.find(i => i.id === itemId);
-      if (!item || item.archivedAt) { showToast("Barang diarsipkan atau tidak ditemukan."); return; }
-      if (!db || !isAdmin) return showToast("Masuk ke akun pemilik terlebih dahulu.");
-
-      const unitCost = Math.round(totalCost / qty);
+      deleteInProgress = true;
+      button.disabled = true;
+      cancelButton.disabled = true;
       try {
-        const purchaseRef = doc(collection(db, ...paths("purchases")));
-        const invRef = doc(db, ...paths("inventory", itemId));
-        const publicRef = doc(db, "publicCatalog", itemId);
         await runTransaction(db, async transaction => {
-          const snapshot = await transaction.get(invRef);
-          if (!snapshot.exists()) throw new Error("Barang tidak ditemukan.");
+          const publicRef = doc(db, "publicCatalog", targetId);
           const published = await transaction.get(publicRef);
-          const stock = Number(snapshot.data().stock || 0) + qty;
-          if (!Number.isSafeInteger(stock) || stock < qty) throw new Error("Jumlah stok terlalu besar.");
+          transaction.delete(doc(db, ...paths("inventory", targetId)));
+          if (published.exists()) transaction.delete(publicRef);
+        });
+        deleteTargetId = null;
+        deleteTargetType = null;
+        document.getElementById("deleteConfirmModal").classList.add("hidden");
+        showToast("Data berhasil dihapus.");
+      } catch (err) {
+        showToast("Gagal menghapus data.");
+      } finally {
+        deleteInProgress = false;
+        button.disabled = false;
+        cancelButton.disabled = false;
+      }
+    });
+
+    function initApp() {
+      const today = todayStr();
+      document.getElementById("footerYear").textContent = today.slice(0, 4);
+      document.getElementById("currentDateStr").textContent = parseLocalDate(today).toLocaleDateString("id-ID", { dateStyle: "long" });
+      document.getElementById("inputDate").value = today;
+      document.getElementById("restockDate").value = today;
+      document.getElementById("bookDatePicker").value = today;
+      updateSaleDateSummary();
+      document.getElementById("inputDate").addEventListener("change", updateSaleDateSummary);
+      document.querySelector(".shop-main").addEventListener("error", recoverProductImage, true);
+      applyReceiptPaper("half-a4");
+      document.getElementById("receiptPaper").addEventListener("change", event => applyReceiptPaper(event.target.value));
+      wireOwnerBooks();
+      wireCatalogCart();
+      wireInventoryTools();
+      wireCostCodeSettings();
+      wireSalePaymentCorrection();
+      addSaleItemRow();
+      updateAdminUI();
+      initFirebase();
+
+      for (const button of document.querySelectorAll("#mainNavigation button[data-workspace]")) {
+        button.addEventListener("click", () => switchWorkspace(button.dataset.workspace, true));
+      }
+      document.getElementById("btnOpenSalesView").addEventListener("click", () => switchWorkspace("sales", true));
+      document.getElementById("btnNewSaleView").addEventListener("click", () => switchWorkspace("kasir", true));
+
+      document.getElementById("btnAddItemRow").addEventListener("click", () => addSaleItemRow());
+      document.getElementById("btnResetForm").addEventListener("click", () => {
+        resetSaleDraft();
+      });
+      for (const button of document.querySelectorAll(".pay-option-btn")) {
+        button.addEventListener("click", () => selectSalePayment(button.dataset.pay));
+      }
+      document.getElementById("btnSaveTx").addEventListener("click", () => saveSale(false));
+      document.getElementById("btnSaveAndPrintTx").addEventListener("click", () => saveSale(true));
+
+      document.getElementById("btnCloseReceiptModal").addEventListener("click", () => document.getElementById("receiptPreviewModal").classList.add("hidden"));
+      document.getElementById("btnTriggerPrintReceipt").addEventListener("click", () => {
+        printDocument("receipt");
+      });
+
+      document.getElementById("btnOpenInventoryEntry").addEventListener("click", () => {
+        if (!isAdmin) return;
+        resetInvForm();
+        openWorkspaceDialog("invEntryCard");
+        document.getElementById("invName").focus();
+      });
+      document.getElementById("btnOpenRestock").addEventListener("click", () => {
+        if (!isAdmin) return;
+        if (!activeInventory().length) return showToast("Tambahkan barang terlebih dahulu.");
+        openWorkspaceDialog("restockCard");
+        document.getElementById("restockQty").focus();
+      });
+      document.getElementById("btnSaveInventory").addEventListener("click", saveInventoryItem);
+      document.getElementById("btnCancelInvEdit").addEventListener("click", () => {
+        resetInvForm();
+        document.getElementById("invEntryCard").close();
+      });
+      document.getElementById("invImageFile")?.addEventListener("change", e => {
+        const file = e.target.files?.[0];
+        const wrap = document.getElementById("invImagePreviewWrap");
+        const img = document.getElementById("invImagePreview");
+        if (!file) { wrap.classList.add("hidden"); return; }
+        img.src = URL.createObjectURL(file);
+        document.getElementById("invImagePreviewLabel").textContent = file.name;
+        wrap.classList.remove("hidden");
+      });
+      document.getElementById("btnSaveRestock").addEventListener("click", async () => {
+        const id = document.getElementById("restockItem").value;
+        const qty = Number(document.getElementById("restockQty").value);
+        const total = Number(document.getElementById("restockTotal").value);
+        const date = document.getElementById("restockDate").value || todayStr();
+        if (!id || !Number.isSafeInteger(qty) || qty < 1) return showToast("Pilih barang & jumlah pembelian yang valid!");
+        if (!Number.isSafeInteger(total) || total < 0) return showToast("Isi total pembelian dalam Rupiah.");
+        const item = inventory.find(i => i.id === id);
+        if (!item || !db) return;
+        const unitCost = total > 0 ? Math.round(total / qty) : Number(item.cost || 0);
+        const supplier = document.getElementById("restockSupplier").value.trim();
+        const invoice = document.getElementById("restockInvoice").value.trim();
+        const purchaseRef = doc(collection(db, ...paths("purchases")));
+        const invRef = doc(db, ...paths("inventory", id));
+        const publicRef = doc(db, "publicCatalog", id);
+        await runTransaction(db, async transaction => {
+          const current = await transaction.get(invRef);
+          const published = await transaction.get(publicRef);
+          const stock = Number(current.data()?.stock || 0) + qty;
           transaction.set(purchaseRef, {
-            inventoryId: itemId, name: item.name, qty, totalCost, unitCost, date,
-            ...(supplier ? { supplier } : {}), ...(invoice ? { invoice } : {}),
-            createdAt: new Date().toISOString()
+            inventoryId: id, name: item.name, qty, totalCost: total, unitCost, date,
+            supplier, invoice, createdAt: new Date().toISOString()
           });
-          transaction.update(invRef, {
-            stock,
-            cost: unitCost,
-            updatedAt: new Date().toISOString()
-          });
+          transaction.update(invRef, { stock, cost: unitCost, updatedAt: new Date().toISOString() });
           if (published.exists()) transaction.update(publicRef, { stock });
         });
         document.getElementById("restockQty").value = "";
@@ -4445,515 +4638,81 @@
         document.getElementById("restockSupplier").value = "";
         document.getElementById("restockInvoice").value = "";
         document.getElementById("restockCard").close();
-        showToast(`Pembelian ${qty} pcs ${item.name} tersimpan!`);
-        renderApp();
-      } catch (e) { showToast("Gagal simpan pembelian."); }
-    }
-
-    const workspaces = {
-      kasir: { tab: "tabBtnKasir", panel: "cashierWorkspace", title: "cashierTitle", wrapper: "viewKasir" },
-      sales: { tab: "tabBtnSales", panel: "salesHistoryWorkspace", title: "salesHistoryTitle", wrapper: "viewKasir", render: renderTransactions },
-      inventory: { tab: "tabBtnInventory", panel: "viewInventory", title: "inventoryWorkspaceTitle" },
-      books: { tab: "tabBtnBooks", panel: "viewBooks", title: "ownerBooksTitle" },
-      backup: { tab: "tabBtnBackup", panel: "viewBackup", title: "backupWorkspaceTitle" },
-      catalog: { tab: "tabBtnCatalog", panel: "viewCatalog", title: "catalogPageTitle" }
-    };
-
-    function switchWorkspace(name, focusHeading = false) {
-      const target = isAdmin && workspaces[name] ? name : "catalog";
-      const current = workspaces[target];
-      document.getElementById("viewKasir").classList.toggle("hidden", current.wrapper !== "viewKasir");
-      for (const [key, space] of Object.entries(workspaces)) {
-        const active = key === target;
-        const panel = document.getElementById(space.panel);
-        panel.hidden = !active;
-        panel.classList.toggle("hidden", !active);
-        const tab = document.getElementById(space.tab);
-        if (active) tab.setAttribute("aria-current", "page");
-        else tab.removeAttribute("aria-current");
-      }
-      current.render?.();
-      if (focusHeading) document.getElementById(current.title)?.focus();
-    }
-
-    let pendingAssistantSale = null;
-
-    function resetShopAssistant() {
-      pendingAssistantSale = null;
-      document.getElementById("sjsAiChatLog").replaceChildren();
-      renderAssistantSaleActions();
-    }
-
-    function renderAssistantSaleActions() {
-      const actions = document.getElementById("sjsAssistantSaleActions");
-      const confirm = document.getElementById("sjsAssistantConfirm");
-      const cancel = document.getElementById("sjsAssistantCancel");
-      actions.hidden = !isAdmin || !pendingAssistantSale;
-      confirm.disabled = !pendingAssistantSale || Boolean(pendingAssistantSale.saving) || !salePaymentMethods.has(pendingAssistantSale.paymentMethod);
-      cancel.disabled = Boolean(pendingAssistantSale?.saving);
-    }
-
-    function assistantNote(role, text) {
-      const log = document.getElementById("sjsAiChatLog");
-      const entry = document.createElement("div");
-      entry.className = role === "user"
-        ? "ml-6 rounded-2xl bg-blue-800 px-3 py-2 text-white shadow-xs"
-        : "mr-4 whitespace-pre-line rounded-2xl border border-slate-200 bg-white px-3 py-2 text-slate-900 shadow-xs";
-      entry.textContent = text;
-      log.append(entry);
-      log.scrollTop = log.scrollHeight;
-      return entry;
-    }
-
-    function openAssistantSalesReport(date, endDate = date) {
-      if (!isAdmin) return;
-      if (date === endDate) {
-        selectedDateStr = date;
-        currentViewMode = "day";
-        document.getElementById("bookDatePicker").value = date;
-        updateViewModeButtons();
-      }
-      switchWorkspace("sales", true);
-    }
-
-    function reportAction(label, onClick) {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "mt-2 block text-left font-bold text-blue-900 underline";
-      button.textContent = label;
-      button.addEventListener("click", onClick);
-      return button;
-    }
-
-    function assistantReply(text, action = null) {
-      const entry = assistantNote("assistant", text);
-      if (action) entry.append(action);
-      return entry;
-    }
-
-    function activeSalesBetween(start, end) {
-      return transactions.filter(sale => !sale.cancelledAt && sale.date >= start && sale.date <= end);
-    }
-
-    function salesMetrics(rows) {
-      return {
-        count: rows.length,
-        revenue: rows.reduce((sum, sale) => sum + Number(sale.totalOmset || 0), 0),
-        cost: rows.reduce((sum, sale) => sum + Number(sale.totalModal || 0), 0),
-        profit: rows.reduce((sum, sale) => sum + Number(sale.totalProfit || 0), 0)
-      };
-    }
-
-    function paymentBreakdownText(rows) {
-      const totals = new Map();
-      for (const sale of rows) {
-        const method = paymentMethodLabel(sale.paymentMethod || "Cash");
-        totals.set(method, (totals.get(method) || 0) + Number(sale.totalOmset || 0));
-      }
-      return [...totals].map(([method, amount]) => `${method}: ${rp(amount)}`).join(" · ");
-    }
-
-    function itemLineName(line) {
-      return String(line.name || "Barang").replace(/^\[[^\]]+\]\s*/, "").trim();
-    }
-
-    function itemRanking(rows) {
-      const map = new Map();
-      for (const sale of rows) {
-        for (const line of sale.items || []) {
-          const name = itemLineName(line);
-          const key = line.inventoryId ? `id:${line.inventoryId}` : `name:${assistantKey(name)}`;
-          const current = map.get(key) || { name, qty: 0, revenue: 0 };
-          current.qty += Number(line.qty || 0);
-          current.revenue += Number(line.price || 0) * Number(line.qty || 0);
-          map.set(key, current);
-        }
-      }
-      return [...map.values()];
-    }
-
-    function signedAmount(amount) {
-      return (amount >= 0 ? "+" : "−") + rp(Math.abs(amount));
-    }
-
-    function answerAssistantPeriod(start, end, label) {
-      const rows = activeSalesBetween(start, end);
-      const metrics = salesMetrics(rows);
-      const comparison = assistantComparisonPeriod(start, end);
-      const previous = salesMetrics(activeSalesBetween(comparison.start, comparison.end));
-      const lines = [
-        `${label} (${start === end ? start : `${start} s.d. ${end}`}):`,
-        `Omzet ${rp(metrics.revenue)} · Laba kotor ${rp(metrics.profit)} · ${metrics.count} transaksi`,
-        metrics.count ? paymentBreakdownText(rows) : "Belum ada penjualan aktif.",
-        `Dibanding ${comparison.label}: omzet ${signedAmount(metrics.revenue - previous.revenue)} (${rp(previous.revenue)}) · laba kotor ${signedAmount(metrics.profit - previous.profit)}`
-      ];
-      assistantReply(lines.join("\n"), reportAction("Buka di Riwayat Penjualan", () => openAssistantSalesReport(start, end)));
-    }
-
-    function answerAssistantMonthly(month) {
-      const totals = monthlyBookTotals(month, transactions, books.expenses);
-      const gross = totals.revenue - totals.cost;
-      const lines = [
-        `Laporan ${month}:`,
-        `Penjualan: ${rp(totals.revenue)}`,
-        `Modal barang terjual: ${rp(totals.cost)}`,
-        `Laba kotor: ${rp(gross)}`,
-        `Pengeluaran toko: ${rp(totals.spending)}`,
-        `Untung / rugi usaha: ${rp(totals.profit)}`
-      ];
-      assistantReply(lines.join("\n"), reportAction("Buka di Pembukuan", () => {
-        document.getElementById("bookMonth").value = month;
-        renderOwnerBooks();
-        switchWorkspace("books", true);
-      }));
-    }
-
-    function answerAssistantProduct(queryText, start, end, label) {
-      const needle = assistantKey(queryText);
-      const rows = activeSalesBetween(start, end);
-      let qty = 0, revenue = 0, profit = 0;
-      const names = new Set();
-      for (const sale of rows) {
-        for (const line of sale.items || []) {
-          const item = inventory.find(record => record.id === line.inventoryId);
-          const candidate = assistantKey([line.name, item?.name, item?.code].filter(Boolean).join(" "));
-          if (!candidate.includes(needle)) continue;
-          const lineQty = Number(line.qty || 0);
-          qty += lineQty;
-          revenue += Number(line.price || 0) * lineQty;
-          profit += (Number(line.price || 0) - Number(line.cost || 0)) * lineQty;
-          names.add(item?.name || itemLineName(line));
-        }
-      }
-      const stockMatches = activeInventory().filter(item =>
-        assistantKey([item.name, item.code].filter(Boolean).join(" ")).includes(needle));
-      const lines = [
-        `Penjualan "${queryText}" (${label}): ${qty} pcs · omzet ${rp(revenue)} · laba kotor ${rp(profit)}`,
-        names.size ? `Barang cocok: ${[...names].slice(0, 4).join(", ")}` : "",
-        stockMatches.length
-          ? `Sisa stok: ${stockMatches.slice(0, 4).map(item => `${item.name} (${Number(item.stock || 0)} pcs)`).join(", ")}`
-          : "Tidak ada di daftar stok aktif."
-      ].filter(Boolean);
-      assistantReply(lines.join("\n"));
-    }
-
-    function answerAssistantTopItems(start, end, sortBy, label) {
-      const items = itemRanking(activeSalesBetween(start, end))
-        .sort((a, b) => sortBy === "revenue" ? b.revenue - a.revenue : b.qty - a.qty)
-        .slice(0, 5);
-      if (!items.length) {
-        assistantReply(`Belum ada penjualan pada ${label}.`);
-        return;
-      }
-      const lines = [`5 barang terlaris (${label}, urut ${sortBy === "revenue" ? "omzet" : "jumlah"}):`];
-      items.forEach((item, index) => lines.push(`${index + 1}. ${item.name} — ${item.qty} pcs (${rp(item.revenue)})`));
-      assistantReply(lines.join("\n"));
-    }
-
-    function answerAssistantReorder(today) {
-      const recent = activeSalesBetween(shiftDate(today, -30), today);
-      const soldById = new Map();
-      for (const sale of recent) {
-        for (const line of sale.items || []) {
-          if (line.inventoryId) soldById.set(line.inventoryId, (soldById.get(line.inventoryId) || 0) + Number(line.qty || 0));
-        }
-      }
-      const low = activeInventory().filter(item => Number(item.stock || 0) < LOW_STOCK_LIMIT)
-        .sort((a, b) => Number(a.stock || 0) - Number(b.stock || 0) || (soldById.get(b.id) || 0) - (soldById.get(a.id) || 0));
-      if (!low.length) {
-        assistantReply("Semua stok barang aktif saat ini berjumlah 5 pcs atau lebih.");
-        return;
-      }
-      const lines = [`${low.length} barang stok menipis (kurang dari ${LOW_STOCK_LIMIT} pcs):`];
-      low.slice(0, 6).forEach(item => {
-        lines.push(`• ${item.name}: sisa ${Number(item.stock || 0)} pcs · terjual 30 hari ${soldById.get(item.id) || 0} pcs`);
-      });
-      assistantReply(lines.join("\n"), reportAction("Buka Daftar Belanja Stok", openReorderList));
-    }
-
-    function answerAssistantOpportunities(today) {
-      const recent = activeSalesBetween(shiftDate(today, -60), today);
-      const ranking = itemRanking(recent).sort((a, b) => b.qty - a.qty);
-      const unstocked = ranking.filter(entry => !entry.name || !activeInventory().some(item =>
-        assistantKey([item.name, item.code].filter(Boolean).join(" ")).includes(assistantKey(entry.name))));
-      const lines = ["Peluang barang baru dari data toko 60 hari terakhir:"];
-      if (unstocked.length) {
-        lines.push("Barang di luar stok yang sering laku:");
-        unstocked.slice(0, 4).forEach(entry => lines.push(`• ${entry.name} (${entry.qty} pcs, ${rp(entry.revenue)})`));
-      } else if (ranking.length) {
-        lines.push("Kategori dengan permintaan tertinggi:");
-        ranking.slice(0, 4).forEach(entry => lines.push(`• ${entry.name} (${entry.qty} pcs)`));
-      } else {
-        lines.push("Belum ada riwayat transaksi yang cukup untuk membaca pola permintaan.");
-      }
-      lines.push("Saran langkah: tambah variasi ukuran/warna pada item terlaris atau masukkan item di luar stok yang sering laku ke inventaris.");
-      assistantReply(lines.join("\n"));
-    }
-
-    function findInventoryForAssistant(queryText) {
-      const needle = assistantKey(queryText);
-      const active = activeInventory();
-      if (!needle) return [];
-      const exactCode = active.filter(item => assistantKey(item.code) === needle);
-      if (exactCode.length) return exactCode;
-      const exactName = active.filter(item => assistantKey(item.name) === needle);
-      if (exactName.length) return exactName;
-      return active.filter(item => assistantKey([item.name, item.code, item.size, item.color].filter(Boolean).join(" ")).includes(needle));
-    }
-
-    function draftAssistantSale(text, today) {
-      const parts = assistantSaleParts(text);
-      if (!parts.items.length) {
-        assistantReply('Sebutkan jumlah dan nama barang, misalnya: "Catat jual 2 shuttlecock tunai".');
-        return;
-      }
-      const resolved = [];
-      for (const line of parts.items) {
-        const matches = findInventoryForAssistant(line.query);
-        if (!matches.length) {
-          assistantReply(`Barang "${line.query}" tidak ditemukan di stok aktif. Gunakan formulir Kasir untuk mencatatnya.`);
-          return;
-        }
-        if (matches.length > 1) {
-          assistantReply(`Ditemukan beberapa barang untuk "${line.query}": ${matches.slice(0, 5).map(item => `${item.name} [${item.code || "-"}]`).join(", ")}. Sebutkan nama lengkap atau kode barangnya.`);
-          return;
-        }
-        const product = matches[0];
-        const stock = Number(product.stock || 0);
-        if (stock < line.qty) {
-          assistantReply(`Stok ${product.name} tersisa ${stock} pcs, tidak cukup untuk ${line.qty} pcs.`);
-          return;
-        }
-        resolved.push({
-          inventoryId: product.id,
-          name: formatItemLabel(product),
-          qty: line.qty,
-          price: Number(product.price || 0),
-          cost: Number(product.cost || 0),
-          imageUrl: product.imageUrl || ""
-        });
-      }
-      pendingAssistantSale = {
-        date: today,
-        customer: "Pelanggan Umum",
-        paymentMethod: parts.paymentMethod,
-        items: resolved,
-        saving: false
-      };
-      const total = resolved.reduce((sum, item) => sum + item.price * item.qty, 0);
-      const lines = [
-        "Draf penjualan siap diperiksa (belum tersimpan):",
-        ...resolved.map(item => `• ${item.name} — ${item.qty} × ${rp(item.price)} = ${rp(item.price * item.qty)}`),
-        `Total: ${rp(total)}`,
-        parts.paymentMethod
-          ? `Cara bayar: ${paymentMethodLabel(parts.paymentMethod)}. Klik Simpan penjualan untuk menyimpan.`
-          : 'Cara bayar belum disebut. Ketik "Tunai", "QRIS", "Kartu", atau "Transfer" sebelum menyimpan.'
-      ];
-      assistantReply(lines.join("\n"));
-      renderAssistantSaleActions();
-    }
-
-    async function confirmAssistantSale() {
-      if (!isAdmin || !db || !pendingAssistantSale || pendingAssistantSale.saving) return;
-      if (!salePaymentMethods.has(pendingAssistantSale.paymentMethod)) {
-        assistantReply('Pilih cara bayar dulu dengan mengetik "Tunai", "QRIS", "Kartu", atau "Transfer".');
-        return;
-      }
-      pendingAssistantSale.saving = true;
-      renderAssistantSaleActions();
-      try {
-        const draft = pendingAssistantSale;
-        const saved = await saveSaleAndUpdateStock({
-          date: draft.date,
-          customer: draft.customer,
-          paymentMethod: draft.paymentMethod,
-          items: draft.items,
-          createdAt: new Date().toISOString()
-        });
-        pendingAssistantSale = null;
-        selectedDateStr = saved.date;
-        document.getElementById("bookDatePicker").value = saved.date;
-        assistantReply(`Penjualan tersimpan. No. nota ${receiptNumber(saved)} (${rp(saved.totalOmset)} · ${paymentMethodLabel(saved.paymentMethod)}).`);
-      } catch (error) {
-        pendingAssistantSale.saving = false;
-        assistantReply(error?.message || "Penjualan gagal disimpan.");
-      } finally {
-        renderAssistantSaleActions();
-      }
-    }
-
-    function sendAssistantQuestion(rawText) {
-      if (!isAdmin) return;
-      const text = shopDemandFilter(rawText);
-      if (!text) return;
-      assistantNote("user", text);
-      if (pendingAssistantSale && !pendingAssistantSale.saving) {
-        const payment = assistantSaleParts(text).paymentMethod;
-        if (payment && text.split(/\s+/).length <= 3) {
-          pendingAssistantSale.paymentMethod = payment;
-          assistantReply(`Cara bayar draf diubah ke ${paymentMethodLabel(payment)}. Klik Simpan penjualan untuk mencatat transaksi.`);
-          renderAssistantSaleActions();
-          return;
-        }
-      }
-      const today = todayStr();
-      const intent = understandShopQuestion(text, today);
-      if (intent.type === "period") return answerAssistantPeriod(intent.start, intent.end, intent.label);
-      if (intent.type === "monthly") return answerAssistantMonthly(intent.month);
-      if (intent.type === "product") return answerAssistantProduct(intent.query, intent.start, intent.end, intent.label);
-      if (intent.type === "topItems") return answerAssistantTopItems(intent.start, intent.end, intent.sortBy, intent.label);
-      if (intent.type === "reorder") return answerAssistantReorder(today);
-      if (intent.type === "opportunities") return answerAssistantOpportunities(today);
-      if (intent.type === "saleDraft") return draftAssistantSale(text, today);
-      assistantReply('Saya membaca data toko langsung: coba tanya "Omzet kemarin", "Laba rugi bulan ini", "Terlaris 30 hari", "Barang apa yang perlu dibeli lagi?", atau "Catat jual 2 shuttlecock tunai".');
-    }
-
-    function wireShopAssistant() {
-      const box = document.getElementById("sjsAiBox");
-      const toggle = document.getElementById("sjsAiToggleBtn");
-      const input = document.getElementById("sjsAiInput");
-      const setOpen = open => {
-        if (open && !isAdmin) return;
-        box.classList.toggle("hidden", !open);
-        toggle.setAttribute("aria-expanded", String(open));
-        if (open) {
-          if (!document.getElementById("sjsAiChatLog").childElementCount) {
-            assistantReply("Halo. Tanya omzet, laba rugi, barang terlaris, stok menipis, atau ketik perintah catat penjualan.");
-          }
-          input.focus();
-        }
-      };
-      toggle.addEventListener("click", () => setOpen(box.classList.contains("hidden")));
-      document.getElementById("sjsAiCloseBtn").addEventListener("click", () => setOpen(false));
-      document.getElementById("sjsAssistantShortcuts").addEventListener("click", event => {
-        const button = event.target.closest("[data-assistant-command]");
-        if (button) sendAssistantQuestion(button.dataset.assistantCommand);
-      });
-      document.getElementById("sjsAssistantForm").addEventListener("submit", event => {
-        event.preventDefault();
-        const text = input.value;
-        input.value = "";
-        sendAssistantQuestion(text);
-      });
-      document.getElementById("sjsAssistantConfirm").addEventListener("click", confirmAssistantSale);
-      document.getElementById("sjsAssistantCancel").addEventListener("click", () => {
-        pendingAssistantSale = null;
-        renderAssistantSaleActions();
-        assistantReply("Draf penjualan dibatalkan.");
-      });
-    }
-
-    document.addEventListener("DOMContentLoaded", () => {
-      document.getElementById("footerYear").textContent = todayStr().slice(0, 4);
-      document.getElementById("currentDateStr").textContent = parseLocalDate(todayStr()).toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
-      document.getElementById("bookDatePicker").value = selectedDateStr;
-      document.getElementById("restockDate").value = todayStr();
-      resetSaleDraft();
-      applyReceiptPaper("half-a4");
-      renderQrisPaymentScreen();
-      renderApp();
-      wireCatalogCart();
-      wireInventoryTools();
-      wireCostCodeSettings();
-      wireSalePaymentCorrection();
-      wireShopAssistant();
-      wireOwnerBooks();
-      initFirebase();
-      document.addEventListener("error", recoverProductImage, true);
-
-      document.getElementById("btnOpenInventoryEntry").addEventListener("click", () => {
-        resetInvForm();
-        openWorkspaceDialog("invEntryCard");
-        document.getElementById("invName").focus();
-      });
-      document.getElementById("btnOpenRestock").addEventListener("click", () => openWorkspaceDialog("restockCard"));
-      document.getElementById("openCostCodeSettings").addEventListener("click", openCostCodeSettings);
-      document.getElementById("btnOpenSalesView").addEventListener("click", () => switchWorkspace("sales", true));
-      document.getElementById("btnNewSaleView").addEventListener("click", () => switchWorkspace("kasir", true));
-      document.getElementById("mainNavigation").addEventListener("click", event => {
-        const button = event.target.closest("[data-workspace]");
-        if (button) switchWorkspace(button.dataset.workspace, true);
+        showToast(`Stok "${item.name}" bertambah +${qty} pcs!`);
       });
 
-      document.getElementById("adminModeBadge").addEventListener("click", () => document.getElementById("adminAuthModal").classList.remove("hidden"));
-      document.getElementById("btnUnlockKasir").addEventListener("click", () => document.getElementById("adminAuthModal").classList.remove("hidden"));
-      document.getElementById("btnUnlockInv").addEventListener("click", () => document.getElementById("adminAuthModal").classList.remove("hidden"));
+      const openAdminModal = () => document.getElementById("adminAuthModal").classList.remove("hidden");
+      document.getElementById("adminModeBadge").addEventListener("click", openAdminModal);
+      document.getElementById("btnUnlockKasir").addEventListener("click", openAdminModal);
+      document.getElementById("btnUnlockInv").addEventListener("click", openAdminModal);
       document.getElementById("btnCloseAdminModal").addEventListener("click", () => document.getElementById("adminAuthModal").classList.add("hidden"));
-
-      document.getElementById("adminLoginPanel").addEventListener("submit", async e => {
-        e.preventDefault();
+      document.getElementById("adminLoginPanel").addEventListener("submit", async event => {
+        event.preventDefault();
+        if (!firebaseAuth || !auth) return;
+        const remember = document.getElementById("rememberDevice").checked;
         try {
-          await firebaseAuth.setPersistence(
+          await firebaseAuth.setPersistence(auth, remember
+            ? firebaseAuth.browserLocalPersistence
+            : firebaseAuth.browserSessionPersistence);
+          const { user } = await firebaseAuth.signInWithEmailAndPassword(
             auth,
-            document.getElementById("rememberDevice").checked
-              ? firebaseAuth.browserLocalPersistence
-              : firebaseAuth.browserSessionPersistence
-          );
-          await firebaseAuth.signInWithEmailAndPassword(
-            auth,
-            document.getElementById("ownerEmail").value.trim(),
+            document.getElementById("ownerEmail").value,
             document.getElementById("ownerPassword").value
           );
-          document.getElementById("ownerPassword").value = "";
+          if (user.uid !== OWNER_UID) {
+            await firebaseAuth.signOut(auth);
+            showToast("Akun ini bukan pemilik toko.");
+            return;
+          }
           document.getElementById("adminAuthModal").classList.add("hidden");
-        } catch {
-          showToast("Email atau kata sandi salah.");
+          event.target.reset();
+        } catch (err) {
+          showToast("Login gagal. Periksa email dan kata sandi.");
         }
       });
-      document.getElementById("btnLockToReadOnly").addEventListener("click", async () => {
-        await firebaseAuth.signOut(auth);
+      document.getElementById("btnLockToReadOnly").addEventListener("click", () => {
+        if (firebaseAuth && auth) firebaseAuth.signOut(auth);
         document.getElementById("adminAuthModal").classList.add("hidden");
+        showToast("Keluar dari mode pemilik.");
       });
-
-      document.getElementById("btnAddItemRow").addEventListener("click", () => addSaleItemRow());
-      for (const button of document.querySelectorAll(".pay-option-btn")) {
-        button.addEventListener("click", () => selectSalePayment(button.dataset.pay));
-      }
-      document.getElementById("inputDate").addEventListener("change", updateSaleDateSummary);
-      document.getElementById("btnResetForm").addEventListener("click", () => {
-        resetSaleDraft();
-        showToast("Formulir kasir dikosongkan.");
-      });
-      document.getElementById("btnSaveTx").addEventListener("click", () => saveSale(false));
-      document.getElementById("btnSaveAndPrintTx").addEventListener("click", () => saveSale(true));
-
-      document.getElementById("btnCloseReceiptModal").addEventListener("click", () => document.getElementById("receiptPreviewModal").classList.add("hidden"));
-      document.getElementById("receiptPaper").addEventListener("change", e => applyReceiptPaper(e.target.value));
-      document.getElementById("btnTriggerPrintReceipt").addEventListener("click", () => printDocument("receipt"));
 
       document.getElementById("btnOpenScanner").addEventListener("click", () => {
-        document.getElementById("quickPickStockList").innerHTML = activeInventory().length === 0
-          ? `<p class="p-4 text-center text-xs text-slate-400">Belum ada barang di daftar stok.</p>`
-          : activeInventory().map(inv => `
-            <button type="button" class="w-full p-3 text-left hover:bg-blue-50 flex items-center justify-between gap-2 cursor-pointer transition" onclick="window.pickFromStock('${esc(inv.id)}')">
-              <div class="flex items-center gap-2.5 min-w-0">
-                ${productImageMarkup(inv, "w-11 h-11 rounded-xl border border-slate-200 shrink-0")}
-                <div class="min-w-0">
-                  <span class="text-xs font-mono font-extrabold text-blue-700">${esc(inv.code || "-")}</span>
-                  <p class="font-bold text-sm text-slate-800 truncate">${esc(inv.name)}</p>
-                </div>
-              </div>
-              <span class="text-xs font-extrabold text-emerald-700 shrink-0">${rp(inv.price)}</span>
-            </button>`).join("");
+        if (!isAdmin) return showToast("Buka Kunci Admin dulu untuk mencatat penjualan.");
+        const list = document.getElementById("quickPickStockList");
+        list.innerHTML = activeInventory().length
+          ? activeInventory().map(i => `
+              <button type="button" data-pick-id="${esc(i.id)}" class="w-full text-left px-3.5 py-2.5 hover:bg-blue-50 flex items-center justify-between gap-2 text-xs transition cursor-pointer">
+                <div><p class="font-extrabold text-slate-900">${esc(i.name)}</p><p class="text-slate-500 font-semibold">${esc(i.code)} • Sisa: ${Number(i.stock || 0)}</p></div>
+                <span class="font-extrabold text-emerald-800">${rp(i.price)}</span>
+              </button>`).join("")
+          : `<p class="p-4 text-xs text-slate-500 text-center">Belum ada barang di daftar stok.</p>`;
+        list.querySelectorAll("button[data-pick-id]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const item = activeInventory().find(x => x.id === btn.dataset.pickId);
+            if (item) {
+              addSaleItemRow(item);
+              showToast(`Ditambahkan: ${item.name}`);
+              if (!document.getElementById("chkContinuousScan").checked) closeScanner();
+            }
+          });
+        });
         document.getElementById("scannerModal").classList.remove("hidden");
       });
-      window.pickFromStock = function (id) {
-        const inv = activeInventory().find(i => i.id === id);
-        if (inv) { addSaleItemRow(inv); showToast(`Ditambahkan: ${inv.name}`); if (!document.getElementById("chkContinuousScan").checked) closeScanner(); }
-      };
       document.getElementById("btnCloseScanner").addEventListener("click", closeScanner);
       document.getElementById("btnSubmitManualScan").addEventListener("click", () => {
-        const inp = document.getElementById("manualScanCodeInput");
-        if (inp.value.trim()) { handleScannedCode(inp.value); inp.value = ""; }
+        handleScannedCode(document.getElementById("manualScanCodeInput").value);
+        document.getElementById("manualScanCodeInput").value = "";
       });
       document.getElementById("qrPhotoInput").addEventListener("change", async e => {
         const file = e.target.files?.[0];
         if (!file) return;
         try {
-          const scanner = new Html5Qrcode("qrReaderBox");
-          const decoded = await scanner.scanFile(file, true);
+          if (!html5QrScanner) html5QrScanner = new Html5Qrcode("qrReaderBox");
+          const decoded = await html5QrScanner.scanFile(file, true);
           handleScannedCode(decoded);
-        } catch (err) { showToast("QR Code tidak terbaca di foto tersebut."); }
+        } catch (err) {
+          showToast("Tidak menemukan QR Code yang jelas pada foto tersebut.");
+        }
         e.target.value = "";
       });
       document.getElementById("btnToggleLiveCam").addEventListener("click", async () => {
@@ -4961,10 +4720,13 @@
         document.getElementById("liveScannerWrapper").classList.remove("hidden");
         document.getElementById("btnToggleLiveCam").innerHTML = `<i class="fa-solid fa-stop"></i> <span>Matikan Kamera</span>`;
         try {
-          html5QrScanner = new Html5Qrcode("qrReaderBox");
+          if (!html5QrScanner) html5QrScanner = new Html5Qrcode("qrReaderBox");
           isScannerRunning = true;
           await html5QrScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 220, height: 220 } }, decoded => handleScannedCode(decoded), () => {});
-        } catch (e) { stopLiveCamera(); showToast("Tidak dapat membuka kamera live."); }
+        } catch (err) {
+          stopLiveCamera();
+          showToast("Kamera tidak tersedia atau izin ditolak browser.");
+        }
       });
 
       document.getElementById("btnShowQrisPay").addEventListener("click", () => {
@@ -4977,112 +4739,49 @@
         const file = e.target.files?.[0];
         if (!file) return;
         try {
-          const dec = new Html5Qrcode("qrisTempDecoderBox");
-          const code = await dec.scanFile(file, true);
-          await saveQrisPayload(code);
-        } catch (err) { showToast("QRIS tidak terbaca di foto."); }
+          const tempScanner = new Html5Qrcode("qrisTempDecoderBox");
+          const decoded = await tempScanner.scanFile(file, true);
+          await saveQrisPayload(decoded);
+        } catch (err) {
+          showToast("Gagal membaca QR dari foto. Coba tempel teks QRIS manual.");
+        }
         e.target.value = "";
       });
 
-      document.getElementById("btnSaveInventory").addEventListener("click", saveInventoryItem);
-      document.getElementById("btnCancelInvEdit").addEventListener("click", () => {
-        resetInvForm();
-        document.getElementById("invEntryCard").close();
-      });
-      document.getElementById("invImageFile").addEventListener("change", e => {
-        const file = e.target.files?.[0];
-        const wrap = document.getElementById("invImagePreviewWrap");
-        if (!file) { wrap.classList.add("hidden"); return; }
-        if (!file.type.startsWith("image/")) { showToast("File harus berupa foto."); e.target.value = ""; wrap.classList.add("hidden"); return; }
-        if (file.size > 5 * 1024 * 1024) { showToast("Ukuran foto maksimal 5 MB."); e.target.value = ""; wrap.classList.add("hidden"); return; }
-        const reader = new FileReader();
-        reader.onload = ev => {
-          document.getElementById("invImagePreview").src = ev.target.result;
-          document.getElementById("invImagePreviewLabel").textContent = `${file.name} (${(file.size / 1024).toFixed(0)} KB)`;
-          wrap.classList.remove("hidden");
-        };
-        reader.readAsDataURL(file);
-      });
-      document.getElementById("btnSaveRestock").addEventListener("click", saveRestock);
-
-      document.getElementById("btnCloseQrModal").addEventListener("click", () => document.getElementById("productQrModal").classList.add("hidden"));
-      document.querySelectorAll(".niimbot-size-btn").forEach(btn => btn.addEventListener("click", () => {
-        document.querySelectorAll(".niimbot-size-btn").forEach(other => other.setAttribute("aria-pressed", String(other === btn)));
-        renderNiimbotLabel(true);
-      }));
-      document.getElementById("niimbotMargin").addEventListener("change", () => renderNiimbotLabel(true));
-      document.getElementById("niimbotIncludeCostCode").addEventListener("change", () => renderNiimbotLabel(true));
-      document.getElementById("btnPrintSticker").addEventListener("click", () => {
-        renderNiimbotLabel(true);
-        printDocument("sticker");
-      });
-      document.getElementById("btnDownloadStickerPng").addEventListener("click", () => {
-        if (!activeQrProduct) return;
-        const size = activeNiimbotLabel();
-        const canvas = renderNiimbotLabel(false);
-        const png = encodeNiimbotPng(canvas);
-        const a = document.createElement("a");
-        a.download = `QR_${(activeQrProduct.code || "SJS").replace(/[^a-zA-Z0-9_-]/g, "")}_${size.id}.png`;
-        a.href = URL.createObjectURL(new Blob([png], { type: "image/png" }));
-        a.click();
-        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-        showToast("PNG label diunduh. Di aplikasi NIIMBOT, pilih ukuran label yang sama dan pasangkan ke bidang label.");
-      });
-
-      document.getElementById("bookDatePicker").addEventListener("change", e => { if (e.target.value) { selectedDateStr = e.target.value; currentViewMode = "day"; updateViewModeButtons(); renderTransactions(); } });
-      document.getElementById("btnPrevDate").addEventListener("click", () => { selectedDateStr = shiftDate(selectedDateStr, -1); currentViewMode = "day"; document.getElementById("bookDatePicker").value = selectedDateStr; updateViewModeButtons(); renderTransactions(); });
-      document.getElementById("btnNextDate").addEventListener("click", () => { selectedDateStr = shiftDate(selectedDateStr, 1); currentViewMode = "day"; document.getElementById("bookDatePicker").value = selectedDateStr; updateViewModeButtons(); renderTransactions(); });
-      document.getElementById("btnTodayMode").addEventListener("click", () => { selectedDateStr = todayStr(); currentViewMode = "day"; document.getElementById("bookDatePicker").value = selectedDateStr; updateViewModeButtons(); renderTransactions(); });
-      document.getElementById("btnAllDaysMode").addEventListener("click", () => { currentViewMode = "all"; updateViewModeButtons(); renderTransactions(); });
+      document.getElementById("bookDatePicker").addEventListener("change", e => { selectedDateStr = e.target.value || todayStr(); setViewMode("day"); });
+      document.getElementById("btnPrevDate").addEventListener("click", () => { selectedDateStr = shiftDate(selectedDateStr, -1); document.getElementById("bookDatePicker").value = selectedDateStr; setViewMode("day"); });
+      document.getElementById("btnNextDate").addEventListener("click", () => { selectedDateStr = shiftDate(selectedDateStr, 1); document.getElementById("bookDatePicker").value = selectedDateStr; setViewMode("day"); });
+      document.getElementById("btnTodayMode").addEventListener("click", () => { selectedDateStr = todayStr(); document.getElementById("bookDatePicker").value = selectedDateStr; setViewMode("day"); });
+      document.getElementById("btnAllDaysMode").addEventListener("click", () => setViewMode("all"));
       document.getElementById("btnOpenRecap").addEventListener("click", openDailyRecapModal);
       document.getElementById("btnCloseRecapModal").addEventListener("click", () => document.getElementById("dailyRecapModal").classList.add("hidden"));
       document.getElementById("cardProductBreakdown").addEventListener("click", openProductBreakdownModal);
       document.getElementById("btnCloseBreakdownModal").addEventListener("click", () => document.getElementById("productBreakdownModal").classList.add("hidden"));
-
-      document.getElementById("salesReportRows").addEventListener("click", event => {
-        const paymentButton = event.target.closest("[data-sale-payment]");
-        if (paymentButton) {
-          openSalePayment(transactions.find(row => row.id === paymentButton.dataset.salePayment));
-          return;
-        }
-        const photoButton = event.target.closest("[data-sale-photo-tx]");
-        if (photoButton) {
-          openSalePhotoPicker(photoButton.dataset.salePhotoTx, Number(photoButton.dataset.salePhotoLine));
-          return;
-        }
-        const related = event.target.closest("[data-related-sale]");
-        if (!related) return;
-        const sale = transactions.find(row => row.id === related.dataset.relatedSale)
-          || cancelledTransactions.find(row => row.id === related.dataset.relatedSale);
-        if (!sale) return;
-        document.getElementById("searchInput").value = receiptNumber(sale);
-        renderTransactions();
-      });
-
-      document.getElementById("cancelledSalesList").addEventListener("click", event => {
-        const paymentButton = event.target.closest("[data-sale-payment]");
-        if (paymentButton) {
-          openSalePayment(cancelledTransactions.find(row => row.id === paymentButton.dataset.salePayment));
-          return;
-        }
-        const replace = event.target.closest("[data-replace-sale]");
-        if (replace) {
-          startReplacementSale(replace.dataset.replaceSale);
-          return;
-        }
-        const related = event.target.closest("[data-related-sale]");
-        if (!related) return;
-        const sale = transactions.find(row => row.id === related.dataset.relatedSale)
-          || cancelledTransactions.find(row => row.id === related.dataset.relatedSale);
-        if (!sale) return;
-        document.getElementById("searchInput").value = receiptNumber(sale);
-        renderTransactions();
-      });
-
       document.getElementById("searchInput").addEventListener("input", renderTransactions);
       document.getElementById("filterPayment").addEventListener("change", renderTransactions);
+      const salesHistory = document.getElementById("salesHistoryWorkspace");
+      salesHistory.addEventListener("click", event => {
+        const payment = event.target.closest("[data-sale-payment]");
+        if (payment) {
+          const sale = transactions.find(row => row.id === payment.dataset.salePayment)
+            || cancelledTransactions.find(row => row.id === payment.dataset.salePayment);
+          openSalePayment(sale);
+          return;
+        }
+        const replacement = event.target.closest("[data-replace-sale]");
+        if (replacement) return startReplacementSale(replacement.dataset.replaceSale);
+        const related = event.target.closest("[data-related-sale]");
+        if (!related) return;
+        const sale = transactions.find(row => row.id === related.dataset.relatedSale)
+          || cancelledTransactions.find(row => row.id === related.dataset.relatedSale);
+        if (!sale) return;
+        const search = document.getElementById("searchInput");
+        search.value = receiptNumber(sale);
+        renderTransactions();
+        search.focus();
+      });
       document.getElementById("catalogSearch").addEventListener("input", renderProductCatalog);
-      document.getElementById("catalogSearchForm").addEventListener("submit", e => e.preventDefault());
+      document.getElementById("catalogSearchForm").addEventListener("submit", event => event.preventDefault());
       document.getElementById("btnClearCatalogSearch").addEventListener("click", () => {
         const search = document.getElementById("catalogSearch");
         search.value = "";
@@ -5094,93 +4793,563 @@
       document.getElementById("invMissingPhotoOnly").addEventListener("change", renderInventory);
       document.getElementById("inventoryFollowUp").addEventListener("change", renderInventory);
 
-      document.getElementById("btnPrintReport").addEventListener("click", () => printDocument("report"));
-      document.getElementById("btnExportCSV").addEventListener("click", () => {
-        const rows = [["Tanggal", "Pembeli", "Barang", "Qty", "Harga Jual", "Subtotal", "Cara Bayar", "Modal", "Untung"]];
-        transactions.forEach(tx => (tx.items || []).forEach((it, idx) => {
-          rows.push([tx.date, tx.customer, it.name, it.qty, it.price, it.subtotal ?? (it.price * it.qty), tx.paymentMethod, idx === 0 ? tx.totalModal : "", idx === 0 ? tx.totalProfit : ""]);
-        }));
-        const csv = rows.map(r => r.map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(",")).join("\n");
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" }));
-        a.download = `Laporan_${shopName.replace(/\s+/g, "_")}_${todayStr()}.csv`;
-        a.click();
+      document.getElementById("btnCloseQrModal").addEventListener("click", () => document.getElementById("productQrModal").classList.add("hidden"));
+      document.getElementById("niimbotMargin").addEventListener("change", () => {
+        if (activeQrProduct) renderNiimbotLabel(activeQrProduct);
       });
+      document.getElementById("niimbotIncludeCostCode").addEventListener("change", () => {
+        if (activeQrProduct) renderNiimbotLabel(activeQrProduct);
+      });
+      for (const button of document.querySelectorAll(".niimbot-size-btn")) {
+        button.addEventListener("click", () => {
+          selectedNiimbotSize = button.dataset.labelSize;
+          if (activeQrProduct) renderNiimbotLabel(activeQrProduct);
+        });
+      }
+      document.getElementById("btnDownloadStickerPng").addEventListener("click", downloadStickerPng);
+      document.getElementById("btnPrintSticker").addEventListener("click", printStickerLabel);
 
-      document.getElementById("syncStatusBadge").addEventListener("click", () => document.getElementById("cloudConfigModal").classList.remove("hidden"));
+      document.getElementById("syncStatusBadge").addEventListener("click", () => {
+        if (!isAdmin) return;
+        document.getElementById("cloudConfigModal").classList.remove("hidden");
+      });
       document.getElementById("btnCloseCloudModal").addEventListener("click", () => document.getElementById("cloudConfigModal").classList.add("hidden"));
       document.getElementById("btnDownloadConfiguredHtml").addEventListener("click", () => {
+        const blob = new Blob(["<!DOCTYPE html>\n" + document.documentElement.outerHTML], { type: "text/html;charset=utf-8" });
         const a = document.createElement("a");
-        a.href = URL.createObjectURL(new Blob(["<!DOCTYPE html>\n" + document.documentElement.outerHTML], { type: "text/html" }));
-        a.download = "index.html";
+        a.href = URL.createObjectURL(blob);
+        a.download = `SuryaJayaSport-Backup-${todayStr()}.html`;
         a.click();
       });
 
       document.getElementById("shopHeaderTrigger").addEventListener("click", () => {
-        if (!isAdmin) return;
+        if (!isAdmin) return showToast("Buka Kunci Admin dulu untuk mengubah nama toko.");
         document.getElementById("shopNameInput").value = shopName;
         document.getElementById("shopNameModal").classList.remove("hidden");
       });
       document.getElementById("btnCloseShopModal").addEventListener("click", () => document.getElementById("shopNameModal").classList.add("hidden"));
       document.getElementById("btnSaveShopName").addEventListener("click", async () => {
         const val = document.getElementById("shopNameInput").value.trim();
-        if (val) { setShopName(val); await saveConfig({ shopName: val }); document.getElementById("shopNameModal").classList.add("hidden"); showToast("Nama toko diperbarui!"); }
+        if (!val) return;
+        setShopName(val);
+        await saveConfig({ shopName: val });
+        document.getElementById("shopNameModal").classList.add("hidden");
+        showToast("Nama toko berhasil disimpan!");
       });
 
       document.getElementById("btnCancelDelete").addEventListener("click", () => {
         if (deleteInProgress) return;
-        deleteTargetId = null;
+        deleteTargetId = null; deleteTargetType = null;
         document.getElementById("deleteConfirmModal").classList.add("hidden");
       });
-      document.getElementById("btnConfirmDelete").addEventListener("click", async () => {
-        if (!isAdmin || !deleteTargetId || !db || deleteInProgress) return;
-        const cancelSale = deleteTargetType === "transaction";
-        const reason = document.getElementById("cancelReasonInput").value;
-        if (cancelSale && !reason.trim()) {
-          showToast("Isi alasan pembatalan transaksi.");
-          document.getElementById("cancelReasonInput").focus();
-          return;
-        }
-        const confirmBtn = document.getElementById("btnConfirmDelete");
-        const cancelBtn = document.getElementById("btnCancelDelete");
-        deleteInProgress = true;
-        confirmBtn.disabled = true;
-        cancelBtn.disabled = true;
-        try {
-          if (cancelSale) {
-            const result = await cancelSaleAndRestoreStock(deleteTargetId, reason);
-            showToast(result.alreadyCancelled
-              ? "Transaksi ini sudah dibatalkan sebelumnya."
-              : "Transaksi dibatalkan dan stok barang dikembalikan.");
-          } else {
-            await runTransaction(db, async transaction => {
-              transaction.delete(doc(db, ...paths("inventory", deleteTargetId)));
-              transaction.delete(doc(db, "publicCatalog", deleteTargetId));
-            });
-            showToast("Barang dihapus.");
-          }
-          deleteTargetId = null;
-          document.getElementById("deleteConfirmModal").classList.add("hidden");
-        } catch (err) {
-          showToast(err?.message || (cancelSale ? "Gagal membatalkan transaksi." : "Gagal menghapus barang."));
-        } finally {
-          deleteInProgress = false;
-          confirmBtn.disabled = false;
-          cancelBtn.disabled = false;
-        }
+
+      document.getElementById("btnExportCSV").addEventListener("click", () => {
+        if (!transactions.length) return showToast("Belum ada data untuk diunduh.");
+        const rows = [["NoNota", "Tanggal", "Pelanggan", "Barang", "Qty", "HargaJual", "Subtotal", "Bayar", "ModalTotal", "UntungTotal"]];
+        transactions.forEach(tx => (tx.items || []).forEach(it => rows.push([
+          receiptNumber(tx), tx.date, `"${(tx.customer || "").replace(/"/g, '""')}"`, `"${(it.name || "").replace(/"/g, '""')}"`,
+          it.qty, it.price, it.subtotal ?? (it.price * it.qty), tx.paymentMethod, tx.totalModal, tx.totalProfit
+        ])));
+        const csv = rows.map(r => r.join(",")).join("\n");
+        const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `Laporan-SuryaJayaSport-${todayStr()}.csv`;
+        a.click();
       });
 
-      const copyGreeting = document.getElementById("copyWhatsAppGreeting");
-      copyGreeting.addEventListener("click", async () => {
-        const greeting = "Halo! Terima kasih telah menghubungi Surya Jaya Sport (Jl. Ahmad Yani 37, Berau).\n\nSilakan kirim nama produk atau foto barang yang dicari, kami akan segera cek ketersediaan stok untuk Anda.";
-        if (!navigator.clipboard?.writeText) return;
-        try {
-          await navigator.clipboard.writeText(greeting);
-          copyGreeting.textContent = "Pesan sambutan tersalin";
-          setTimeout(() => { copyGreeting.textContent = "Salin pesan sambutan WhatsApp"; }, 3000);
-        } catch {}
+      document.getElementById("btnPrintReport").addEventListener("click", () => {
+        printDocument("report");
       });
-    });
+
+      // Tutup dialog saat klik area luar (backdrop)
+      for (const dialog of document.querySelectorAll("dialog")) {
+        dialog.addEventListener("click", event => {
+          if (event.target === dialog && !dialog.querySelector('button[type="submit"]')?.disabled) {
+            dialog.close();
+          }
+        });
+      }
+    }
+
+    initApp();
+
+    const assistantState = {
+      history: [],
+      pendingSale: null,
+      busy: false,
+      welcomed: false
+    };
+
+    function assistantElements() {
+      return {
+        box: document.getElementById("sjsAiBox"),
+        toggle: document.getElementById("sjsAiToggleBtn"),
+        log: document.getElementById("sjsAiChatLog"),
+        input: document.getElementById("sjsAiInput"),
+        send: document.getElementById("sjsAiSendBtn"),
+        actions: document.getElementById("sjsAssistantSaleActions"),
+        confirm: document.getElementById("sjsAssistantConfirm"),
+        cancel: document.getElementById("sjsAssistantCancel")
+      };
+    }
+
+    function setAssistantOpen(open) {
+      const { box, toggle, input } = assistantElements();
+      if (!isAdmin && open) return;
+      box.classList.toggle("hidden", !open);
+      toggle.setAttribute("aria-expanded", String(open));
+      if (open) {
+        if (!assistantState.welcomed) {
+          assistantState.welcomed = true;
+          appendAssistantMessage("assistant",
+            "Siap membantu pembukuan " + shopName + ".\nTanyakan omzet, laba rugi, barang terlaris, stok yang perlu dibeli lagi, peluang barang baru, atau ketik: jual [barang] [jumlah] [harga] [tunai/QRIS/transfer/kartu]."
+          );
+        }
+        input.focus();
+      }
+    }
+
+    function resetShopAssistant() {
+      const { log, input } = assistantElements();
+      assistantState.history = [];
+      assistantState.pendingSale = null;
+      assistantState.busy = false;
+      assistantState.welcomed = false;
+      log.replaceChildren();
+      input.value = "";
+      syncAssistantControls();
+    }
+
+    function syncAssistantControls() {
+      const { input, send, actions, confirm, cancel } = assistantElements();
+      input.disabled = assistantState.busy;
+      send.disabled = assistantState.busy;
+      actions.hidden = !assistantState.pendingSale;
+      confirm.disabled = assistantState.busy || !assistantState.pendingSale;
+      cancel.disabled = assistantState.busy || !assistantState.pendingSale;
+    }
+
+    function appendAssistantMessage(role, text) {
+      const { log } = assistantElements();
+      const bubble = document.createElement("div");
+      bubble.className = role === "user"
+        ? "ml-auto max-w-[85%] rounded-2xl bg-blue-800 px-3.5 py-2.5 text-white whitespace-pre-line break-words"
+        : "mr-auto max-w-[90%] rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 text-slate-900 whitespace-pre-line break-words";
+      bubble.textContent = text;
+      log.append(bubble);
+      log.scrollTop = log.scrollHeight;
+      return bubble;
+    }
+
+    function periodRows(rows, period) {
+      return rows.filter(row => {
+        if (!row.date) return false;
+        if (period.date) return row.date === period.date;
+        if (period.month) return row.date.startsWith(period.month + "-");
+        if (period.startDate && period.endDate) return row.date >= period.startDate && row.date <= period.endDate;
+        return true;
+      });
+    }
+
+    function topSoldLines(salesRows) {
+      const lines = new Map();
+      for (const tx of salesRows) {
+        for (const item of tx.items || []) {
+          const key = item.inventoryId || assistantKey(item.name);
+          const current = lines.get(key) || { name: item.name || "Barang", qty: 0, omset: 0 };
+          current.qty += Number(item.qty || 0);
+          current.omset += Number(item.subtotal ?? (Number(item.price || 0) * Number(item.qty || 0)));
+          lines.set(key, current);
+        }
+      }
+      return [...lines.values()].sort((a, b) => b.qty - a.qty || b.omset - a.omset);
+    }
+
+    function summarizeSalesPeriod(period) {
+      const salesRows = periodRows(transactions, period);
+      const omset = salesRows.reduce((sum, tx) => sum + Number(tx.totalOmset || 0), 0);
+      const hpp = salesRows.reduce((sum, tx) => sum + Number(tx.totalModal || 0), 0);
+      const labaKotor = salesRows.reduce((sum, tx) => sum + Number(tx.totalProfit || 0), 0);
+      const pengeluaran = periodRows(books.expenses, period).reduce((sum, row) => sum + Number(row.amount || 0), 0);
+      const paymentTotals = {};
+      for (const tx of salesRows) {
+        const method = tx.paymentMethod || "Cash";
+        paymentTotals[method] = (paymentTotals[method] || 0) + Number(tx.totalOmset || 0);
+      }
+      return {
+        label: period.label,
+        transaksi: salesRows.length,
+        omset,
+        hpp,
+        labaKotor,
+        pengeluaran,
+        labaBersih: labaKotor - pengeluaran,
+        perMetodeBayar: paymentTotals,
+        terlaris: topSoldLines(salesRows).slice(0, 5)
+      };
+    }
+
+    function formatPaymentBreakdown(totals) {
+      const entries = Object.entries(totals);
+      if (!entries.length) return "Belum ada penjualan pada periode ini.";
+      return entries.map(([method, amount]) => `${method}: ${rp(amount)}`).join(" | ");
+    }
+
+    function inventoryMovement(days) {
+      const today = todayStr();
+      const start = shiftDate(today, -(days - 1));
+      const active = activeInventory();
+      const byId = new Map(active.map(item => [item.id, item]));
+      const byKey = new Map();
+      const duplicates = new Set();
+      for (const item of active) {
+        for (const key of [assistantKey(item.name), assistantKey(item.code)].filter(Boolean)) {
+          if (byKey.has(key)) duplicates.add(key);
+          byKey.set(key, item);
+        }
+      }
+      const soldById = new Map();
+      for (const tx of transactions) {
+        if (!tx.date || tx.date < start || tx.date > today) continue;
+        for (const line of tx.items || []) {
+          let product = line.inventoryId ? byId.get(line.inventoryId) : null;
+          if (!product) {
+            const key = assistantKey(line.name);
+            if (key && !duplicates.has(key)) product = byKey.get(key) || null;
+          }
+          if (!product) continue;
+          soldById.set(product.id, (soldById.get(product.id) || 0) + Number(line.qty || 0));
+        }
+      }
+      return { days, soldById };
+    }
+
+    function reorderCandidates(days = 30) {
+      const { soldById } = inventoryMovement(days);
+      return activeInventory()
+        .map(item => {
+          const stok = Number(item.stock || 0);
+          const terjual = soldById.get(item.id) || 0;
+          const sisaHari = terjual > 0 ? Math.round((stok / terjual) * days) : null;
+          return {
+            kode: item.code || "",
+            nama: item.name || "",
+            stok,
+            terjual30Hari: terjual,
+            perkiraanCukupHari: sisaHari,
+            modalTerakhir: Number(item.cost || 0)
+          };
+        })
+        .filter(row => row.stok <= LOW_STOCK_LIMIT || (row.perkiraanCukupHari !== null && row.perkiraanCukupHari <= 14))
+        .sort((a, b) => (a.stok === 0) - (b.stok === 0) * -1 || b.terjual30Hari - a.terjual30Hari || a.stok - b.stok);
+    }
+
+    function productOpportunitySummary(days = 30) {
+      const { soldById } = inventoryMovement(days);
+      const active = activeInventory();
+      const fast = active
+        .map(item => ({ nama: item.name, kode: item.code, stok: Number(item.stock || 0), terjual: soldById.get(item.id) || 0, margin: Number(item.price || 0) - Number(item.cost || 0) }))
+        .filter(row => row.terjual > 0)
+        .sort((a, b) => b.terjual - a.terjual || b.margin - a.margin)
+        .slice(0, 6);
+      const slow = active
+        .filter(item => Number(item.stock || 0) > 0 && !(soldById.get(item.id) > 0))
+        .slice(0, 6)
+        .map(item => ({ nama: item.name, kode: item.code, stok: Number(item.stock || 0) }));
+      return {
+        periodeHari: days,
+        jumlahProdukAktif: active.length,
+        produkPalingLaku: fast,
+        stokBelumBergerak: slow
+      };
+    }
+
+    function formatSignedRp(amount) {
+      return (amount > 0 ? "+" : amount < 0 ? "-" : "") + rp(Math.abs(amount));
+    }
+
+    function formatChangePercent(current, previous) {
+      if (!previous) return current ? " (baru dibanding periode lalu)" : "";
+      const pct = Math.round(((current - previous) / previous) * 100);
+      return ` (${pct > 0 ? "+" : ""}${pct}%)`;
+    }
+
+    function describeLocalAnswer(intent, question) {
+      const today = todayStr();
+      const parsed = intent || understandShopQuestion(question, today, shiftDate);
+      if (parsed.type === "reorder") {
+        const list = reorderCandidates(30);
+        if (!list.length) return "Semua barang aktif masih di atas batas stok menipis (" + LOW_STOCK_LIMIT + " pcs).";
+        return "Barang yang perlu diprioritaskan untuk dibeli lagi:\n" + list.slice(0, 10).map((row, idx) => {
+          const pace = row.terjual30Hari > 0
+            ? `, terjual ${row.terjual30Hari} pcs dalam 30 hari (perkiraan cukup ${row.perkiraanCukupHari} hari)`
+            : ", belum ada penjualan 30 hari terakhir";
+          return `${idx + 1}. ${row.kode ? `[${row.kode}] ` : ""}${row.nama} — sisa ${row.stok} pcs${pace}`;
+        }).join("\n");
+      }
+      if (parsed.type === "new-products") {
+        const data = productOpportunitySummary(30);
+        const fastText = data.produkPalingLaku.length
+          ? data.produkPalingLaku.map((row, idx) => `${idx + 1}. ${row.nama} (${row.terjual} pcs, laba ${rp(row.margin)}/pcs, sisa ${row.stok})`).join("\n")
+          : "Belum ada penjualan tercatat dalam 30 hari terakhir.";
+        const slowText = data.stokBelumBergerak.length
+          ? data.stokBelumBergerak.map(row => `${row.nama} (sisa ${row.stok})`).join(", ")
+          : "Semua stok aktif sempat terjual dalam 30 hari terakhir.";
+        return `Peluang produk baru dari pola penjualan 30 hari:\nKategori paling diminati:\n${fastText}\n\nStok yang belum bergerak (hindari menambah varian serupa dulu):\n${slowText}\n\nPertimbangkan menambah varian ukuran, warna, atau pelengkap dari produk yang paling laku.`;
+      }
+      if (parsed.type === "inventory-lookup") {
+        const matches = activeInventory().filter(item =>
+          [item.name, item.code, item.size, item.color].some(part => assistantKey(part).includes(parsed.term))
+        );
+        if (!matches.length) return `Tidak ada barang aktif yang cocok dengan "${parsed.term}".`;
+        return "Stok yang cocok:\n" + matches.slice(0, 10).map(item =>
+          `• ${formatItemLabel(item)} — sisa ${Number(item.stock || 0)} pcs | jual ${rp(item.price)} | modal ${rp(item.cost)}`
+        ).join("\n");
+      }
+      if (parsed.type === "stock-overview") {
+        const active = activeInventory();
+        const totalUnits = active.reduce((sum, item) => sum + Number(item.stock || 0), 0);
+        const assetValue = active.reduce((sum, item) => sum + Number(item.stock || 0) * Number(item.cost || 0), 0);
+        const lowCount = active.filter(item => Number(item.stock || 0) < LOW_STOCK_LIMIT).length;
+        return `Ringkasan stok aktif: ${active.length} jenis barang, ${totalUnits} pcs, nilai modal ${rp(assetValue)}, dan ${lowCount} barang dengan stok di bawah ${LOW_STOCK_LIMIT} pcs.`;
+      }
+      const summary = summarizeSalesPeriod(parsed.period);
+      const comparison = parsed.compare ? assistantComparisonPeriod(parsed.period, today, shiftDate) : null;
+      const previous = comparison ? summarizeSalesPeriod(comparison) : null;
+      const topText = summary.terlaris.length
+        ? "\nTerlaris: " + summary.terlaris.slice(0, 3).map(row => `${row.name} (${row.qty} pcs)`).join(", ")
+        : "";
+      const compareText = previous
+        ? `\nPerbandingan dengan ${previous.label}:\nOmzet ${formatSignedRp(summary.omset - previous.omset)}${formatChangePercent(summary.omset, previous.omset)} (sebelumnya ${rp(previous.omset)}) | Laba kotor ${formatSignedRp(summary.labaKotor - previous.labaKotor)}${formatChangePercent(summary.labaKotor, previous.labaKotor)} | Transaksi ${summary.transaksi - previous.transaksi >= 0 ? "+" : ""}${summary.transaksi - previous.transaksi} (sebelumnya ${previous.transaksi})`
+        : "";
+      if (parsed.type === "top-products") {
+        if (!summary.terlaris.length) return `Belum ada penjualan tercatat untuk ${summary.label}.`;
+        return `Barang terlaris (${summary.label}):\n` + summary.terlaris.map((row, idx) =>
+          `${idx + 1}. ${row.name} — ${row.qty} pcs (${rp(row.omset)})`
+        ).join("\n");
+      }
+      if (parsed.type === "profit-loss") {
+        return `Laporan ${summary.label}:\nOmzet: ${rp(summary.omset)} (${summary.transaksi} transaksi)\nHPP / modal terjual: ${rp(summary.hpp)}\nLaba kotor: ${rp(summary.labaKotor)}\nPengeluaran tercatat: ${rp(summary.pengeluaran)}\nUntung / rugi usaha: ${rp(summary.labaBersih)}${compareText}`;
+      }
+      return `Ringkasan ${summary.label}:\nOmzet: ${rp(summary.omset)} (${summary.transaksi} transaksi)\nLaba kotor: ${rp(summary.labaKotor)}\nMetode bayar: ${formatPaymentBreakdown(summary.perMetodeBayar)}${topText}${compareText}`;
+    }
+
+    function findInventoryForAssistant(queryText) {
+      const normalized = assistantKey(queryText);
+      if (!normalized) return { item: null, matches: [] };
+      const exact = activeInventory().filter(item =>
+        assistantKey(item.code) === normalized || assistantKey(item.name) === normalized
+      );
+      if (exact.length === 1) return { item: exact[0], matches: exact };
+      if (exact.length > 1) return { item: null, matches: exact };
+      const tokens = normalized.split(" ").filter(Boolean);
+      const partial = activeInventory().filter(item => {
+        const haystack = assistantKey([item.code, item.name, item.size, item.color].filter(Boolean).join(" "));
+        return tokens.every(token => haystack.includes(token));
+      });
+      if (partial.length === 1) return { item: partial[0], matches: partial };
+      return { item: null, matches: partial.slice(0, 5) };
+    }
+
+    function parseAssistantSaleCommand(text) {
+      const parts = assistantSaleParts(text);
+      if (!parts) return null;
+      const { itemQuery, qty, price, paymentMethod } = parts;
+      if (!itemQuery) return { error: "Sebutkan nama atau kode barang yang dijual." };
+      if (!Number.isSafeInteger(qty) || qty < 1) return { error: "Jumlah barang harus minimal 1 pcs." };
+      const { item, matches } = findInventoryForAssistant(itemQuery);
+      if (!item) {
+        if (matches.length) {
+          return {
+            error: "Ada beberapa barang yang cocok. Pilih salah satu:\n" +
+              matches.map(row => `• ${formatItemLabel(row)} (${rp(row.price)}, sisa ${Number(row.stock || 0)})`).join("\n")
+          };
+        }
+        return { error: `Barang "${itemQuery}" tidak ditemukan di daftar stok aktif.` };
+      }
+      const stock = Number(item.stock || 0);
+      if (stock < qty) {
+        return { error: `Stok ${item.name} tersisa ${stock} pcs, tidak cukup untuk ${qty} pcs.` };
+      }
+      const unitPrice = price === null ? Number(item.price || 0) : price;
+      if (!Number.isSafeInteger(unitPrice) || unitPrice < 0) {
+        return { error: "Harga satuan harus berupa angka Rupiah yang valid." };
+      }
+      const unitCost = Number(item.cost || 0);
+      return {
+        draft: {
+          date: todayStr(),
+          customer: "Pelanggan Umum",
+          paymentMethod,
+          items: [{
+            inventoryId: item.id,
+            name: formatItemLabel(item),
+            qty,
+            price: unitPrice,
+            cost: unitCost,
+            imageUrl: item.imageUrl || ""
+          }],
+          totalOmset: unitPrice * qty,
+          totalModal: unitCost * qty,
+          totalProfit: (unitPrice - unitCost) * qty,
+          createdAt: new Date().toISOString()
+        },
+        remainingAfter: stock - qty
+      };
+    }
+
+    function assistantBusinessSnapshot(question) {
+      const today = todayStr();
+      const parsed = understandShopQuestion(question, today, shiftDate);
+      const period = parsed.period || { label: "bulan ini", month: today.slice(0, 7) };
+      const comparison = parsed.compare ? assistantComparisonPeriod(period, today, shiftDate) : null;
+      const demandFilter = shopDemandFilter(question);
+      return {
+        namaToko: shopName,
+        tanggalHariIni: today,
+        periodeDiminta: summarizeSalesPeriod(period),
+        ...(comparison ? { periodePembanding: summarizeSalesPeriod(comparison) } : {}),
+        ringkasanHariIni: summarizeSalesPeriod({ label: "hari ini", date: today }),
+        ringkasanBulanIni: summarizeSalesPeriod({ label: "bulan ini", month: today.slice(0, 7) }),
+        perluBeliStokLagi: reorderCandidates(30).slice(0, 10),
+        peluangProdukBaru: productOpportunitySummary(30),
+        ...(demandFilter ? { katalogCocokPermintaan: demandFilter.products } : {}),
+        jumlahBarangAktif: activeInventory().length
+      };
+    }
+
+    async function askShopAssistant(question) {
+      const intent = understandShopQuestion(question, todayStr(), shiftDate);
+      if (intent.localOnly) return describeLocalAnswer(intent, question);
+      const token = await auth?.currentUser?.getIdToken();
+      if (!token) throw new Error("Masuk ulang sebagai pemilik untuk memakai asisten.");
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 25000);
+      try {
+        const response = await fetch("/api/shop-assistant", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
+          },
+          body: JSON.stringify({
+            question,
+            history: assistantState.history.slice(-6),
+            businessData: assistantBusinessSnapshot(question)
+          }),
+          signal: controller.signal
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || !payload.reply) {
+          throw new Error(payload.error || "Layanan AI belum merespon.");
+        }
+        return String(payload.reply);
+      } catch (err) {
+        if (err && err.name === "AbortError") throw new Error("Permintaan AI habis waktu. Coba lagi.");
+        throw err;
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    }
+
+    async function confirmAssistantSale() {
+      if (!assistantState.pendingSale || assistantState.busy) return;
+      if (!isAdmin || !db) {
+        appendAssistantMessage("assistant", "Masuk sebagai pemilik terlebih dahulu sebelum menyimpan penjualan.");
+        return;
+      }
+      assistantState.busy = true;
+      syncAssistantControls();
+      const draft = assistantState.pendingSale;
+      try {
+        const savedSale = await saveSaleAndUpdateStock({
+          ...draft,
+          createdAt: new Date().toISOString()
+        });
+        assistantState.pendingSale = null;
+        selectedDateStr = savedSale.date;
+        document.getElementById("bookDatePicker").value = savedSale.date;
+        renderApp();
+        appendAssistantMessage("assistant", `Penjualan tersimpan. No. nota ${receiptNumber(savedSale)} · Total ${rp(savedSale.totalOmset)} (${savedSale.paymentMethod}).`);
+        showToast("Penjualan tersimpan lewat Asisten Toko.");
+      } catch (err) {
+        appendAssistantMessage("assistant", err?.message || "Gagal menyimpan penjualan.");
+      } finally {
+        assistantState.busy = false;
+        syncAssistantControls();
+      }
+    }
+
+    async function submitAssistantQuestion(rawText) {
+      const text = String(rawText || "").trim();
+      if (!text || assistantState.busy) return;
+      if (!isAdmin) {
+        showToast("Masuk sebagai pemilik untuk membuka Asisten Toko.");
+        return;
+      }
+      setAssistantOpen(true);
+      appendAssistantMessage("user", text);
+      document.getElementById("sjsAiInput").value = "";
+
+      const saleAttempt = parseAssistantSaleCommand(text);
+      if (saleAttempt) {
+        if (saleAttempt.error) {
+          appendAssistantMessage("assistant", saleAttempt.error);
+          return;
+        }
+        assistantState.pendingSale = saleAttempt.draft;
+        syncAssistantControls();
+        const item = saleAttempt.draft.items[0];
+        appendAssistantMessage(
+          "assistant",
+          `Draf penjualan siap disimpan:\n• Barang: ${item.name}\n• Jumlah: ${item.qty} pcs × ${rp(item.price)} = ${rp(saleAttempt.draft.totalOmset)}\n• Cara bayar: ${saleAttempt.draft.paymentMethod}\n• Sisa stok setelah simpan: ${saleAttempt.remainingAfter} pcs\n\nTekan "Simpan penjualan" untuk mencatat transaksi dan mengurangi stok.`
+        );
+        return;
+      }
+
+      assistantState.busy = true;
+      syncAssistantControls();
+      const thinking = appendAssistantMessage("assistant", "Memeriksa data toko...");
+      try {
+        const reply = await askShopAssistant(text);
+        thinking.textContent = reply;
+        assistantState.history.push({ role: "user", text }, { role: "assistant", text: reply });
+      } catch (err) {
+        thinking.textContent = describeLocalAnswer(null, text);
+      } finally {
+        assistantState.busy = false;
+        syncAssistantControls();
+        document.getElementById("sjsAiInput").focus();
+      }
+    }
+
+    function wireShopAssistant() {
+      const { toggle, actions } = assistantElements();
+      toggle.addEventListener("click", () => {
+        const opening = document.getElementById("sjsAiBox").classList.contains("hidden");
+        setAssistantOpen(opening);
+      });
+      document.getElementById("sjsAiCloseBtn").addEventListener("click", () => setAssistantOpen(false));
+      document.getElementById("sjsAssistantForm").addEventListener("submit", event => {
+        event.preventDefault();
+        submitAssistantQuestion(document.getElementById("sjsAiInput").value);
+      });
+      document.getElementById("sjsAssistantShortcuts").addEventListener("click", event => {
+        const button = event.target.closest("[data-assistant-command]");
+        if (button) submitAssistantQuestion(button.dataset.assistantCommand);
+      });
+      document.getElementById("sjsAssistantConfirm").addEventListener("click", confirmAssistantSale);
+      document.getElementById("sjsAssistantCancel").addEventListener("click", () => {
+        if (!assistantState.pendingSale || assistantState.busy) return;
+        assistantState.pendingSale = null;
+        syncAssistantControls();
+        appendAssistantMessage("assistant", "Draf penjualan dibatalkan.");
+      });
+      actions.hidden = true;
+    }
+
+    wireShopAssistant();
   </script>
 </body>
 </html>
