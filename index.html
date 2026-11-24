@@ -169,25 +169,46 @@
     }
   .workspace-pane > * { flex-shrink: 0; }
     #receiptPrintSheet, #reportPrintSheet, #stickerPrintSheet { display: none; }
-    .rcpt { max-width: 340px; margin: 0 auto; padding: 14px; background: #fff; border: 1px dashed #cbd5e1; font-family: ui-monospace, "Courier New", monospace; font-size: 12px; line-height: 1.4; color: #000; }
+    .rcpt { max-width: 348px; margin: 0 auto; padding: 18px 16px; background: #fff; border: 1px solid #cbd5e1; border-radius: 14px; box-shadow: 0 8px 24px -12px rgba(15,23,42,.18); font-family: ui-monospace, "Courier New", monospace; font-size: 12px; line-height: 1.48; color: #0f172a; }
     .rcpt .rc-center { text-align: center; }
-    .rcpt .rc-shop { font-size: 15px; font-weight: 800; text-transform: uppercase; }
-    .rcpt .rc-hr { border: 0; border-top: 1px dashed #000; margin: 8px 0; }
+    .rcpt .rc-shop { font-size: 16px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #000; }
+    .rcpt .rc-sub { font-size: 10.5px; color: #334155; }
+    .rcpt .rc-hr { border: 0; border-top: 1px dashed #334155; margin: 9px 0; }
+    .rcpt .rc-hr-bold { border: 0; border-top: 2px solid #000; margin: 9px 0; }
     .rcpt .rc-line { display: flex; justify-content: space-between; gap: 8px; }
     .rcpt .rc-line span:last-child { text-align: right; }
-    .rcpt .rc-item { margin-bottom: 5px; }
-    .rcpt .rc-name { font-weight: 700; word-break: break-word; }
-    .rcpt .rc-total { font-size: 14px; font-weight: 800; }
-    .rcpt .rc-void { font-weight: 800; margin: 6px 0; }
-    .rpt { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #000; }
-    .rpt h1 { font-size: 16px; margin: 0; }
-    .rpt p { margin: 2px 0 8px; }
-    .rpt table { width: 100%; border-collapse: collapse; margin: 6px 0 12px; }
-    .rpt th, .rpt td { border: 1px solid #888; padding: 3px 5px; vertical-align: top; text-align: left; }
-    .rpt th { background: #eee; }
+    .rcpt .rc-meta { font-size: 11.5px; }
+    .rcpt .rc-item { margin-bottom: 7px; padding-bottom: 5px; border-bottom: 1px dotted #cbd5e1; }
+    .rcpt .rc-item:last-of-type { border-bottom: 0; margin-bottom: 2px; padding-bottom: 0; }
+    .rcpt .rc-name { font-weight: 700; word-break: break-word; color: #000; }
+    .rcpt .rc-total-box { background: #f8fafc; border: 1.5px solid #0f172a; border-radius: 8px; padding: 8px 10px; margin: 8px 0; }
+    .rcpt .rc-total { font-size: 15px; font-weight: 800; color: #000; }
+    .rcpt .rc-void { font-weight: 800; margin: 6px 0; padding: 4px; border: 1.5px solid #000; }
+    .rcpt .rc-footnote { margin-top: 10px; padding: 8px 9px; border: 1px dashed #64748b; border-radius: 8px; font-size: 10.5px; line-height: 1.45; background: #f8fafc; }
+    .rcpt .rc-footnote-title { font-weight: 800; text-transform: uppercase; letter-spacing: .03em; margin-bottom: 4px; text-align: center; }
+    .rcpt .rc-footnote ul { margin: 4px 0 0; padding-left: 14px; text-align: left; }
+    .rcpt .rc-footnote li { margin-bottom: 2px; }
+    .rcpt .rc-thanks { font-weight: 800; font-size: 11.5px; margin-top: 8px; }
+
+    .rpt { font-family: "Plus Jakarta Sans", Arial, Helvetica, sans-serif; font-size: 11px; color: #0f172a; padding: 6px; }
+    .rpt-head { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2.5px solid #0f172a; padding-bottom: 10px; margin-bottom: 12px; gap: 12px; }
+    .rpt-head h1 { font-size: 18px; font-weight: 800; margin: 0; text-transform: uppercase; letter-spacing: .03em; color: #0f172a; }
+    .rpt-head .rpt-sub { font-size: 10.5px; color: #475569; margin: 2px 0 0; }
+    .rpt-head .rpt-meta { text-align: right; font-size: 10.5px; color: #334155; }
+    .rpt-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+    .rpt-kpi { border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px 10px; background: #f8fafc; }
+    .rpt-kpi span { display: block; font-size: 9.5px; font-weight: 700; text-transform: uppercase; color: #475569; }
+    .rpt-kpi strong { display: block; font-size: 14px; font-weight: 800; margin-top: 3px; color: #0f172a; }
+    .rpt table { width: 100%; border-collapse: collapse; margin: 6px 0 14px; }
+    .rpt th, .rpt td { border: 1px solid #cbd5e1; padding: 5px 7px; vertical-align: top; text-align: left; }
+    .rpt thead th { background: #0f172a; color: #fff; font-weight: 700; font-size: 10px; text-transform: uppercase; letter-spacing: .03em; }
+    .rpt tbody tr:nth-child(even) { background: #f8fafc; }
+    .rpt tfoot th { background: #e2e8f0; font-weight: 800; color: #0f172a; }
     .rpt .r { text-align: right; white-space: nowrap; }
+    .rpt .mono { font-family: ui-monospace, "Courier New", monospace; font-weight: 700; }
     .rpt thead { display: table-header-group; }
     .rpt tr { page-break-inside: avoid; }
+    .rpt-foot { margin-top: 14px; padding-top: 8px; border-top: 1px dashed #94a3b8; display: flex; justify-content: space-between; font-size: 10px; color: #475569; }
     @media print {
       body:not([data-print="report"]) #reportPrintSheet { display: none !important; }
       body[data-print="report"] > *:not(#reportPrintSheet) { display: none !important; }
@@ -1842,46 +1863,54 @@
       }
     }
 
-    // ==================== NOTA ====================
+    // ==================== NOTA & LAPORAN ====================
     function receiptNumber(tx) { return "SJS-" + String(tx.id).slice(-6).toUpperCase(); }
+    function formatWitaTime(iso) {
+      if (!iso) return "";
+      const dt = new Date(iso);
+      if (isNaN(dt)) return "";
+      return new Intl.DateTimeFormat("id-ID", { timeZone: "Asia/Makassar", hour: "2-digit", minute: "2-digit", hour12: false }).format(dt) + " WITA";
+    }
     function buildReceiptHtml(tx) {
-      const items = (tx.items || []).map(it => {
+      const txItems = tx.items || [];
+      const totalPcs = txItems.reduce((sum, it) => sum + Number(it.qty || 0), 0);
+      const timeStr = formatWitaTime(tx.createdAt);
+      const items = txItems.map(it => {
         const qty = Number(it.qty || 0), price = Number(it.price || 0);
         return `<div class="rc-item"><div class="rc-name">${esc(it.name)}</div><div class="rc-line"><span>${qty} × ${rp(price)}</span><span>${rp(it.subtotal ?? price * qty)}</span></div></div>`;
       }).join("");
       return `<div class="rcpt">
-        <div class="rc-center"><div class="rc-shop">${esc(shopName)}</div><div>Jl. Ahmad Yani 37, Tanjung Redeb, Berau</div><div>Telp/WA 0823-2003-3333</div></div>
-        <hr class="rc-hr">
-        <div class="rc-line"><span>No. nota</span><span>${esc(receiptNumber(tx))}</span></div>
-        <div class="rc-line"><span>Tanggal</span><span>${esc(tx.date)}</span></div>
-        <div class="rc-line"><span>Pembeli</span><span>${esc(tx.customer || "Pelanggan Umum")}</span></div>
-        <div class="rc-line"><span>Bayar</span><span>${esc(paymentMethodLabel(tx.paymentMethod || "Cash"))}</span></div>
-        ${tx.cancelledAt ? '<div class="rc-center rc-void">*** DIBATALKAN ***</div>' : ""}
+        <div class="rc-center">
+          <div class="rc-shop">${esc(shopName)}</div>
+          <div class="rc-sub">Toko Olahraga &amp; Alat Musik</div>
+          <div class="rc-sub">Jl. Ahmad Yani 37, Tanjung Redeb, Berau</div>
+          <div class="rc-sub">WA/Telp: 0823-2003-3333</div>
+        </div>
+        <hr class="rc-hr-bold">
+        <div class="rc-meta">
+          <div class="rc-line"><span>No. Nota</span><strong>${esc(receiptNumber(tx))}</strong></div>
+          <div class="rc-line"><span>Tanggal</span><span>${esc(tx.date)}${timeStr ? " · " + esc(timeStr) : ""}</span></div>
+          <div class="rc-line"><span>Pembeli</span><span>${esc(tx.customer || "Pelanggan Umum")}</span></div>
+          <div class="rc-line"><span>Pembayaran</span><strong>${esc(paymentMethodLabel(tx.paymentMethod || "Cash"))}</strong></div>
+        </div>
+        ${tx.cancelledAt ? '<div class="rc-center rc-void">*** NOTA DIBATALKAN ***</div>' : ""}
         <hr class="rc-hr">
         ${items}
-        <hr class="rc-hr">
-        <div class="rc-line rc-total"><span>TOTAL</span><span>${rp(tx.totalOmset)}</span></div>
-        <hr class="rc-hr">
-        <div class="rc-center">Terima kasih sudah berbelanja<br>Barang yang sudah dibeli tidak dapat ditukar/dikembalikan</div>
+        <div class="rc-total-box">
+          <div class="rc-line" style="font-size:11px;margin-bottom:3px"><span>Total Item</span><span>${totalPcs} pcs</span></div>
+          <div class="rc-line rc-total"><span>TOTAL BAYAR</span><span>${rp(tx.totalOmset)}</span></div>
+        </div>
+        <div class="rc-center rc-thanks">Terima kasih telah berbelanja di ${esc(shopName)}!</div>
+        <div class="rc-footnote">
+          <div class="rc-footnote-title">Catatan &amp; Ketentuan Pembelian</div>
+          <ul>
+            <li>Mohon periksa kembali kondisi, jumlah, dan kelengkapan barang sebelum meninggalkan toko.</li>
+            <li>Barang yang sudah dibeli tidak dapat ditukar atau dikembalikan (No Retur).</li>
+            <li>Simpan nota ini sebagai bukti pembelian resmi Anda.</li>
+          </ul>
+        </div>
+        <div class="rc-center rc-sub" style="margin-top:8px">Katalog &amp; stok terbaru: suryajaya-sport.github.io</div>
       </div>`;
-    }
-    function _oldBuildReceiptHtml(tx) {
-      const rows = (tx.items || []).map(item => `
-        <li class="flex justify-between gap-3 py-1.5 border-b border-dashed border-slate-200">
-          <span>${esc(item.name)} <span class="text-slate-500">(${Number(item.qty)} × ${rp(item.price)})</span></span>
-          <strong>${rp(item.subtotal ?? item.price * item.qty)}</strong>
-        </li>`).join("");
-      return `
-        <article class="bg-white p-3 text-xs">
-          <h4 class="font-extrabold text-sm">${esc(shopName)}</h4>
-          <p>Jl. Ahmad Yani 37, Berau • 0823-2003-3333</p>
-          <p class="mt-2">No: ${esc(receiptNumber(tx))} • ${esc(tx.date)}</p>
-          <p>Pembeli: ${esc(tx.customer || "Pelanggan Umum")} • ${esc(tx.paymentMethod || "Cash")}</p>
-          ${tx.cancelledAt ? '<p class="font-bold text-rose-700 mt-1">Transaksi dibatalkan</p>' : ""}
-          <ul class="mt-2">${rows}</ul>
-          <p class="mt-2 flex justify-between font-extrabold text-sm"><span>Total</span><span>${rp(tx.totalOmset)}</span></p>
-          <p class="mt-2 text-slate-500">Barang yang sudah dibeli tidak dapat ditukar/dikembalikan.</p>
-        </article>`;
     }
     function showReceiptPreview(tx) {
       document.getElementById("receiptPreviewBody").innerHTML = buildReceiptHtml(tx);
@@ -1899,18 +1928,56 @@
         const m = tx.paymentMethod || "Cash";
         if (pay[m]) { pay[m][0]++; pay[m][1] += Number(tx.totalOmset || 0); }
       }
+      const margin = omset > 0 ? (profit / omset * 100).toFixed(1).replace(".", ",") + "%" : "0%";
       const title = currentViewMode === "day"
         ? parseLocalDate(selectedDateStr).toLocaleDateString("id-ID", { dateStyle: "full" })
-        : "Semua hari";
-      const lines = rows.map(tx => `<tr><td>${esc(receiptNumber(tx))}</td><td>${esc(tx.date)}</td><td>${(tx.items || []).map(it => `${esc(it.name)} (${Number(it.qty || 0)} × ${rp(it.price)})`).join("<br>")}</td><td>${esc(paymentMethodLabel(tx.paymentMethod || "Cash"))}</td><td class="r">${rp(tx.totalOmset)}</td><td class="r">${rp(tx.totalModal)}</td><td class="r">${rp(tx.totalProfit)}</td></tr>`).join("")
-        || `<tr><td colspan="7">Tidak ada penjualan.</td></tr>`;
-      const payRows = Object.entries(pay).map(([k, v]) => `<tr><td>${esc(paymentMethodLabel(k))}</td><td class="r">${v[0]}x</td><td class="r">${rp(v[1])}</td></tr>`).join("");
-      return `<h1>${esc(shopName)} — Laporan Penjualan</h1>
-        <p>${esc(title)} · ${rows.length} transaksi · ${qty} pcs · dicetak ${esc(todayStr())}</p>
-        <table><thead><tr><th>No. nota</th><th>Tanggal</th><th>Barang</th><th>Bayar</th><th class="r">Total</th><th class="r">Modal</th><th class="r">Untung</th></tr></thead>
-        <tbody>${lines}</tbody>
-        <tfoot><tr><th colspan="4">Jumlah</th><th class="r">${rp(omset)}</th><th class="r">${rp(modal)}</th><th class="r">${rp(profit)}</th></tr></tfoot></table>
-        <table style="width:auto"><thead><tr><th>Cara bayar</th><th class="r">Transaksi</th><th class="r">Jumlah</th></tr></thead><tbody>${payRows}</tbody></table>`;
+        : "Seluruh Riwayat Penjualan";
+      const printedTime = formatWitaTime(new Date().toISOString());
+      const lines = rows.map((tx, idx) => `<tr>
+        <td class="r">${idx + 1}</td>
+        <td class="mono">${esc(receiptNumber(tx))}</td>
+        <td>${esc(tx.date)}<br><span style="font-size:9.5px;color:#475569">${esc(formatWitaTime(tx.createdAt))}</span></td>
+        <td>${esc(tx.customer || "Pelanggan Umum")}</td>
+        <td>${(tx.items || []).map(it => `${esc(it.name)} <span style="color:#475569">(${Number(it.qty || 0)} × ${rp(it.price)})</span>`).join("<br>")}</td>
+        <td>${esc(paymentMethodLabel(tx.paymentMethod || "Cash"))}</td>
+        <td class="r">${rp(tx.totalOmset)}</td>
+        <td class="r">${rp(tx.totalModal)}</td>
+        <td class="r"><strong>${rp(tx.totalProfit)}</strong></td>
+      </tr>`).join("") || `<tr><td colspan="9" style="text-align:center;padding:14px">Tidak ada penjualan pada periode ini.</td></tr>`;
+      const payRows = Object.entries(pay).map(([k, v]) => {
+        const pct = omset > 0 ? (v[1] / omset * 100).toFixed(1).replace(".", ",") + "%" : "0%";
+        return `<tr><td>${esc(paymentMethodLabel(k))}</td><td class="r">${v[0]}x</td><td class="r">${pct}</td><td class="r"><strong>${rp(v[1])}</strong></td></tr>`;
+      }).join("");
+      return `
+        <div class="rpt-head">
+          <div>
+            <h1>${esc(shopName)}</h1>
+            <p class="rpt-sub">Laporan Penjualan Resmi · Jl. Ahmad Yani 37, Tanjung Redeb, Berau · WA 0823-2003-3333</p>
+          </div>
+          <div class="rpt-meta">
+            <div><strong>Periode:</strong> ${esc(title)}</div>
+            <div><strong>Dicetak:</strong> ${esc(todayStr())}${printedTime ? " · " + esc(printedTime) : ""}</div>
+          </div>
+        </div>
+        <div class="rpt-kpis">
+          <div class="rpt-kpi"><span>Total Omzet</span><strong>${rp(omset)}</strong></div>
+          <div class="rpt-kpi"><span>Harga Pokok (HPP)</span><strong>${rp(modal)}</strong></div>
+          <div class="rpt-kpi"><span>Laba Kotor (${margin})</span><strong>${rp(profit)}</strong></div>
+          <div class="rpt-kpi"><span>Volume Penjualan</span><strong>${rows.length} Trx · ${qty} Pcs</strong></div>
+        </div>
+        <table>
+          <thead><tr><th class="r">No</th><th>No. Nota</th><th>Tanggal</th><th>Pembeli</th><th>Rincian Barang</th><th>Bayar</th><th class="r">Total</th><th class="r">Modal</th><th class="r">Untung</th></tr></thead>
+          <tbody>${lines}</tbody>
+          <tfoot><tr><th colspan="6">TOTAL KESELURUHAN</th><th class="r">${rp(omset)}</th><th class="r">${rp(modal)}</th><th class="r">${rp(profit)}</th></tr></tfoot>
+        </table>
+        <table style="width:360px">
+          <thead><tr><th>Metode Pembayaran</th><th class="r">Jumlah</th><th class="r">Porsi</th><th class="r">Total Omzet</th></tr></thead>
+          <tbody>${payRows}</tbody>
+        </table>
+        <div class="rpt-foot">
+          <span>Dokumen internal ${esc(shopName)}</span>
+          <span>suryajaya-sport.github.io</span>
+        </div>`;
     }
     async function printMode(mode, html) {
       if (mode === "receipt") document.getElementById("receiptPrintSheet").innerHTML = html;
@@ -1928,22 +1995,7 @@
       window.addEventListener("afterprint", done);
       setTimeout(() => window.print(), 100);
     }
-    function _oldPrintMode(mode, html) {
-      if (mode === "receipt") document.getElementById("receiptPrintSheet").innerHTML = html;
-      if (mode === "sticker") {
-        if (!lastStickerCanvas) return;
-        document.getElementById("stickerPrintSheet").innerHTML = `<img alt="" src="${lastStickerCanvas.toDataURL("image/png")}">`;
-      }
-      document.body.dataset.print = mode;
-      const done = () => { delete document.body.dataset.print; window.removeEventListener("afterprint", done); };
-      window.addEventListener("afterprint", done);
-      window.print();
-    }
     function printReceiptNow() { return printMode("receipt", document.getElementById("receiptPreviewBody").innerHTML); }
-    function _unusedPrintReceiptNow() {
-      document.getElementById("receiptPrintSheet").innerHTML = document.getElementById("receiptPreviewBody").innerHTML;
-      window.print();
-    }
     function openReceiptModal(id) {
       const tx = transactions.find(t => t.id === id);
       if (tx) showReceiptPreview(tx);
@@ -2203,37 +2255,68 @@
       const mobile = document.getElementById("transactionMobileList");
       tbody.innerHTML = "";
       mobile.innerHTML = "";
+      const payBadgeStyle = {
+        Cash: "bg-emerald-100 text-emerald-900 border border-emerald-200",
+        QRIS: "bg-sky-100 text-sky-900 border border-sky-200",
+        Kartu: "bg-amber-100 text-amber-900 border border-amber-200",
+        Transfer: "bg-purple-100 text-purple-900 border border-purple-200"
+      };
       for (const tx of rows) {
         const items = tx.items?.length ? tx.items : [{ name: "-", qty: 0, price: 0, subtotal: 0 }];
         const rs = items.length > 1 ? ` rowspan="${items.length}"` : "";
-        const pm = esc(tx.paymentMethod || "Cash");
+        const rawMethod = tx.paymentMethod || "Cash";
+        const pm = esc(paymentMethodLabel(rawMethod));
+        const pmClass = payBadgeStyle[rawMethod] || "bg-slate-100 text-slate-800";
         const id = esc(tx.id);
+        const timeStr = formatWitaTime(tx.createdAt);
+        const custBadge = tx.customer && tx.customer !== "Pelanggan Umum"
+          ? `<span class="mt-0.5 inline-block text-[11px] font-semibold text-slate-500"><i class="fa-regular fa-user mr-1"></i>${esc(tx.customer)}</span>`
+          : "";
         items.forEach((it, idx) => {
           const tr = document.createElement("tr");
-          tr.className = "hover:bg-slate-50 border-b border-slate-100";
+          tr.className = "hover:bg-blue-50/60 border-b border-slate-100 transition-colors";
           tr.innerHTML = `
-            ${idx === 0 ? `<td${rs} class="py-2 px-3 align-middle font-semibold whitespace-nowrap">${esc(tx.date)}<span class="block text-xs font-mono text-blue-900">${esc(receiptNumber(tx))}</span></td>` : ""}
-            <td class="py-2 px-3 font-bold">${esc(it.name)} <span class="text-slate-500">(${Number(it.qty || 0)}x)</span></td>
-            <td class="py-2 px-3 text-right tabular-nums">${rp(it.price)}</td>
-            <td class="py-2 px-3 text-right font-bold tabular-nums">${rp(it.subtotal ?? it.price * it.qty)}</td>
-            ${idx === 0 ? `<td${rs} class="py-2 px-3 text-center"><span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-blue-100 text-blue-900">${pm}</span></td>
-            <td${rs} class="py-2 px-3 text-right tabular-nums">${rp(tx.totalModal)}</td>
-            <td${rs} class="py-2 px-3 text-right font-bold text-emerald-700 tabular-nums">${rp(tx.totalProfit)}</td>
-            <td${rs} class="py-2 px-3 text-center no-print">
-              <button type="button" data-receipt-tx="${id}" class="w-8 h-8 rounded-xl bg-blue-100 text-blue-900"><i class="fa-solid fa-print"></i></button>
-              ${isAdmin ? `<button type="button" data-cancel-tx="${id}" class="w-8 h-8 rounded-xl bg-rose-100 text-rose-900 mt-1"><i class="fa-solid fa-ban"></i></button>` : ""}
+            ${idx === 0 ? `<td${rs} class="py-3 px-3 align-top whitespace-nowrap">
+              <span class="inline-block px-2 py-0.5 rounded-md bg-slate-900 text-white font-mono text-[11px] font-bold">${esc(receiptNumber(tx))}</span>
+              <div class="text-xs font-bold text-slate-700 mt-1">${esc(tx.date)}${timeStr ? ` <span class="text-slate-400 font-semibold">· ${esc(timeStr)}</span>` : ""}</div>
+              ${custBadge}
+            </td>` : ""}
+            <td class="py-3 px-3 font-bold text-slate-900">${esc(it.name)} <span class="inline-block ml-1 px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-xs font-extrabold">${Number(it.qty || 0)}×</span></td>
+            <td class="py-3 px-3 text-right tabular-nums text-slate-600">${rp(it.price)}</td>
+            <td class="py-3 px-3 text-right font-extrabold text-slate-900 tabular-nums">${rp(it.subtotal ?? it.price * it.qty)}</td>
+            ${idx === 0 ? `<td${rs} class="py-3 px-3 text-center align-middle"><span class="inline-block px-2.5 py-1 rounded-full text-xs font-extrabold ${pmClass}">${pm}</span></td>
+            <td${rs} class="py-3 px-3 text-right align-middle tabular-nums text-slate-600">${rp(tx.totalModal)}</td>
+            <td${rs} class="py-3 px-3 text-right align-middle font-extrabold text-emerald-700 tabular-nums">${rp(tx.totalProfit)}</td>
+            <td${rs} class="py-3 px-3 text-center align-middle no-print">
+              <div class="inline-flex items-center gap-1.5">
+                <button type="button" data-receipt-tx="${id}" title="Lihat & cetak nota" class="px-2.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs inline-flex items-center gap-1"><i class="fa-solid fa-print"></i><span>Nota</span></button>
+                ${isAdmin ? `<button type="button" data-cancel-tx="${id}" title="Batalkan transaksi" class="w-8 h-8 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-800 inline-flex items-center justify-center"><i class="fa-solid fa-ban"></i></button>` : ""}
+              </div>
             </td>` : ""}`;
           tbody.appendChild(tr);
         });
         const card = document.createElement("div");
         card.className = "workspace-record";
         card.innerHTML = `
-          <div class="flex justify-between text-xs font-bold text-slate-600"><span class="font-mono">${esc(receiptNumber(tx))} · ${esc(tx.date)}</span><span class="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-900">${pm}</span></div>
-          ${items.map(it => `<p class="text-sm">${esc(it.name)} <span class="text-slate-500">${Number(it.qty || 0)} × ${rp(it.price)}</span></p>`).join("")}
-          <p class="font-extrabold">Total: ${rp(tx.totalOmset)}</p>
-          <div class="flex gap-2">
-            <button type="button" data-receipt-tx="${id}" class="px-3 py-2 rounded-xl bg-blue-100 text-blue-900 font-bold text-xs"><i class="fa-solid fa-print"></i> Nota</button>
-            ${isAdmin ? `<button type="button" data-cancel-tx="${id}" class="px-3 py-2 rounded-xl bg-rose-100 text-rose-900 font-bold text-xs">Batalkan</button>` : ""}
+          <div class="flex items-center justify-between gap-2 pb-2 border-b border-slate-100">
+            <div>
+              <span class="inline-block px-2 py-0.5 rounded-md bg-slate-900 text-white font-mono text-[11px] font-bold">${esc(receiptNumber(tx))}</span>
+              <span class="ml-1.5 text-xs font-bold text-slate-500">${esc(tx.date)}${timeStr ? " · " + esc(timeStr) : ""}</span>
+            </div>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold ${pmClass}">${pm}</span>
+          </div>
+          ${custBadge}
+          <div class="space-y-1.5">
+            ${items.map(it => `<div class="flex justify-between gap-2 text-sm"><span class="font-bold text-slate-800">${esc(it.name)} <span class="text-slate-500 font-semibold">${Number(it.qty || 0)}×</span></span><span class="font-extrabold tabular-nums">${rp(it.subtotal ?? it.price * it.qty)}</span></div>`).join("")}
+          </div>
+          <div class="grid grid-cols-3 gap-2 rounded-xl bg-slate-50 border border-slate-100 p-2.5 text-center text-xs">
+            <div><span class="text-slate-500">Total</span><strong class="block text-slate-900 font-extrabold mt-0.5 tabular-nums">${rp(tx.totalOmset)}</strong></div>
+            <div><span class="text-slate-500">Modal</span><strong class="block text-slate-700 font-bold mt-0.5 tabular-nums">${rp(tx.totalModal)}</strong></div>
+            <div><span class="text-slate-500">Untung</span><strong class="block text-emerald-700 font-extrabold mt-0.5 tabular-nums">${rp(tx.totalProfit)}</strong></div>
+          </div>
+          <div class="flex gap-2 pt-1">
+            <button type="button" data-receipt-tx="${id}" class="flex-1 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs"><i class="fa-solid fa-print mr-1"></i>Lihat &amp; Cetak Nota</button>
+            ${isAdmin ? `<button type="button" data-cancel-tx="${id}" class="px-3.5 py-2 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-900 font-bold text-xs">Batalkan</button>` : ""}
           </div>`;
         mobile.appendChild(card);
       }
@@ -2566,26 +2649,87 @@
       renderQrLabel(item);
       document.getElementById("productQrModal").classList.remove("hidden");
     };
+    function drawRoundedRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
     function renderQrLabel(item) {
       const canvas = document.getElementById("niimbotPreviewCanvas");
       const target = document.getElementById("qrCodeRenderTarget");
       target.innerHTML = "";
-      new QRCode(target, { text: productQrUrl(item), width: 300, height: 300, correctLevel: QRCode.CorrectLevel.H });
+      new QRCode(target, { text: productQrUrl(item), width: 240, height: 240, correctLevel: QRCode.CorrectLevel.H });
       const qr = target.querySelector("canvas") || target.querySelector("img");
       const ctx = canvas.getContext("2d");
       canvas.width = 591; canvas.height = 354;
+
+      // White label background + crisp outer border
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      if (qr) ctx.drawImage(qr, 20, 27, 300, 300);
-      ctx.fillStyle = "#000000";
-      ctx.font = "bold 36px sans-serif";
-      ctx.fillText(shopName.slice(0, 18), 340, 80);
-      ctx.font = "bold 40px sans-serif";
-      wrapText(ctx, item.name || "", 340, 140, 230, 44, 3);
-      ctx.font = "bold 44px sans-serif";
-      ctx.fillText(rp(item.price), 340, 280);
-      ctx.font = "28px monospace";
-      ctx.fillText(item.code || "", 340, 330);
+      drawRoundedRect(ctx, 8, 8, 575, 338, 18);
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = "#0f172a";
+      ctx.stroke();
+
+      // Top branded header strip
+      ctx.save();
+      drawRoundedRect(ctx, 8, 8, 575, 58, 16);
+      ctx.clip();
+      ctx.fillStyle = "#0f172a";
+      ctx.fillRect(8, 8, 575, 58);
+      ctx.restore();
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "800 26px 'Plus Jakarta Sans', sans-serif";
+      ctx.fillText(shopName.toUpperCase().slice(0, 22), 24, 46);
+      ctx.font = "700 17px 'Plus Jakarta Sans', sans-serif";
+      ctx.textAlign = "right";
+      ctx.fillText("BERAU • 0823-2003-3333", 566, 44);
+      ctx.textAlign = "left";
+
+      // Left framed QR box
+      drawRoundedRect(ctx, 22, 80, 232, 250, 12);
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = "#0f172a";
+      ctx.stroke();
+      if (qr) ctx.drawImage(qr, 34, 90, 208, 208);
+      ctx.fillStyle = "#0f172a";
+      ctx.font = "800 15px 'Plus Jakarta Sans', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("SCAN CEK PRODUK", 138, 320);
+      ctx.textAlign = "left";
+
+      // Right product details
+      const rightX = 272;
+      const rightW = 296;
+      ctx.fillStyle = "#0f172a";
+      ctx.font = "800 30px 'Plus Jakarta Sans', sans-serif";
+      wrapText(ctx, item.name || "", rightX, 114, rightW, 35, 3);
+
+      const variant = [item.size, item.color].filter(Boolean).join(" · ");
+      if (variant) {
+        ctx.fillStyle = "#334155";
+        ctx.font = "700 19px 'Plus Jakarta Sans', sans-serif";
+        ctx.fillText(variant.slice(0, 28), rightX, 224);
+      }
+
+      // High-contrast price pill
+      drawRoundedRect(ctx, rightX, 240, rightW, 56, 12);
+      ctx.fillStyle = "#0f172a";
+      ctx.fill();
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "800 34px 'Plus Jakarta Sans', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(rp(item.price), rightX + rightW / 2, 280);
+      ctx.textAlign = "left";
+
+      // SKU code footer
+      ctx.fillStyle = "#0f172a";
+      ctx.font = "700 20px ui-monospace, monospace";
+      ctx.fillText("KODE: " + (item.code || "-"), rightX, 326);
       lastStickerCanvas = canvas;
     }
     function wrapText(ctx, text, x, y, maxW, lineH, maxLines) {
@@ -3113,16 +3257,50 @@
       document.getElementById("filterPayment").addEventListener("change", renderTransactions);
       document.getElementById("btnPrintReport").addEventListener("click", () => printMode("report"));
       document.getElementById("btnExportCSV").addEventListener("click", () => {
-        const rows = [["NoNota", "Tanggal", "Pelanggan", "Barang", "Qty", "Harga", "Subtotal", "Bayar", "Modal", "Untung"]];
-        for (const tx of transactions) for (const it of tx.items || []) rows.push([
-          receiptNumber(tx), tx.date, csvCell(tx.customer), csvCell(it.name),
-          it.qty, it.price, it.subtotal ?? it.price * it.qty, tx.paymentMethod, tx.totalModal, tx.totalProfit
-        ]);
-        const blob = new Blob(["﻿" + rows.map(r => r.join(",")).join("\n")], { type: "text/csv;charset=utf-8" });
+        const filtered = reportSales().slice().sort((a, b) => String(a.date).localeCompare(String(b.date)) || String(a.createdAt || "").localeCompare(String(b.createdAt || "")));
+        const periodLabel = currentViewMode === "day" ? selectedDateStr : "SemuaHari";
+        const rows = [
+          [csvCell(shopName + " - Laporan Penjualan"), csvCell("Periode: " + periodLabel), csvCell("Dicetak: " + todayStr())],
+          [],
+          ["No. Nota", "Tanggal", "Jam (WITA)", "Pelanggan", "Nama Barang", "Qty", "Harga Satuan (Rp)", "Subtotal (Rp)", "Cara Bayar", "Modal Item (Rp)", "Untung Item (Rp)"]
+        ];
+        let sumQty = 0, sumSubtotal = 0, sumModal = 0, sumProfit = 0;
+        for (const tx of filtered) {
+          const timeStr = formatWitaTime(tx.createdAt);
+          for (const it of tx.items || []) {
+            const qty = Number(it.qty || 0);
+            const price = Number(it.price || 0);
+            const subtotal = Number(it.subtotal ?? price * qty);
+            const itemModal = Number(it.cost || 0) * qty;
+            const itemProfit = subtotal - itemModal;
+            sumQty += qty;
+            sumSubtotal += subtotal;
+            sumModal += itemModal;
+            sumProfit += itemProfit;
+            rows.push([
+              csvCell(receiptNumber(tx)),
+              csvCell(tx.date),
+              csvCell(timeStr),
+              csvCell(tx.customer || "Pelanggan Umum"),
+              csvCell(it.name),
+              qty,
+              price,
+              subtotal,
+              csvCell(paymentMethodLabel(tx.paymentMethod || "Cash")),
+              itemModal,
+              itemProfit
+            ]);
+          }
+        }
+        rows.push([]);
+        rows.push(["TOTAL", "", "", "", "", sumQty, "", sumSubtotal, "", sumModal, sumProfit]);
+        const blob = new Blob(["﻿" + rows.map(r => r.join(",")).join("\r\n")], { type: "text/csv;charset=utf-8" });
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = `Laporan-SuryaJayaSport-${todayStr()}.csv`;
+        a.download = `Laporan-Penjualan-SuryaJayaSport-${periodLabel}.csv`;
         a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 1500);
+        showToast(`CSV berhasil diunduh (${filtered.length} transaksi).`);
       });
       document.getElementById("cardProductBreakdown").addEventListener("click", () => {
         const map = new Map();
