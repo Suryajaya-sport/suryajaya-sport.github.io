@@ -497,6 +497,46 @@
       .btn-qty-minus, .btn-qty-plus { width: 2.5rem !important; height: 2.5rem !important; font-size: 1.05rem !important; }
       .shop-button { min-height: 46px; }
     }
+
+    /* Mode Tablet Ramah Sentuh: Ikon Besar & Tulisan Jelas */
+    .tablet-toggle-btn {
+      display: inline-flex; align-items: center; gap: .45rem;
+      padding: .5rem .95rem; border-radius: 9999px; font-size: .8rem; font-weight: 800;
+      background: #fef3c7; color: #92400e; border: 1.5px solid #fcd34d; cursor: pointer;
+    }
+    body.sjs-tablet-mode .tablet-toggle-btn {
+      background: #1d4ed8; color: #fff; border-color: #1d4ed8;
+    }
+    body.sjs-tablet-mode { font-size: 17px; }
+    body.sjs-tablet-mode #mainNavigation { gap: .55rem; padding: .65rem; }
+    body.sjs-tablet-mode #mainNavigation .workspace-nav-title { display: none; }
+    body.sjs-tablet-mode #mainNavigation button[data-workspace] {
+      flex-direction: column; justify-content: center; gap: .3rem;
+      min-width: 98px; min-height: 66px; padding: .6rem .9rem;
+      border-radius: 1.15rem; font-size: .92rem; font-weight: 800;
+    }
+    body.sjs-tablet-mode #mainNavigation button[data-workspace] i { font-size: 1.35rem; }
+    body.sjs-tablet-mode .shop-button { min-height: 52px; padding: .75rem 1.25rem; font-size: .98rem; border-radius: 1.05rem; }
+    body.sjs-tablet-mode .shop-button i { font-size: 1.15rem; }
+    body.sjs-tablet-mode .pay-option-btn { flex-direction: column; gap: .28rem; min-height: 64px !important; padding: .65rem .5rem !important; font-size: .92rem !important; border-radius: 1.05rem !important; }
+    body.sjs-tablet-mode .pay-option-btn i { font-size: 1.3rem !important; }
+    body.sjs-tablet-mode .pos-cat-tab { min-height: 44px; padding: .55rem 1.05rem; font-size: .9rem; }
+    body.sjs-tablet-mode .pos-grid { grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: .95rem; }
+    body.sjs-tablet-mode .pos-card-thumb { height: 140px; }
+    body.sjs-tablet-mode .pos-card-code { font-size: .74rem; }
+    body.sjs-tablet-mode .pos-card-name { font-size: .92rem; line-height: 1.3; }
+    body.sjs-tablet-mode .pos-card-price { font-size: 1.05rem; }
+    body.sjs-tablet-mode .pos-stock-pill { font-size: .76rem; padding: .2rem .55rem; }
+    body.sjs-tablet-mode .btn-qty-minus, body.sjs-tablet-mode .btn-qty-plus { width: 46px !important; height: 46px !important; font-size: 1.25rem !important; border-radius: .85rem !important; }
+    body.sjs-tablet-mode .item-qty { height: 46px !important; font-size: 1.05rem !important; }
+    body.sjs-tablet-mode .workspace-heading h2 { font-size: 2.1rem; }
+    body.sjs-tablet-mode .workspace-section-title { font-size: 1.12rem; }
+    body.sjs-tablet-mode #btnOpenScanner { min-height: 48px; padding: .6rem 1.1rem; font-size: .95rem; }
+    body.sjs-tablet-mode #btnOpenScanner i { font-size: 1.2rem; }
+    body.sjs-tablet-mode #sjsAiFab button { height: 62px; padding: 0 22px; font-size: 16px; }
+    body.sjs-tablet-mode #sjsAiFab button i { font-size: 1.35rem; }
+    body.sjs-tablet-mode #sjsAssistantShortcuts button { padding: .5rem .8rem; font-size: .85rem; }
+    body.sjs-tablet-mode #inventoryTableBody button, body.sjs-tablet-mode #inventoryMobileList button { min-height: 40px; font-size: .82rem; }
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -524,6 +564,10 @@
         <a href="#lokasi-toko">Lokasi toko</a>
       </nav>
       <div class="shop-header-actions">
+        <button type="button" id="btnToggleTabletMode" class="hidden tablet-toggle-btn" aria-pressed="false" title="Aktifkan ikon & tombol besar ramah sentuh">
+          <i class="fa-solid fa-tablet-screen-button" aria-hidden="true"></i>
+          <span id="tabletModeText">Mode Tablet</span>
+        </button>
         <button type="button" id="adminModeBadge" class="shop-owner-button">
           <i id="adminModeIcon" class="fa-solid fa-lock" aria-hidden="true"></i>
           <span id="adminModeText">Login Pemilik</span>
@@ -1203,7 +1247,21 @@
           <form method="dialog"><button class="workspace-dialog-close" type="submit">Tutup</button></form>
         </div>
         <div class="p-5 space-y-4 overflow-y-auto max-h-[78dvh]">
-          <p class="text-sm text-slate-600">Pilih produk yang fotonya masih beda frame, acak-acakan, atau belum ada foto. Sistem akan otomatis membungkusnya ke template poster seragam <strong>Surya Jaya Sport</strong> dan memperbarui katalog.</p>
+          <p class="text-sm text-slate-600">Pilih produk yang fotonya masih beda frame, acak-acakan, atau belum ada foto. Anda bisa memakai <strong>AI Gemini</strong> (hasil kualitas studio 3D persis <em>Grip Biasa</em>) atau <strong>Template Cepat</strong>.</p>
+          <div class="rounded-2xl border border-indigo-200 bg-indigo-50/70 p-3.5 space-y-2.5">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs font-extrabold text-indigo-950"><i class="fa-solid fa-key mr-1 text-indigo-600"></i>Gemini API Key (Privat di Firestore Pemilik)</span>
+              <span id="geminiKeyStatus" class="text-[11px] font-bold text-indigo-700">Belum diatur</span>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <input type="password" id="geminiApiKeyInput" autocomplete="off" placeholder="Tempel Gemini API Key Anda (AQ.... atau AIza...)" class="min-w-0 flex-1 rounded-xl border border-indigo-200 bg-white px-3 py-2 text-xs font-mono">
+              <button type="button" id="btnSaveGeminiKey" class="px-3.5 py-2 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white font-bold text-xs shrink-0">Simpan Key</button>
+            </div>
+            <div class="flex flex-wrap items-center gap-4 pt-1 text-xs font-bold text-slate-800">
+              <label class="inline-flex items-center gap-1.5 cursor-pointer"><input type="radio" name="posterBatchMode" value="ai" checked class="h-4 w-4 accent-indigo-700"><span>AI Gemini (Persis Grip Biasa / 3D)</span></label>
+              <label class="inline-flex items-center gap-1.5 cursor-pointer"><input type="radio" name="posterBatchMode" value="canvas" class="h-4 w-4 accent-blue-700"><span>Template Cepat (Gratis tanpa API)</span></label>
+            </div>
+          </div>
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div class="flex flex-wrap gap-2">
               <button type="button" id="btnPosterPickMissing" class="px-3 py-1.5 rounded-xl bg-amber-100 text-amber-950 font-bold text-xs">Pilih yg belum ada foto</button>
@@ -1244,7 +1302,10 @@
             <div class="sm:col-span-12 bg-sky-50 border border-sky-200 rounded-2xl p-4 space-y-2.5">
               <div class="flex flex-wrap items-center justify-between gap-2">
                 <label for="invImageFile" class="text-sm font-extrabold text-sky-900"><i class="fa-solid fa-camera mr-1"></i> Foto Produk (opsional)</label>
-                <button type="button" id="btnWrapExistingPoster" class="hidden px-3 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i>Bungkus foto jadi poster</button>
+                <div class="flex flex-wrap gap-1.5">
+                  <button type="button" id="btnAiGeneratePoster" class="px-3 py-1 rounded-lg bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-extrabold text-xs shadow-sm"><i class="fa-solid fa-sparkles mr-1"></i>Buat Poster AI (Gemini)</button>
+                  <button type="button" id="btnWrapExistingPoster" class="hidden px-3 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i>Template Cepat</button>
+                </div>
               </div>
               <input type="file" id="invImageFile" accept="image/jpeg,image/png,image/webp" class="block w-full text-sm">
               <label class="flex items-center gap-2 text-xs font-bold text-sky-950 cursor-pointer">
@@ -1624,6 +1685,7 @@
     const books = { expenses: [], cashClosings: [] };
     let savedQrisPayload = QRIS_DEFAULT_PAYLOAD;
     let costCodeDigits = "";
+    let geminiApiKey = "";
     let selectedDateStr = todayStr();
     let currentViewMode = "day";
     let selectedPaymentMethod = "";
@@ -2177,6 +2239,116 @@
       const webp = await new Promise(resolve => c.toBlob(resolve, "image/webp", 0.86));
       if (webp && webp.type === "image/webp") return webp;
       return await new Promise(resolve => c.toBlob(resolve, "image/jpeg", 0.86));
+    }
+
+
+    // ==================== GENERATOR POSTER AI (GEMINI IMAGE API) ====================
+    async function blobToBase64(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || "").split(",")[1] || "");
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    }
+
+    async function sourceToInlinePart(sourceFileOrUrl) {
+      let blob = null;
+      if (sourceFileOrUrl instanceof Blob) {
+        blob = sourceFileOrUrl;
+      } else if (typeof sourceFileOrUrl === "string" && safeHttpsUrl(sourceFileOrUrl)) {
+        const res = await fetch(sourceFileOrUrl);
+        if (res.ok) blob = await res.blob();
+      }
+      if (!blob) return null;
+      const b64 = await blobToBase64(blob);
+      return b64 ? { inlineData: { mimeType: blob.type || "image/jpeg", data: b64 } } : null;
+    }
+
+    async function generateAiPosterBlob(itemMeta, sourceFileOrUrl = null) {
+      const apiKey = (geminiApiKey || document.getElementById("geminiApiKeyInput")?.value || "").trim();
+      if (!apiKey) {
+        throw new Error("Gemini API Key belum diatur. Buka 'Seragamkan poster' lalu simpan API Key Anda.");
+      }
+      const name = String(itemMeta?.name || "Produk Olahraga").trim();
+      const code = String(itemMeta?.code || "SJS").trim();
+      const cat = typeof detectProductCategoryLabel === "function" ? detectProductCategoryLabel(itemMeta || {}).label : "Olahraga";
+      const desc = String(itemMeta?.description || "").trim();
+
+      const parts = [];
+      const prodPart = await sourceToInlinePart(sourceFileOrUrl).catch(() => null);
+      if (prodPart) parts.push(prodPart);
+      try {
+        const markRes = await fetch("sjs-mark.png");
+        if (markRes.ok) {
+          const markPart = await sourceToInlinePart(await markRes.blob());
+          if (markPart) parts.push(markPart);
+        }
+      } catch {}
+
+      const prompt = [
+        `Create a polished 1:1 square commercial retail product catalog poster in Indonesian for sports shop "SURYA JAYA SPORT" (tagline: "Sport for a Better Life").`,
+        `Product Name: "${name}" (SKU: ${code}, Category: ${cat}${desc ? ", Info: " + desc : ""}).`,
+        prodPart
+          ? `Use the exact product from the first reference image: cleanly isolate the product with NO white box, NO supplier/marketplace watermarks or logos, and NO extra supplier text. Re-light it with crisp 3D studio lighting and realistic soft glossy floor reflection.`
+          : `Create a crisp, realistic 3D studio product illustration of "${name}" centered on a glossy reflective floor.`,
+        `Exact visual layout to match our catalog style:`,
+        `1) Top-left corner: curved white wave with a vibrant yellow and royal-blue swoosh border containing the Surya Jaya Sport logo mark (from the second reference image if provided), bold italic blue "SURYA JAYA", bold italic red "SPORT", and small blue italic "Sport for a Better Life".`,
+        `2) Top-right corner: dynamic slightly slanted bold crimson-red capsule banner with crisp white border and subtle yellow underline showing the product title "${name}" in bold white italic lettering (or stacked bold navy outlined text + red capsule for long names).`,
+        `3) Background: vibrant sky-blue athletic stadium/arena studio background with soft glowing bokeh stadium lights at upper mid-height and a bright clean light-blue reflective floor below.`,
+        `4) Right-side upper detail callout: a circular yellow-and-white-bordered zoom-in detail loupe with a thin white-and-blue pointer line pointing to the product's key texture/detail.`,
+        `5) Bottom row (above the bottom stripe): three clean horizontal dark-navy capsule pills with white borders, each with a yellow circular custom icon on the left and short 2-line white italic Indonesian benefit text specific to "${name}" (no prices, no phone numbers).`,
+        `6) Very bottom edge: sleek curved royal-blue and crimson-red swoosh accent ribbons.`,
+        `Output ONLY a crisp, clean, spelling-accurate 1:1 square poster image.`
+      ].join(" ");
+      parts.push({ text: prompt });
+
+      const body = JSON.stringify({
+        contents: [{ role: "user", parts }],
+        generationConfig: { responseModalities: ["IMAGE"] }
+      });
+
+      const models = ["gemini-2.5-flash-image", "gemini-3.1-flash-image", "gemini-nano-banana-2.1"];
+      const hosts = [
+        m => `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,
+        m => `https://aiplatform.googleapis.com/v1beta1/publishers/google/models/${m}:generateContent`
+      ];
+
+      let lastErr = "Gagal menghubungi Gemini API.";
+      for (const makeUrl of hosts) {
+        for (const model of models) {
+          try {
+            const res = await fetch(makeUrl(model), {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+              body
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+              lastErr = data?.error?.message || `HTTP ${res.status}`;
+              if (res.status === 401 || res.status === 403) break; // try next host
+              continue;
+            }
+            const cands = data.candidates || [];
+            for (const cand of cands) {
+              for (const part of cand?.content?.parts || []) {
+                const imgData = part.inlineData || part.inline_data;
+                if (imgData?.data) {
+                  const mime = imgData.mimeType || imgData.mime_type || "image/png";
+                  const bin = atob(imgData.data);
+                  const bytes = new Uint8Array(bin.length);
+                  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+                  return new Blob([bytes], { type: mime });
+                }
+              }
+            }
+            lastErr = "Gemini tidak mengembalikan gambar.";
+          } catch (e) {
+            lastErr = e.message || String(e);
+          }
+        }
+      }
+      throw new Error(lastErr);
     }
 
     async function uploadBlobToCloudinary(blob, itemId) {
@@ -4085,6 +4257,11 @@
       if (data.shopName) setShopName(data.shopName);
       if (data.qrisPayload) savedQrisPayload = data.qrisPayload;
       costCodeDigits = String(data.costCodeDigits || "");
+      geminiApiKey = String(data.geminiApiKey || "");
+      const keyInput = document.getElementById("geminiApiKeyInput");
+      if (keyInput && !keyInput.value) keyInput.value = geminiApiKey;
+      const keyBadge = document.getElementById("geminiKeyStatus");
+      if (keyBadge) keyBadge.textContent = geminiApiKey ? "API Key tersimpan (siap pakai)" : "Belum diatur";
     }
 
     // ==================== LISTENER REAL-TIME ====================
@@ -4149,6 +4326,7 @@
       document.getElementById("adminModeIcon").className = isAdmin ? "fa-solid fa-unlock-keyhole" : "fa-solid fa-lock";
       document.getElementById("mainNavigation").hidden = !isAdmin;
       document.getElementById("syncStatusBadge").classList.toggle("hidden", !isAdmin);
+      document.getElementById("btnToggleTabletMode")?.classList.toggle("hidden", !isAdmin);
       document.getElementById("currentDateBadge").classList.toggle("hidden", !isAdmin);
       document.getElementById("shopHeaderTrigger").classList.toggle("hidden", !isAdmin);
       document.getElementById("sjsAiFab").classList.toggle("hidden", !isAdmin);
@@ -4393,6 +4571,24 @@
         const hdr = document.querySelector(".shop-header");
         if (hdr) document.documentElement.style.setProperty("--sjs-header-h", hdr.offsetHeight + "px");
       };
+      const TABLET_MODE_KEY = "sjs-tablet-mode";
+      function applyTabletMode(enabled) {
+        document.body.classList.toggle("sjs-tablet-mode", enabled);
+        const btn = document.getElementById("btnToggleTabletMode");
+        const txt = document.getElementById("tabletModeText");
+        if (btn) btn.setAttribute("aria-pressed", String(enabled));
+        if (txt) txt.textContent = enabled ? "Mode Tablet: ON" : "Mode Tablet";
+        requestAnimationFrame(syncStickyHeaderHeight);
+      }
+      const savedTablet = localStorage.getItem(TABLET_MODE_KEY);
+      const isTouchDevice = window.matchMedia?.("(pointer: coarse)")?.matches || ("ontouchstart" in window);
+      applyTabletMode(savedTablet === null ? Boolean(isTouchDevice) : savedTablet === "1");
+      document.getElementById("btnToggleTabletMode")?.addEventListener("click", () => {
+        const next = !document.body.classList.contains("sjs-tablet-mode");
+        localStorage.setItem(TABLET_MODE_KEY, next ? "1" : "0");
+        applyTabletMode(next);
+        showToast(next ? "Mode Tablet aktif: ikon & tombol diperbesar." : "Mode Desktop aktif.");
+      });
       syncStickyHeaderHeight();
       window.addEventListener("resize", syncStickyHeaderHeight);
 
@@ -4566,6 +4762,57 @@
       document.getElementById("invPosterTouch").addEventListener("change", retriggerPreview);
       document.getElementById("invCropTop").addEventListener("input", retriggerPreview);
       document.getElementById("invCropBottom").addEventListener("input", retriggerPreview);
+      document.getElementById("btnSaveGeminiKey")?.addEventListener("click", async () => {
+        if (!isAdmin) return;
+        const val = document.getElementById("geminiApiKeyInput").value.trim();
+        if (!val) return showToast("Tempel Gemini API Key terlebih dahulu.");
+        geminiApiKey = val;
+        const ok = await saveConfig({ geminiApiKey: val });
+        if (ok) {
+          const badge = document.getElementById("geminiKeyStatus");
+          if (badge) badge.textContent = "API Key tersimpan (siap pakai)";
+          showToast("Gemini API Key tersimpan aman di cloud pemilik.");
+        }
+      });
+
+      document.getElementById("btnAiGeneratePoster")?.addEventListener("click", async () => {
+        if (!isAdmin) return;
+        if (!geminiApiKey) {
+          showToast("Atur Gemini API Key dulu di tombol 'Seragamkan poster'.");
+          return;
+        }
+        const btn = document.getElementById("btnAiGeneratePoster");
+        const editId = document.getElementById("editInvId").value.trim();
+        const item = inventory.find(i => i.id === editId);
+        const meta = {
+          name: document.getElementById("invName").value.trim() || item?.name || "Produk",
+          code: document.getElementById("invCode").value.trim() || item?.code || "SJS",
+          description: document.getElementById("invDescription").value.trim() || item?.description || "",
+          price: Number(document.getElementById("invPrice").value) || Number(item?.price || 0)
+        };
+        const src = document.getElementById("invImageFile").files?.[0] || productImageUrl(item) || null;
+        btn.disabled = true;
+        const oldHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Membuat Poster AI...';
+        try {
+          pendingPosterBlob = await generateAiPosterBlob(meta, src);
+          const canvasPrev = document.getElementById("invPosterPreviewCanvas");
+          const imgPrev = document.getElementById("invImagePreview");
+          canvasPrev?.classList.add("hidden");
+          imgPrev.classList.remove("hidden");
+          imgPrev.src = URL.createObjectURL(pendingPosterBlob);
+          document.getElementById("invImagePreviewLabel").textContent = "Poster AI Gemini siap disimpan!";
+          document.getElementById("invImagePreviewWrap").classList.remove("hidden");
+          showToast("Poster AI berhasil dibuat. Klik Simpan untuk menerapkan.");
+        } catch (err) {
+          console.error(err);
+          showToast("Gagal membuat Poster AI: " + (err.message || "kesalahan"));
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = oldHtml;
+        }
+      });
+
       document.getElementById("btnWrapExistingPoster").addEventListener("click", async () => {
         const editId = document.getElementById("editInvId").value.trim();
         const item = inventory.find(i => i.id === editId);
@@ -4644,8 +4891,11 @@
           for (let i = 0; i < ids.length; i++) {
             const item = inventory.find(x => x.id === ids[i]);
             if (!item) continue;
-            prog.textContent = `Memproses ${i + 1}/${ids.length}: ${item.name}...`;
-            const blob = await renderProductPosterBlob(item, productImageUrl(item) || null);
+            const mode = document.querySelector('input[name="posterBatchMode"]:checked')?.value || "ai";
+            prog.textContent = `Memproses (${mode === "ai" ? "AI Gemini" : "Template Cepat"}) ${i + 1}/${ids.length}: ${item.name}...`;
+            const blob = mode === "ai"
+              ? await generateAiPosterBlob(item, productImageUrl(item) || null)
+              : await renderProductPosterBlob(item, productImageUrl(item) || null);
             const uploaded = await uploadBlobToCloudinary(blob, item.id);
             const invRef = doc(db, ...paths("inventory", item.id));
             const pubRef = doc(db, "publicCatalog", item.id);
