@@ -1,48 +1,223 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Detail Produk | Surya Jaya Sport</title>
-  <link rel="icon" href="/sjs-mark.png" type="image/png">
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@800&amp;family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/produk/produk.css?v=bingkai-foto-20261122">
-  <link rel="stylesheet" href="/produk/bingkai-foto.css?v=20261122">
-  <script type="module" src="/produk/detail.js?v=bingkai-foto-20261122"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Detail Produk | Surya Jaya Sport Berau</title>
+  <meta name="description" content="Cek foto, harga, dan stok produk Surya Jaya Sport Jl. Ahmad Yani 37, Tanjung Redeb, Berau.">
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&amp;family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background: radial-gradient(circle at 15% 0%, rgba(219,234,254,.7), transparent 40%), #f8fafc;
+      color: #0f172a;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .hdr {
+      background: rgba(255,255,255,.9);
+      backdrop-filter: blur(12px);
+      border-bottom: 1.5px solid #dbeafe;
+      padding: .75rem 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    .hdr-in {
+      max-width: 44rem;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: .65rem;
+      text-decoration: none;
+      color: #0f2557;
+    }
+    .brand img { width: 42px; height: 42px; border-radius: .8rem; object-fit: cover; border: 1.5px solid rgba(250,204,21,.7); }
+    .brand strong { font-family: 'Barlow Condensed', sans-serif; font-size: 1.35rem; text-transform: uppercase; letter-spacing: .01em; display: block; line-height: 1; }
+    .brand span { font-size: .72rem; color: #475569; font-weight: 600; }
+    .back-link {
+      text-decoration: none;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1.5px solid #bfdbfe;
+      padding: .48rem .85rem;
+      border-radius: .85rem;
+      font-size: .8rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .wrap { max-width: 44rem; width: 100%; margin: 1.25rem auto 2.5rem; padding: 0 1rem; flex: 1; }
+    .card {
+      background: #ffffff;
+      border: 2px solid #dbeafe;
+      border-radius: 1.6rem;
+      overflow: hidden;
+      box-shadow: 0 16px 38px -12px rgba(15,37,87,.12);
+    }
+    .photo-box {
+      background: radial-gradient(circle at 50% 45%, #ffffff 0%, #f1f5f9 100%);
+      padding: 1rem;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 260px;
+    }
+    .photo-box img { max-width: 100%; max-height: 360px; object-fit: contain; border-radius: 1rem; }
+    .body { padding: 1.35rem; display: flex; flex-direction: column; gap: .75rem; }
+    .meta { font-family: ui-monospace, monospace; font-size: .78rem; font-weight: 700; color: #1d4ed8; background: #eff6ff; width: fit-content; padding: .2rem .6rem; border-radius: .5rem; }
+    h1 { margin: 0; font-size: 1.5rem; font-weight: 800; line-height: 1.25; color: #0f172a; }
+    .desc { margin: 0; font-size: .92rem; color: #475569; line-height: 1.55; }
+    .senar-note { margin: 0; padding: .55rem .8rem; border-radius: .85rem; background: #eff6ff; border: 1.5px solid #bfdbfe; color: #1e3a8a; font-size: .82rem; font-weight: 700; }
+    .price-row { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding-top: .8rem; border-top: 1px solid #f1f5f9; flex-wrap: wrap; }
+    .price { margin: 0; background: #fef9c3; color: #0f2557; border: 1.5px solid #fde047; padding: .35rem .85rem; border-radius: .9rem; font-size: 1.45rem; font-weight: 900; }
+    .stock { padding: .35rem .85rem; border-radius: 9999px; font-size: .85rem; font-weight: 800; background: #ecfdf5; color: #047857; }
+    .stock.out { background: #fff1f2; color: #be123c; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; gap: .65rem; padding-top: .5rem; }
+    @media (max-width: 520px) { .actions { grid-template-columns: 1fr; } }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+      min-height: 48px; padding: .7rem 1.1rem; border-radius: 1rem;
+      font-size: .92rem; font-weight: 800; text-decoration: none; cursor: pointer;
+    }
+    .btn-wa { background: linear-gradient(135deg,#16a34a,#15803d); color: #fff; border-bottom: 4px solid #166534; }
+    .btn-cat { background: linear-gradient(135deg,#1d4ed8,#2563eb); color: #fff; border-bottom: 4px solid #1e3a8a; }
+    .info-foot { font-size: .78rem; color: #64748b; text-align: center; padding: 1.25rem 1rem; }
+  </style>
 </head>
 <body>
-  <header class="site-header">
-    <a class="wrap brand" href="/"><img src="/sjs-mark.png" width="130" height="155" alt=""><span>Surya Jaya Sport <small>Berau</small></span></a>
+  <header class="hdr">
+    <div class="hdr-in">
+      <a href="/" class="brand">
+        <img src="/sjs-mark-192.png" alt="Logo Surya Jaya Sport" width="42" height="42">
+        <div>
+          <strong>Surya Jaya Sport</strong>
+          <span>Jl. Ahmad Yani 37, Tanjung Redeb, Berau</span>
+        </div>
+      </a>
+      <a href="/" class="back-link">Semua Katalog</a>
+    </div>
   </header>
+
   <main class="wrap">
-    <nav class="breadcrumb" aria-label="Navigasi halaman"><a href="/#publicProductCatalog">Katalog</a><span aria-hidden="true"> / </span><span id="breadcrumb-product" aria-current="page">Detail produk</span></nav>
-    <p class="availability" id="detail-status" role="status">Detail produk sedang dimuat…</p>
-    <noscript><p>Aktifkan JavaScript untuk melihat detail produk.</p></noscript>
-    <article class="product" aria-labelledby="product-name" hidden>
-      <div class="photo-with-brand">
-        <div class="photo-artwork" id="product-photo-artwork">
-          <div class="photo-artwork-heading" aria-hidden="true"><span>Surya Jaya<br>Sport</span><strong id="product-photo-title"></strong></div>
-          <div class="product-photo-frame" id="product-photo-frame">
-            <img class="product-photo" id="product-photo" width="800" height="800" decoding="async" alt="" hidden>
-            <p class="product-placeholder" id="photo-placeholder">Foto produk belum tersedia.</p>
-          </div>
-        </div>
+    <div id="productBox" class="card">
+      <div class="body" style="text-align:center; padding: 2.5rem 1.25rem;">
+        <p style="margin:0; font-weight:700; color:#475569;">Memuat detail produk…</p>
       </div>
-      <div class="product-body">
-        <p class="category" id="product-code"></p>
-        <h1 id="product-name"></h1>
-        <p id="product-description" hidden></p>
-        <dl class="specs" id="product-specs" hidden></dl>
-        <div class="availability">
-          <p class="price" id="product-price"></p>
-          <p id="product-stock"></p>
-        </div>
-        <a class="action" id="product-contact" target="_blank" rel="noopener noreferrer">Tanya lewat WhatsApp</a>
-      </div>
-    </article>
+    </div>
   </main>
-  <footer class="wrap site-footer">
-    Surya Jaya Sport · Jl. Jendral Ahmad Yani No. 37, Berau · <a href="tel:+6282320033333">0823-2003-3333</a>
+
+  <footer class="info-foot">
+    Buka setiap hari (Senin–Minggu) 08.00–21.00 WITA · Telp / WhatsApp: <strong>0823-200-33333</strong><br>
+    Pengambilan di toko · Bisa pesan / DP via WhatsApp · Tunai, QRIS, Kartu &amp; Transfer
   </footer>
+
+  <script type="module">
+    const EMBEDDED_FIREBASE_CONFIG = {
+      apiKey: "AIzaSyBFtI_lwLU7cDcioDE1GpgC0AjKPZ1mHag",
+      authDomain: "suryajayasport-3fd5e.firebaseapp.com",
+      projectId: "suryajayasport-3fd5e",
+      storageBucket: "suryajayasport-3fd5e.firebasestorage.app",
+      messagingSenderId: "501860315687",
+      appId: "1:501860315687:web:3692f12c2b59a1e16d9402"
+    };
+    const CATALOG_WA = "https://wa.me/6282320033333";
+    const SENAR_NOTE = "Harga tercantum sudah termasuk jasa pasang senar.";
+
+    const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
+    const rp = n => "Rp " + Math.round(Number(n) || 0).toLocaleString("id-ID");
+    function safeHttpsUrl(url) {
+      try { const u = new URL(String(url || "").trim()); return u.protocol === "https:" ? u.href : ""; } catch { return ""; }
+    }
+    function isSenarBadminton(item) {
+      const name = String(item?.name || "");
+      const txt = [item?.name, item?.category, item?.description].filter(Boolean).join(" ");
+      if (/\b(gitar|guitar|ukulele|bass|akustik|acoustic|klasik|classic|elektrik|electric|biola|violin|musik|pyramid|d'?addario|orphee|ernie\s*ball|elixir|fender)\b/i.test(txt)) return false;
+      const hasSenarWord = /\bsenar\b/i.test(name) || /\bsenar\s+(badminton|bulutangkis|raket)\b/i.test(txt);
+      const isBadmintonCue = /\b(badminton|bulutangkis|raket|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|bg\s*\d+|nbg\s*\d+|exbolt|nanogy|aerobite|aerosonic|ultimax|vbs\s*\d+)\b/i.test(txt);
+      return hasSenarWord && isBadmintonCue;
+    }
+
+    const box = document.getElementById("productBox");
+    const productId = new URLSearchParams(location.search).get("id")?.trim();
+
+    function renderNotFound(msg) {
+      box.innerHTML = `<div class="body" style="text-align:center; padding:2.25rem 1.25rem;">
+        <h1 style="font-size:1.3rem;">Produk tidak ditemukan</h1>
+        <p class="desc">${esc(msg || "Produk mungkin sudah diarsipkan atau kode QR tidak sesuai.")}</p>
+        <div class="actions" style="grid-template-columns:1fr; max-width:20rem; margin:.5rem auto 0;">
+          <a href="/" class="btn btn-cat">Lihat Semua Katalog</a>
+          <a href="${CATALOG_WA}" target="_blank" rel="noopener noreferrer" class="btn btn-wa">Tanya via WhatsApp (0823-200-33333)</a>
+        </div>
+      </div>`;
+    }
+
+    if (!productId) {
+      renderNotFound("Silakan buka katalog utama untuk melihat semua barang kami.");
+    } else {
+      try {
+        const [appM, fsM] = await Promise.all([
+          import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"),
+          import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js")
+        ]);
+        const app = appM.getApps().length ? appM.getApps()[0] : appM.initializeApp(EMBEDDED_FIREBASE_CONFIG);
+        const db = fsM.getFirestore(app);
+        const snap = await fsM.getDoc(fsM.doc(db, "publicCatalog", productId));
+        if (!snap.exists()) {
+          renderNotFound();
+        } else {
+          const item = { ...snap.data(), id: snap.id };
+          document.title = `${item.name} | Surya Jaya Sport Berau`;
+          const imgUrl = safeHttpsUrl(item.imageUrl);
+          const stockNum = Number(item.stock || 0);
+          const out = stockNum <= 0;
+          const meta = [item.code, item.size, item.color].filter(Boolean).join(" · ");
+          const showSenar = isSenarBadminton(item) && !/jasa\s+pasang\s+senar/i.test(String(item.description || ""));
+          const waText = out
+            ? `Halo Surya Jaya Sport, apakah stok ${item.name}${item.code ? ` (${item.code})` : ""} akan tersedia lagi?`
+            : `Halo Surya Jaya Sport, saya mau tanya/pesan ${item.name}${item.code ? ` (${item.code})` : ""} (${rp(item.price)}).`;
+
+          box.innerHTML = `
+            <div class="photo-box">
+              ${imgUrl
+                ? `<img src="${esc(imgUrl)}" alt="${esc(item.name)}">`
+                : `<div style="text-align:center; padding:2rem; color:#1e3a8a; font-weight:800;">${esc(item.name)}</div>`}
+            </div>
+            <div class="body">
+              ${meta ? `<span class="meta">${esc(meta)}</span>` : ""}
+              <h1>${esc(item.name)}</h1>
+              ${item.description ? `<p class="desc">${esc(item.description)}</p>` : ""}
+              ${showSenar ? `<p class="senar-note">${SENAR_NOTE}</p>` : ""}
+              <div class="price-row">
+                <p class="price">${rp(item.price)}</p>
+                <span class="stock ${out ? "out" : ""}">${out ? "Stok Habis" : `Tersedia: ${stockNum} pcs`}</span>
+              </div>
+              <div class="actions">
+                <a href="${CATALOG_WA}?text=${encodeURIComponent(waText)}" target="_blank" rel="noopener noreferrer" class="btn btn-wa">Tanya / Pesan WA</a>
+                <a href="/" class="btn btn-cat">Lihat Katalog Lain</a>
+              </div>
+            </div>`;
+        }
+      } catch (err) {
+        renderNotFound("Gagal memuat data produk. Silakan hubungi WhatsApp 0823-200-33333.");
+      }
+    }
+  </script>
 </body>
 </html>
