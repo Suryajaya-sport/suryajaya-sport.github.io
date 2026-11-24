@@ -218,10 +218,26 @@
     .rpt thead { display: table-header-group; }
     .rpt tr { page-break-inside: avoid; }
     .rpt-foot { margin-top: 14px; padding-top: 8px; border-top: 1px dashed #94a3b8; display: flex; justify-content: space-between; font-size: 10px; color: #475569; }
+    @page { size: A4 portrait; margin: 8mm; }
     @media print {
+      html, body { height: auto !important; margin: 0 !important; padding: 0 !important; background: #fff !important; }
       body:not([data-print="report"]) #reportPrintSheet { display: none !important; }
       body[data-print="report"] > *:not(#reportPrintSheet) { display: none !important; }
-      body[data-print="report"] #reportPrintSheet { display: block !important; }
+      body[data-print="report"] #reportPrintSheet {
+        display: block !important;
+        width: 100% !important;
+        max-height: 277mm !important;
+        overflow: hidden !important;
+        padding: 0 !important;
+        font-size: 9.5px !important;
+        line-height: 1.25 !important;
+      }
+      body[data-print="report"] .rpt-head { margin-bottom: 7px !important; padding-bottom: 5px !important; }
+      body[data-print="report"] .rpt-kpis { margin-bottom: 7px !important; gap: 6px !important; }
+      body[data-print="report"] .rpt-kpi { padding: 4px 7px !important; }
+      body[data-print="report"] .rpt table { margin: 4px 0 8px !important; }
+      body[data-print="report"] .rpt th, body[data-print="report"] .rpt td { padding: 2.5px 5px !important; }
+      body[data-print="report"] .rpt-foot { margin-top: 6px !important; padding-top: 4px !important; }
       #receiptPrintSheet .rcpt { max-width: 72mm; width: 72mm; margin: 0; padding: 0; border: 0; box-shadow: none; }
       #receiptPrintSheet .rc-total-box, #receiptPrintSheet .rc-footnote { background: #fff !important; }
       #stickerPrintSheet img { width: 100%; max-width: 100mm; height: auto; }
@@ -1073,6 +1089,40 @@
     body.sjs-admin .workspace-heading h2 {
       letter-spacing: -0.02em;
     }
+
+    /* === BENTO REPORT GAYA FIGMA (GAUGE, PASTEL KPI, RING CALLOUT, PILL BARS) === */
+    .bento-pastel-card {
+      background: linear-gradient(135deg, #e0e7ff 0%, #eff6ff 48%, #fef3c7 100%);
+      border: 1.5px solid #bfdbfe;
+      border-radius: 1.6rem;
+      padding: 1.35rem;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 190px;
+      box-shadow: 0 14px 32px -12px rgba(15, 37, 87, .12);
+    }
+    .bento-pill-track {
+      display: flex; align-items: center; justify-content: space-between; gap: .6rem;
+      background: #f1f5f9; border-radius: 9999px; padding: .24rem .75rem .24rem .24rem;
+    }
+    .bento-pill-fill {
+      border-radius: 9999px; padding: .34rem .8rem; color: #ffffff;
+      font-size: .74rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      min-width: 72px; transition: width .35s ease;
+    }
+    .bento-trending-chip {
+      display: inline-flex; align-items: center; gap: .45rem;
+      padding: .42rem .78rem; border-radius: 9999px;
+      background: #0f2557; color: #ffffff;
+      font-size: .76rem; font-weight: 800;
+      box-shadow: 0 4px 10px rgba(15, 37, 87, .18);
+    }
+    .bento-trending-badge {
+      padding: .1rem .45rem; border-radius: 9999px;
+      background: #facc15; color: #0f172a; font-size: .68rem; font-weight: 900;
+    }
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -1348,7 +1398,38 @@
         </section>
 
         <section id="booksCharts" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div class="sjs-chart-card is-dark lg:col-span-2">
+          <div class="sjs-chart-card lg:col-span-2">
+            <div class="sjs-chart-head">
+              <div class="sjs-chart-title-wrap">
+                <span class="sjs-chart-badge-icon is-blue"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i></span>
+                <div>
+                  <h3 class="workspace-section-title">Rasio Laba &amp; Arus Kas Bulan Ini</h3>
+                  <p class="sjs-chart-sub">Gauge persentase margin laba &amp; rincian batang kapsul</p>
+                </div>
+              </div>
+              <span id="badgeBookGauge" class="sjs-chart-pill">Bulan ini</span>
+            </div>
+            <div id="svgBookGaugeWrap" class="w-full space-y-4"></div>
+          </div>
+
+          <div class="flex flex-col gap-4">
+            <div id="bentoBookOmzetCard" class="bento-pastel-card"></div>
+            <div class="sjs-chart-card flex-1">
+              <div class="sjs-chart-head">
+                <div class="sjs-chart-title-wrap">
+                  <span class="sjs-chart-badge-icon is-navy"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i></span>
+                  <div>
+                    <h3 class="workspace-section-title">Komposisi Pembayaran</h3>
+                    <p class="sjs-chart-sub">Persentase tiap metode bayar</p>
+                  </div>
+                </div>
+                <span id="badgeBookPay" class="sjs-chart-pill">Rp 0</span>
+              </div>
+              <div id="svgBookPayWrap" class="w-full flex flex-col gap-2"></div>
+            </div>
+          </div>
+
+          <div class="sjs-chart-card lg:col-span-2">
             <div class="sjs-chart-head">
               <div class="sjs-chart-title-wrap">
                 <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i></span>
@@ -1359,21 +1440,22 @@
               </div>
               <span id="badgeBookProfit" class="sjs-chart-pill">Rp 0</span>
             </div>
-            <div id="svgBookProfitWrap" class="w-full min-h-[230px] flex items-center justify-center"></div>
+            <div id="svgBookProfitWrap" class="w-full min-h-[220px] flex items-center justify-center"></div>
           </div>
+
           <div class="sjs-chart-card">
             <div class="sjs-chart-head">
               <div class="sjs-chart-title-wrap">
-                <span class="sjs-chart-badge-icon is-navy"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i></span>
+                <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-fire" aria-hidden="true"></i></span>
                 <div>
-                  <h3 class="workspace-section-title">Komposisi Pembayaran</h3>
-                  <p class="sjs-chart-sub">Porsi transaksi bulan terpilih</p>
+                  <h3 class="workspace-section-title">Produk Terlaris Bulan Ini</h3>
+                  <p class="sjs-chart-sub">Paling banyak menghasilkan omzet</p>
                 </div>
               </div>
-              <span id="badgeBookPay" class="sjs-chart-pill">Rp 0</span>
             </div>
-            <div id="svgBookPayWrap" class="w-full flex flex-col gap-3"></div>
+            <div id="bentoBookTrendingWrap" class="space-y-3"></div>
           </div>
+
           <div class="sjs-chart-card lg:col-span-3">
             <div class="sjs-chart-head">
               <div class="sjs-chart-title-wrap">
@@ -1741,26 +1823,43 @@
         </div>
 
         <section id="salesCharts" class="grid grid-cols-1 xl:grid-cols-3 gap-4 no-print">
-          <div class="sjs-chart-card is-dark xl:col-span-2">
+          <div class="sjs-chart-card xl:col-span-2">
             <div class="sjs-chart-head">
               <div class="sjs-chart-title-wrap">
-                <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-chart-column" aria-hidden="true"></i></span>
+                <span class="sjs-chart-badge-icon is-blue"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i></span>
                 <div>
-                  <h3 id="salesTrendChartTitle" class="workspace-section-title">Omzet &amp; Laba per Jam (WITA)</h3>
-                  <p class="sjs-chart-sub">Biru = Omzet · Kuning = Laba penjualan</p>
+                  <h3 id="salesTrendChartTitle" class="workspace-section-title">Performa Penjualan &amp; Laba</h3>
+                  <p class="sjs-chart-sub">Gauge margin laba &amp; rincian omzet per jam/hari</p>
                 </div>
               </div>
               <span id="badgeSalesTrend" class="sjs-chart-pill">Rp 0</span>
             </div>
-            <div id="svgSalesTrendWrap" class="w-full min-h-[220px] overflow-x-auto"></div>
+            <div id="svgSalesGaugeWrap" class="w-full space-y-4"></div>
           </div>
-          <div class="sjs-chart-card">
+
+          <div class="flex flex-col gap-4">
+            <div id="bentoSalesHeroCard" class="bento-pastel-card"></div>
+            <div class="sjs-chart-card flex-1">
+              <div class="sjs-chart-head">
+                <div class="sjs-chart-title-wrap">
+                  <span class="sjs-chart-badge-icon is-navy"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i></span>
+                  <div>
+                    <h3 class="workspace-section-title">Komposisi Cara Bayar</h3>
+                    <p class="sjs-chart-sub">Persentase metode transaksi</p>
+                  </div>
+                </div>
+              </div>
+              <div id="svgSalesPayDonutWrap" class="w-full flex flex-col gap-2"></div>
+            </div>
+          </div>
+
+          <div class="sjs-chart-card xl:col-span-3">
             <div class="sjs-chart-head">
               <div class="sjs-chart-title-wrap">
-                <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-trophy" aria-hidden="true"></i></span>
+                <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-fire" aria-hidden="true"></i></span>
                 <div>
                   <h3 class="workspace-section-title">Top 5 Barang Terlaris</h3>
-                  <p class="sjs-chart-sub">Berdasarkan omzet periode terpilih</p>
+                  <p class="sjs-chart-sub">Produk terlaris periode terpilih</p>
                 </div>
               </div>
               <span id="badgeTopProducts" class="sjs-chart-pill">Top 5</span>
@@ -1823,30 +1922,33 @@
       </section>
 
       <section id="inventoryCharts" class="grid grid-cols-1 lg:grid-cols-3 gap-4 no-print" aria-label="Grafik analitik stok">
-        <div class="sjs-chart-card is-dark lg:col-span-2">
+        <div class="sjs-chart-card lg:col-span-2">
           <div class="sjs-chart-head">
             <div class="sjs-chart-title-wrap">
-              <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
+              <span class="sjs-chart-badge-icon is-blue"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
               <div>
                 <h3 class="workspace-section-title">Modal &amp; Potensi Jual per Kategori</h3>
-                <p class="sjs-chart-sub">Perbandingan aset modal stok vs nilai jual seluruh kategori</p>
+                <p class="sjs-chart-sub">Rasio stok aman &amp; nilai aset tiap kategori</p>
               </div>
             </div>
             <span id="badgeStockCatTotal" class="sjs-chart-pill">Potensi Rp 0</span>
           </div>
-          <div id="svgStockCatWrap" class="w-full space-y-3 pt-1"></div>
+          <div id="svgStockCatWrap" class="w-full space-y-4"></div>
         </div>
-        <div class="sjs-chart-card">
-          <div class="sjs-chart-head">
-            <div class="sjs-chart-title-wrap">
-              <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i></span>
-              <div>
-                <h3 class="workspace-section-title">Kesehatan Stok</h3>
-                <p class="sjs-chart-sub">Ringkasan ketersediaan barang aktif</p>
+        <div class="flex flex-col gap-4">
+          <div id="bentoStockAssetCard" class="bento-pastel-card"></div>
+          <div class="sjs-chart-card flex-1">
+            <div class="sjs-chart-head">
+              <div class="sjs-chart-title-wrap">
+                <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i></span>
+                <div>
+                  <h3 class="workspace-section-title">Kesehatan Stok</h3>
+                  <p class="sjs-chart-sub">Aman vs Menipis vs Habis</p>
+                </div>
               </div>
             </div>
+            <div id="svgStockHealthWrap" class="w-full flex flex-col gap-2"></div>
           </div>
-          <div id="svgStockHealthWrap" class="w-full flex flex-col gap-3"></div>
         </div>
       </section>
 
@@ -3728,7 +3830,18 @@
     }
     async function printMode(mode, html) {
       if (mode === "receipt") document.getElementById("receiptPrintSheet").innerHTML = html;
-      if (mode === "report") document.getElementById("reportPrintSheet").innerHTML = buildReportHtml();
+      if (mode === "report") {
+        const sheet = document.getElementById("reportPrintSheet");
+        sheet.style.zoom = "1";
+        sheet.innerHTML = buildReportHtml();
+        document.body.dataset.print = mode;
+        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+        const maxPrintPx = 1015;
+        const h = sheet.scrollHeight || 0;
+        if (h > maxPrintPx) {
+          sheet.style.zoom = Math.max(0.45, Math.min(1, maxPrintPx / h)).toFixed(3);
+        }
+      }
       if (mode === "sticker") {
         if (!lastStickerCanvas) return;
         const img = new Image();
@@ -4339,22 +4452,37 @@
 
     function buildSvgDonut(segments, centerTop, centerMain) {
       const total = segments.reduce((s, seg) => s + Math.max(0, Number(seg.value) || 0), 0);
-      const r = 56;
+      const cx = 105, cy = 92, r = 56;
       const circ = 2 * Math.PI * r;
       let offset = 0;
+      let midAcc = 0;
+      const callouts = [];
       const arcs = total > 0
         ? segments.filter(s => s.value > 0).map(seg => {
-            const len = (seg.value / total) * circ;
-            const el = `<circle cx="75" cy="75" r="${r}" fill="none" stroke="${seg.color}" stroke-width="20" stroke-dasharray="${len.toFixed(2)} ${circ.toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}" stroke-linecap="butt"><title>${esc(seg.label)}: ${esc(seg.display || seg.value)}</title></circle>`;
+            const frac = seg.value / total;
+            const len = frac * circ;
+            const midAngle = (-Math.PI / 2) + ((midAcc + frac / 2) * 2 * Math.PI);
+            const pct = Math.round(frac * 100);
+            if (pct >= 5) {
+              const px = cx + Math.cos(midAngle) * (r + 22);
+              const py = cy + Math.sin(midAngle) * (r + 22);
+              callouts.push(`<g>
+                <rect x="${(px - 17).toFixed(1)}" y="${(py - 9.5).toFixed(1)}" width="34" height="19" rx="9.5" fill="${seg.color}" stroke="#ffffff" stroke-width="1.5"/>
+                <text x="${px.toFixed(1)}" y="${(py + 3.5).toFixed(1)}" text-anchor="middle" fill="#ffffff" font-size="9.5" font-weight="900">${pct}%</text>
+              </g>`);
+            }
+            midAcc += frac;
+            const el = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${seg.color}" stroke-width="22" stroke-dasharray="${len.toFixed(2)} ${circ.toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}"><title>${esc(seg.label)}: ${esc(seg.display || seg.value)} (${pct}%)</title></circle>`;
             offset += len;
             return el;
           }).join("")
-        : `<circle cx="75" cy="75" r="${r}" fill="none" stroke="#e2e8f0" stroke-width="20"/>`;
+        : `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#e2e8f0" stroke-width="22"/>`;
 
-      const svg = `<svg viewBox="0 0 150 150" class="w-36 h-36 mx-auto shrink-0" role="img" aria-label="${esc(centerTop)} ${esc(centerMain)}">
-        <g transform="rotate(-90 75 75)">${arcs}</g>
-        <text x="75" y="69" text-anchor="middle" fill="#64748b" font-size="10" font-weight="800">${esc(centerTop)}</text>
-        <text x="75" y="87" text-anchor="middle" fill="#0f2557" font-size="14" font-weight="900">${esc(centerMain)}</text>
+      const svg = `<svg viewBox="0 0 210 184" class="w-48 h-44 mx-auto shrink-0" role="img" aria-label="${esc(centerTop)} ${esc(centerMain)}">
+        <g transform="rotate(-90 ${cx} ${cy})">${arcs}</g>
+        ${callouts.join("")}
+        <text x="${cx}" y="${cy - 7}" text-anchor="middle" fill="#64748b" font-size="9.5" font-weight="800">${esc(centerTop)}</text>
+        <text x="${cx}" y="${cy + 13}" text-anchor="middle" fill="#0f2557" font-size="16" font-weight="900">${esc(centerMain)}</text>
       </svg>`;
 
       const rows = segments.map(seg => {
@@ -4366,6 +4494,36 @@
       }).join("");
 
       return `${svg}<div class="w-full">${rows}</div>`;
+    }
+
+    function buildSemiGaugeSvg(primaryPct, secondaryPct, primaryLabel, secondaryLabel) {
+      const cx = 160, cy = 132, r = 98;
+      const arcLen = Math.PI * r;
+      const p1 = Math.max(0, Math.min(100, Number(primaryPct) || 0));
+      const dash1 = (p1 / 100) * arcLen;
+      const ticks = [0, 25, 50, 75, 100].map(val => {
+        const ang = Math.PI + (val / 100) * Math.PI;
+        const tx = cx + Math.cos(ang) * (r + 18);
+        const ty = cy + Math.sin(ang) * (r + 18);
+        return `<text x="${tx.toFixed(1)}" y="${(ty + 3).toFixed(1)}" text-anchor="middle" fill="#64748b" font-size="9.5" font-weight="700">${val}%</text>`;
+      }).join("");
+
+      return `<svg viewBox="0 0 320 156" class="w-full max-w-[340px] mx-auto">
+        <defs>
+          <linearGradient id="bentoGaugeGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#1d4ed8"/>
+            <stop offset="65%" stop-color="#38bdf8"/>
+            <stop offset="100%" stop-color="#facc15"/>
+          </linearGradient>
+        </defs>
+        <path d="M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}" fill="none" stroke="#e2e8f0" stroke-width="14" stroke-linecap="round"/>
+        <path d="M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}" fill="none" stroke="url(#bentoGaugeGrad)" stroke-width="14" stroke-linecap="round" stroke-dasharray="${dash1.toFixed(1)} ${arcLen.toFixed(1)}"/>
+        ${ticks}
+        <text x="${cx - 42}" y="${cy - 22}" text-anchor="middle" fill="#0f2557" font-size="28" font-weight="900">${p1}%</text>
+        <text x="${cx - 42}" y="${cy - 4}" text-anchor="middle" fill="#1d4ed8" font-size="10.5" font-weight="800">● ${esc(primaryLabel)}</text>
+        <text x="${cx + 46}" y="${cy - 22}" text-anchor="middle" fill="#475569" font-size="24" font-weight="800">${Math.max(0, Math.min(100, Number(secondaryPct) || 0))}%</text>
+        <text x="${cx + 46}" y="${cy - 4}" text-anchor="middle" fill="#64748b" font-size="10.5" font-weight="700">● ${esc(secondaryLabel)}</text>
+      </svg>`;
     }
 
     function buildSvgBarPairChart(items, dark = false) {
@@ -4422,15 +4580,15 @@
 
       const grids = [0, 0.5, 1].map(f => {
         const y = (padT + plotH * (1 - f)).toFixed(1);
-        return `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="rgba(148,163,184,0.22)" stroke-dasharray="3 3"/>
-                <text x="${padL - 8}" y="${Number(y) + 4}" text-anchor="end" fill="#cbd5e1" font-size="10" font-weight="700">${esc(shortRpTick(maxVal * f))}</text>`;
+        return `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#e2e8f0" stroke-dasharray="3 3"/>
+                <text x="${padL - 8}" y="${Number(y) + 4}" text-anchor="end" fill="#64748b" font-size="10" font-weight="700">${esc(shortRpTick(maxVal * f))}</text>`;
       }).join("");
 
       const dots = coords.map(c => `<g>
         <title>${esc(c.label)}: ${esc(rp(c.value))}</title>
-        <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="5.5" fill="#facc15" stroke="#ffffff" stroke-width="2"/>
-        <text x="${c.x.toFixed(1)}" y="${(c.y - 11).toFixed(1)}" text-anchor="middle" fill="#fde047" font-size="10.5" font-weight="800">${esc(shortRpTick(c.value))}</text>
-        <text x="${c.x.toFixed(1)}" y="${H - 10}" text-anchor="middle" fill="#cbd5e1" font-size="10.5" font-weight="700">${esc(c.label)}</text>
+        <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="5.5" fill="#1d4ed8" stroke="#ffffff" stroke-width="2"/>
+        <text x="${c.x.toFixed(1)}" y="${(c.y - 11).toFixed(1)}" text-anchor="middle" fill="#0f2557" font-size="10.5" font-weight="800">${esc(shortRpTick(c.value))}</text>
+        <text x="${c.x.toFixed(1)}" y="${H - 10}" text-anchor="middle" fill="#64748b" font-size="10.5" font-weight="700">${esc(c.label)}</text>
       </g>`).join("");
 
       return `<svg viewBox="0 0 ${W} ${H}" class="w-full h-56">
@@ -4452,45 +4610,90 @@
       if (!isAdmin) return;
       const titleEl = document.getElementById("salesTrendChartTitle");
       const badgeEl = document.getElementById("badgeSalesTrend");
-      let items = [];
-      if (currentViewMode === "day") {
-        if (titleEl) titleEl.textContent = "Omzet & Laba per Jam (WITA)";
-        const hourMap = new Map();
-        for (let h = 8; h <= 21; h++) hourMap.set(String(h).padStart(2, "0"), { omset: 0, laba: 0 });
-        for (const tx of rows) {
-          if (!tx.createdAt) continue;
-          const dt = new Date(tx.createdAt);
-          if (isNaN(dt)) continue;
-          const hr = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Makassar", hour: "2-digit", hour12: false }).format(dt);
-          const cur = hourMap.get(hr) || { omset: 0, laba: 0 };
-          cur.omset += Number(tx.totalOmset || 0);
-          cur.laba += Number(tx.totalProfit || 0);
-          hourMap.set(hr, cur);
+      if (titleEl) titleEl.textContent = currentViewMode === "day" ? "Performa Penjualan Hari Ini" : "Performa Penjualan Semua Hari";
+
+      let totalOmzetRows = 0, totalLabaRows = 0, totalPcs = 0;
+      const pay = { Cash: 0, QRIS: 0, Kartu: 0, Transfer: 0 };
+      const prodMap = new Map();
+      for (const tx of rows) {
+        totalOmzetRows += Number(tx.totalOmset || 0);
+        totalLabaRows += Number(tx.totalProfit || 0);
+        const m = tx.paymentMethod || "Cash";
+        if (m in pay) pay[m] += Number(tx.totalOmset || 0);
+        for (const it of (tx.items || [])) {
+          const q = Number(it.qty || 0);
+          totalPcs += q;
+          const key = String(it.name || "Barang").trim();
+          const cur = prodMap.get(key) || { omset: 0, qty: 0 };
+          cur.omset += Number(it.price || 0) * q;
+          cur.qty += q;
+          prodMap.set(key, cur);
         }
-        items = [...hourMap.entries()].sort((a, b) => a[0].localeCompare(b[0])).map(([h, v]) => ({ label: h + "h", v1: v.omset, v2: v.laba }));
-      } else {
-        if (titleEl) titleEl.textContent = "Omzet & Laba per Hari";
-        const dayMap = new Map();
-        for (const tx of rows) {
-          const d = tx.date || "-";
-          const cur = dayMap.get(d) || { omset: 0, laba: 0 };
-          cur.omset += Number(tx.totalOmset || 0);
-          cur.laba += Number(tx.totalProfit || 0);
-          dayMap.set(d, cur);
-        }
-        items = [...dayMap.entries()].sort((a, b) => a[0].localeCompare(b[0])).slice(-18).map(([d, v]) => ({ label: d.slice(5), v1: v.omset, v2: v.laba }));
       }
-      const totalOmzetRows = items.reduce((a, b) => a + b.v1, 0);
+      const totalModalRows = Math.max(0, totalOmzetRows - totalLabaRows);
+      const sProfPct = totalOmzetRows > 0 ? Math.round((totalLabaRows / totalOmzetRows) * 100) : 0;
+      const sCostPct = totalOmzetRows > 0 ? Math.max(0, 100 - sProfPct) : 0;
       if (badgeEl) badgeEl.textContent = rp(totalOmzetRows);
 
-      const trendWrap = document.getElementById("svgSalesTrendWrap");
-      if (trendWrap) trendWrap.innerHTML = buildSvgBarPairChart(items, true);
+      // 1. Bento Semi-Circle Gauge + Pill Bars in Penjualan
+      const gaugeWrap = document.getElementById("svgSalesGaugeWrap");
+      if (gaugeWrap) {
+        const maxBar = Math.max(1, totalOmzetRows, totalLabaRows, totalModalRows);
+        const pillRows = [
+          { label: "Total Omzet", val: totalOmzetRows, color: "#0f2557" },
+          { label: "Laba Kotor", val: totalLabaRows, color: "#1d4ed8" },
+          { label: "Modal Terjual", val: totalModalRows, color: "#64748b" },
+          { label: "Bayar Tunai", val: pay.Cash, color: "#0ea5e9" },
+          { label: "QRIS & Transfer", val: pay.QRIS + pay.Transfer + pay.Kartu, color: "#eab308" }
+        ];
+        gaugeWrap.innerHTML = buildSemiGaugeSvg(sProfPct, sCostPct, "Laba Kotor", "Modal Barang") +
+          `<div class="space-y-2">` +
+          pillRows.map(r => {
+            const w = Math.max(r.val > 0 ? 22 : 18, Math.round((r.val / maxBar) * 76));
+            return `<div class="bento-pill-track">
+              <div class="bento-pill-fill" style="width:${w}%; background:${r.color}">${esc(r.label)}</div>
+              <span class="text-xs font-extrabold text-slate-900 shrink-0 tabular-nums">${rp(r.val)}</span>
+            </div>`;
+          }).join("") + `</div>`;
+      }
 
-      // Update Sales Ratio Card
-      const totalLabaRows = items.reduce((a, b) => a + b.v2, 0);
-      const totalModalRows = Math.max(0, totalOmzetRows - totalLabaRows);
-      const sCostPct = totalOmzetRows > 0 ? Math.round((totalModalRows / totalOmzetRows) * 100) : 0;
-      const sProfPct = totalOmzetRows > 0 ? Math.max(0, 100 - sCostPct) : 0;
+      // 2. Bento Pastel Hero Card in Penjualan
+      const heroCard = document.getElementById("bentoSalesHeroCard");
+      if (heroCard) {
+        heroCard.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900">Omzet Terpilih</span>
+              <p class="text-3xl font-black text-slate-950 tracking-tight mt-1 tabular-nums">${esc(shortRpTick(totalOmzetRows))}</p>
+            </div>
+            <span class="w-11 h-11 rounded-full bg-white/85 border border-blue-200 flex items-center justify-center text-blue-900 text-lg shadow-sm"><i class="fa-solid fa-receipt" aria-hidden="true"></i></span>
+          </div>
+          <div class="flex items-end justify-between gap-3 pt-4">
+            <div>
+              <span class="block text-xs font-extrabold text-slate-700">${rows.length} Nota · ${totalPcs} Pcs</span>
+              <span class="block text-[11px] font-bold text-blue-900">Laba: ${rp(totalLabaRows)}</span>
+            </div>
+            <div class="flex items-end gap-1.5 h-12" aria-hidden="true">
+              <span class="w-3 rounded-t-md bg-blue-400/70" style="height:40%"></span>
+              <span class="w-3 rounded-t-md bg-blue-600/80" style="height:70%"></span>
+              <span class="w-3 rounded-t-md bg-indigo-700" style="height:100%"></span>
+              <span class="w-3 rounded-t-md bg-amber-400" style="height:65%"></span>
+            </div>
+          </div>`;
+      }
+
+      // 3. Ring Donut Cara Bayar with Floating % Pills
+      const payWrap = document.getElementById("svgSalesPayDonutWrap");
+      if (payWrap) {
+        payWrap.innerHTML = buildSvgDonut([
+          { label: "Tunai", value: pay.Cash, color: "#1d4ed8", display: rp(pay.Cash) },
+          { label: "QRIS", value: pay.QRIS, color: "#38bdf8", display: rp(pay.QRIS) },
+          { label: "Kartu", value: pay.Kartu, color: "#facc15", display: rp(pay.Kartu) },
+          { label: "Transfer", value: pay.Transfer, color: "#0f2557", display: rp(pay.Transfer) }
+        ], "OMZET", shortRpTick(totalOmzetRows));
+      }
+
+      // 4. Update Sales Ratio Card
       const sCostEl = document.getElementById("salesSegCost");
       const sProfEl = document.getElementById("salesSegProfit");
       if (sCostEl) sCostEl.style.width = sCostPct + "%";
@@ -4502,80 +4705,92 @@
       if (sLC) sLC.textContent = `${rp(totalModalRows)} (${sCostPct}%)`;
       if (sLP) sLP.textContent = `${rp(totalLabaRows)} (${sProfPct}%)`;
 
-      // Top 5 Barang Terlaris (Clean Figma Bars)
-      const prodMap = new Map();
-      for (const tx of rows) {
-        for (const it of (tx.items || [])) {
-          const key = String(it.name || "Barang").trim();
-          const cur = prodMap.get(key) || { omset: 0, qty: 0 };
-          cur.omset += Number(it.price || 0) * Number(it.qty || 0);
-          cur.qty += Number(it.qty || 0);
-          prodMap.set(key, cur);
-        }
-      }
+      // 5. Top 5 Barang Terlaris (Trending Chips + Pill Bars)
       const top5 = [...prodMap.entries()].sort((a, b) => b[1].omset - a[1].omset).slice(0, 5);
       const topBadge = document.getElementById("badgeTopProducts");
       if (topBadge) topBadge.textContent = top5.length ? `${top5.length} Terlaris` : "Kosong";
       const topWrap = document.getElementById("svgTopProductsWrap");
       if (topWrap) {
         const maxTop = top5[0]?.[1]?.omset || 1;
-        topWrap.innerHTML = top5.length
-          ? top5.map(([name, v], idx) => {
-              const pct = Math.max(8, Math.round((v.omset / maxTop) * 100));
-              const barCls = idx === 0 ? "bg-amber-400" : "bg-blue-600";
-              return `<div class="space-y-1">
-                <div class="flex items-center justify-between gap-2 text-xs">
-                  <span class="font-bold text-slate-800 truncate">${idx + 1}. ${esc(name)}</span>
-                  <span class="font-extrabold text-blue-950 shrink-0 tabular-nums">${rp(v.omset)} · ${v.qty} pcs</span>
-                </div>
-                <div class="h-2.5 w-full rounded-full bg-slate-100 overflow-hidden"><div class="h-full rounded-full ${barCls}" style="width:${pct}%"></div></div>
-              </div>`;
-            }).join("")
-          : `<p class="text-sm text-slate-500 py-8 text-center">Belum ada transaksi pada periode ini.</p>`;
+        if (!top5.length) {
+          topWrap.innerHTML = `<p class="text-sm text-slate-500 py-8 text-center">Belum ada transaksi pada periode ini.</p>`;
+        } else {
+          const chips = top5.slice(0, 3).map(([n, v]) =>
+            `<span class="bento-trending-chip"><span class="truncate max-w-[160px]">${esc(n)}</span><span class="bento-trending-badge">${v.qty}x</span></span>`
+          ).join("");
+          const bars = top5.map(([name, v], idx) => {
+            const pct = Math.max(24, Math.round((v.omset / maxTop) * 76));
+            const fillColor = idx === 0 ? "#0f2557" : idx === 1 ? "#1d4ed8" : idx === 2 ? "#3b82f6" : "#eab308";
+            return `<div class="bento-pill-track">
+              <div class="bento-pill-fill" style="width:${pct}%; background:${fillColor}">${idx + 1}. ${esc(name)}</div>
+              <span class="text-xs font-extrabold text-slate-900 shrink-0 tabular-nums">${rp(v.omset)} · ${v.qty} pcs</span>
+            </div>`;
+          }).join("");
+          topWrap.innerHTML = `<div class="flex flex-wrap gap-2 pb-1">${chips}</div>${bars}`;
+        }
       }
     }
 
     function renderInventoryCharts() {
       if (!isAdmin) return;
       const active = activeInventory();
-      const catsCost = { "Badminton": 0, "Futsal & Bola": 0, "Catur": 0, "Musik": 0, "Olahraga Lainnya": 0 };
       const catsSell = { "Badminton": 0, "Futsal & Bola": 0, "Catur": 0, "Musik": 0, "Olahraga Lainnya": 0 };
-      let okCount = 0, lowCount = 0, outCount = 0, totalPotensi = 0;
+      let okCount = 0, lowCount = 0, outCount = 0, totalCost = 0, totalPotensi = 0, totalUnits = 0;
       for (const item of active) {
         const st = Math.max(0, Number(item.stock || 0));
+        totalUnits += st;
         const valCost = st * Number(item.cost || 0);
         const valSell = st * Number(item.price || 0);
+        totalCost += valCost;
         totalPotensi += valSell;
         if (st <= 0) outCount++;
         else if (st < LOW_STOCK_LIMIT) lowCount++;
         else okCount++;
         const lbl = detectProductCategoryLabel(item).label;
         const mapKey = lbl === "Olahraga" ? "Olahraga Lainnya" : lbl;
-        catsCost[mapKey] = (catsCost[mapKey] || 0) + valCost;
         catsSell[mapKey] = (catsSell[mapKey] || 0) + valSell;
       }
       const catBadge = document.getElementById("badgeStockCatTotal");
       if (catBadge) catBadge.textContent = `Potensi ${shortRpTick(totalPotensi)}`;
 
+      const okPct = active.length > 0 ? Math.round((okCount / active.length) * 100) : 0;
+      const attnPct = active.length > 0 ? Math.max(0, 100 - okPct) : 0;
       const catWrap = document.getElementById("svgStockCatWrap");
       if (catWrap) {
         const maxCat = Math.max(1, ...Object.values(catsSell));
-        catWrap.innerHTML = Object.keys(catsSell).map(k => {
-          const sell = catsSell[k];
-          const cost = catsCost[k];
-          const pSell = Math.max(sell > 0 ? 4 : 0, Math.round((sell / maxCat) * 100));
-          const pCost = Math.max(cost > 0 ? 4 : 0, Math.round((cost / maxCat) * 100));
-          return `<div class="space-y-1">
-            <div class="flex items-center justify-between gap-2 text-xs">
-              <span class="font-extrabold text-white">${esc(k)}</span>
-              <span class="font-bold text-blue-100 tabular-nums">Modal ${shortRpTick(cost)} · Jual <strong class="text-amber-300">${shortRpTick(sell)}</strong></span>
+        const colors = ["#0f2557", "#1d4ed8", "#3b82f6", "#0ea5e9", "#eab308"];
+        const bars = Object.entries(catsSell).map(([k, v], idx) => {
+          const w = Math.max(v > 0 ? 22 : 18, Math.round((v / maxCat) * 76));
+          return `<div class="bento-pill-track">
+            <div class="bento-pill-fill" style="width:${w}%; background:${colors[idx % colors.length]}">${esc(k)}</div>
+            <span class="text-xs font-extrabold text-slate-900 shrink-0 tabular-nums">${rp(v)}</span>
+          </div>`;
+        }).join("");
+        catWrap.innerHTML = buildSemiGaugeSvg(okPct, attnPct, "Stok Aman", "Perlu Restok") + `<div class="space-y-2">${bars}</div>`;
+      }
+
+      const assetCard = document.getElementById("bentoStockAssetCard");
+      if (assetCard) {
+        assetCard.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900">Nilai Modal Stok</span>
+              <p class="text-3xl font-black text-slate-950 tracking-tight mt-1 tabular-nums">${esc(shortRpTick(totalCost))}</p>
             </div>
-            <div class="h-3 w-full rounded-full bg-white/10 overflow-hidden relative">
-              <div class="h-full rounded-full bg-amber-400/90" style="width:${pSell}%"></div>
-              <div class="h-full rounded-full bg-sky-400 absolute top-0 left-0" style="width:${pCost}%"></div>
+            <span class="w-11 h-11 rounded-full bg-white/85 border border-blue-200 flex items-center justify-center text-blue-900 text-lg shadow-sm"><i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i></span>
+          </div>
+          <div class="flex items-end justify-between gap-3 pt-4">
+            <div>
+              <span class="block text-xs font-extrabold text-slate-700">${active.length} Jenis · ${totalUnits} Pcs</span>
+              <span class="block text-[11px] font-bold text-blue-900">Potensi Jual: ${rp(totalPotensi)}</span>
+            </div>
+            <div class="flex items-end gap-1.5 h-12" aria-hidden="true">
+              <span class="w-3 rounded-t-md bg-blue-400/70" style="height:55%"></span>
+              <span class="w-3 rounded-t-md bg-blue-600/80" style="height:85%"></span>
+              <span class="w-3 rounded-t-md bg-indigo-700" style="height:100%"></span>
+              <span class="w-3 rounded-t-md bg-amber-400" style="height:70%"></span>
             </div>
           </div>`;
-        }).join("") + `<div class="flex gap-4 pt-1 text-[11px] font-bold text-blue-100"><span><span class="inline-block w-2.5 h-2.5 rounded-full bg-sky-400 mr-1"></span>Nilai Modal</span><span><span class="inline-block w-2.5 h-2.5 rounded-full bg-amber-400 mr-1"></span>Potensi Jual</span></div>`;
       }
 
       const healthWrap = document.getElementById("svgStockHealthWrap");
@@ -4584,7 +4799,7 @@
           { label: "Stok Aman (≥5)", value: okCount, color: "#1d4ed8", display: `${okCount} item` },
           { label: "Menipis (1–4)", value: lowCount, color: "#facc15", display: `${lowCount} item` },
           { label: "Habis (0)", value: outCount, color: "#e11d48", display: `${outCount} item` }
-        ], "TOTAL SKU", `${active.length} Item`);
+        ], "AMAN", `${okPct}%`);
       }
     }
 
@@ -4604,25 +4819,65 @@
       const yearNum = Number(month.slice(0, 4));
       const monthNum = Number(month.slice(5, 7));
 
-      // 1. Tren Laba Penjualan 6 Bulan (Pure SVG Area Trend)
-      const months = [];
-      for (let i = 5; i >= 0; i--) {
-        const d = new Date(yearNum, monthNum - 1 - i, 1);
-        months.push(d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"));
-      }
-      const profitPts = months.map(m => ({
-        label: m.slice(2),
-        value: transactions.filter(t => String(t.date || "").startsWith(m + "-")).reduce((s, t) => s + Number(t.totalProfit || 0), 0)
-      }));
-      const badgeProf = document.getElementById("badgeBookProfit");
-      if (badgeProf) badgeProf.textContent = rp(profitPts[profitPts.length - 1]?.value || 0);
-      const profWrap = document.getElementById("svgBookProfitWrap");
-      if (profWrap) profWrap.innerHTML = buildSvgAreaTrend(profitPts);
+      const monthSales = transactions.filter(t => String(t.date || "").startsWith(month + "-"));
+      const { revenue, cost, spending } = monthlyTotals(month);
+      const gross = Math.max(0, revenue - cost);
+      const beliBulanIni = purchases.filter(p => String(p.date || "").startsWith(month + "-")).reduce((s, p) => s + Number(p.totalCost || 0), 0);
 
-      // 2. Komposisi Pembayaran Bulan Terpilih (Pure SVG Donut)
+      // 1. Bento Semi-Circle Gauge + Pill Bars
+      const badgeGauge = document.getElementById("badgeBookGauge");
+      if (badgeGauge) badgeGauge.textContent = month;
+      const gaugeWrap = document.getElementById("svgBookGaugeWrap");
+      if (gaugeWrap) {
+        const labaPct = revenue > 0 ? Math.round((gross / revenue) * 100) : 0;
+        const modalPct = revenue > 0 ? Math.max(0, 100 - labaPct) : 0;
+        const maxBar = Math.max(1, revenue, cost, gross, spending, beliBulanIni);
+        const rows = [
+          { label: "Omzet Penjualan", val: revenue, color: "#0f2557" },
+          { label: "Laba Penjualan", val: gross, color: "#1d4ed8" },
+          { label: "Modal Terjual", val: cost, color: "#64748b" },
+          { label: "Belanja Stok", val: beliBulanIni, color: "#eab308" },
+          { label: "Pengeluaran Toko", val: spending, color: "#e11d48" }
+        ];
+        gaugeWrap.innerHTML = buildSemiGaugeSvg(labaPct, modalPct, "Laba Penjualan", "Modal Barang") +
+          `<div class="space-y-2 pt-1">` +
+          rows.map(r => {
+            const w = Math.max(r.val > 0 ? 22 : 18, Math.round((r.val / maxBar) * 76));
+            return `<div class="bento-pill-track">
+              <div class="bento-pill-fill" style="width:${w}%; background:${r.color}">${esc(r.label)}</div>
+              <span class="text-xs font-extrabold text-slate-900 shrink-0 tabular-nums">${rp(r.val)}</span>
+            </div>`;
+          }).join("") + `</div>`;
+      }
+
+      // 2. Bento Pastel Hero KPI Card (Omzet Bulan Ini + Mini 4-Bar Chart)
+      const pastelCard = document.getElementById("bentoBookOmzetCard");
+      if (pastelCard) {
+        pastelCard.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900">Omzet Bulan ${esc(month)}</span>
+              <p class="text-3xl font-black text-slate-950 tracking-tight mt-1 tabular-nums">${esc(shortRpTick(revenue))}</p>
+            </div>
+            <span class="w-11 h-11 rounded-full bg-white/85 border border-blue-200 flex items-center justify-center text-blue-900 text-lg shadow-sm"><i class="fa-solid fa-sack-dollar" aria-hidden="true"></i></span>
+          </div>
+          <div class="flex items-end justify-between gap-3 pt-4">
+            <div>
+              <span class="block text-xs font-extrabold text-slate-700">${monthSales.length} Transaksi</span>
+              <span class="block text-[11px] font-bold text-blue-900">Laba: ${rp(gross)}</span>
+            </div>
+            <div class="flex items-end gap-1.5 h-12" aria-hidden="true">
+              <span class="w-3 rounded-t-md bg-blue-400/70" style="height:45%"></span>
+              <span class="w-3 rounded-t-md bg-blue-600/80" style="height:75%"></span>
+              <span class="w-3 rounded-t-md bg-indigo-700" style="height:100%"></span>
+              <span class="w-3 rounded-t-md bg-amber-400" style="height:62%"></span>
+            </div>
+          </div>`;
+      }
+
+      // 3. Komposisi Pembayaran Bulan Terpilih (Floating % Ring Donut)
       const pay = { Cash: 0, QRIS: 0, Kartu: 0, Transfer: 0 };
-      for (const t of transactions) {
-        if (!String(t.date || "").startsWith(month + "-")) continue;
+      for (const t of monthSales) {
         const m = t.paymentMethod || "Cash";
         if (m in pay) pay[m] += Number(t.totalOmset || 0);
       }
@@ -4639,7 +4894,54 @@
         ], "OMZET", shortRpTick(payTotal));
       }
 
-      // 3. Omzet & Laba Harian Bulan Terpilih (Pure SVG Bars)
+      // 4. Tren Laba Penjualan 6 Bulan (Pure SVG Area Trend)
+      const months = [];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(yearNum, monthNum - 1 - i, 1);
+        months.push(d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"));
+      }
+      const profitPts = months.map(m => ({
+        label: m.slice(2),
+        value: transactions.filter(t => String(t.date || "").startsWith(m + "-")).reduce((s, t) => s + Number(t.totalProfit || 0), 0)
+      }));
+      const badgeProf = document.getElementById("badgeBookProfit");
+      if (badgeProf) badgeProf.textContent = rp(profitPts[profitPts.length - 1]?.value || 0);
+      const profWrap = document.getElementById("svgBookProfitWrap");
+      if (profWrap) profWrap.innerHTML = buildSvgAreaTrend(profitPts);
+
+      // 5. Produk Terlaris Bulan Ini (Bento Trending Pills + List)
+      const prodMap = new Map();
+      for (const tx of monthSales) {
+        for (const it of (tx.items || [])) {
+          const key = String(it.name || "Barang").trim();
+          const cur = prodMap.get(key) || { omset: 0, qty: 0 };
+          cur.omset += Number(it.price || 0) * Number(it.qty || 0);
+          cur.qty += Number(it.qty || 0);
+          prodMap.set(key, cur);
+        }
+      }
+      const topMonth = [...prodMap.entries()].sort((a, b) => b[1].omset - a[1].omset).slice(0, 5);
+      const trendBox = document.getElementById("bentoBookTrendingWrap");
+      if (trendBox) {
+        if (!topMonth.length) {
+          trendBox.innerHTML = `<p class="text-sm text-slate-500 py-8 text-center">Belum ada penjualan pada bulan ini.</p>`;
+        } else {
+          const chips = topMonth.slice(0, 3).map(([n, v]) =>
+            `<span class="bento-trending-chip"><span class="truncate max-w-[125px]">${esc(n)}</span><span class="bento-trending-badge">${v.qty}x</span></span>`
+          ).join("");
+          const rows = topMonth.map(([n, v], i) => `
+            <div class="flex items-center justify-between gap-2 py-2 border-b border-slate-100 last:border-0 text-xs">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="w-6 h-6 rounded-full ${i === 0 ? "bg-amber-400 text-slate-950" : "bg-blue-100 text-blue-900"} font-black flex items-center justify-center shrink-0">${i + 1}</span>
+                <span class="font-bold text-slate-800 truncate">${esc(n)}</span>
+              </div>
+              <span class="font-extrabold text-slate-900 shrink-0 tabular-nums">${rp(v.omset)}</span>
+            </div>`).join("");
+          trendBox.innerHTML = `<div class="flex flex-wrap gap-1.5 pb-1">${chips}</div><div>${rows}</div>`;
+        }
+      }
+
+      // 6. Omzet & Laba Harian Bulan Terpilih (Pure SVG Bars)
       const daysInMonth = new Date(yearNum, monthNum, 0).getDate();
       const dailyItems = Array.from({ length: daysInMonth }, (_, i) => {
         const d = month + "-" + String(i + 1).padStart(2, "0");
