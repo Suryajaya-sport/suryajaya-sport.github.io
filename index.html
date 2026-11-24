@@ -380,11 +380,11 @@
     /* Clean SaaS Split-Screen POS (Shopify Admin / Square POS style) */
     .pos-split {
       display: grid;
-      grid-template-columns: minmax(0, 1.35fr) minmax(360px, 1fr);
+      grid-template-columns: minmax(0, 1fr) minmax(390px, 440px);
       gap: 1.25rem;
       align-items: start;
     }
-    @media (max-width: 1080px) {
+    @media (max-width: 960px) {
       .pos-split { grid-template-columns: 1fr; }
     }
     .pos-catalog-pane {
@@ -406,11 +406,13 @@
     .pos-cat-tab.is-active { background: #0f172a; color: #ffffff; }
     .pos-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
-      gap: .75rem;
-      max-height: 68vh;
+      grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+      grid-auto-rows: max-content;
+      align-content: start;
+      gap: .85rem;
+      max-height: 70vh;
       overflow-y: auto;
-      padding-right: .2rem;
+      padding: .15rem .35rem .35rem .1rem;
     }
     .pos-card {
       background: #ffffff;
@@ -419,8 +421,11 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      align-items: stretch;
       text-align: left;
       cursor: pointer;
+      width: 100%;
+      padding: 0;
       transition: transform .14s ease, border-color .14s ease, box-shadow .14s ease;
     }
     .pos-card:hover:not(:disabled) {
@@ -429,7 +434,7 @@
       box-shadow: 0 10px 20px -12px rgba(37,99,235,.32);
     }
     .pos-card:disabled { opacity: .52; cursor: not-allowed; }
-    .pos-card-thumb { position: relative; aspect-ratio: 4 / 3; width: 100%; background: #f8fafc; border-bottom: 1px solid #f1f5f9; }
+    .pos-card-thumb { position: relative; width: 100%; height: 126px; flex-shrink: 0; background: #ffffff; border-bottom: 1px solid #f1f5f9; overflow: hidden; }
     .pos-stock-pill {
       position: absolute; top: .4rem; right: .4rem; z-index: 2;
       padding: .14rem .48rem; border-radius: 9999px; font-size: .68rem; font-weight: 800;
@@ -812,7 +817,7 @@
       <section id="cashierWorkspace" class="workspace-pane" hidden>
         <header class="workspace-heading no-print">
           <h2 id="cashierTitle" tabindex="-1">Kasir</h2>
-          <button id="btnOpenSalesView" type="button" class="shop-button shop-button-secondary"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i> Riwayat penjualan</button>
+          <span class="text-xs font-bold text-slate-500">Pilih barang di kiri, selesaikan transaksi di kanan</span>
         </header>
 
         <section id="readOnlyBannerKasir" class="bg-amber-50 border border-amber-300 rounded-3xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 no-print">
@@ -912,7 +917,7 @@
       <section id="salesHistoryWorkspace" class="workspace-pane" hidden>
         <header class="workspace-heading no-print">
           <h2 id="salesHistoryTitle" tabindex="-1">Riwayat penjualan</h2>
-          <button id="btnNewSaleView" type="button" class="shop-button shop-button-primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Transaksi baru</button>
+          <span class="text-xs font-bold text-slate-500">Buku harian, cetak ulang nota, grafik, &amp; laporan</span>
         </header>
         <section class="space-y-4 rounded-3xl border border-slate-200 bg-white p-4 sm:p-5 no-print">
           <div class="flex flex-col gap-4 xl:flex-row xl:items-center justify-between">
@@ -948,21 +953,34 @@
           </div>
         </section>
 
-        <section class="workspace-metrics" aria-label="Ringkasan penjualan">
-          <div class="bg-white p-4 rounded-2xl border border-slate-200"><span class="text-xs font-extrabold uppercase text-blue-900">Penjualan</span><p id="totalOmset" class="text-2xl font-extrabold mt-2 tabular-nums">Rp 0</p></div>
-          <div class="bg-white p-4 rounded-2xl border border-slate-200"><span class="text-xs font-extrabold uppercase text-amber-900">Harga pokok (HPP)</span><p id="totalModal" class="text-2xl font-extrabold mt-2 tabular-nums">Rp 0</p></div>
-          <div class="bg-gradient-to-br from-emerald-600 to-teal-700 p-4 rounded-2xl text-white"><span class="text-xs font-extrabold uppercase">Laba kotor</span><p id="totalUntung" class="text-2xl font-extrabold mt-2 tabular-nums">Rp 0</p></div>
-          <div id="cardProductBreakdown" class="bg-indigo-50 p-4 rounded-2xl border border-indigo-200 cursor-pointer"><span class="text-xs font-extrabold uppercase text-indigo-950">Barang terjual</span><p id="totalTerjual" class="text-2xl font-extrabold mt-2">0 Pcs</p><p class="text-xs text-indigo-800 font-extrabold underline">Klik lihat rincian barang</p></div>
-          <div class="bg-white p-4 rounded-2xl border border-slate-200"><span class="text-xs font-extrabold uppercase text-teal-900">Margin laba kotor</span><p id="grossMarginPct" class="text-2xl font-extrabold mt-2">0%</p></div>
-          <div class="bg-white p-4 rounded-2xl border border-slate-200"><span class="text-xs font-extrabold uppercase text-sky-900">Jumlah transaksi</span><p id="totalTransaksi" class="text-2xl font-extrabold mt-2">0 Transaksi</p></div>
-          <div class="bg-white p-4 rounded-2xl border border-slate-200"><span class="text-xs font-extrabold uppercase text-violet-900">Rata-rata transaksi</span><p id="avgTransaksi" class="text-2xl font-extrabold mt-2 tabular-nums">Rp 0</p></div>
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5" aria-label="Ringkasan penjualan">
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs font-extrabold uppercase tracking-wide text-blue-900">Total Omzet</span>
+            <p id="totalOmset" class="text-2xl font-extrabold mt-1.5 text-slate-900 tabular-nums">Rp 0</p>
+            <p class="text-xs font-bold text-slate-500 mt-1"><span id="totalTransaksi">0 Transaksi</span> · rata-rata <span id="avgTransaksi" class="tabular-nums">Rp 0</span></p>
+          </div>
+          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
+            <span class="text-xs font-extrabold uppercase tracking-wide text-amber-900">Harga Pokok (HPP)</span>
+            <p id="totalModal" class="text-2xl font-extrabold mt-1.5 text-slate-900 tabular-nums">Rp 0</p>
+            <p class="text-xs font-semibold text-slate-500 mt-1">Modal barang terjual</p>
+          </div>
+          <div class="bg-gradient-to-br from-emerald-600 to-teal-700 p-4 rounded-2xl text-white shadow-sm">
+            <span class="text-xs font-extrabold uppercase tracking-wide text-emerald-100">Laba Kotor</span>
+            <p id="totalUntung" class="text-2xl font-extrabold mt-1.5 tabular-nums">Rp 0</p>
+            <p class="text-xs font-bold text-emerald-100 mt-1">Margin: <span id="grossMarginPct">0%</span></p>
+          </div>
+          <div id="cardProductBreakdown" class="bg-indigo-50 hover:bg-indigo-100/80 p-4 rounded-2xl border border-indigo-200 cursor-pointer shadow-sm transition-colors">
+            <span class="text-xs font-extrabold uppercase tracking-wide text-indigo-950">Barang Terjual</span>
+            <p id="totalTerjual" class="text-2xl font-extrabold mt-1.5 text-indigo-950">0 Pcs</p>
+            <p class="text-xs text-indigo-800 font-extrabold underline mt-1">Klik lihat rincian barang</p>
+          </div>
         </section>
 
         <section class="workspace-metrics" aria-label="Metode pembayaran">
-          <div class="bg-white px-4 py-3.5 rounded-2xl border border-slate-200 flex justify-between"><div><span class="text-xs font-extrabold uppercase text-emerald-800">Cash / Tunai</span><p id="payCash" class="text-lg font-extrabold mt-0.5 tabular-nums">Rp 0</p></div><span id="countCash" class="text-xs font-extrabold bg-emerald-100 px-2.5 py-1 rounded-full">0x</span></div>
-          <div class="bg-white px-4 py-3.5 rounded-2xl border border-slate-200 flex justify-between"><div><span class="text-xs font-extrabold uppercase text-sky-800">Bayar QRIS</span><p id="payQris" class="text-lg font-extrabold mt-0.5 tabular-nums">Rp 0</p></div><span id="countQris" class="text-xs font-extrabold bg-sky-100 px-2.5 py-1 rounded-full">0x</span></div>
-          <div class="bg-white px-4 py-3.5 rounded-2xl border border-slate-200 flex justify-between"><div><span class="text-xs font-extrabold uppercase text-amber-900">Bayar Kartu</span><p id="payCard" class="text-lg font-extrabold mt-0.5 tabular-nums">Rp 0</p></div><span id="countCard" class="text-xs font-extrabold bg-amber-100 px-2.5 py-1 rounded-full">0x</span></div>
-          <div class="bg-white px-4 py-3.5 rounded-2xl border border-slate-200 flex justify-between"><div><span class="text-xs font-extrabold uppercase text-purple-900">Transfer Bank</span><p id="payTransfer" class="text-lg font-extrabold mt-0.5 tabular-nums">Rp 0</p></div><span id="countTransfer" class="text-xs font-extrabold bg-purple-100 px-2.5 py-1 rounded-full">0x</span></div>
+          <div class="bg-white px-4 py-3.5 rounded-2xl border border-slate-200 flex items-center justify-between gap-2"><div><span class="text-xs font-extrabold uppercase text-emerald-800">Cash / Tunai</span><p id="payCash" class="text-lg font-extrabold mt-0.5 tabular-nums">Rp 0</p></div><span id="countCash" class="text-xs font-extrabold bg-emerald-100 px-2.5 py-1 rounded-full">0x</span></div>
+          <div class="bg-white px-4 py-3.5 rounded-2xl border border-slate-200 flex items-center justify-between gap-2"><div><span class="text-xs font-extrabold uppercase text-sky-800">Bayar QRIS</span><p id="payQris" class="text-lg font-extrabold mt-0.5 tabular-nums">Rp 0</p></div><span id="countQris" class="text-xs font-extrabold bg-sky-100 px-2.5 py-1 rounded-full">0x</span></div>
+          <div class="bg-white px-4 py-3.5 rounded-2xl border border-slate-200 flex items-center justify-between gap-2"><div><span class="text-xs font-extrabold uppercase text-amber-900">Bayar Kartu</span><p id="payCard" class="text-lg font-extrabold mt-0.5 tabular-nums">Rp 0</p></div><span id="countCard" class="text-xs font-extrabold bg-amber-100 px-2.5 py-1 rounded-full">0x</span></div>
+          <div class="bg-white px-4 py-3.5 rounded-2xl border border-slate-200 flex items-center justify-between gap-2"><div><span class="text-xs font-extrabold uppercase text-purple-900">Transfer Bank</span><p id="payTransfer" class="text-lg font-extrabold mt-0.5 tabular-nums">Rp 0</p></div><span id="countTransfer" class="text-xs font-extrabold bg-purple-100 px-2.5 py-1 rounded-full">0x</span></div>
         </section>
 
         <section id="salesCharts" class="grid grid-cols-1 lg:grid-cols-2 gap-4 no-print">
@@ -1005,7 +1023,8 @@
       <header class="workspace-heading">
         <h2 id="inventoryWorkspaceTitle" tabindex="-1">Stok &amp; label QR</h2>
         <div class="workspace-actions">
-          <button id="btnOpenRestock" type="button" class="shop-button shop-button-secondary"><i class="fa-solid fa-truck-ramp-box" aria-hidden="true"></i> Tambah stok</button>
+          <button id="btnOpenRestock" type="button" class="shop-button shop-button-emerald"><i class="fa-solid fa-arrow-down" aria-hidden="true"></i> Barang masuk</button>
+          <button id="btnOpenStockOut" type="button" class="shop-button bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200"><i class="fa-solid fa-arrow-up" aria-hidden="true"></i> Barang keluar</button>
           <button id="btnOpenInventoryEntry" type="button" class="shop-button shop-button-primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Barang baru</button>
         </div>
       </header>
@@ -1037,33 +1056,106 @@
 
       <dialog id="restockCard" class="workspace-dialog">
         <div class="workspace-dialog-heading">
-          <h2>Catat pembelian stok</h2>
+          <h2><i class="fa-solid fa-arrow-down text-emerald-400 mr-2"></i>Barang Masuk (Restok / Kulakan)</h2>
           <form method="dialog"><button class="workspace-dialog-close" type="submit">Tutup</button></form>
         </div>
         <p class="workspace-dialog-status" data-dialog-status role="status"></p>
         <div class="p-5 space-y-4">
-          <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-            <div class="sm:col-span-2">
-              <label for="restockItem" class="block text-sm font-bold mb-1.5">Barang</label>
-              <select id="restockItem" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl font-bold"></select>
+          <div class="space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <label for="restockItem" class="text-sm font-bold">Pilih Barang</label>
+              <button type="button" id="btnRestockNewProduct" class="text-xs font-extrabold text-blue-700 hover:underline">+ Tambah Produk Baru</button>
             </div>
+            <input type="search" id="restockSearch" placeholder="Ketik untuk saring nama atau kode barang..." autocomplete="off" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl bg-slate-50 text-sm font-semibold">
+            <select id="restockItem" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl font-bold"></select>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
             <div>
-              <label for="restockQty" class="block text-sm font-bold mb-1.5">Jumlah (Pcs)</label>
+              <label for="restockQty" class="block text-sm font-bold mb-1">Jumlah Masuk (Pcs)</label>
               <input type="number" min="1" step="1" inputmode="numeric" id="restockQty" placeholder="10" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl font-extrabold">
             </div>
             <div>
-              <label for="restockTotal" class="block text-sm font-bold mb-1.5">Total Beli (Rp)</label>
-              <input type="number" min="0" step="1" inputmode="numeric" id="restockTotal" placeholder="1800000" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl font-bold">
+              <label for="restockUnitCost" class="block text-sm font-bold mb-1">Harga Beli Satuan (Rp)</label>
+              <input type="number" min="0" step="1" inputmode="numeric" id="restockUnitCost" placeholder="0" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl font-bold">
+            </div>
+            <div>
+              <label for="restockTotal" class="block text-sm font-bold mb-1">Total Biaya (Rp)</label>
+              <input type="number" min="0" step="1" inputmode="numeric" id="restockTotal" placeholder="Otomatis" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl font-extrabold bg-emerald-50 text-emerald-950">
             </div>
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div><label for="restockDate" class="block text-sm font-bold mb-1.5">Tanggal</label><input type="date" id="restockDate" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl"></div>
-            <div><label for="restockSupplier" class="block text-sm font-bold mb-1.5">Supplier (opsional)</label><input id="restockSupplier" maxlength="120" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl"></div>
-            <div><label for="restockInvoice" class="block text-sm font-bold mb-1.5">No. nota (opsional)</label><input id="restockInvoice" maxlength="80" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl"></div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            <div><label for="restockDate" class="block text-sm font-bold mb-1">Tanggal</label><input type="date" id="restockDate" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl"></div>
+            <div><label for="restockSupplier" class="block text-sm font-bold mb-1">Supplier (opsional)</label><input id="restockSupplier" maxlength="120" placeholder="Nama supplier" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl"></div>
+            <div><label for="restockInvoice" class="block text-sm font-bold mb-1">No. nota (opsional)</label><input id="restockInvoice" maxlength="80" placeholder="No. faktur/nota" class="w-full px-3 py-2.5 border border-slate-300 rounded-xl"></div>
           </div>
           <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">
-            <p class="text-xs text-slate-500">Stok bertambah otomatis. Harga modal dihitung rata-rata tertimbang dari stok lama dan pembelian baru.</p>
-            <button type="button" id="btnSaveRestock" class="shop-button shop-button-primary">Simpan pembelian</button>
+            <p class="text-xs text-slate-500">Total biaya terhitung otomatis (Jumlah × Harga Beli). Harga modal diperbarui rata-rata tertimbang.</p>
+            <button type="button" id="btnSaveRestock" class="shop-button shop-button-emerald">Simpan Barang Masuk</button>
+          </div>
+        </div>
+      </dialog>
+
+      <dialog id="stockOutCard" class="workspace-dialog">
+        <div class="workspace-dialog-heading">
+          <h2><i class="fa-solid fa-arrow-up text-rose-400 mr-2"></i>Barang Keluar (Non-Penjualan)</h2>
+          <form method="dialog"><button class="workspace-dialog-close" type="submit">Tutup</button></form>
+        </div>
+        <p class="workspace-dialog-status" data-dialog-status role="status"></p>
+        <div class="p-5 space-y-4">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between gap-2">
+              <label for="stockOutItem" class="text-sm font-bold">Pilih Barang</label>
+              <span id="stockOutCurrentBadge" class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">Sisa: -</span>
+            </div>
+            <input type="search" id="stockOutSearch" placeholder="Ketik nama atau kode barang..." autocomplete="off" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl bg-slate-50 text-sm font-semibold">
+            <select id="stockOutItem" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl font-bold"></select>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div>
+              <label for="stockOutQty" class="block text-sm font-bold mb-1">Jumlah Keluar (Pcs)</label>
+              <input type="number" min="1" step="1" inputmode="numeric" id="stockOutQty" placeholder="1" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl font-extrabold">
+            </div>
+            <div>
+              <label for="stockOutReason" class="block text-sm font-bold mb-1">Kategori Alasan</label>
+              <select id="stockOutReason" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl font-bold">
+                <option value="Rusak / Cacat">Rusak / Cacat</option>
+                <option value="Bonus / Promosi">Bonus / Promosi</option>
+                <option value="Dipakai Sendiri">Dipakai Sendiri</option>
+                <option value="Koreksi Opname">Koreksi Opname</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label for="stockOutNote" class="block text-sm font-bold mb-1">Catatan tambahan (opsional)</label>
+            <input type="text" id="stockOutNote" maxlength="160" placeholder="Contoh: sobek kemasan / bonus pelanggan" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl">
+          </div>
+          <div class="flex items-center justify-between gap-3 pt-2 border-t border-slate-100">
+            <p class="text-xs text-slate-500">Stok berkurang dan tercatat di Kartu Stok tanpa masuk omzet penjualan.</p>
+            <button type="button" id="btnSaveStockOut" class="shop-button bg-rose-600 hover:bg-rose-700 text-white">Simpan Barang Keluar</button>
+          </div>
+        </div>
+      </dialog>
+
+      <dialog id="stockCardDialog" class="workspace-dialog" style="width:min(95vw,46rem)">
+        <div class="workspace-dialog-heading">
+          <h2 id="stockCardTitle">Kartu Stok</h2>
+          <form method="dialog"><button class="workspace-dialog-close" type="submit">Tutup</button></form>
+        </div>
+        <div class="p-5 space-y-4 overflow-y-auto max-h-[76dvh]">
+          <div id="stockCardSummary" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5"></div>
+          <div class="overflow-x-auto rounded-2xl border border-slate-200">
+            <table class="w-full text-left border-collapse text-xs sm:text-sm">
+              <thead>
+                <tr class="bg-slate-100 border-b border-slate-200 text-[11px] font-extrabold uppercase text-slate-600">
+                  <th class="py-2.5 px-3">Tanggal</th>
+                  <th class="py-2.5 px-3">Mutasi</th>
+                  <th class="py-2.5 px-3">Keterangan</th>
+                  <th class="py-2.5 px-3 text-right">Jumlah</th>
+                  <th class="py-2.5 px-3 text-right">Sisa Akhir</th>
+                </tr>
+              </thead>
+              <tbody id="stockCardBody" class="divide-y divide-slate-100"></tbody>
+            </table>
           </div>
         </div>
       </dialog>
@@ -1123,6 +1215,14 @@
             <label class="flex min-h-11 items-center gap-2 rounded-xl border border-slate-200 px-3 text-sm font-medium">
               <input type="checkbox" id="invMissingPhotoOnly" class="h-4 w-4"><span>Belum ada foto <span id="invMissingPhotoCount"></span></span>
             </label>
+            <select id="inventoryCategoryFilter" aria-label="Filter kategori stok" class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm font-bold">
+              <option value="all">Semua kategori</option>
+              <option value="badminton">Badminton</option>
+              <option value="ball">Futsal &amp; bola</option>
+              <option value="chess">Catur</option>
+              <option value="music">Musik</option>
+              <option value="sport">Olahraga</option>
+            </select>
             <select id="inventoryFollowUp" aria-label="Filter daftar stok" class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm font-bold">
               <option value="all">Barang aktif</option><option value="low">Stok menipis</option><option value="out">Stok habis</option><option value="unpublished">Belum terbit</option><option value="no-price">Harga kosong</option><option value="archived">Arsip barang</option>
             </select>
@@ -1133,7 +1233,13 @@
           <table class="w-full text-left border-collapse">
             <thead>
               <tr class="bg-slate-50 border-b border-slate-200 text-xs font-extrabold uppercase text-slate-600">
-                <th class="py-3.5 px-3">Kode</th><th class="py-3.5 px-3">Nama Barang &amp; Varian</th><th class="py-3.5 px-3 text-center">Sisa Stok</th><th class="py-3.5 px-3 text-right">Modal</th><th class="py-3.5 px-3 text-right">Harga Jual</th><th class="py-3.5 px-3 text-right">Untung</th><th class="py-3.5 px-3 text-center">QR &amp; Aksi</th>
+                <th class="py-3.5 px-3">Produk</th>
+                <th class="py-3.5 px-3">Kategori</th>
+                <th class="py-3.5 px-3 text-right">Harga Beli</th>
+                <th class="py-3.5 px-3 text-right">Harga Jual</th>
+                <th class="py-3.5 px-3 text-center">Stok <span class="font-normal normal-case text-slate-400">(klik riwayat)</span></th>
+                <th class="py-3.5 px-3 text-right">Untung</th>
+                <th class="py-3.5 px-3 text-center">Aksi Cepat</th>
               </tr>
             </thead>
             <tbody id="inventoryTableBody" class="divide-y divide-slate-200 text-sm"></tbody>
@@ -1792,42 +1898,39 @@
     function addSaleItemRow(prefill = null) {
       const container = document.getElementById("saleItemsContainer");
       const row = document.createElement("div");
-      row.className = "bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3";
+      row.className = "bg-slate-50 border border-slate-200 rounded-2xl p-3 space-y-2.5";
       row.dataset.invId = prefill?.id || "";
       const key = "sale-item-" + ++saleItemRowNumber;
       const prefillLabel = prefill ? (prefill.id ? formatItemLabel(prefill) : String(prefill.name || "")) : "";
       row.innerHTML = `
-        <div class="flex items-center justify-between gap-2">
-          <label for="${key}" class="text-sm font-bold text-slate-700">Nama atau kode barang <span class="text-xs font-normal text-slate-500">(pilih stok atau ketik bebas)</span></label>
-          <button type="button" class="btn-remove-row px-2.5 py-1.5 rounded-lg text-rose-700 hover:bg-rose-50 font-bold text-xs"><i class="fa-solid fa-trash" aria-hidden="true"></i> Hapus baris</button>
+        <div class="flex items-center gap-2">
+          <div class="sale-entry-thumbnail shrink-0 ${prefill?.id ? "w-10 h-10" : "hidden"}">${prefill?.id ? productImageMarkup(prefill, "h-10 w-10 rounded-lg border border-slate-200", 120, true) : ""}</div>
+          <input type="text" id="${key}" list="inventoryDatalist" autocomplete="off" class="item-name-input min-w-0 flex-1 px-3 py-2 border border-slate-300 rounded-xl bg-white font-bold !text-sm" placeholder="Pilih stok atau ketik nama barang..." value="${esc(prefillLabel)}">
+          <button type="button" class="btn-remove-row w-9 h-9 shrink-0 rounded-xl text-rose-700 hover:bg-rose-100 inline-flex items-center justify-center" title="Hapus baris" aria-label="Hapus baris"><i class="fa-solid fa-trash text-xs" aria-hidden="true"></i></button>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
-          <div class="md:col-span-4 flex items-center gap-2.5">
-            <div class="sale-entry-thumbnail shrink-0 w-12 h-12">${prefill?.id ? productImageMarkup(prefill, "h-12 w-12 rounded-xl border border-slate-200", 160, true) : ""}</div>
-            <input type="text" id="${key}" list="inventoryDatalist" autocomplete="off" class="item-name-input min-w-0 w-full px-3.5 py-2.5 border border-slate-300 rounded-xl font-bold" placeholder="Pilih stok atau ketik nama barang" value="${esc(prefillLabel)}">
+        <div class="grid grid-cols-3 gap-2 items-end">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 mb-1">Harga jual (Rp)</label>
+            <input type="number" min="0" step="1" inputmode="numeric" class="item-price-input w-full px-2.5 py-2 border border-slate-300 rounded-xl bg-white font-extrabold !text-sm" placeholder="0" value="${esc(prefill?.price ?? "")}">
           </div>
-          <div class="md:col-span-2">
-            <label class="block text-xs font-bold text-slate-600 mb-1">Modal (opsional)</label>
-            <input type="number" min="0" step="1" inputmode="numeric" class="item-cost-input w-full px-2.5 py-2.5 border border-slate-300 rounded-xl font-bold bg-white" placeholder="0" value="${esc(prefill?.cost ?? "")}">
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 mb-1">Modal (ops.)</label>
+            <input type="number" min="0" step="1" inputmode="numeric" class="item-cost-input w-full px-2.5 py-2 border border-slate-300 rounded-xl bg-white font-bold !text-sm" placeholder="0" value="${esc(prefill?.cost ?? "")}">
           </div>
-          <div class="md:col-span-3">
-            <label class="block text-xs font-bold text-slate-600 mb-1">Harga jual (Rp)</label>
-            <input type="number" min="0" step="1" inputmode="numeric" class="item-price-input w-full px-3 py-2.5 border border-slate-300 rounded-xl font-extrabold" value="${esc(prefill?.price ?? "")}">
-          </div>
-          <div class="md:col-span-3">
-            <label class="block text-xs font-bold text-slate-600 mb-1">Jumlah</label>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 mb-1">Jumlah</label>
             <div class="flex items-center gap-1">
-              <button type="button" aria-label="Kurangi" class="btn-qty-minus w-10 h-11 rounded-xl bg-slate-200 font-extrabold">−</button>
-              <input type="number" min="1" step="1" inputmode="numeric" value="1" class="item-qty min-w-0 flex-1 px-1 py-2.5 border border-slate-300 rounded-xl font-extrabold text-center">
-              <button type="button" aria-label="Tambah" class="btn-qty-plus w-10 h-11 rounded-xl bg-blue-100 font-extrabold">+</button>
+              <button type="button" aria-label="Kurangi" class="btn-qty-minus w-8 h-9 shrink-0 rounded-lg bg-slate-200 hover:bg-slate-300 font-extrabold text-sm">−</button>
+              <input type="number" min="1" step="1" inputmode="numeric" value="1" class="item-qty min-w-0 flex-1 px-1 py-1.5 border border-slate-300 rounded-lg bg-white font-extrabold text-center !text-sm">
+              <button type="button" aria-label="Tambah" class="btn-qty-plus w-8 h-9 shrink-0 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-900 font-extrabold text-sm">+</button>
             </div>
           </div>
         </div>
-        <div class="flex justify-between items-center gap-2 pt-2 border-t border-slate-200/80 text-xs">
-          <span class="item-mode-badge font-bold ${prefill?.id ? "text-emerald-700" : "text-slate-500"}">${prefill?.id ? "Dari stok (stok otomatis berkurang)" : "Di luar stok (tidak mengurangi stok)"}</span>
-          <div class="flex items-center gap-2">
-            <span class="font-bold text-slate-500">Total barang ini</span>
-            <span class="item-subtotal font-extrabold text-base tabular-nums">Rp 0</span>
+        <div class="flex justify-between items-center gap-2 pt-2 border-t border-slate-200/80 text-[11px]">
+          <span class="item-mode-badge font-bold ${prefill?.id ? "text-emerald-700" : "text-slate-500"}">${prefill?.id ? "Dari stok" : "Di luar stok"}</span>
+          <div class="flex items-center gap-1.5">
+            <span class="font-semibold text-slate-500">Subtotal:</span>
+            <span class="item-subtotal font-extrabold text-sm text-slate-900 tabular-nums">Rp 0</span>
           </div>
         </div>`;
       container.appendChild(row);
@@ -1850,16 +1953,18 @@
             nameInput.value = formatItemLabel(match);
             priceInput.value = match.price;
             costInput.value = match.cost || 0;
-            preview.innerHTML = productImageMarkup(match, "h-12 w-12 rounded-xl border border-slate-200", 160, true);
+            preview.className = "sale-entry-thumbnail shrink-0 w-10 h-10";
+            preview.innerHTML = productImageMarkup(match, "h-10 w-10 rounded-lg border border-slate-200", 120, true);
           }
-          modeBadge.textContent = "Dari stok (stok otomatis berkurang)";
+          modeBadge.textContent = "Dari stok";
           modeBadge.className = "item-mode-badge font-bold text-emerald-700";
         } else {
           if (row.dataset.invId) {
             row.dataset.invId = "";
             preview.innerHTML = "";
+            preview.className = "sale-entry-thumbnail shrink-0 hidden";
           }
-          modeBadge.textContent = "Di luar stok (tidak mengurangi stok)";
+          modeBadge.textContent = "Di luar stok";
           modeBadge.className = "item-mode-badge font-bold text-slate-500";
         }
         calculateSaleTotals();
@@ -2255,7 +2360,7 @@
         return `<button type="button" class="pos-card" data-pos-add="${esc(item.id)}" ${st <= 0 ? "disabled" : ""}>
           <div class="pos-card-thumb">
             <span class="pos-stock-pill ${cls}">${label}</span>
-            ${productImageMarkup(item, "h-full w-full", 260)}
+            ${productImageMarkup(item, "h-full w-full p-1.5 bg-white", 260)}
           </div>
           <div class="pos-card-body">
             <span class="pos-card-code">${esc(item.code || "-")}</span>
@@ -2266,9 +2371,190 @@
       }).join("");
     }
 
+    function detectProductCategoryLabel(item) {
+      if (matchesCatalogCategory(item, "badminton")) return { key: "badminton", label: "Badminton", cls: "bg-sky-50 text-sky-800 border-sky-200" };
+      if (matchesCatalogCategory(item, "ball")) return { key: "ball", label: "Futsal & Bola", cls: "bg-emerald-50 text-emerald-800 border-emerald-200" };
+      if (matchesCatalogCategory(item, "chess")) return { key: "chess", label: "Catur", cls: "bg-amber-50 text-amber-900 border-amber-200" };
+      if (matchesCatalogCategory(item, "music")) return { key: "music", label: "Musik", cls: "bg-purple-50 text-purple-800 border-purple-200" };
+      return { key: "sport", label: "Olahraga", cls: "bg-slate-100 text-slate-700 border-slate-200" };
+    }
+
+    function populateStockSelect(selectId, searchQuery = "", preferId = "") {
+      const sel = document.getElementById(selectId);
+      if (!sel) return;
+      const prev = preferId || sel.value;
+      const q = String(searchQuery || "").trim().toLocaleLowerCase("id");
+      const list = activeInventory().filter(i => {
+        const hay = [i.code, i.name, i.size, i.color].filter(Boolean).join(" ").toLocaleLowerCase("id");
+        return !q || hay.includes(q);
+      }).sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "id"));
+      sel.innerHTML = list.length
+        ? list.map(i => `<option value="${esc(i.id)}">${esc(i.code || "-")} — ${esc(i.name)} (sisa ${Number(i.stock || 0)} pcs)</option>`).join("")
+        : `<option value="">Barang tidak ditemukan</option>`;
+      if (prev && list.some(i => i.id === prev)) sel.value = prev;
+    }
+
+    function syncRestockPricing(source = "item") {
+      const item = activeInventory().find(i => i.id === document.getElementById("restockItem")?.value);
+      const qtyEl = document.getElementById("restockQty");
+      const unitEl = document.getElementById("restockUnitCost");
+      const totalEl = document.getElementById("restockTotal");
+      if (!qtyEl || !unitEl || !totalEl) return;
+      if (source === "item" && item) {
+        unitEl.value = Number(item.cost || 0);
+      }
+      const qty = Math.max(0, Number(qtyEl.value) || 0);
+      const unit = Math.max(0, Number(unitEl.value) || 0);
+      if (source === "total") {
+        const tot = Math.max(0, Number(totalEl.value) || 0);
+        if (qty > 0) unitEl.value = Math.round(tot / qty);
+      } else {
+        totalEl.value = qty > 0 ? Math.round(qty * unit) : "";
+      }
+    }
+
+    function syncStockOutBadge() {
+      const badge = document.getElementById("stockOutCurrentBadge");
+      const item = activeInventory().find(i => i.id === document.getElementById("stockOutItem")?.value);
+      if (!badge) return;
+      const st = item ? Number(item.stock || 0) : 0;
+      badge.textContent = item ? `Sisa stok saat ini: ${st} pcs` : "Sisa: -";
+      badge.className = "text-xs font-extrabold px-2.5 py-0.5 rounded-full " + (st <= 0 ? "bg-rose-100 text-rose-800" : st < LOW_STOCK_LIMIT ? "bg-amber-100 text-amber-900" : "bg-emerald-100 text-emerald-800");
+    }
+
+    function openRestockFor(id = "") {
+      if (!isAdmin) return;
+      const searchEl = document.getElementById("restockSearch");
+      if (searchEl) searchEl.value = "";
+      populateStockSelect("restockItem", "", id);
+      document.getElementById("restockQty").value = "1";
+      document.getElementById("restockSupplier").value = "";
+      document.getElementById("restockInvoice").value = "";
+      syncRestockPricing("item");
+      openDialog("restockCard");
+    }
+
+    function openStockOutFor(id = "") {
+      if (!isAdmin) return;
+      const searchEl = document.getElementById("stockOutSearch");
+      if (searchEl) searchEl.value = "";
+      populateStockSelect("stockOutItem", "", id);
+      document.getElementById("stockOutQty").value = "1";
+      document.getElementById("stockOutNote").value = "";
+      syncStockOutBadge();
+      openDialog("stockOutCard");
+    }
+
+    async function saveStockOut() {
+      if (!isAdmin) return showToast("Masuk ke akun pemilik terlebih dahulu.");
+      const id = document.getElementById("stockOutItem").value;
+      const qty = Number(document.getElementById("stockOutQty").value);
+      const reason = document.getElementById("stockOutReason").value || "Koreksi Opname";
+      const note = document.getElementById("stockOutNote").value.trim();
+      const item = activeInventory().find(i => i.id === id);
+      if (!item) return showToast("Pilih barang terlebih dahulu.");
+      if (!Number.isSafeInteger(qty) || qty < 1) return showToast("Jumlah keluar minimal 1 pcs.");
+
+      const invRef = doc(db, ...paths("inventory", id));
+      const pubRef = doc(db, "publicCatalog", id);
+      const nowIso = new Date().toISOString();
+      try {
+        await runTransaction(db, async tx => {
+          const cur = await tx.get(invRef);
+          const pub = await tx.get(pubRef);
+          if (!cur.exists()) throw new Error("Barang tidak ditemukan.");
+          const saved = cur.data();
+          const curStock = Number(saved.stock || 0);
+          if (curStock < qty) throw new Error(`Stok "${saved.name}" hanya tersisa ${curStock} pcs.`);
+          const newStock = curStock - qty;
+          const edits = Array.isArray(saved.stockEdits) ? saved.stockEdits.slice(-49) : [];
+          edits.push({ date: todayStr(), createdAt: nowIso, delta: -qty, type: "out", reason, note, stockAfter: newStock });
+          tx.update(invRef, { stock: newStock, stockEdits: edits, updatedAt: nowIso });
+          if (pub.exists()) tx.update(pubRef, { stock: newStock });
+        });
+        document.getElementById("stockOutCard").close();
+        showToast(`Stok "${item.name}" dikurangi -${qty} pcs (${reason}).`);
+      } catch (err) {
+        showToast("Gagal mencatat barang keluar: " + (err.message || "kesalahan"));
+      }
+    }
+
+    function openStockCard(id) {
+      const item = inventory.find(i => i.id === id);
+      if (!item) return;
+      const cat = detectProductCategoryLabel(item);
+      document.getElementById("stockCardTitle").textContent = `Kartu Stok — ${formatItemLabel(item)}`;
+      document.getElementById("stockCardSummary").innerHTML = `
+        <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><span class="text-[11px] font-bold text-slate-500 uppercase">Sisa Stok</span><strong class="block text-xl font-extrabold text-slate-900 mt-0.5">${Number(item.stock || 0)} Pcs</strong></div>
+        <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><span class="text-[11px] font-bold text-slate-500 uppercase">Kategori</span><strong class="block text-sm font-extrabold text-slate-900 mt-1">${esc(cat.label)}</strong></div>
+        <div class="rounded-xl bg-slate-50 border border-slate-200 p-3"><span class="text-[11px] font-bold text-slate-500 uppercase">Harga Beli</span><strong class="block text-base font-extrabold text-slate-900 mt-1 tabular-nums">${rp(item.cost || 0)}</strong></div>
+        <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-3"><span class="text-[11px] font-bold text-emerald-800 uppercase">Harga Jual</span><strong class="block text-base font-extrabold text-emerald-900 mt-1 tabular-nums">${rp(item.price || 0)}</strong></div>`;
+
+      const events = [];
+      for (const p of purchases) {
+        if (p.inventoryId !== item.id) continue;
+        events.push({
+          date: p.date || "",
+          sortKey: p.createdAt || p.date || "",
+          kind: "Masuk",
+          badgeCls: "bg-emerald-100 text-emerald-900",
+          delta: +Number(p.qty || 0),
+          desc: [p.supplier ? "Supplier: " + p.supplier : "Pembelian stok", p.invoice ? "Nota: " + p.invoice : "", p.unitCost ? "@" + rp(p.unitCost) : ""].filter(Boolean).join(" · ")
+        });
+      }
+      for (const tx of transactions) {
+        for (const it of tx.items || []) {
+          if (it.inventoryId !== item.id) continue;
+          events.push({
+            date: tx.date || "",
+            sortKey: tx.createdAt || tx.date || "",
+            kind: "Terjual",
+            badgeCls: "bg-blue-100 text-blue-900",
+            delta: -Number(it.qty || 0),
+            desc: `${receiptNumber(tx)} · ${tx.customer || "Pelanggan Umum"} (${paymentMethodLabel(tx.paymentMethod || "Cash")})`
+          });
+        }
+      }
+      for (const ed of Array.isArray(item.stockEdits) ? item.stockEdits : []) {
+        const d = Number(ed.delta || 0);
+        if (!d) continue;
+        const isOut = ed.type === "out" || d < 0;
+        events.push({
+          date: ed.date || "",
+          sortKey: ed.createdAt || ed.date || "",
+          kind: ed.type === "out" ? "Keluar" : "Koreksi",
+          badgeCls: isOut ? "bg-rose-100 text-rose-900" : "bg-amber-100 text-amber-900",
+          delta: d,
+          desc: [ed.reason || "Penyesuaian stok manual", ed.note || ""].filter(Boolean).join(" — ")
+        });
+      }
+
+      // Sort newest first & compute running ending balance backwards from current stock
+      events.sort((a, b) => String(b.sortKey).localeCompare(String(a.sortKey)));
+      let running = Number(item.stock || 0);
+      const tbody = document.getElementById("stockCardBody");
+      tbody.innerHTML = events.length
+        ? events.map(ev => {
+            const after = running;
+            running -= ev.delta;
+            const deltaText = (ev.delta > 0 ? "+" : "") + ev.delta + " pcs";
+            const deltaCls = ev.delta > 0 ? "text-emerald-700" : "text-rose-700";
+            return `<tr>
+              <td class="py-2.5 px-3 whitespace-nowrap font-semibold text-slate-700">${esc(ev.date || "-")}</td>
+              <td class="py-2.5 px-3"><span class="inline-block px-2 py-0.5 rounded-full text-[11px] font-extrabold ${ev.badgeCls}">${esc(ev.kind)}</span></td>
+              <td class="py-2.5 px-3 text-slate-700">${esc(ev.desc)}</td>
+              <td class="py-2.5 px-3 text-right font-extrabold tabular-nums ${deltaCls}">${deltaText}</td>
+              <td class="py-2.5 px-3 text-right font-extrabold text-slate-900 tabular-nums">${after} pcs</td>
+            </tr>`;
+          }).join("")
+        : `<tr><td colspan="5" class="py-8 text-center text-slate-500">Belum ada riwayat mutasi untuk produk ini.</td></tr>`;
+      openDialog("stockCardDialog");
+    }
+
     function renderInventory() {
       const q = document.getElementById("invSearchInput").value.trim().toLocaleLowerCase("id");
       const missingOnly = document.getElementById("invMissingPhotoOnly").checked;
+      const catFilter = document.getElementById("inventoryCategoryFilter")?.value || "all";
       const follow = document.getElementById("inventoryFollowUp").value;
       const published = new Set(publicCatalog.map(p => p.id));
       const listed = follow === "archived" ? inventory.filter(i => i.archivedAt) : activeInventory();
@@ -2277,6 +2563,7 @@
         const hay = [item.name, item.code, item.size, item.color].filter(Boolean).join(" ").toLocaleLowerCase("id");
         return (!q || hay.includes(q))
           && (!missingOnly || !productImageUrl(item))
+          && (catFilter === "all" || matchesCatalogCategory(item, catFilter))
           && (follow !== "low" || stock < LOW_STOCK_LIMIT)
           && (follow !== "out" || stock <= 0)
           && (follow !== "unpublished" || !published.has(item.id))
@@ -2302,10 +2589,9 @@
       document.getElementById("invLowStockCount").textContent = low + " Barang";
       document.getElementById("invEmptyState").classList.toggle("hidden", filtered.length > 0);
 
-      const restockSel = document.getElementById("restockItem");
-      const cur = restockSel.value;
-      restockSel.innerHTML = activeInventory().map(i => `<option value="${esc(i.id)}">${esc(i.code)} - ${esc(i.name)} (sisa ${Number(i.stock || 0)})</option>`).join("");
-      if (cur) restockSel.value = cur;
+      populateStockSelect("restockItem", document.getElementById("restockSearch")?.value || "");
+      populateStockSelect("stockOutItem", document.getElementById("stockOutSearch")?.value || "");
+      syncStockOutBadge();
 
       document.getElementById("inventoryDatalist").innerHTML = activeInventory().map(i => `<option value="${esc(formatDropdownOption(i))}"></option>`).join("");
       renderPosCatalog();
@@ -2319,39 +2605,59 @@
         const cost = Number(item.cost || 0), price = Number(item.price || 0);
         const badge = stock <= 0 ? "is-empty" : stock < LOW_STOCK_LIMIT ? "is-low" : "";
         const status = item.archivedAt ? "Diarsipkan" : published.has(item.id) ? "Terbit" : "Belum terbit";
+        const cat = detectProductCategoryLabel(item);
         const id = esc(item.id);
-        const actions = isAdmin ? `
-          <button type="button" data-edit-item="${id}" class="px-3 py-1.5 rounded-xl bg-blue-100 text-blue-800 font-bold text-xs"><i class="fa-solid fa-pen-to-square"></i> Ubah</button>
+        const quickMove = isAdmin && !item.archivedAt ? `
+          <button type="button" data-quick-in="${id}" title="Barang masuk (+)" class="px-2 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-extrabold text-xs">+ Masuk</button>
+          <button type="button" data-quick-out="${id}" title="Barang keluar (-)" class="px-2 py-1.5 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-900 font-extrabold text-xs">− Keluar</button>` : "";
+        const editBtns = isAdmin ? `
+          <button type="button" data-edit-item="${id}" title="Ubah produk" class="w-8 h-8 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-800 inline-flex items-center justify-center"><i class="fa-solid fa-pen-to-square text-xs"></i></button>
+          <button type="button" data-qr-item="${id}" title="Stiker QR" class="w-8 h-8 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-950 inline-flex items-center justify-center"><i class="fa-solid fa-qrcode text-xs"></i></button>
           ${item.archivedAt
-            ? `<button type="button" data-restore-item="${id}" class="px-3 py-1.5 rounded-xl bg-blue-100 text-blue-950 font-bold text-xs">Pulihkan</button>`
-            : `<button type="button" data-archive-item="${id}" class="px-3 py-1.5 rounded-xl bg-slate-100 font-bold text-xs">Arsipkan</button>`}` : "";
+            ? `<button type="button" data-restore-item="${id}" class="px-2.5 py-1.5 rounded-lg bg-blue-100 text-blue-950 font-bold text-xs">Pulihkan</button>`
+            : `<button type="button" data-archive-item="${id}" title="Arsipkan" class="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 inline-flex items-center justify-center"><i class="fa-solid fa-box-archive text-xs"></i></button>`}` : "";
+
         const row = document.createElement("tr");
-        row.className = "hover:bg-slate-50";
+        row.className = "hover:bg-blue-50/50 transition-colors";
         row.innerHTML = `
-          <td class="py-3.5 px-3 font-extrabold text-blue-900 whitespace-nowrap">${esc(item.code || "-")}</td>
-          <td class="py-3.5 px-3"><div class="flex items-center gap-3">${productImageMarkup(item, "w-14 h-14 rounded-xl border border-slate-200 shrink-0", 160)}
-            <div><p class="font-extrabold">${esc(item.name)}</p><p class="text-xs text-slate-500">${esc([item.size, item.color].filter(Boolean).join(" • "))}</p>
-            <p class="text-xs font-bold mt-1">${status}</p><div class="flex flex-wrap gap-1.5 mt-1">${actions}</div></div></div></td>
-          <td class="py-3.5 px-3 text-center"><span class="stock-indicator ${badge}">${stock} Pcs</span></td>
-          <td class="py-3.5 px-3 text-right">${rp(cost)}</td>
-          <td class="py-3.5 px-3 text-right font-extrabold text-emerald-800">${rp(price)}</td>
-          <td class="py-3.5 px-3 text-right font-bold text-blue-800">${rp(price - cost)}</td>
-          <td class="py-3.5 px-3 text-center"><button type="button" data-qr-item="${id}" class="px-3 py-1.5 rounded-xl bg-amber-100 text-amber-950 font-extrabold text-xs"><i class="fa-solid fa-qrcode"></i> Stiker QR</button></td>`;
+          <td class="py-3 px-3">
+            <div class="flex items-center gap-2.5">
+              ${productImageMarkup(item, "w-12 h-12 rounded-xl border border-slate-200 shrink-0", 140)}
+              <div class="min-w-0">
+                <p class="font-extrabold text-slate-900 leading-snug">${esc(item.name)}</p>
+                <p class="text-xs text-slate-500 mt-0.5"><span class="font-mono font-bold text-blue-800">${esc(item.code || "-")}</span> · ${status}</p>
+              </div>
+            </div>
+          </td>
+          <td class="py-3 px-3 whitespace-nowrap"><span class="inline-block px-2.5 py-0.5 rounded-full border text-xs font-bold ${cat.cls}">${esc(cat.label)}</span></td>
+          <td class="py-3 px-3 text-right tabular-nums text-slate-600 whitespace-nowrap">${rp(cost)}</td>
+          <td class="py-3 px-3 text-right font-extrabold text-emerald-800 tabular-nums whitespace-nowrap">${rp(price)}</td>
+          <td class="py-3 px-3 text-center whitespace-nowrap">
+            <button type="button" data-stock-card="${id}" title="Klik untuk lihat Kartu Stok" class="stock-indicator ${badge} cursor-pointer hover:ring-2 hover:ring-blue-400 transition">${stock} Pcs <i class="fa-solid fa-clock-rotate-left ml-1 text-[10px] opacity-75"></i></button>
+          </td>
+          <td class="py-3 px-3 text-right font-bold text-blue-800 tabular-nums whitespace-nowrap">${rp(price - cost)}</td>
+          <td class="py-3 px-3 text-center whitespace-nowrap">
+            <div class="inline-flex items-center gap-1">${quickMove}${editBtns}</div>
+          </td>`;
         tbody.appendChild(row);
 
         const card = document.createElement("div");
         card.className = "workspace-record";
         card.innerHTML = `
-          <div class="flex items-center gap-3">${productImageMarkup(item, "w-16 h-16 rounded-2xl border border-slate-200 shrink-0", 160)}
-            <div class="min-w-0"><p class="font-extrabold break-words">${esc(item.name)}</p><p class="text-xs text-slate-500">${esc(item.code || "-")} • ${status}</p></div>
-            <span class="stock-indicator ${badge} ml-auto">${stock} Pcs</span></div>
-          <div class="grid grid-cols-3 gap-2 bg-slate-50 p-2.5 rounded-xl text-xs text-center">
-            <div>Modal<br><strong>${rp(cost)}</strong></div><div>Jual<br><strong>${rp(price)}</strong></div><div>Untung<br><strong>${rp(price - cost)}</strong></div>
+          <div class="flex items-center gap-3">
+            ${productImageMarkup(item, "w-14 h-14 rounded-2xl border border-slate-200 shrink-0", 140)}
+            <div class="min-w-0 flex-1">
+              <p class="font-extrabold break-words leading-snug">${esc(item.name)}</p>
+              <p class="text-xs text-slate-500 mt-0.5"><span class="font-mono font-bold text-blue-800">${esc(item.code || "-")}</span> · ${esc(cat.label)} · ${status}</p>
+            </div>
+            <button type="button" data-stock-card="${id}" title="Lihat Kartu Stok" class="stock-indicator ${badge} shrink-0 cursor-pointer">${stock} Pcs</button>
           </div>
-          <div class="flex flex-wrap gap-2">
-            <button type="button" data-qr-item="${id}" class="flex-1 py-2.5 rounded-xl bg-amber-400 font-extrabold text-xs"><i class="fa-solid fa-qrcode"></i> Stiker QR</button>
-            ${actions}
-          </div>`;
+          <div class="grid grid-cols-3 gap-2 bg-slate-50 p-2.5 rounded-xl text-xs text-center">
+            <div>Modal<br><strong class="tabular-nums">${rp(cost)}</strong></div>
+            <div>Jual<br><strong class="tabular-nums text-emerald-800">${rp(price)}</strong></div>
+            <div>Untung<br><strong class="tabular-nums text-blue-800">${rp(price - cost)}</strong></div>
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5">${quickMove}${editBtns}</div>`;
         cards.appendChild(card);
       }
     }
@@ -2535,7 +2841,7 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: { tooltip: rpTooltip },
-          scales: { y: { ticks: { callback: rpTick } } }
+          scales: { y: { beginAtZero: true, suggestedMax: 100000, ticks: { precision: 0, callback: rpTick } } }
         }
       });
 
@@ -2615,7 +2921,7 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: { tooltip: rpTooltip },
-          scales: { y: { ticks: { callback: rpTick } } }
+          scales: { y: { beginAtZero: true, suggestedMax: 100000, ticks: { precision: 0, callback: rpTick } } }
         }
       });
 
@@ -2653,7 +2959,7 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: { tooltip: rpTooltip },
-          scales: { y: { ticks: { callback: rpTick } } }
+          scales: { y: { beginAtZero: true, suggestedMax: 100000, ticks: { precision: 0, callback: rpTick } } }
         }
       });
 
@@ -2674,7 +2980,7 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: { tooltip: rpTooltip },
-          scales: { y: { ticks: { callback: rpTick } } }
+          scales: { y: { beginAtZero: true, suggestedMax: 100000, ticks: { precision: 0, callback: rpTick } } }
         }
       });
     }
@@ -3560,8 +3866,6 @@
           window.scrollTo({ top: 0, behavior: "smooth" });
         });
       }
-      document.getElementById("btnOpenSalesView").addEventListener("click", () => switchWorkspace("sales"));
-      document.getElementById("btnNewSaleView").addEventListener("click", () => switchWorkspace("kasir"));
 
       document.getElementById("btnAddItemRow").addEventListener("click", () => addSaleItemRow());
       document.getElementById("posCatalogSearch")?.addEventListener("input", renderPosCatalog);
@@ -3647,8 +3951,30 @@
       });
 
       document.getElementById("btnOpenInventoryEntry").addEventListener("click", () => { if (isAdmin) { resetInvForm(); openDialog("invEntryCard"); } });
-      document.getElementById("btnOpenRestock").addEventListener("click", () => { if (isAdmin) openDialog("restockCard"); });
+      document.getElementById("btnOpenRestock").addEventListener("click", () => openRestockFor());
+      document.getElementById("btnOpenStockOut").addEventListener("click", () => openStockOutFor());
+      document.getElementById("btnRestockNewProduct").addEventListener("click", () => {
+        document.getElementById("restockCard").close();
+        resetInvForm();
+        openDialog("invEntryCard");
+      });
+      document.getElementById("restockSearch").addEventListener("input", e => {
+        populateStockSelect("restockItem", e.target.value);
+        syncRestockPricing("item");
+      });
+      document.getElementById("restockItem").addEventListener("change", () => syncRestockPricing("item"));
+      document.getElementById("restockQty").addEventListener("input", () => syncRestockPricing("qty"));
+      document.getElementById("restockUnitCost").addEventListener("input", () => syncRestockPricing("unit"));
+      document.getElementById("restockTotal").addEventListener("input", () => syncRestockPricing("total"));
       document.getElementById("btnSaveRestock").addEventListener("click", saveRestock);
+
+      document.getElementById("stockOutSearch").addEventListener("input", e => {
+        populateStockSelect("stockOutItem", e.target.value);
+        syncStockOutBadge();
+      });
+      document.getElementById("stockOutItem").addEventListener("change", syncStockOutBadge);
+      document.getElementById("btnSaveStockOut").addEventListener("click", saveStockOut);
+      document.getElementById("inventoryCategoryFilter").addEventListener("change", renderInventory);
       document.getElementById("btnSaveInventory").addEventListener("click", saveInventoryItem);
       document.getElementById("btnCancelInvEdit").addEventListener("click", () => { resetInvForm(); document.getElementById("invEntryCard").close(); });
       document.getElementById("invImageFile").addEventListener("change", e => {
@@ -3660,6 +3986,12 @@
         wrap.classList.remove("hidden");
       });
       const inventoryActionClick = async e => {
+        const sc = e.target.closest("[data-stock-card]");
+        if (sc) return openStockCard(sc.dataset.stockCard);
+        const qin = e.target.closest("[data-quick-in]");
+        if (qin) return openRestockFor(qin.dataset.quickIn);
+        const qout = e.target.closest("[data-quick-out]");
+        if (qout) return openStockOutFor(qout.dataset.quickOut);
         const ed = e.target.closest("[data-edit-item]");
         if (ed) return editInventoryItem(ed.dataset.editItem);
         const qr = e.target.closest("[data-qr-item]");
