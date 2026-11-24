@@ -1,0 +1,25 @@
+{
+  "name": "Surya Jaya Sport Admin POS",
+  "short_name": "SJS Admin POS",
+  "description": "Aplikasi kasir POS, stok, dan pembukuan khusus pemilik Surya Jaya Sport Berau.",
+  "start_url": "/admin.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0f2557",
+  "theme_color": "#0f2557",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/sjs-mark.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/sjs-mark.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
