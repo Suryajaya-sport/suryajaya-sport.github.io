@@ -2984,11 +2984,34 @@
 
     // ==================== SCANNER ====================
     function handleScannedCode(code) {
-      const q = String(code || "").trim().toLowerCase();
-      const found = activeInventory().find(i => i.code && i.code.toLowerCase() === q)
-        || activeInventory().find(i => i.code && q.includes(i.code.toLowerCase()));
-      if (!found) return showToast(`Kode "${code}" tidak ditemukan.`);
-      addSaleItemRow(found);
+      const raw = String(code || "").trim();
+      const q = raw.toLowerCase();
+      let urlId = "";
+      let urlCode = "";
+      try {
+        const parsed = new URL(raw);
+        urlId = (parsed.searchParams.get("id") || "").trim();
+        urlCode = (parsed.searchParams.get("code") || "").trim().toLowerCase();
+      } catch {}
+      const items = activeInventory();
+      const found = (urlId && items.find(i => i.id === urlId))
+        || (urlCode && items.find(i => i.code && i.code.toLowerCase() === urlCode))
+        || items.find(i => i.id === raw)
+        || items.find(i => i.code && i.code.toLowerCase() === q)
+        || items.find(i => i.code && q.includes(i.code.toLowerCase()))
+        || items.find(i => i.id && q.includes(i.id.toLowerCase()));
+      if (!found) return showToast(`Kode "${raw}" tidak ditemukan.`);
+
+      const rows = [...document.querySelectorAll("#saleItemsContainer > div")];
+      const existingRow = rows.find(r => r.dataset.invId === found.id);
+      if (existingRow) {
+        const qtyInput = existingRow.querySelector(".item-qty");
+        qtyInput.value = (parseInt(qtyInput.value, 10) || 1) + 1;
+      } else {
+        const emptyRow = rows.find(r => !r.dataset.invId && !r.querySelector(".item-name-input").value.trim());
+        if (emptyRow) emptyRow.remove();
+        addSaleItemRow(found);
+      }
       calculateSaleTotals();
       showToast(`Ditambahkan: ${found.name}`);
     }
