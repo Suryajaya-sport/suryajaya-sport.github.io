@@ -2872,47 +2872,42 @@
 
       const body = JSON.stringify({
         contents: [{ role: "user", parts }],
-        generationConfig: { responseModalities: ["IMAGE"] }
+        generationConfig: { responseModalities: ["IMAGE", "TEXT"] }
       });
 
-      const models = ["gemini-2.5-flash-image", "gemini-3.1-flash-image", "gemini-nano-banana-2.1"];
-      const hosts = [
-        m => `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,
-        m => `https://aiplatform.googleapis.com/v1beta1/publishers/google/models/${m}:generateContent`
-      ];
-
+      const models = ["gemini-nano-banana-2.1", "gemini-2.5-flash-image"];
       let lastErr = "Gagal menghubungi Gemini API.";
-      for (const makeUrl of hosts) {
-        for (const model of models) {
-          try {
-            const res = await fetch(makeUrl(model), {
-              method: "POST",
-              headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-              body
-            });
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok) {
-              lastErr = data?.error?.message || `HTTP ${res.status}`;
-              if (res.status === 401 || res.status === 403) break; // try next host
-              continue;
-            }
-            const cands = data.candidates || [];
-            for (const cand of cands) {
-              for (const part of cand?.content?.parts || []) {
-                const imgData = part.inlineData || part.inline_data;
-                if (imgData?.data) {
-                  const mime = imgData.mimeType || imgData.mime_type || "image/png";
-                  const bin = atob(imgData.data);
-                  const bytes = new Uint8Array(bin.length);
-                  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-                  return new Blob([bytes], { type: mime });
-                }
+      for (const model of models) {
+        try {
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+          const res = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+            body
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            const msg = data?.error?.message || `HTTP ${res.status}`;
+            lastErr = `[${model}] ${msg}`;
+            if (res.status === 401 || res.status === 403) break;
+            continue;
+          }
+          const cands = data.candidates || [];
+          for (const cand of cands) {
+            for (const part of cand?.content?.parts || []) {
+              const imgData = part.inlineData || part.inline_data;
+              if (imgData?.data) {
+                const mime = imgData.mimeType || imgData.mime_type || "image/png";
+                const bin = atob(imgData.data);
+                const bytes = new Uint8Array(bin.length);
+                for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+                return new Blob([bytes], { type: mime });
               }
             }
-            lastErr = "Gemini tidak mengembalikan gambar.";
-          } catch (e) {
-            lastErr = e.message || String(e);
           }
+          lastErr = `[${model}] Gemini tidak mengembalikan gambar.`;
+        } catch (e) {
+          lastErr = `[${model}] ${e.message || String(e)}`;
         }
       }
       throw new Error(lastErr);
