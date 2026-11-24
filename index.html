@@ -344,6 +344,7 @@
     #viewKasir table tbody tr:hover, #viewInventory table tbody tr:hover {
       background: #eff6ff;
     }
+    #kategori-unggulan, #publicProductCatalog, #cara-pesan, #lokasi-toko { scroll-margin-top: 5.5rem; }
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -2976,6 +2977,17 @@
         document.getElementById("adminAuthModal").classList.add("hidden");
       });
 
+      for (const link of document.querySelectorAll('.shop-links a[href^="#"]')) {
+        link.addEventListener("click", e => {
+          const href = link.getAttribute("href");
+          const targetEl = href && document.querySelector(href);
+          if (!targetEl) return;
+          e.preventDefault();
+          switchWorkspace("catalog");
+          history.replaceState(null, "", href);
+          requestAnimationFrame(() => targetEl.scrollIntoView({ behavior: "smooth", block: "start" }));
+        });
+      }
       for (const b of document.querySelectorAll("[data-workspace]")) {
         b.addEventListener("click", () => switchWorkspace(b.dataset.workspace));
       }
