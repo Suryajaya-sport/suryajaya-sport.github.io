@@ -2634,9 +2634,9 @@
       showToast(archive ? "Barang diarsipkan." : "Barang dipulihkan. Terbitkan lagi bila perlu.");
     }
 
-// ==================== GENERATOR QR MANDIRI (TANPA CDN) ====================
+// ==================== GENERATOR QR MANDIRI v2 (TANPA CDN, V1-V15, SVG & DIRECT DRAW) ====================
     const SjsQR = (() => {
-      // Version 1..10 (index 1..10) for EC Level M: [totalCodewords, ecPerBlock, g1Blocks, g1Data, g2Blocks, g2Data]
+      // Version 1..15 for EC Level M: [totalCodewords, ecPerBlock, g1Blocks, g1Data, g2Blocks, g2Data]
       const VER_M = [
         null,
         [26, 10, 1, 16, 0, 0],
@@ -2648,11 +2648,17 @@
         [196, 18, 4, 31, 0, 0],
         [242, 22, 2, 38, 2, 39],
         [292, 22, 3, 36, 2, 37],
-        [346, 26, 4, 43, 1, 44]
+        [346, 26, 4, 43, 1, 44],
+        [404, 30, 1, 50, 4, 51],
+        [466, 22, 6, 36, 2, 37],
+        [532, 22, 8, 37, 1, 38],
+        [581, 24, 4, 40, 5, 41],
+        [655, 24, 5, 41, 5, 42]
       ];
       const ALIGN = [
         null, [], [6, 18], [6, 22], [6, 26], [6, 30], [6, 34],
-        [6, 22, 38], [6, 24, 42], [6, 26, 46], [6, 28, 50]
+        [6, 22, 38], [6, 24, 42], [6, 26, 46], [6, 28, 50],
+        [6, 30, 54], [6, 32, 58], [6, 34, 62], [6, 26, 46, 66], [6, 26, 48, 70]
       ];
       const EXP = new Uint8Array(512), LOG = new Uint8Array(256);
       for (let i = 0, x = 1; i < 255; i++) {
@@ -2690,18 +2696,18 @@
       function encodeBytes(text) {
         const bytes = new TextEncoder().encode(String(text || ""));
         let ver = 0;
-        for (let v = 1; v <= 10; v++) {
+        for (let v = 1; v <= 15; v++) {
           const [, , b1, d1, b2, d2] = VER_M[v];
           const dataCap = b1 * d1 + b2 * d2;
           const countBits = v < 10 ? 8 : 16;
           if (4 + countBits + bytes.length * 8 <= dataCap * 8) { ver = v; break; }
         }
-        if (!ver) throw new Error("Teks QR terlalu panjang.");
+        if (!ver) throw new Error("Teks QR terlalu panjang (" + bytes.length + " byte).");
         const [, ecLen, b1, d1, b2, d2] = VER_M[ver];
         const dataCap = b1 * d1 + b2 * d2;
         const bits = [];
         const pushBits = (val, len) => { for (let i = len - 1; i >= 0; i--) bits.push((val >> i) & 1); };
-        pushBits(0b0100, 4); // Byte mode
+        pushBits(0b0100, 4);
         pushBits(bytes.length, ver < 10 ? 8 : 16);
         for (const b of bytes) pushBits(b, 8);
         const maxBits = dataCap * 8;
@@ -2734,14 +2740,13 @@
         for (let i = 0; i < ecLen; i++) for (const ec of ecs) finalCW.push(ec[i]);
 
         const size = ver * 4 + 17;
-        const mod = Array.from({ length: size }, () => new Int8Array(size)); // 0=empty, 1=white, 2=black
+        const mod = Array.from({ length: size }, () => new Int8Array(size));
         const isFunc = Array.from({ length: size }, () => new Uint8Array(size));
         const setFunc = (r, c, dark) => {
           if (r < 0 || c < 0 || r >= size || c >= size) return;
           isFunc[r][c] = 1; mod[r][c] = dark ? 2 : 1;
         };
 
-        // Finder patterns + separators
         for (const [fr, fc] of [[0, 0], [0, size - 7], [size - 7, 0]]) {
           for (let dr = -1; dr <= 7; dr++) for (let dc = -1; dc <= 7; dc++) {
             const dark = dr >= 0 && dr <= 6 && dc >= 0 && dc <= 6 &&
@@ -2749,12 +2754,10 @@
             setFunc(fr + dr, fc + dc, dark);
           }
         }
-        // Timing patterns
         for (let i = 8; i < size - 8; i++) {
           setFunc(6, i, i % 2 === 0);
           setFunc(i, 6, i % 2 === 0);
         }
-        // Alignment patterns
         const pos = ALIGN[ver];
         for (const r of pos) for (const c of pos) {
           if ((r === 6 && c === 6) || (r === 6 && c === pos[pos.length - 1]) || (r === pos[pos.length - 1] && c === 6)) continue;
@@ -2762,12 +2765,10 @@
             setFunc(r + dr, c + dc, Math.max(Math.abs(dr), Math.abs(dc)) !== 1);
           }
         }
-        // Reserve format info + dark module
         for (let i = 0; i < 9; i++) { if (i !== 6) { setFunc(8, i, false); setFunc(i, 8, false); } }
         for (let i = size - 8; i < size; i++) { setFunc(8, i, false); setFunc(i, 8, false); }
         setFunc(size - 8, 8, true);
 
-        // Version info (ver >= 7)
         if (ver >= 7) {
           let rem = ver << 12;
           for (let i = 17; i >= 12; i--) if ((rem >> i) & 1) rem ^= 0x1f25 << (i - 12);
@@ -2780,7 +2781,6 @@
           }
         }
 
-        // Place data bits
         const allBits = [];
         for (const cw of finalCW) for (let i = 7; i >= 0; i--) allBits.push((cw >> i) & 1);
         let bi = 0;
@@ -2798,7 +2798,6 @@
           }
         }
 
-        // Apply mask 0 ((r + c) % 2 === 0) and write format info (EC M = 00, mask 0 = 000 -> data=0)
         for (let r = 0; r < size; r++) {
           for (let c = 0; c < size; c++) {
             if (!isFunc[r][c] && ((r + c) % 2 === 0)) {
@@ -2806,7 +2805,6 @@
             }
           }
         }
-        // Format bits for EC M (00) + mask 0 (000) -> 0b00000 -> BCH + XOR 0x5412 = 0x5412
         const fmt = 0x5412;
         for (let i = 0; i <= 5; i++) setFunc(8, i, ((fmt >> (14 - i)) & 1) === 1);
         setFunc(8, 7, ((fmt >> 8) & 1) === 1);
@@ -2820,25 +2818,38 @@
         return { size, mod };
       }
 
-      function toCanvas(text, px = 240, quiet = 2) {
+      function drawTo(ctx, text, x, y, boxSize, quiet = 2) {
         const { size, mod } = encodeBytes(text);
         const total = size + quiet * 2;
-        const scale = Math.max(2, Math.floor(px / total));
-        const dim = total * scale;
-        const c = document.createElement("canvas");
-        c.width = dim; c.height = dim;
-        const ctx = c.getContext("2d");
+        const scale = Math.max(1, Math.floor(boxSize / total));
+        const drawn = total * scale;
+        const ox = Math.floor(x + (boxSize - drawn) / 2);
+        const oy = Math.floor(y + (boxSize - drawn) / 2);
         ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 0, dim, dim);
+        ctx.fillRect(x, y, boxSize, boxSize);
         ctx.fillStyle = "#000000";
         for (let r = 0; r < size; r++) {
           for (let col = 0; col < size; col++) {
-            if (mod[r][col] === 2) ctx.fillRect((col + quiet) * scale, (r + quiet) * scale, scale, scale);
+            if (mod[r][col] === 2) {
+              ctx.fillRect(ox + (col + quiet) * scale, oy + (r + quiet) * scale, scale, scale);
+            }
           }
         }
-        return c;
       }
-      return { toCanvas };
+
+      function toSvg(text, px = 240, quiet = 3) {
+        const { size, mod } = encodeBytes(text);
+        const total = size + quiet * 2;
+        let paths = "";
+        for (let r = 0; r < size; r++) {
+          for (let col = 0; col < size; col++) {
+            if (mod[r][col] === 2) paths += `M${col + quiet},${r + quiet}h1v1h-1z`;
+          }
+        }
+        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${total} ${total}" width="${px}" height="${px}" shape-rendering="crispEdges" role="img" aria-label="Kode QR"><rect width="${total}" height="${total}" fill="#ffffff"/><path d="${paths}" fill="#000000"/></svg>`;
+      }
+
+      return { drawTo, toSvg };
     })();
 
     // ==================== QR & STIKER ====================
@@ -2902,8 +2913,10 @@
         ctx.lineWidth = 2.5;
         ctx.strokeStyle = "#0f172a";
         ctx.stroke();
-        if (qrSource) {
-          try { ctx.drawImage(qrSource, 34, 90, 208, 208); } catch {}
+        try {
+          SjsQR.drawTo(ctx, productQrUrl(item), 34, 90, 208, 2);
+        } catch (err) {
+          console.error("QR stiker gagal:", err);
         }
         ctx.fillStyle = "#0f172a";
         ctx.font = "bold 15px Arial, sans-serif";
@@ -2942,13 +2955,7 @@
         lastStickerCanvas = canvas;
       };
 
-      try {
-        const qrCanvas = SjsQR.toCanvas(productQrUrl(item), 240, 2);
-        drawBase(qrCanvas);
-      } catch (err) {
-        console.error("QR stiker gagal:", err);
-        drawBase(null);
-      }
+      drawBase();
     }
     function wrapText(ctx, text, x, y, maxW, lineH, maxLines) {
       const words = text.split(" ");
@@ -3022,9 +3029,7 @@
       document.getElementById("qrisNmidLabel").textContent = QRIS_MERCHANT_NMID;
       box.innerHTML = "";
       try {
-        const qrisCanvas = SjsQR.toCanvas(savedQrisPayload, 240, 3);
-        qrisCanvas.className = "max-w-full h-auto";
-        box.appendChild(qrisCanvas);
+        box.innerHTML = SjsQR.toSvg(savedQrisPayload, 240, 3);
       } catch (err) {
         console.error("QRIS gagal:", err);
         box.textContent = "Gagal membuat QRIS.";
