@@ -113,6 +113,119 @@
     .pay-badges-row img { height: 42px; width: auto; border-radius: .55rem; }
     .howto-icon-row { display: flex; align-items: center; gap: .65rem; }
     .howto-icon-badge { width: 42px; height: 42px; border-radius: .95rem; background: #eff6ff; border: 1.5px solid #bfdbfe; color: #1d4ed8; display: inline-flex; align-items: center; justify-content: center; font-size: 1.15rem; }
+
+    /* === TOMBOL LUCU 3D & GRAFIS RAMAH PEMBACA === */
+    .shop-button {
+      border-radius: 1.05rem !important;
+      transition: transform .14s cubic-bezier(.34,1.56,.64,1), box-shadow .14s ease, filter .14s ease !important;
+    }
+    .shop-button:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.03); }
+    .shop-button:active:not(:disabled) { transform: translateY(2px) scale(.97); }
+    .shop-button-primary { border-bottom: 4px solid #1e3a8a !important; }
+    .shop-button-accent { border-bottom: 4px solid #ca8a04 !important; }
+    .shop-button-wa { border-bottom: 4px solid #166534 !important; }
+    .shop-button-secondary { border-bottom: 3px solid #94a3b8 !important; }
+
+    .quick-cat-btn {
+      border-radius: 1.45rem !important;
+      border-bottom: 4px solid #bfdbfe !important;
+      transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .18s ease, border-color .15s ease !important;
+    }
+    .quick-cat-btn:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 12px 24px rgba(29,78,216,.12); }
+    .quick-cat-btn:active { transform: translateY(2px) scale(.97); }
+    .quick-cat-btn.is-active { border-bottom: 4px solid #eab308 !important; }
+
+    .catalog-card {
+      border-radius: 1.55rem !important;
+      border: 2px solid #dbeafe !important;
+      box-shadow: 0 6px 18px rgba(15,37,87,.05);
+    }
+    .catalog-card:hover {
+      transform: translateY(-5px) !important;
+      border-color: #facc15 !important;
+      box-shadow: 0 16px 32px rgba(29,78,216,.13) !important;
+    }
+    .catalog-card-price {
+      background: #fef9c3;
+      color: #0f2557 !important;
+      padding: .22rem .65rem;
+      border-radius: .75rem;
+      border: 1.5px solid #fde047;
+      font-size: 1.08rem !important;
+    }
+    .fun-highlights-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: .85rem;
+    }
+    @media (max-width: 900px) { .fun-highlights-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 480px) { .fun-highlights-strip { grid-template-columns: 1fr; } }
+    .fun-highlight-pill {
+      background: #ffffff;
+      border: 2px solid #dbeafe;
+      border-bottom: 4px solid #bfdbfe;
+      border-radius: 1.35rem;
+      padding: .85rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      box-shadow: 0 4px 12px rgba(15,37,87,.04);
+    }
+    .fun-highlight-icon {
+      width: 44px; height: 44px; border-radius: 1rem;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; flex-shrink: 0;
+    }
+    .fun-highlight-icon.is-blue { background: #dbeafe; color: #1d4ed8; }
+    .fun-highlight-icon.is-yellow { background: #fef08a; color: #854d0e; }
+    .fun-highlight-icon.is-green { background: #dcfce7; color: #15803d; }
+    .fun-highlight-icon.is-navy { background: #0f2557; color: #facc15; }
+    .howto-card {
+      border-radius: 1.5rem !important;
+      border: 2px solid #dbeafe !important;
+      border-bottom: 4px solid #bfdbfe !important;
+      transition: transform .16s ease;
+    }
+    .howto-card:hover { transform: translateY(-3px); border-color: #93c5fd !important; }
+
+    /* === SENTUHAN UI/UX GAYA FIGMA (GLASS, BENTO, SPACING PRESISI) === */
+    body {
+      background:
+        radial-gradient(circle at 12% 0%, rgba(219, 234, 254, 0.72), transparent 36%),
+        radial-gradient(circle at 92% 18%, rgba(254, 249, 195, 0.55), transparent 30%),
+        #f8fafc !important;
+    }
+    .shop-header {
+      background: rgba(255, 255, 255, 0.86) !important;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1.5px solid rgba(191, 219, 254, 0.85) !important;
+      box-shadow: 0 8px 28px -10px rgba(15, 37, 87, 0.12) !important;
+    }
+    .shop-hero {
+      border: 1.5px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 0 24px 54px -18px rgba(15, 37, 87, 0.45);
+    }
+    .hero-feature-card {
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    }
+    .catalog-toolbar, .shop-location, .fun-highlight-pill, .howto-card {
+      box-shadow: 0 12px 30px -12px rgba(15, 37, 87, 0.08) !important;
+    }
+    .catalog-card-photo-wrap {
+      background: radial-gradient(circle at 50% 45%, #ffffff 0%, #f1f5f9 100%) !important;
+      padding: .55rem;
+    }
+    .catalog-card-photo { border-radius: 1rem; overflow: hidden; }
+    .floating-cart-bar .shop-button-primary {
+      box-shadow: 0 16px 34px -8px rgba(29, 78, 216, 0.48) !important;
+    }
+    .floating-wa-btn {
+      border-bottom: 4px solid #166534;
+      box-shadow: 0 16px 34px -8px rgba(22, 163, 74, 0.45) !important;
+    }
     @media (max-width: 900px) { .shop-hero { grid-template-columns: 1fr; padding: 1.8rem 1.35rem; } }
     .shop-hero-content { position: relative; z-index: 2; display: flex; flex-direction: column; gap: .9rem; }
     .shop-eyebrow { display: inline-flex; align-items: center; gap: .45rem; width: fit-content; padding: .35rem .85rem; border-radius: 9999px; background: rgba(255,255,255,.14); font-size: .75rem; font-weight: 700; color: #fde68a; }
@@ -272,6 +385,37 @@
           <strong>Catur</strong>
           <span>Papan &amp; bidak catur</span>
         </button>
+      </div>
+    </section>
+
+    <section class="fun-highlights-strip" aria-label="Keunggulan belanja di Surya Jaya Sport">
+      <div class="fun-highlight-pill">
+        <span class="fun-highlight-icon is-yellow"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
+        <div>
+          <strong class="block text-sm font-extrabold text-slate-900">Buka Setiap Hari</strong>
+          <span class="text-xs font-semibold text-slate-600">Senin–Minggu 08.00–21.00 WITA</span>
+        </div>
+      </div>
+      <div class="fun-highlight-pill">
+        <span class="fun-highlight-icon is-blue"><i class="fa-solid fa-feather-pointed" aria-hidden="true"></i></span>
+        <div>
+          <strong class="block text-sm font-extrabold text-slate-900">Gratis Pasang Senar</strong>
+          <span class="text-xs font-semibold text-slate-600">Khusus semua senar badminton</span>
+        </div>
+      </div>
+      <div class="fun-highlight-pill">
+        <span class="fun-highlight-icon is-green"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></span>
+        <div>
+          <strong class="block text-sm font-extrabold text-slate-900">Pesan Cepat via WA</strong>
+          <span class="text-xs font-semibold text-slate-600">Bisa DP / transfer, barang disiapkan</span>
+        </div>
+      </div>
+      <div class="fun-highlight-pill">
+        <span class="fun-highlight-icon is-navy"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></span>
+        <div>
+          <strong class="block text-sm font-extrabold text-slate-900">Ambil &amp; Cek di Toko</strong>
+          <span class="text-xs font-semibold text-slate-600">Tunai, QRIS, Kartu &amp; Transfer</span>
+        </div>
       </div>
     </section>
 

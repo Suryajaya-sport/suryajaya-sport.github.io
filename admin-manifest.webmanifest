@@ -10,16 +10,22 @@
   "orientation": "any",
   "icons": [
     {
-      "src": "/sjs-mark.png",
+      "src": "/sjs-mark-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/sjs-mark.png",
+      "src": "/sjs-mark-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/sjs-mark-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }

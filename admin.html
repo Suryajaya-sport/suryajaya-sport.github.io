@@ -975,6 +975,104 @@
       font-size: .86rem;
     }
     .pos-mini-chart-details summary::-webkit-details-marker { display: none; }
+
+    /* === TOMBOL LUCU 3D & GRAFIS RASIO MUDAH DIBACA (ADMIN) === */
+    body.sjs-admin .shop-button,
+    body.sjs-admin .pay-option-btn,
+    body.sjs-admin .pos-cash-pill,
+    body.sjs-admin .pos-num-btn,
+    body.sjs-admin .pos-cat-tab {
+      border-radius: 1.05rem !important;
+      transition: transform .13s cubic-bezier(.34,1.56,.64,1), box-shadow .13s ease, filter .13s ease !important;
+    }
+    body.sjs-admin .shop-button:hover:not(:disabled),
+    body.sjs-admin .pay-option-btn:hover,
+    body.sjs-admin .pos-cash-pill:hover,
+    body.sjs-admin .pos-num-btn:hover {
+      transform: translateY(-2px);
+    }
+    body.sjs-admin .shop-button:active:not(:disabled),
+    body.sjs-admin .pay-option-btn:active,
+    body.sjs-admin .pos-cash-pill:active,
+    body.sjs-admin .pos-num-btn:active {
+      transform: translateY(2px) scale(.96) !important;
+    }
+    body.sjs-admin #btnSaveAndPrintTx { border-bottom: 4px solid #ca8a04 !important; }
+    body.sjs-admin #btnSaveTx { border-bottom: 4px solid #0f2557 !important; }
+    body.sjs-admin #btnOpenScanner { border-bottom: 4px solid #ca8a04 !important; }
+    body.sjs-admin .pos-num-btn { border-bottom: 4px solid #94a3b8 !important; }
+    body.sjs-admin .pos-num-btn.is-clear { border-bottom: 4px solid #ca8a04 !important; }
+    body.sjs-admin .pos-cash-pill { border-bottom: 3px solid #93c5fd !important; }
+    body.sjs-admin .pos-cash-pill.is-exact { border-bottom: 3px solid #ca8a04 !important; }
+    body.sjs-admin #mainNavigation button[data-workspace] {
+      transition: transform .15s cubic-bezier(.34,1.56,.64,1), background .15s ease !important;
+    }
+    body.sjs-admin #mainNavigation button[data-workspace]:active { transform: scale(.94) !important; }
+
+    /* Bar Rasio Visual (Modal vs Laba, dll) agar mudah dibaca siapa saja */
+    .sjs-ratio-card {
+      background: #ffffff;
+      border: 1.5px solid #dbeafe;
+      border-radius: 1.35rem;
+      padding: 1rem 1.15rem;
+      box-shadow: 0 6px 18px rgba(15, 37, 87, .05);
+      display: flex;
+      flex-direction: column;
+      gap: .65rem;
+    }
+    .sjs-ratio-track {
+      width: 100%; height: 18px;
+      border-radius: 9999px;
+      background: #e2e8f0;
+      overflow: hidden;
+      display: flex;
+      border: 1.5px solid #cbd5e1;
+    }
+    .sjs-ratio-seg {
+      height: 100%;
+      transition: width .4s ease;
+    }
+    .sjs-ratio-legend {
+      display: flex; flex-wrap: wrap; gap: .75rem 1.25rem;
+      font-size: .78rem; font-weight: 700; color: #334155;
+    }
+    .sjs-ratio-dot {
+      display: inline-block; width: 10px; height: 10px; border-radius: 9999px; margin-right: .35rem;
+    }
+
+    /* === SENTUHAN UI/UX GAYA FIGMA DASHBOARD & POS === */
+    body.sjs-admin {
+      background:
+        radial-gradient(circle at 18% 0%, rgba(219, 234, 254, 0.65), transparent 38%),
+        radial-gradient(circle at 95% 12%, rgba(254, 240, 138, 0.35), transparent 28%),
+        #f1f5f9 !important;
+    }
+    body.sjs-admin .shop-header {
+      background: linear-gradient(90deg, rgba(15, 37, 87, 0.96) 0%, rgba(29, 78, 216, 0.95) 100%) !important;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 10px 30px -10px rgba(7, 20, 51, 0.42) !important;
+    }
+    body.sjs-admin .pos-stat-card,
+    body.sjs-admin .sjs-chart-card:not(.is-dark),
+    body.sjs-admin .sjs-ratio-card,
+    body.sjs-admin .pos-catalog-pane {
+      box-shadow: 0 12px 32px -12px rgba(15, 37, 87, 0.10) !important;
+    }
+    body.sjs-admin .pos-card {
+      border-radius: 1.25rem !important;
+      box-shadow: 0 6px 18px -6px rgba(15, 37, 87, 0.08);
+    }
+    body.sjs-admin .pos-card-thumb {
+      background: radial-gradient(circle at 50% 45%, #ffffff 0%, #f1f5f9 100%) !important;
+    }
+    body.sjs-admin .pos-cart-sticky {
+      border-radius: 1.65rem !important;
+      box-shadow: 0 22px 48px -14px rgba(15, 37, 87, 0.18) !important;
+    }
+    body.sjs-admin .workspace-heading h2 {
+      letter-spacing: -0.02em;
+    }
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -1231,6 +1329,21 @@
             <label class="text-sm font-bold text-slate-700 flex items-center gap-2">Bulan laporan <input type="month" id="bookMonth" class="rounded-xl border border-slate-300 px-3 py-2 font-bold"></label>
           </div>
           <dl id="ownerMonthlyReport" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3"></dl>
+          <div id="booksRatioBarCard" class="sjs-ratio-card">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900"><i class="fa-solid fa-pizza-slice text-amber-500 mr-1.5" aria-hidden="true"></i>Porsi Uang Penjualan Bulan Ini (Mudah Dibaca)</span>
+              <span id="booksRatioHeadline" class="text-xs font-extrabold text-slate-600">Belum ada penjualan</span>
+            </div>
+            <div class="sjs-ratio-track" aria-hidden="true">
+              <div id="booksSegCost" class="sjs-ratio-seg bg-blue-600" style="width:0%"></div>
+              <div id="booksSegProfit" class="sjs-ratio-seg bg-amber-400" style="width:0%"></div>
+            </div>
+            <div class="sjs-ratio-legend">
+              <span><span class="sjs-ratio-dot bg-blue-600"></span>Modal Barang Terjual: <strong id="booksLegendCost">Rp 0 (0%)</strong></span>
+              <span><span class="sjs-ratio-dot bg-amber-400"></span>Laba Penjualan: <strong id="booksLegendProfit">Rp 0 (0%)</strong></span>
+              <span><span class="sjs-ratio-dot bg-rose-500"></span>Pengeluaran Toko: <strong id="booksLegendExp">Rp 0</strong></span>
+            </div>
+          </div>
           <details class="rounded-2xl border border-slate-200 bg-slate-50 p-4"><summary class="font-bold cursor-pointer">Pembelian stok bulan ini</summary><ul id="ownerPurchaseHistory" class="mt-3 space-y-2 text-sm"></ul></details>
         </section>
 
@@ -1644,6 +1757,21 @@
           <div class="bg-white px-4 py-3.5 rounded-2xl border border-slate-200 flex items-center justify-between gap-2"><div><span class="text-xs font-extrabold uppercase text-amber-900">Bayar Kartu</span><p id="payCard" class="text-lg font-extrabold mt-0.5 tabular-nums">Rp 0</p></div><span id="countCard" class="text-xs font-extrabold bg-amber-100 px-2.5 py-1 rounded-full">0x</span></div>
           <div class="bg-white px-4 py-3.5 rounded-2xl border border-slate-200 flex items-center justify-between gap-2"><div><span class="text-xs font-extrabold uppercase text-purple-900">Transfer Bank</span><p id="payTransfer" class="text-lg font-extrabold mt-0.5 tabular-nums">Rp 0</p></div><span id="countTransfer" class="text-xs font-extrabold bg-purple-100 px-2.5 py-1 rounded-full">0x</span></div>
         </section>
+
+        <div id="salesRatioBarCard" class="sjs-ratio-card no-print">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900"><i class="fa-solid fa-scale-balanced text-amber-500 mr-1.5" aria-hidden="true"></i>Perbandingan Modal vs Laba Kotor (Periode Terpilih)</span>
+            <span id="salesRatioHeadline" class="text-xs font-extrabold text-slate-600">Belum ada transaksi</span>
+          </div>
+          <div class="sjs-ratio-track" aria-hidden="true">
+            <div id="salesSegCost" class="sjs-ratio-seg bg-blue-600" style="width:0%"></div>
+            <div id="salesSegProfit" class="sjs-ratio-seg bg-amber-400" style="width:0%"></div>
+          </div>
+          <div class="sjs-ratio-legend">
+            <span><span class="sjs-ratio-dot bg-blue-600"></span>Modal: <strong id="salesLegendCost">0%</strong></span>
+            <span><span class="sjs-ratio-dot bg-amber-400"></span>Laba Kotor: <strong id="salesLegendProfit">0%</strong></span>
+          </div>
+        </div>
 
         <section id="salesCharts" class="grid grid-cols-1 xl:grid-cols-3 gap-4 no-print">
           <div class="sjs-chart-card is-dark xl:col-span-2">
@@ -2130,6 +2258,13 @@
       <div class="p-5 space-y-4">
         <div class="bg-slate-50 p-3 rounded-xl">
           <canvas id="niimbotPreviewCanvas" width="591" height="354" role="img" aria-label="Pratinjau label QR" class="w-full h-auto bg-white"></canvas>
+        </div>
+        <div class="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-blue-200 bg-blue-50 px-3.5 py-2.5">
+          <label class="inline-flex items-center gap-2 text-xs font-extrabold text-blue-950 cursor-pointer">
+            <input type="checkbox" id="qrIncludeCostCode" checked class="h-4 w-4 accent-blue-700">
+            <span>Tampilkan kode modal di stiker</span>
+          </label>
+          <span id="qrCostCodePreview" class="font-mono text-xs font-extrabold px-2.5 py-1 rounded-lg bg-white border border-blue-200 text-blue-900"></span>
         </div>
         <div id="qrCodeRenderTarget" class="hidden"></div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -4355,8 +4490,8 @@
       const valueAxis = {
         beginAtZero: true,
         suggestedMax: sugMax,
-        border: { display: false },
-        grid: { color: dark ? "rgba(148, 163, 184, 0.16)" : "#e2e8f0", borderDash: [4, 4] },
+        border: { display: false, dash: [4, 4] },
+        grid: { color: dark ? "rgba(148, 163, 184, 0.16)" : "#e2e8f0" },
         ticks: { precision: 0, color: dark ? "#cbd5e1" : "#64748b", font: { size: 11, weight: "700" }, callback: tickCb }
       };
       const catAxis = {
@@ -4368,11 +4503,64 @@
     }
 
     const charts = {};
+    let chartJsLoadingPromise = null;
+    function ensureChartJs() {
+      if (typeof Chart !== "undefined") return Promise.resolve(true);
+      if (chartJsLoadingPromise) return chartJsLoadingPromise;
+      const cdns = [
+        "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js",
+        "https://unpkg.com/chart.js@4.4.1/dist/chart.umd.min.js",
+        "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"
+      ];
+      chartJsLoadingPromise = (async () => {
+        for (const src of cdns) {
+          if (typeof Chart !== "undefined") return true;
+          const ok = await new Promise(resolve => {
+            const s = document.createElement("script");
+            s.src = src;
+            s.async = true;
+            s.onload = () => resolve(typeof Chart !== "undefined");
+            s.onerror = () => resolve(false);
+            document.head.appendChild(s);
+          });
+          if (ok) {
+            if (isAdmin) {
+              try {
+                renderKasirMiniChart();
+                renderSalesCharts(reportSales());
+                renderInventoryCharts();
+                renderCharts();
+                renderBackupVolumeChart();
+              } catch (e) { console.error("Re-render charts:", e); }
+            }
+            return true;
+          }
+        }
+        return false;
+      })();
+      return chartJsLoadingPromise;
+    }
+
     function upsertChart(id, config) {
       const el = document.getElementById(id);
-      if (!el || typeof Chart === "undefined") return;
-      if (charts[id]) charts[id].destroy();
-      charts[id] = new Chart(el, config);
+      if (!el) return;
+      if (typeof Chart === "undefined") {
+        ensureChartJs();
+        return;
+      }
+      if (el.offsetParent === null) {
+        if (charts[id]) { try { charts[id].destroy(); } catch {} delete charts[id]; }
+        return;
+      }
+      if (charts[id]) {
+        try { charts[id].destroy(); } catch {}
+        delete charts[id];
+      }
+      try {
+        charts[id] = new Chart(el, config);
+      } catch (err) {
+        console.error("Chart render error:", id, err);
+      }
     }
 
     function renderKasirMiniChart() {
@@ -4480,6 +4668,20 @@
       }
       const totalOmzetRows = omzetData.reduce((a, b) => a + b, 0);
       if (badgeEl) badgeEl.textContent = rp(totalOmzetRows);
+      const totalLabaRows = labaData.reduce((a, b) => a + b, 0);
+      const totalModalRows = Math.max(0, totalOmzetRows - totalLabaRows);
+      const sCostPct = totalOmzetRows > 0 ? Math.round((totalModalRows / totalOmzetRows) * 100) : 0;
+      const sProfPct = totalOmzetRows > 0 ? Math.max(0, 100 - sCostPct) : 0;
+      const sCostEl = document.getElementById("salesSegCost");
+      const sProfEl = document.getElementById("salesSegProfit");
+      if (sCostEl) sCostEl.style.width = sCostPct + "%";
+      if (sProfEl) sProfEl.style.width = sProfPct + "%";
+      const sHead = document.getElementById("salesRatioHeadline");
+      if (sHead) sHead.textContent = totalOmzetRows > 0 ? `Dari ${rp(totalOmzetRows)} omzet, ${sProfPct}% adalah laba` : "Belum ada transaksi";
+      const sLC = document.getElementById("salesLegendCost");
+      const sLP = document.getElementById("salesLegendProfit");
+      if (sLC) sLC.textContent = `${rp(totalModalRows)} (${sCostPct}%)`;
+      if (sLP) sLP.textContent = `${rp(totalLabaRows)} (${sProfPct}%)`;
 
       // Combo Bar (Omzet) + Glowing Spline Line (Laba) on Dark Navy Card
       const trendCtx = document.getElementById("chartSalesTrend")?.getContext("2d");
@@ -5016,6 +5218,21 @@
       if (!isAdmin) return;
       const month = document.getElementById("bookMonth").value;
       const { revenue, cost, spending, profit } = monthlyTotals(month);
+      const gross = Math.max(0, revenue - cost);
+      const bCostPct = revenue > 0 ? Math.round((cost / revenue) * 100) : 0;
+      const bProfPct = revenue > 0 ? Math.max(0, 100 - bCostPct) : 0;
+      const bSegC = document.getElementById("booksSegCost");
+      const bSegP = document.getElementById("booksSegProfit");
+      if (bSegC) bSegC.style.width = bCostPct + "%";
+      if (bSegP) bSegP.style.width = bProfPct + "%";
+      const bHead = document.getElementById("booksRatioHeadline");
+      if (bHead) bHead.textContent = revenue > 0 ? `Dari ${rp(revenue)} omzet, ${bProfPct}% laba penjualan` : "Belum ada penjualan";
+      const bLC = document.getElementById("booksLegendCost");
+      const bLP = document.getElementById("booksLegendProfit");
+      const bLE = document.getElementById("booksLegendExp");
+      if (bLC) bLC.textContent = `${rp(cost)} (${bCostPct}%)`;
+      if (bLP) bLP.textContent = `${rp(gross)} (${bProfPct}%)`;
+      if (bLE) bLE.textContent = rp(spending);
       document.getElementById("ownerMonthlyReport").innerHTML = [
         ["Uang dari penjualan", revenue, false], ["Modal barang terjual", cost, false],
         ["Laba penjualan", revenue - cost, true], ["Pengeluaran toko", spending, false], ["Sisa setelah pengeluaran", profit, false]
@@ -5338,11 +5555,20 @@
       url.searchParams.set("id", product.id);
       return url.toString();
     }
+    const SJS_COST_CODE_MAP = { "1": "C", "2": "D", "3": "T", "4": "E", "5": "U", "6": "A", "7": "H", "8": "L", "9": "S", "0": "O" };
+    function encodeCostCode(cost) {
+      const n = Math.round(Number(cost || 0));
+      if (!Number.isFinite(n) || n <= 0) return "";
+      return String(n).slice(0, 3).split("").map(d => SJS_COST_CODE_MAP[d] || d).join("");
+    }
     function openProductQrModal(id) {
       if (!isAdmin) return;
       const item = inventory.find(i => i.id === id);
       if (!item) return;
       activeQrProduct = item;
+      const cc = encodeCostCode(item.cost);
+      const prev = document.getElementById("qrCostCodePreview");
+      if (prev) prev.textContent = cc ? `Kode modal: ${cc}` : "Modal belum diisi";
       document.getElementById("productQrModal").classList.remove("hidden");
       requestAnimationFrame(() => renderQrLabel(item));
     }
@@ -5428,10 +5654,19 @@
         ctx.fillText(rp(item.price), rightX + rightW / 2, 279);
         ctx.textAlign = "left";
 
-        // SKU code footer
+        // SKU code & secret 3-digit cost code footer
         ctx.fillStyle = "#0f172a";
         ctx.font = "bold 20px monospace";
         ctx.fillText("KODE: " + (item.code || "-"), rightX, 326);
+        const showCostCode = document.getElementById("qrIncludeCostCode")?.checked !== false;
+        const cc = showCostCode ? encodeCostCode(item.cost) : "";
+        if (cc) {
+          ctx.fillStyle = "#334155";
+          ctx.font = "bold 20px monospace";
+          ctx.textAlign = "right";
+          ctx.fillText(cc, 566, 326);
+          ctx.textAlign = "left";
+        }
         lastStickerCanvas = canvas;
       };
 
@@ -6310,6 +6545,7 @@
       document.getElementById("transactionTableBody").addEventListener("click", txActionClick);
       document.getElementById("transactionMobileList").addEventListener("click", txActionClick);
 
+      document.getElementById("qrIncludeCostCode")?.addEventListener("change", () => { if (activeQrProduct) renderQrLabel(activeQrProduct); });
       document.getElementById("btnCloseQrModal").addEventListener("click", () => document.getElementById("productQrModal").classList.add("hidden"));
       document.getElementById("btnDownloadStickerPng").addEventListener("click", downloadSticker);
       document.getElementById("btnPrintSticker").addEventListener("click", () => printMode("sticker"));
