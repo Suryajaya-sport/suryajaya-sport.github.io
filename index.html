@@ -963,12 +963,23 @@
         <button type="button" id="sjsAiCloseBtn" class="rounded-xl px-3 py-1.5 text-xs font-bold hover:bg-white/20" aria-label="Tutup Asisten Toko">Tutup</button>
       </div>
     </div>
-    <div id="sjsAssistantShortcuts" class="flex flex-wrap gap-1.5 border-b border-blue-100 bg-white p-2.5 text-xs font-bold text-blue-900">
-      <button type="button" class="rounded-lg bg-blue-50 px-2.5 py-1.5 hover:bg-blue-100" data-assistant-command="Omzet hari ini">Omzet hari ini</button>
-      <button type="button" class="rounded-lg bg-blue-50 px-2.5 py-1.5 hover:bg-blue-100" data-assistant-command="Laba rugi bulan ini">Laba rugi</button>
-      <button type="button" class="rounded-lg bg-blue-50 px-2.5 py-1.5 hover:bg-blue-100" data-assistant-command="Terlaris 30 hari">Terlaris</button>
-      <button type="button" class="rounded-lg bg-blue-50 px-2.5 py-1.5 hover:bg-blue-100" data-assistant-command="Barang apa yang perlu dibeli lagi?">Perlu dibeli</button>
+    <div id="sjsAssistantShortcuts" class="border-b border-blue-100 bg-white p-2.5 space-y-1.5 text-xs font-bold">
+      <div class="flex flex-wrap gap-1.5 text-blue-900">
+        <button type="button" class="rounded-lg bg-blue-50 px-2.5 py-1.5 hover:bg-blue-100" data-assistant-command="Omzet hari ini">Omzet hari ini</button>
+        <button type="button" class="rounded-lg bg-blue-50 px-2.5 py-1.5 hover:bg-blue-100" data-assistant-command="Omzet kemarin">Omzet kemarin</button>
+        <button type="button" class="rounded-lg bg-blue-50 px-2.5 py-1.5 hover:bg-blue-100" data-assistant-command="Laba rugi bulan ini">Laba rugi</button>
+        <button type="button" class="rounded-lg bg-blue-50 px-2.5 py-1.5 hover:bg-blue-100" data-assistant-command="Terlaris 30 hari">Terlaris</button>
+        <button type="button" class="rounded-lg bg-blue-50 px-2.5 py-1.5 hover:bg-blue-100" data-assistant-command="Barang apa yang perlu dibeli lagi?">Stok menipis</button>
+        <button type="button" class="rounded-lg bg-blue-50 px-2.5 py-1.5 hover:bg-blue-100" data-assistant-command="Stok habis">Stok habis</button>
+        <button type="button" class="rounded-lg bg-blue-50 px-2.5 py-1.5 hover:bg-blue-100" data-assistant-command="Ringkasan stok">Ringkasan stok</button>
+      </div>
+      <div class="flex flex-wrap gap-1.5 pt-1 border-t border-slate-100">
+        <button type="button" class="rounded-lg bg-emerald-50 text-emerald-900 px-2.5 py-1.5 hover:bg-emerald-100" data-assistant-panel="cek-stok"><i class="fa-solid fa-box mr-1" aria-hidden="true"></i>Cek stok barang</button>
+        <button type="button" class="rounded-lg bg-amber-50 text-amber-950 px-2.5 py-1.5 hover:bg-amber-100" data-assistant-panel="catat-jual"><i class="fa-solid fa-cash-register mr-1" aria-hidden="true"></i>Catat jual</button>
+        <button type="button" class="rounded-lg bg-rose-50 text-rose-900 px-2.5 py-1.5 hover:bg-rose-100" data-assistant-panel="catat-pengeluaran"><i class="fa-solid fa-wallet mr-1" aria-hidden="true"></i>Catat pengeluaran</button>
+      </div>
     </div>
+    <div id="sjsAiActionPanel" class="hidden border-b border-blue-200 bg-blue-50/70 p-3 text-xs space-y-2"></div>
     <div id="sjsAiChatLog" class="flex min-h-0 flex-1 flex-col gap-2.5 overflow-y-auto bg-slate-50 p-3.5 text-sm" role="log" aria-live="polite"></div>
     <form id="sjsAssistantForm" class="flex gap-2 border-t border-slate-200 bg-white p-3">
       <input type="text" id="sjsAiInput" class="min-w-0 flex-1 rounded-xl border border-slate-300 bg-slate-50 px-3.5 py-2" maxlength="400" autocomplete="off" placeholder="Tanya omzet, stok, atau catat jual..." aria-label="Pesan untuk Asisten Toko">
@@ -2513,6 +2524,20 @@
         const s = periodSum(today.slice(0, 7) + "-01", today);
         return `Bulan ini: omzet ${rp(s.omset)}, laba kotor ${rp(s.laba)}, pengeluaran ${rp(s.pengeluaran)}, untung/rugi usaha ${rp(s.laba - s.pengeluaran)}.`;
       }
+      if (/stok habis|habis/.test(t)) {
+        const empty = activeInventory().filter(i => Number(i.stock || 0) <= 0);
+        return empty.length
+          ? `Barang stok habis (${empty.length} item):\n` + empty.map(i => `• ${formatItemLabel(i)} — ${rp(i.price)}`).join("\n")
+          : "Tidak ada barang aktif yang stoknya habis.";
+      }
+      if (/ringkasan stok|total stok|nilai stok/.test(t)) {
+        const items = activeInventory();
+        const totalUnits = items.reduce((sum, i) => sum + Number(i.stock || 0), 0);
+        const totalCost = items.reduce((sum, i) => sum + Number(i.stock || 0) * Number(i.cost || 0), 0);
+        const lowCount = items.filter(i => Number(i.stock || 0) < LOW_STOCK_LIMIT).length;
+        const outCount = items.filter(i => Number(i.stock || 0) <= 0).length;
+        return `Ringkasan stok aktif:\n• Jenis barang: ${items.length} item\n• Total unit: ${totalUnits} pcs\n• Nilai modal stok: ${rp(totalCost)}\n• Stok menipis (<${LOW_STOCK_LIMIT}): ${lowCount} item (habis: ${outCount})`;
+      }
       if (/perlu dibeli|beli lagi|restok|stok hampir habis|stok menipis/.test(t)) {
         const low = activeInventory().filter(i => Number(i.stock || 0) < LOW_STOCK_LIMIT);
         return low.length
@@ -2815,22 +2840,173 @@
         updateCartSummary();
       });
 
+      function closeAssistantPanel() {
+        const panel = document.getElementById("sjsAiActionPanel");
+        if (!panel) return;
+        panel.classList.add("hidden");
+        panel.innerHTML = "";
+      }
+      function openAssistantPanel(type) {
+        if (!isAdmin) return;
+        const panel = document.getElementById("sjsAiActionPanel");
+        if (!panel) return;
+        if (!panel.classList.contains("hidden") && panel.dataset.panelType === type) {
+          return closeAssistantPanel();
+        }
+        panel.dataset.panelType = type;
+        const items = activeInventory().slice().sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "id"));
+        const opts = items.map(i => `<option value="${esc(i.id)}">${esc(formatItemLabel(i))} (stok ${Number(i.stock || 0)})</option>`).join("");
+
+        if (type === "cek-stok") {
+          panel.innerHTML = `
+            <div class="flex items-center justify-between font-extrabold text-emerald-900">
+              <span>Cek stok barang</span>
+              <button type="button" data-close-panel class="text-slate-500 hover:text-slate-800">Tutup</button>
+            </div>
+            <div class="flex gap-1.5">
+              <select id="aiPickStockItem" class="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 font-semibold">${opts || '<option value="">Belum ada barang</option>'}</select>
+              <button type="button" id="aiSubmitCekStok" class="rounded-lg bg-emerald-700 px-3 py-1.5 font-bold text-white shrink-0">Lihat</button>
+            </div>`;
+          panel.classList.remove("hidden");
+          panel.querySelector("[data-close-panel]").addEventListener("click", closeAssistantPanel);
+          panel.querySelector("#aiSubmitCekStok").addEventListener("click", () => {
+            const id = panel.querySelector("#aiPickStockItem").value;
+            const item = activeInventory().find(i => i.id === id);
+            if (!item) return;
+            assistantAdd("user", `Cek stok ${item.name}`);
+            assistantAdd("assistant", `${formatItemLabel(item)}\n• Sisa stok: ${Number(item.stock || 0)} pcs\n• Harga jual: ${rp(item.price)}\n• Harga modal: ${rp(item.cost || 0)}`);
+            closeAssistantPanel();
+          });
+          return;
+        }
+
+        if (type === "catat-jual") {
+          const inStockOpts = items.filter(i => Number(i.stock || 0) > 0)
+            .map(i => `<option value="${esc(i.id)}">${esc(formatItemLabel(i))} (stok ${Number(i.stock || 0)} · ${rp(i.price)})</option>`).join("");
+          panel.innerHTML = `
+            <div class="flex items-center justify-between font-extrabold text-amber-950">
+              <span>Catat jual cepat</span>
+              <button type="button" data-close-panel class="text-slate-500 hover:text-slate-800">Tutup</button>
+            </div>
+            <select id="aiSaleItem" class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 font-semibold">${inStockOpts || '<option value="">Stok kosong</option>'}</select>
+            <div class="flex gap-1.5">
+              <input id="aiSaleQty" type="number" min="1" value="1" class="w-20 rounded-lg border border-slate-300 bg-white px-2 py-1.5 font-bold text-center" aria-label="Jumlah">
+              <select id="aiSalePay" class="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-2 py-1.5 font-bold">
+                <option value="Cash">Tunai</option>
+                <option value="QRIS">QRIS</option>
+                <option value="Kartu">Kartu</option>
+                <option value="Transfer">Transfer</option>
+              </select>
+              <button type="button" id="aiSubmitSale" class="rounded-lg bg-amber-500 px-3 py-1.5 font-extrabold text-slate-950 shrink-0">Ke Kasir</button>
+            </div>`;
+          panel.classList.remove("hidden");
+          panel.querySelector("[data-close-panel]").addEventListener("click", closeAssistantPanel);
+          panel.querySelector("#aiSubmitSale").addEventListener("click", () => {
+            const id = panel.querySelector("#aiSaleItem").value;
+            const qty = Number(panel.querySelector("#aiSaleQty").value);
+            const method = panel.querySelector("#aiSalePay").value;
+            const found = activeInventory().find(i => i.id === id);
+            if (!found) return;
+            if (!Number.isSafeInteger(qty) || qty < 1) return assistantAdd("assistant", "Jumlah minimal 1.");
+            if (Number(found.stock || 0) < qty) return assistantAdd("assistant", `Stok ${found.name} tersisa ${Number(found.stock || 0)} pcs.`);
+            resetSaleDraft();
+            document.getElementById("saleItemsContainer").replaceChildren();
+            addSaleItemRow(found);
+            document.querySelector("#saleItemsContainer .item-qty").value = qty;
+            selectSalePayment(method);
+            calculateSaleTotals();
+            switchWorkspace("kasir");
+            assistantAdd("user", `Catat jual ${qty} ${found.name} (${paymentMethodLabel(method)})`);
+            assistantAdd("assistant", `Draf ${qty} × ${found.name} (${paymentMethodLabel(method)}) sudah dimuat di halaman Kasir. Periksa lalu tekan "Simpan penjualan".`);
+            closeAssistantPanel();
+          });
+          return;
+        }
+
+        if (type === "catat-pengeluaran") {
+          panel.innerHTML = `
+            <div class="flex items-center justify-between font-extrabold text-rose-900">
+              <span>Catat pengeluaran cepat</span>
+              <button type="button" data-close-panel class="text-slate-500 hover:text-slate-800">Tutup</button>
+            </div>
+            <div class="flex gap-1.5">
+              <select id="aiExpPreset" class="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-2 py-1.5 font-semibold">
+                <option value="Listrik">Listrik</option>
+                <option value="Air">Air</option>
+                <option value="Perlengkapan toko">Perlengkapan toko</option>
+                <option value="Transport / bensin">Transport / bensin</option>
+                <option value="Makan / minum">Makan / minum</option>
+                <option value="Gaji">Gaji</option>
+                <option value="__lainnya__">Lainnya (ketik sendiri)</option>
+              </select>
+              <select id="aiExpMethod" class="w-28 rounded-lg border border-slate-300 bg-white px-2 py-1.5 font-bold">
+                <option value="Cash">Tunai</option>
+                <option value="Transfer">Transfer</option>
+                <option value="Kartu">Kartu</option>
+              </select>
+            </div>
+            <input id="aiExpCustom" type="text" maxlength="80" placeholder="Keterangan pengeluaran..." class="hidden w-full rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 font-semibold">
+            <div class="flex gap-1.5">
+              <input id="aiExpAmount" type="number" min="1" step="1" placeholder="Jumlah (Rp)" class="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 font-bold">
+              <button type="button" id="aiSubmitExp" class="rounded-lg bg-rose-600 px-3 py-1.5 font-bold text-white shrink-0">Simpan</button>
+            </div>`;
+          panel.classList.remove("hidden");
+          panel.querySelector("[data-close-panel]").addEventListener("click", closeAssistantPanel);
+          const presetEl = panel.querySelector("#aiExpPreset");
+          const customEl = panel.querySelector("#aiExpCustom");
+          presetEl.addEventListener("change", () => {
+            customEl.classList.toggle("hidden", presetEl.value !== "__lainnya__");
+            if (presetEl.value === "__lainnya__") customEl.focus();
+          });
+          panel.querySelector("#aiSubmitExp").addEventListener("click", async () => {
+            const cat = presetEl.value === "__lainnya__" ? customEl.value.trim() : presetEl.value;
+            const amount = Number(panel.querySelector("#aiExpAmount").value);
+            const method = panel.querySelector("#aiExpMethod").value;
+            if (!cat) return assistantAdd("assistant", "Isi keterangan pengeluaran.");
+            if (!Number.isSafeInteger(amount) || amount <= 0) return assistantAdd("assistant", "Isi jumlah pengeluaran (Rp) yang benar.");
+            if (!window.confirm(`Simpan pengeluaran "${cat}" sebesar ${rp(amount)} (${paymentMethodLabel(method)})?`)) return;
+            try {
+              await addDoc(collection(db, ...paths("expenses")), {
+                date: todayStr(), category: cat.slice(0, 80), amount, method, createdAt: new Date().toISOString()
+              });
+              assistantAdd("user", `Catat pengeluaran ${cat} ${rp(amount)} (${paymentMethodLabel(method)})`);
+              assistantAdd("assistant", `Pengeluaran tersimpan: ${cat} · ${rp(amount)} (${paymentMethodLabel(method)}).`);
+              closeAssistantPanel();
+            } catch (err) {
+              assistantAdd("assistant", "Gagal menyimpan pengeluaran: " + (err.message || "izin ditolak"));
+            }
+          });
+        }
+      }
+
       document.getElementById("sjsAiToggleBtn").addEventListener("click", () => {
         const box = document.getElementById("sjsAiBox");
         const open = box.classList.contains("hidden");
         box.classList.toggle("hidden", !open);
         if (open && !document.getElementById("sjsAiChatLog").childElementCount) {
-          assistantAdd("assistant", `Asisten Toko siap. Contoh: "Omzet hari ini", "Laba rugi bulan ini", "Terlaris 30 hari", "Barang apa yang perlu dibeli lagi?", "Cek stok raket", "Catat jual 2 SJS-001 bayar QRIS", atau "Catat pengeluaran listrik 150000 tunai".`);
+          assistantAdd("assistant", "Asisten Toko siap. Langsung pilih menu di atas tanpa perlu mengetik.");
         }
       });
-      document.getElementById("sjsAiCloseBtn").addEventListener("click", () => document.getElementById("sjsAiBox").classList.add("hidden"));
-      document.getElementById("sjsAiClearBtn").addEventListener("click", () => document.getElementById("sjsAiChatLog").replaceChildren());
+      document.getElementById("sjsAiCloseBtn").addEventListener("click", () => {
+        closeAssistantPanel();
+        document.getElementById("sjsAiBox").classList.add("hidden");
+      });
+      document.getElementById("sjsAiClearBtn").addEventListener("click", () => {
+        closeAssistantPanel();
+        document.getElementById("sjsAiChatLog").replaceChildren();
+      });
       document.getElementById("sjsAssistantForm").addEventListener("submit", e => {
         e.preventDefault();
         handleAssistantInput(document.getElementById("sjsAiInput").value);
       });
       for (const b of document.querySelectorAll("[data-assistant-command]")) {
-        b.addEventListener("click", () => handleAssistantInput(b.dataset.assistantCommand));
+        b.addEventListener("click", () => {
+          closeAssistantPanel();
+          handleAssistantInput(b.dataset.assistantCommand);
+        });
+      }
+      for (const b of document.querySelectorAll("[data-assistant-panel]")) {
+        b.addEventListener("click", () => openAssistantPanel(b.dataset.assistantPanel));
       }
 
       document.getElementById("bookMonth").addEventListener("change", renderOwnerBooks);
