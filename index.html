@@ -537,6 +537,293 @@
     body.sjs-tablet-mode #sjsAiFab button i { font-size: 1.35rem; }
     body.sjs-tablet-mode #sjsAssistantShortcuts button { padding: .5rem .8rem; font-size: .85rem; }
     body.sjs-tablet-mode #inventoryTableBody button, body.sjs-tablet-mode #inventoryMobileList button { min-height: 40px; font-size: .82rem; }
+
+    /* === POS TABLET PRO: GABUNGAN CLICKNSELL + SIGMA POS + PURRWEB (BIRU • PUTIH • KUNING) === */
+    :root {
+      --sjs-bpk-navy: #0f2557;
+      --sjs-bpk-blue: #1d4ed8;
+      --sjs-bpk-blue-soft: #eff6ff;
+      --sjs-bpk-yellow: #facc15;
+      --sjs-bpk-yellow-deep: #eab308;
+      --sjs-bpk-yellow-soft: #fef9c3;
+    }
+
+    /* Strip Statistik Cepat Kasir (Gaya Purrweb & ClicknSell) */
+    .pos-live-stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: .85rem;
+      margin-bottom: 1.05rem;
+    }
+    @media (max-width: 900px) {
+      .pos-live-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    .pos-stat-card {
+      background: #ffffff;
+      border: 1.5px solid #dbeafe;
+      border-radius: 1.25rem;
+      padding: .85rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: .8rem;
+      box-shadow: 0 4px 14px rgba(15, 37, 87, .05);
+      text-align: left;
+      transition: transform .12s ease, border-color .15s ease, box-shadow .15s ease;
+    }
+    button.pos-stat-card { cursor: pointer; width: 100%; }
+    button.pos-stat-card:hover { border-color: var(--sjs-bpk-yellow-deep); box-shadow: 0 8px 18px rgba(234, 179, 8, .16); }
+    button.pos-stat-card:active { transform: scale(.98); }
+    .pos-stat-icon {
+      width: 46px; height: 46px; border-radius: .95rem;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; flex-shrink: 0;
+    }
+    .pos-stat-icon.is-blue { background: #dbeafe; color: #1d4ed8; }
+    .pos-stat-icon.is-navy { background: #0f2557; color: #facc15; }
+    .pos-stat-icon.is-yellow { background: #fef08a; color: #854d0e; }
+    .pos-stat-label { display: block; font-size: .72rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: #64748b; }
+    .pos-stat-val { display: block; font-size: 1.2rem; font-weight: 900; color: #0f172a; line-height: 1.2; margin-top: .12rem; font-variant-numeric: tabular-nums; }
+    .pos-stat-sub { display: block; font-size: .72rem; font-weight: 700; color: #1d4ed8; margin-top: .1rem; }
+
+    /* Panel Hitung Tunai & Numpad Sentuh (Gaya Sigma POS) */
+    .pos-cash-calc {
+      background: #ffffff;
+      border: 2px solid #bfdbfe;
+      border-radius: 1.2rem;
+      padding: .85rem;
+      display: flex;
+      flex-direction: column;
+      gap: .65rem;
+    }
+    .pos-cash-calc[hidden] { display: none !important; }
+    .pos-cash-summary {
+      display: grid; grid-template-columns: 1fr 1fr; gap: .6rem;
+    }
+    .pos-cash-box {
+      background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: .9rem; padding: .55rem .75rem;
+    }
+    .pos-cash-box.is-change { background: #fef9c3; border-color: #facc15; }
+    .pos-cash-box.is-short { background: #fef2f2; border-color: #fca5a5; }
+    .pos-cash-box span { display: block; font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: #475569; }
+    .pos-cash-box strong { display: block; font-size: 1.12rem; font-weight: 900; color: #0f172a; font-variant-numeric: tabular-nums; margin-top: .08rem; }
+    .pos-cash-box.is-short strong { color: #b91c1c; }
+    .pos-cash-quick {
+      display: flex; flex-wrap: wrap; gap: .45rem;
+    }
+    .pos-cash-pill {
+      flex: 1 1 auto; min-height: 42px; padding: .45rem .65rem;
+      border-radius: .85rem; border: 1.5px solid #bfdbfe; background: #eff6ff;
+      color: #1e3a8a; font-weight: 800; font-size: .82rem; cursor: pointer;
+      transition: transform .1s ease, background .12s ease;
+    }
+    .pos-cash-pill:hover { background: #dbeafe; }
+    .pos-cash-pill:active { transform: scale(.96); }
+    .pos-cash-pill.is-exact { background: #facc15; border-color: #eab308; color: #0f172a; }
+    .pos-numpad-grid {
+      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .45rem;
+    }
+    .pos-numpad-grid[hidden] { display: none !important; }
+    .pos-num-btn {
+      min-height: 48px; border-radius: .9rem;
+      border: 1.5px solid #cbd5e1; background: #ffffff;
+      color: #0f172a; font-size: 1.15rem; font-weight: 900; cursor: pointer;
+      box-shadow: 0 2px 4px rgba(15, 23, 42, .05);
+      transition: transform .08s ease, background .12s ease;
+    }
+    .pos-num-btn:hover { background: #eff6ff; border-color: #93c5fd; }
+    .pos-num-btn:active { transform: scale(.95); background: #dbeafe; }
+    .pos-num-btn.is-clear { background: #fef9c3; border-color: #facc15; color: #854d0e; font-size: .95rem; }
+
+    /* Sidebar Kiri Vertikal & Tema Biru-Putih-Kuning saat Mode Tablet Admin Aktif */
+    body.sjs-admin.sjs-tablet-mode {
+      background: #f1f5f9;
+    }
+    body.sjs-admin.sjs-tablet-mode .shop-header {
+      background: linear-gradient(90deg, #0f2557 0%, #1d4ed8 100%);
+      border-bottom: 3px solid #facc15;
+    }
+    body.sjs-admin.sjs-tablet-mode .shop-brand h1,
+    body.sjs-admin.sjs-tablet-mode .shop-brand p { color: #ffffff !important; }
+    body.sjs-admin.sjs-tablet-mode .shop-brand p { opacity: .82; }
+    body.sjs-admin.sjs-tablet-mode .shop-links a { color: #dbeafe; }
+    body.sjs-admin.sjs-tablet-mode .shop-links a:hover { color: #facc15; }
+    body.sjs-admin.sjs-tablet-mode .tablet-toggle-btn {
+      background: #facc15; color: #0f172a; border-color: #fde047;
+      box-shadow: 0 3px 10px rgba(250, 204, 21, .35);
+    }
+
+    @media (min-width: 768px) {
+      body.sjs-admin.sjs-tablet-mode .shop-main {
+        max-width: none !important;
+        padding-left: 124px !important;
+        padding-right: 1.25rem !important;
+        padding-top: 1rem !important;
+      }
+      body.sjs-admin.sjs-tablet-mode #mainNavigation:not([hidden]) {
+        position: fixed !important;
+        top: var(--sjs-header-h, 74px) !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        width: 108px !important;
+        z-index: 42 !important;
+        margin: 0 !important;
+        padding: .85rem .55rem !important;
+        border-radius: 0 1.35rem 0 0 !important;
+        border: none !important;
+        border-right: 3px solid #facc15 !important;
+        background: linear-gradient(180deg, #0f2557 0%, #1e3a8a 60%, #1d4ed8 100%) !important;
+        box-shadow: 6px 0 24px rgba(15, 37, 87, .2) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        gap: .6rem !important;
+        overflow-y: auto !important;
+      }
+      body.sjs-admin.sjs-tablet-mode #mainNavigation button[data-workspace] {
+        min-width: 0 !important;
+        width: 100% !important;
+        min-height: 74px !important;
+        padding: .6rem .35rem !important;
+        border-radius: 1.05rem !important;
+        background: rgba(255, 255, 255, .10) !important;
+        color: #eff6ff !important;
+        border: 1.5px solid rgba(255, 255, 255, .14) !important;
+        font-size: .78rem !important;
+        line-height: 1.15 !important;
+        text-align: center !important;
+        position: relative !important;
+      }
+      body.sjs-admin.sjs-tablet-mode #mainNavigation button[data-workspace]:hover {
+        background: rgba(255, 255, 255, .20) !important;
+        color: #ffffff !important;
+      }
+      body.sjs-admin.sjs-tablet-mode #mainNavigation button[data-workspace][aria-current="page"] {
+        background: linear-gradient(135deg, #facc15, #fde047) !important;
+        color: #0f172a !important;
+        border-color: #fef08a !important;
+        box-shadow: 0 8px 18px rgba(250, 204, 21, .35) !important;
+      }
+      body.sjs-admin.sjs-tablet-mode #mainNavigation button[data-workspace][aria-current="page"] i {
+        color: #0f2557 !important;
+      }
+      body.sjs-admin.sjs-tablet-mode #navStockBadge {
+        position: absolute; top: 6px; right: 6px;
+        background: #facc15 !important; color: #0f172a !important;
+        font-size: .68rem; font-weight: 900; padding: .1rem .4rem; border-radius: 9999px;
+      }
+      body.sjs-admin.sjs-tablet-mode #mainNavigation button[data-workspace][aria-current="page"] #navStockBadge {
+        background: #0f2557 !important; color: #facc15 !important;
+      }
+    }
+
+    @media (max-width: 767px) {
+      body.sjs-admin.sjs-tablet-mode .shop-main { padding-bottom: 6.2rem !important; }
+      body.sjs-admin.sjs-tablet-mode #mainNavigation:not([hidden]) {
+        position: fixed !important;
+        top: auto !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 45 !important;
+        border-radius: 1.25rem 1.25rem 0 0 !important;
+        border: none !important;
+        border-top: 3px solid #facc15 !important;
+        background: #0f2557 !important;
+        padding: .45rem .5rem calc(.45rem + env(safe-area-inset-bottom)) !important;
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        gap: .4rem !important;
+      }
+      body.sjs-admin.sjs-tablet-mode #mainNavigation button[data-workspace] {
+        flex: 1 0 auto !important; min-width: 78px !important; min-height: 58px !important;
+        background: rgba(255, 255, 255, .1) !important; color: #eff6ff !important;
+        font-size: .72rem !important; padding: .4rem .5rem !important;
+      }
+      body.sjs-admin.sjs-tablet-mode #mainNavigation button[data-workspace][aria-current="page"] {
+        background: #facc15 !important; color: #0f172a !important;
+      }
+    }
+
+    /* Warna & Ergonomi Kasir Biru-Putih-Kuning (Gaya Sigma POS) */
+    body.sjs-admin.sjs-tablet-mode .pos-catalog-pane {
+      background: #ffffff;
+      border: 1.5px solid #dbeafe;
+      border-radius: 1.5rem;
+      padding: 1.1rem;
+      box-shadow: 0 6px 20px rgba(15, 37, 87, .05);
+    }
+    body.sjs-admin.sjs-tablet-mode .pos-cat-tab {
+      background: #eff6ff; color: #1e3a8a; border: 1.5px solid #bfdbfe; font-weight: 800;
+    }
+    body.sjs-admin.sjs-tablet-mode .pos-cat-tab.is-active {
+      background: #1d4ed8; color: #ffffff; border-color: #1d4ed8;
+      box-shadow: 0 4px 12px rgba(29, 78, 216, .28);
+    }
+    body.sjs-admin.sjs-tablet-mode .pos-card {
+      border: 1.5px solid #dbeafe;
+      border-radius: 1.2rem;
+      background: #ffffff;
+      transition: transform .1s ease, border-color .15s ease, box-shadow .15s ease;
+    }
+    body.sjs-admin.sjs-tablet-mode .pos-card:hover {
+      border-color: #facc15;
+      box-shadow: 0 8px 18px rgba(29, 78, 216, .12);
+    }
+    body.sjs-admin.sjs-tablet-mode .pos-card:active { transform: scale(.97); }
+    body.sjs-admin.sjs-tablet-mode .pos-card-price { color: #1d4ed8 !important; font-weight: 900 !important; }
+    body.sjs-admin.sjs-tablet-mode #btnOpenScanner {
+      background: linear-gradient(135deg, #facc15, #eab308) !important;
+      color: #0f172a !important;
+      border: 2px solid #fde047 !important;
+      box-shadow: 0 5px 14px rgba(234, 179, 8, .35) !important;
+      min-height: 50px !important;
+      padding: .65rem 1.25rem !important;
+      font-size: .95rem !important;
+    }
+    body.sjs-admin.sjs-tablet-mode .pos-cart-sticky {
+      border: 2px solid #bfdbfe !important;
+      box-shadow: 0 12px 30px rgba(15, 37, 87, .12) !important;
+    }
+    body.sjs-admin.sjs-tablet-mode .pay-option-btn {
+      background: #ffffff !important;
+      border: 2px solid #cbd5e1 !important;
+      color: #0f2557 !important;
+    }
+    body.sjs-admin.sjs-tablet-mode .pay-option-btn[aria-pressed="true"] {
+      background: linear-gradient(135deg, #0f2557, #1d4ed8) !important;
+      border: 2.5px solid #facc15 !important;
+      color: #ffffff !important;
+      box-shadow: 0 6px 16px rgba(29, 78, 216, .32) !important;
+    }
+    body.sjs-admin.sjs-tablet-mode .pay-option-btn[aria-pressed="true"] i {
+      color: #facc15 !important;
+    }
+    body.sjs-admin.sjs-tablet-mode #btnSaveAndPrintTx {
+      background: linear-gradient(135deg, #facc15, #eab308) !important;
+      color: #0f172a !important;
+      border: 2px solid #fde047 !important;
+      min-height: 60px !important;
+      font-size: 1.05rem !important;
+      font-weight: 900 !important;
+      box-shadow: 0 8px 20px rgba(234, 179, 8, .36) !important;
+    }
+    body.sjs-admin.sjs-tablet-mode #btnSaveAndPrintTx:disabled {
+      opacity: .45 !important; box-shadow: none !important;
+    }
+    body.sjs-admin.sjs-tablet-mode #btnSaveTx {
+      background: linear-gradient(135deg, #1d4ed8, #1e40af) !important;
+      color: #ffffff !important;
+      min-height: 60px !important;
+      font-size: 1rem !important;
+      font-weight: 900 !important;
+    }
+    body.sjs-admin.sjs-tablet-mode #sjsAiFab button {
+      background: linear-gradient(135deg, #0f2557, #1d4ed8) !important;
+      border: 2px solid #facc15 !important;
+      color: #ffffff !important;
+    }
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -910,6 +1197,40 @@
         </section>
 
         <section id="salesEntryCard" class="hidden no-print">
+          <div id="posLiveStatsStrip" class="pos-live-stats" aria-label="Ringkasan hari ini">
+            <div class="pos-stat-card">
+              <span class="pos-stat-icon is-navy"><i class="fa-solid fa-wallet" aria-hidden="true"></i></span>
+              <div class="min-w-0">
+                <span class="pos-stat-label">Omzet Hari Ini</span>
+                <strong id="posStatOmsetToday" class="pos-stat-val">Rp 0</strong>
+                <span class="pos-stat-sub">Real-time WITA</span>
+              </div>
+            </div>
+            <div class="pos-stat-card">
+              <span class="pos-stat-icon is-blue"><i class="fa-solid fa-receipt" aria-hidden="true"></i></span>
+              <div class="min-w-0">
+                <span class="pos-stat-label">Transaksi</span>
+                <strong id="posStatTxToday" class="pos-stat-val">0 Nota</strong>
+                <span id="posStatPcsToday" class="pos-stat-sub">0 pcs terjual</span>
+              </div>
+            </div>
+            <div class="pos-stat-card">
+              <span class="pos-stat-icon is-blue"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span>
+              <div class="min-w-0">
+                <span class="pos-stat-label">Est. Laba Hari Ini</span>
+                <strong id="posStatProfitToday" class="pos-stat-val">Rp 0</strong>
+                <span class="pos-stat-sub">Laba kotor harian</span>
+              </div>
+            </div>
+            <button type="button" id="btnPosStatLowStock" class="pos-stat-card">
+              <span class="pos-stat-icon is-yellow"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>
+              <div class="min-w-0">
+                <span class="pos-stat-label">Stok Menipis</span>
+                <strong id="posStatLowStock" class="pos-stat-val">0 Barang</strong>
+                <span class="pos-stat-sub">Ketuk cek stok →</span>
+              </div>
+            </button>
+          </div>
           <datalist id="inventoryDatalist"></datalist>
           <div class="pos-split">
             <!-- SISI KIRI: KATALOG CEPAT POS -->
@@ -968,6 +1289,45 @@
                       <label class="text-xs font-bold text-slate-700">Pembeli (opsional) <input type="text" id="inputCustomer" maxlength="500" placeholder="Pelanggan umum" class="mt-1 w-full rounded-xl border border-slate-300 bg-white p-2"></label>
                     </div>
                   </details>
+                </div>
+
+                <div id="posCashCalcPanel" class="pos-cash-calc" hidden aria-label="Hitung uang tunai dan kembalian">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900 flex items-center gap-1.5"><i class="fa-solid fa-calculator text-amber-500" aria-hidden="true"></i> Hitung Kembalian Tunai</span>
+                    <button type="button" id="btnToggleCashNumpad" class="px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-200 text-xs font-extrabold text-blue-900" aria-expanded="false">Buka Numpad</button>
+                  </div>
+                  <div class="pos-cash-summary">
+                    <div class="pos-cash-box">
+                      <span>Uang Diterima</span>
+                      <strong id="posCashReceivedText">Rp 0</strong>
+                    </div>
+                    <div id="posCashChangeBox" class="pos-cash-box is-change">
+                      <span id="posCashChangeLabel">Kembalian</span>
+                      <strong id="posCashChangeText">Rp 0</strong>
+                    </div>
+                  </div>
+                  <div class="pos-cash-quick">
+                    <button type="button" class="pos-cash-pill is-exact" data-cash-exact="1">Uang Pas</button>
+                    <button type="button" class="pos-cash-pill" data-cash-add="10000">+10rb</button>
+                    <button type="button" class="pos-cash-pill" data-cash-add="20000">+20rb</button>
+                    <button type="button" class="pos-cash-pill" data-cash-add="50000">+50rb</button>
+                    <button type="button" class="pos-cash-pill" data-cash-add="100000">+100rb</button>
+                    <button type="button" class="pos-cash-pill" data-cash-clear="1">Reset</button>
+                  </div>
+                  <div id="posCashNumpad" class="pos-numpad-grid" hidden>
+                    <button type="button" class="pos-num-btn" data-numpad="7">7</button>
+                    <button type="button" class="pos-num-btn" data-numpad="8">8</button>
+                    <button type="button" class="pos-num-btn" data-numpad="9">9</button>
+                    <button type="button" class="pos-num-btn" data-numpad="4">4</button>
+                    <button type="button" class="pos-num-btn" data-numpad="5">5</button>
+                    <button type="button" class="pos-num-btn" data-numpad="6">6</button>
+                    <button type="button" class="pos-num-btn" data-numpad="1">1</button>
+                    <button type="button" class="pos-num-btn" data-numpad="2">2</button>
+                    <button type="button" class="pos-num-btn" data-numpad="3">3</button>
+                    <button type="button" class="pos-num-btn is-clear" data-numpad="C">Hapus</button>
+                    <button type="button" class="pos-num-btn" data-numpad="0">0</button>
+                    <button type="button" class="pos-num-btn" data-numpad="000">000</button>
+                  </div>
                 </div>
 
                 <p id="salePaymentHint" class="text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">Pilih cara bayar untuk menyimpan penjualan.</p>
@@ -2711,8 +3071,59 @@
         profit += (price - cost) * qty;
         row.querySelector(".item-subtotal").textContent = rp(price * qty);
       }
+      currentSaleTotalAmount = total;
       document.getElementById("previewTotalOmset").textContent = rp(total);
       document.getElementById("previewTotalProfit").textContent = rp(profit);
+      updateCashCalcUI();
+    }
+
+    let currentSaleTotalAmount = 0;
+    let cashReceivedAmount = 0;
+    function updateCashCalcUI() {
+      const panel = document.getElementById("posCashCalcPanel");
+      if (!panel) return;
+      const isCash = selectedPaymentMethod === "Cash";
+      panel.hidden = !isCash;
+      if (!isCash) return;
+      const recEl = document.getElementById("posCashReceivedText");
+      const chgEl = document.getElementById("posCashChangeText");
+      const lblEl = document.getElementById("posCashChangeLabel");
+      const boxEl = document.getElementById("posCashChangeBox");
+      if (recEl) recEl.textContent = rp(cashReceivedAmount);
+      const diff = cashReceivedAmount - currentSaleTotalAmount;
+      if (cashReceivedAmount === 0) {
+        if (lblEl) lblEl.textContent = "Kembalian";
+        if (chgEl) chgEl.textContent = rp(0);
+        if (boxEl) { boxEl.classList.add("is-change"); boxEl.classList.remove("is-short"); }
+      } else if (diff < 0) {
+        if (lblEl) lblEl.textContent = "Kurang Bayar";
+        if (chgEl) chgEl.textContent = rp(Math.abs(diff));
+        if (boxEl) { boxEl.classList.remove("is-change"); boxEl.classList.add("is-short"); }
+      } else {
+        if (lblEl) lblEl.textContent = "Kembalian";
+        if (chgEl) chgEl.textContent = rp(diff);
+        if (boxEl) { boxEl.classList.add("is-change"); boxEl.classList.remove("is-short"); }
+      }
+    }
+
+    function updatePosLiveStats() {
+      const omEl = document.getElementById("posStatOmsetToday");
+      if (!omEl) return;
+      const today = todayStr();
+      const todaySales = transactions.filter(t => t.date === today);
+      const omset = todaySales.reduce((s, t) => s + Number(t.totalOmset || 0), 0);
+      const profit = todaySales.reduce((s, t) => s + Number(t.totalProfit || 0), 0);
+      const pcs = todaySales.reduce((s, t) => s + (Array.isArray(t.items) ? t.items.reduce((a, it) => a + Number(it.qty || 0), 0) : 0), 0);
+      const lowCount = activeInventory().filter(i => Number(i.stock || 0) <= 3).length;
+      omEl.textContent = rp(omset);
+      const txEl = document.getElementById("posStatTxToday");
+      const pcsEl = document.getElementById("posStatPcsToday");
+      const prEl = document.getElementById("posStatProfitToday");
+      const lwEl = document.getElementById("posStatLowStock");
+      if (txEl) txEl.textContent = todaySales.length + " Nota";
+      if (pcsEl) pcsEl.textContent = pcs + " pcs terjual";
+      if (prEl) prEl.textContent = rp(profit);
+      if (lwEl) lwEl.textContent = lowCount + " Barang";
     }
 
     function selectSalePayment(method) {
@@ -2727,6 +3138,7 @@
       document.getElementById("salePaymentHint").hidden = ok;
       document.getElementById("btnSaveTx").disabled = !ok || saleFormSaving;
       document.getElementById("btnSaveAndPrintTx").disabled = !ok || saleFormSaving;
+      updateCashCalcUI();
     }
 
     function resetSaleDraft() {
@@ -2734,6 +3146,7 @@
       document.getElementById("inputCustomer").value = "";
       document.getElementById("inputDate").value = todayStr();
       document.getElementById("saleItemsContainer").replaceChildren();
+      cashReceivedAmount = 0;
       selectSalePayment("");
       updateSaleDateSummary();
       addSaleItemRow();
@@ -3260,6 +3673,7 @@
     }
 
     function renderInventory() {
+      updatePosLiveStats();
       const q = document.getElementById("invSearchInput").value.trim().toLocaleLowerCase("id");
       const missingOnly = document.getElementById("invMissingPhotoOnly").checked;
       const catFilter = document.getElementById("inventoryCategoryFilter")?.value || "all";
@@ -3382,6 +3796,7 @@
     }
 
     function renderTransactions() {
+      updatePosLiveStats();
       const rows = reportSales();
       let omset = 0, modal = 0, profit = 0, qty = 0;
       const pay = { Cash: [0, 0], QRIS: [0, 0], Kartu: [0, 0], Transfer: [0, 0] };
@@ -4351,6 +4766,7 @@
       renderInventory();
       renderTransactions();
       renderOwnerBooks();
+      updatePosLiveStats();
     }
 
     // ==================== NAVIGASI ====================
@@ -4616,6 +5032,50 @@
         handleScannedCode(card.dataset.posAdd, false);
       });
       document.getElementById("btnResetForm").addEventListener("click", resetSaleDraft);
+      document.getElementById("btnPosStatLowStock")?.addEventListener("click", () => {
+        switchWorkspace("inventory");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+      document.getElementById("btnToggleCashNumpad")?.addEventListener("click", e => {
+        const pad = document.getElementById("posCashNumpad");
+        if (!pad) return;
+        const willOpen = pad.hidden;
+        pad.hidden = !willOpen;
+        e.currentTarget.setAttribute("aria-expanded", String(willOpen));
+        e.currentTarget.textContent = willOpen ? "Tutup Numpad" : "Buka Numpad";
+      });
+      document.getElementById("posCashCalcPanel")?.addEventListener("click", e => {
+        const exactBtn = e.target.closest("[data-cash-exact]");
+        if (exactBtn) {
+          cashReceivedAmount = currentSaleTotalAmount;
+          updateCashCalcUI();
+          return;
+        }
+        const addBtn = e.target.closest("[data-cash-add]");
+        if (addBtn) {
+          cashReceivedAmount += Number(addBtn.dataset.cashAdd || 0);
+          updateCashCalcUI();
+          return;
+        }
+        const clrBtn = e.target.closest("[data-cash-clear]");
+        if (clrBtn) {
+          cashReceivedAmount = 0;
+          updateCashCalcUI();
+          return;
+        }
+        const numBtn = e.target.closest("[data-numpad]");
+        if (numBtn) {
+          const val = numBtn.dataset.numpad;
+          if (val === "C") {
+            cashReceivedAmount = 0;
+          } else {
+            const nextStr = (cashReceivedAmount === 0 ? "" : String(cashReceivedAmount)) + val;
+            const parsed = Number(nextStr.slice(0, 10));
+            if (Number.isSafeInteger(parsed)) cashReceivedAmount = parsed;
+          }
+          updateCashCalcUI();
+        }
+      });
       document.getElementById("inputDate").addEventListener("change", updateSaleDateSummary);
       for (const b of document.querySelectorAll(".pay-option-btn")) b.addEventListener("click", () => selectSalePayment(b.dataset.pay));
       document.getElementById("btnSaveTx").addEventListener("click", () => saveSale(false));
