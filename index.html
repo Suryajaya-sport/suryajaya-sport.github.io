@@ -1251,8 +1251,10 @@
                 <span>Otomatis bungkus dengan template poster katalog Surya Jaya Sport (ala Senar Exbolt 65)</span>
               </label>
               <p class="text-xs text-slate-600">Foto HP/polos otomatis dibingkai seragam 4:3 (800×600) sebelum diunggah ke Cloudinary.</p>
+              <p id="canvasBlockWarn" class="hidden rounded-xl bg-amber-100 border border-amber-300 px-3 py-2 text-xs font-bold text-amber-950">Browser ini (Firefox) sedang memblokir ekspor kanvas sehingga poster/kompresi bisa menjadi putih. Izinkan <em>Extract canvas data</em> di ikon kiri bilah alamat Firefox, atau gunakan Chrome/Edge/Lenovo Pad. Foto asli tetap aman diunggah.</p>
               <div id="invImagePreviewWrap" class="hidden mt-2 flex items-center gap-3">
-                <img id="invImagePreview" alt="Pratinjau foto produk" class="w-32 h-24 object-contain bg-white rounded-xl border border-slate-200 shadow-sm">
+                <canvas id="invPosterPreviewCanvas" width="800" height="600" class="hidden w-36 h-[108px] bg-white rounded-xl border border-slate-200 shadow-sm shrink-0"></canvas>
+                <img id="invImagePreview" alt="Pratinjau foto produk" class="w-36 h-[108px] object-contain bg-white rounded-xl border border-slate-200 shadow-sm shrink-0">
                 <span id="invImagePreviewLabel" class="text-xs font-bold text-sky-900"></span>
               </div>
             </div>
@@ -1682,7 +1684,22 @@
     function paymentMethodLabel(m) { return m === "Cash" ? "Tunai" : m || "Belum tercatat"; }
 
     // ==================== KOMPRESI & UNGGAH FOTO ====================
+    function isCanvasReadBlocked() {
+      try {
+        const t = document.createElement("canvas");
+        t.width = 2; t.height = 2;
+        const g = t.getContext("2d");
+        g.fillStyle = "#123456";
+        g.fillRect(0, 0, 2, 2);
+        const px = g.getImageData(0, 0, 1, 1).data;
+        return Math.abs(px[0] - 0x12) > 4 || Math.abs(px[1] - 0x34) > 4 || Math.abs(px[2] - 0x56) > 4;
+      } catch {
+        return true;
+      }
+    }
+
     async function compressImage(file, maxSide = COMPRESS_MAX_SIDE, quality = 0.8) {
+      if (isCanvasReadBlocked()) return file;
       const bitmap = await createImageBitmap(file);
       const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
       const canvas = document.createElement("canvas");
@@ -1759,8 +1776,7 @@
       });
     }
 
-    async function renderProductPosterBlob(itemMeta, sourceFileOrUrl = null) {
-      const c = document.createElement("canvas");
+    async function drawProductPosterToCanvas(c, itemMeta, sourceFileOrUrl = null) {
       c.width = 800; c.height = 600;
       const ctx = c.getContext("2d");
 
@@ -1898,6 +1914,15 @@
       ctx.fillText("Tanjung Redeb, Berau • WA 0823-2003-3333", 768, 572);
       ctx.textAlign = "left";
 
+      return c;
+    }
+
+    async function renderProductPosterBlob(itemMeta, sourceFileOrUrl = null) {
+      if (isCanvasReadBlocked()) {
+        throw new Error("Firefox memblokir ekspor kanvas (gambar jadi putih). Izinkan 'Extract canvas data' di bilah alamat Firefox atau gunakan Chrome/Edge.");
+      }
+      const c = document.createElement("canvas");
+      await drawProductPosterToCanvas(c, itemMeta, sourceFileOrUrl);
       const webp = await new Promise(resolve => c.toBlob(resolve, "image/webp", 0.86));
       if (webp && webp.type === "image/webp") return webp;
       return await new Promise(resolve => c.toBlob(resolve, "image/jpeg", 0.86));
@@ -1959,8 +1984,13 @@
           itemData.imagePath = uploaded.imagePath;
           pendingPosterBlob = null;
         } else if (imageFile) {
-          showToast(autoPoster ? "Membuat poster katalog & mengunggah..." : "Mengompres dan mengunggah foto...");
-          const uploaded = autoPoster
+          const usePoster = autoPoster && !isCanvasReadBlocked();
+          if (autoPoster && isCanvasReadBlocked()) {
+            showToast("Ekspor kanvas diblokir Firefox — mengunggah foto asli agar tidak putih...");
+          } else {
+            showToast(usePoster ? "Membuat poster katalog & mengunggah..." : "Mengompres dan mengunggah foto...");
+          }
+          const uploaded = usePoster
             ? await uploadBlobToCloudinary(await renderProductPosterBlob(itemData, imageFile), itemId)
             : await uploadProductImage(imageFile, itemId);
           itemData.imageUrl = uploaded.imageUrl;
@@ -4235,9 +4265,13 @@
       document.getElementById("btnCancelInvEdit").addEventListener("click", () => { resetInvForm(); document.getElementById("invEntryCard").close(); });
       async function refreshInvPosterPreview(file) {
         const wrap = document.getElementById("invImagePreviewWrap");
+        const canvasPrev = document.getElementById("invPosterPreviewCanvas");
+        const imgPrev = document.getElementById("invImagePreview");
+        const warnEl = document.getElementById("canvasBlockWarn");
+        if (warnEl) warnEl.classList.toggle("hidden", !isCanvasReadBlocked());
         if (!file) return wrap.classList.add("hidden");
         const autoPoster = document.getElementById("invAutoPoster")?.checked;
-        if (autoPoster) {
+        if (autoPoster && canvasPrev) {
           const meta = {
             name: document.getElementById("invName").value.trim() || "Nama Produk",
             code: document.getElementById("invCode").value.trim() || "SJS",
@@ -4245,11 +4279,14 @@
             color: document.getElementById("invColor").value.trim(),
             price: Number(document.getElementById("invPrice").value) || 0
           };
-          const blob = await renderProductPosterBlob(meta, file);
-          document.getElementById("invImagePreview").src = URL.createObjectURL(blob);
+          imgPrev.classList.add("hidden");
+          canvasPrev.classList.remove("hidden");
+          await drawProductPosterToCanvas(canvasPrev, meta, file);
           document.getElementById("invImagePreviewLabel").textContent = "Pratinjau poster otomatis (" + file.name + ")";
         } else {
-          document.getElementById("invImagePreview").src = URL.createObjectURL(file);
+          canvasPrev?.classList.add("hidden");
+          imgPrev.classList.remove("hidden");
+          imgPrev.src = URL.createObjectURL(file);
           document.getElementById("invImagePreviewLabel").textContent = file.name;
         }
         wrap.classList.remove("hidden");
@@ -4273,10 +4310,22 @@
           price: Number(document.getElementById("invPrice").value) || Number(item?.price || 0)
         };
         const f = document.getElementById("invImageFile").files?.[0] || productImageUrl(item) || null;
-        pendingPosterBlob = await renderProductPosterBlob(meta, f);
-        document.getElementById("invImagePreview").src = URL.createObjectURL(pendingPosterBlob);
-        document.getElementById("invImagePreviewLabel").textContent = "Poster seragam siap disimpan!";
+        const canvasPrev = document.getElementById("invPosterPreviewCanvas");
+        const imgPrev = document.getElementById("invImagePreview");
+        const warnEl = document.getElementById("canvasBlockWarn");
+        if (warnEl) warnEl.classList.toggle("hidden", !isCanvasReadBlocked());
+        imgPrev.classList.add("hidden");
+        canvasPrev.classList.remove("hidden");
+        await drawProductPosterToCanvas(canvasPrev, meta, f);
         document.getElementById("invImagePreviewWrap").classList.remove("hidden");
+        try {
+          pendingPosterBlob = await renderProductPosterBlob(meta, f);
+          document.getElementById("invImagePreviewLabel").textContent = "Poster seragam siap disimpan!";
+        } catch (err) {
+          pendingPosterBlob = null;
+          document.getElementById("invImagePreviewLabel").textContent = "Pratinjau tampil, namun Firefox memblokir ekspor kanvas.";
+          showToast(err.message);
+        }
       });
 
       function updatePosterBatchCount() {
