@@ -8,7 +8,9 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="description" content="Katalog toko olahraga dan musik Surya Jaya Sport di Tanjung Redeb, Berau.">
   <link rel="canonical" href="https://suryajaya-sport.github.io/">
-  <link rel="icon" href="/sjs-mark.png" type="image/png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="manifest" href="/admin-manifest.webmanifest">
   <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
@@ -936,6 +938,43 @@
       transition: width .35s ease;
       width: 0%;
     }
+    .sjs-chart-card.is-dark {
+      background: radial-gradient(circle at 90% 10%, rgba(56, 189, 248, .22), transparent 45%), linear-gradient(135deg, #071433 0%, #0f2557 58%, #163782 100%);
+      border: 1.5px solid #2563eb;
+      color: #ffffff;
+      box-shadow: 0 14px 32px rgba(7, 20, 51, .28);
+    }
+    .sjs-chart-card.is-dark:hover {
+      border-color: #facc15;
+      box-shadow: 0 18px 36px rgba(15, 37, 87, .36);
+    }
+    .sjs-chart-card.is-dark .workspace-section-title { color: #ffffff !important; }
+    .sjs-chart-card.is-dark .sjs-chart-sub { color: #bfdbfe !important; }
+    .sjs-chart-card.is-dark .sjs-chart-pill {
+      background: rgba(250, 204, 21, .16);
+      border-color: rgba(250, 204, 21, .55);
+      color: #fde047;
+    }
+    .pos-mini-chart-details {
+      background: linear-gradient(135deg, #071433 0%, #0f2557 65%, #1d4ed8 100%);
+      border: 1.5px solid #2563eb;
+      border-radius: 1.35rem;
+      padding: .75rem 1rem;
+      margin-bottom: 1.05rem;
+      color: #ffffff;
+      box-shadow: 0 10px 24px rgba(15, 37, 87, .16);
+    }
+    .pos-mini-chart-details summary {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .75rem;
+      list-style: none;
+      font-weight: 800;
+      font-size: .86rem;
+    }
+    .pos-mini-chart-details summary::-webkit-details-marker { display: none; }
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -1196,13 +1235,13 @@
         </section>
 
         <section id="booksCharts" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div class="sjs-chart-card">
+          <div class="sjs-chart-card is-dark lg:col-span-2">
             <div class="sjs-chart-head">
               <div class="sjs-chart-title-wrap">
-                <span class="sjs-chart-badge-icon is-blue"><i class="fa-solid fa-chart-column" aria-hidden="true"></i></span>
+                <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-chart-column" aria-hidden="true"></i></span>
                 <div>
-                  <h3 class="workspace-section-title">Omzet &amp; Laba per Hari</h3>
-                  <p class="sjs-chart-sub">Perbandingan pemasukan &amp; laba kotor harian</p>
+                  <h3 class="workspace-section-title">Omzet &amp; Laba Penjualan per Hari</h3>
+                  <p class="sjs-chart-sub">Batang biru = Omzet harian · Garis kuning = Laba penjualan</p>
                 </div>
               </div>
               <span id="badgeBookOmzetLaba" class="sjs-chart-pill">Bulan ini</span>
@@ -1235,10 +1274,10 @@
             </div>
             <div class="h-72"><canvas id="chartPembelian"></canvas></div>
           </div>
-          <div class="sjs-chart-card">
+          <div class="sjs-chart-card is-dark">
             <div class="sjs-chart-head">
               <div class="sjs-chart-title-wrap">
-                <span class="sjs-chart-badge-icon is-navy"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i></span>
+                <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i></span>
                 <div>
                   <h3 class="workspace-section-title">Tren Laba Penjualan (Omzet − Modal)</h3>
                   <p class="sjs-chart-sub">Pertumbuhan laba kotor 6 bulan terakhir</p>
@@ -1247,6 +1286,19 @@
               <span id="badgeBookProfit" class="sjs-chart-pill">6 Bulan</span>
             </div>
             <div class="h-72"><canvas id="chartProfit"></canvas></div>
+          </div>
+          <div class="sjs-chart-card">
+            <div class="sjs-chart-head">
+              <div class="sjs-chart-title-wrap">
+                <span class="sjs-chart-badge-icon is-blue"><i class="fa-solid fa-scale-balanced" aria-hidden="true"></i></span>
+                <div>
+                  <h3 class="workspace-section-title">Perbandingan Arus Kas Bulan Ini</h3>
+                  <p class="sjs-chart-sub">Omzet vs Modal Terjual vs Laba vs Pengeluaran vs Kulakan</p>
+                </div>
+              </div>
+              <span id="badgeBookCashflow" class="sjs-chart-pill">Ringkasan</span>
+            </div>
+            <div class="h-72"><canvas id="chartCashflowCompare"></canvas></div>
           </div>
         </section>
 
@@ -1326,6 +1378,19 @@
           <p id="autoBackupStatus" class="text-xs font-semibold text-slate-600" aria-live="polite"></p>
         </div>
       </div>
+      <div class="sjs-chart-card is-dark">
+        <div class="sjs-chart-head">
+          <div class="sjs-chart-title-wrap">
+            <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-database" aria-hidden="true"></i></span>
+            <div>
+              <h3 class="workspace-section-title">Ringkasan Volume Data Tersimpan di Cloud</h3>
+              <p class="sjs-chart-sub">Jumlah catatan aktif yang ikut dicadangkan ke Google Drive / JSON</p>
+            </div>
+          </div>
+          <span id="badgeBackupTotal" class="sjs-chart-pill">0 Data</span>
+        </div>
+        <div class="h-56"><canvas id="chartBackupVolume"></canvas></div>
+      </div>
     </section>
 
     <!-- KASIR & RIWAYAT -->
@@ -1380,6 +1445,13 @@
               </div>
             </button>
           </div>
+          <details id="posMiniChartWrap" class="pos-mini-chart-details">
+            <summary>
+              <span class="flex items-center gap-2"><i class="fa-solid fa-wave-square text-amber-400" aria-hidden="true"></i><span>Grafik Jam Ramai Hari Ini (WITA)</span></span>
+              <span class="text-xs font-extrabold px-2.5 py-1 rounded-full bg-amber-400/20 border border-amber-300/50 text-amber-200">Ketuk buka / tutup</span>
+            </summary>
+            <div class="h-44 mt-3"><canvas id="chartKasirMini"></canvas></div>
+          </details>
           <datalist id="inventoryDatalist"></datalist>
           <div class="pos-split">
             <!-- SISI KIRI: KATALOG CEPAT POS -->
@@ -1574,10 +1646,10 @@
         </section>
 
         <section id="salesCharts" class="grid grid-cols-1 xl:grid-cols-3 gap-4 no-print">
-          <div class="sjs-chart-card xl:col-span-2">
+          <div class="sjs-chart-card is-dark xl:col-span-2">
             <div class="sjs-chart-head">
               <div class="sjs-chart-title-wrap">
-                <span class="sjs-chart-badge-icon is-blue"><i class="fa-solid fa-chart-column" aria-hidden="true"></i></span>
+                <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-chart-column" aria-hidden="true"></i></span>
                 <div>
                   <h3 id="salesTrendChartTitle" class="workspace-section-title">Omzet &amp; Laba per Jam (WITA)</h3>
                   <p class="sjs-chart-sub">Pantau jam ramai &amp; performa laba</p>
@@ -1668,18 +1740,18 @@
       </section>
 
       <section id="inventoryCharts" class="grid grid-cols-1 lg:grid-cols-3 gap-4 no-print" aria-label="Grafik analitik stok">
-        <div class="sjs-chart-card lg:col-span-2">
+        <div class="sjs-chart-card is-dark lg:col-span-2">
           <div class="sjs-chart-head">
             <div class="sjs-chart-title-wrap">
-              <span class="sjs-chart-badge-icon is-blue"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
+              <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
               <div>
-                <h3 class="workspace-section-title">Nilai Modal Stok per Kategori</h3>
-                <p class="sjs-chart-sub">Sebaran aset stok (harga beli × sisa stok)</p>
+                <h3 class="workspace-section-title">Nilai Modal vs Potensi Jual per Kategori</h3>
+                <p class="sjs-chart-sub">Biru = Modal stok · Kuning = Potensi omzet jika terjual semua</p>
               </div>
             </div>
             <span id="badgeStockCatTotal" class="sjs-chart-pill">Rp 0</span>
           </div>
-          <div class="h-64"><canvas id="chartStockCategory"></canvas></div>
+          <div class="h-72"><canvas id="chartStockCategory"></canvas></div>
         </div>
         <div class="sjs-chart-card">
           <div class="sjs-chart-head">
@@ -1691,7 +1763,20 @@
               </div>
             </div>
           </div>
-          <div class="h-64"><canvas id="chartStockHealth"></canvas></div>
+          <div class="h-72"><canvas id="chartStockHealth"></canvas></div>
+        </div>
+        <div class="sjs-chart-card lg:col-span-3">
+          <div class="sjs-chart-head">
+            <div class="sjs-chart-title-wrap">
+              <span class="sjs-chart-badge-icon is-navy"><i class="fa-solid fa-bell" aria-hidden="true"></i></span>
+              <div>
+                <h3 class="workspace-section-title">Prioritas Restok (6 Barang Stok Terendah)</h3>
+                <p class="sjs-chart-sub">Barang aktif dengan sisa pcs paling sedikit saat ini</p>
+              </div>
+            </div>
+            <span id="badgeStockCritical" class="sjs-chart-pill">Pantau Stok</span>
+          </div>
+          <div class="h-56"><canvas id="chartStockCritical"></canvas></div>
         </div>
       </section>
 
@@ -2156,6 +2241,20 @@
     </div>
   </div>
 
+  <dialog id="sjsConfirmDialog" class="m-auto w-11/12 max-w-md rounded-3xl border border-blue-200 bg-white p-0 shadow-2xl overflow-hidden">
+    <div class="bg-gradient-to-r from-slate-900 via-blue-950 to-blue-800 px-5 py-3.5 text-white flex items-center gap-2.5">
+      <i class="fa-solid fa-circle-question text-amber-400 text-lg" aria-hidden="true"></i>
+      <h2 id="sjsConfirmTitle" class="text-base font-extrabold">Konfirmasi Tindakan</h2>
+    </div>
+    <div class="p-5 space-y-5">
+      <p id="sjsConfirmMessage" class="text-sm font-semibold text-slate-700 leading-relaxed"></p>
+      <div class="grid grid-cols-2 gap-2.5">
+        <button type="button" id="sjsConfirmCancel" class="shop-button shop-button-secondary !w-full">Batal</button>
+        <button type="button" id="sjsConfirmOk" class="shop-button shop-button-primary !w-full">Ya, Lanjutkan</button>
+      </div>
+    </div>
+  </dialog>
+
   <div id="toast" class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-4 py-3 rounded-2xl shadow-xl text-xs sm:text-sm font-bold flex items-center gap-2 max-w-[92vw] no-print">
     <i class="fa-solid fa-circle-info text-amber-300 shrink-0"></i>
     <span id="toastMessage"></span>
@@ -2310,6 +2409,30 @@
     function paths(...segments) {
       return ["artifacts", APP_ID, "public", "data", ...segments];
     }
+    function sjsConfirm(message, title = "Konfirmasi Tindakan") {
+      return new Promise(resolve => {
+        const dlg = document.getElementById("sjsConfirmDialog");
+        if (!dlg) return resolve(false);
+        document.getElementById("sjsConfirmTitle").textContent = title;
+        document.getElementById("sjsConfirmMessage").textContent = message;
+        const okBtn = document.getElementById("sjsConfirmOk");
+        const cancelBtn = document.getElementById("sjsConfirmCancel");
+        const cleanup = result => {
+          okBtn.removeEventListener("click", onOk);
+          cancelBtn.removeEventListener("click", onCancel);
+          dlg.removeEventListener("cancel", onCancel);
+          if (dlg.open) dlg.close();
+          resolve(result);
+        };
+        const onOk = () => cleanup(true);
+        const onCancel = () => cleanup(false);
+        okBtn.addEventListener("click", onOk);
+        cancelBtn.addEventListener("click", onCancel);
+        dlg.addEventListener("cancel", onCancel);
+        dlg.showModal();
+      });
+    }
+
     function showToast(msg) {
       const dialogStatus = document.querySelector("dialog[open] [data-dialog-status]");
       if (dialogStatus) { dialogStatus.textContent = msg; return; }
@@ -4127,7 +4250,7 @@
       renderSalesCharts(rows);
     }
 
-    // ==================== MESIN GRAFIS PRO (BIRU • PUTIH • KUNING) ====================
+    // ==================== MESIN GRAFIS ATRAKTIF PRO (BIRU • PUTIH • KUNING) ====================
     function shortRpTick(v) {
       const n = Number(v) || 0;
       const abs = Math.abs(n);
@@ -4138,7 +4261,7 @@
     }
 
     function makeGrad(ctx, c1, c2, horizontal = false) {
-      const g = horizontal ? ctx.createLinearGradient(0, 0, 420, 0) : ctx.createLinearGradient(0, 0, 0, 280);
+      const g = horizontal ? ctx.createLinearGradient(0, 0, 480, 0) : ctx.createLinearGradient(0, 0, 0, 290);
       g.addColorStop(0, c1);
       g.addColorStop(1, c2);
       return g;
@@ -4156,22 +4279,57 @@
         ctx.save();
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillStyle = "#64748b";
-        ctx.font = "700 11px 'Plus Jakarta Sans', sans-serif";
+        ctx.fillStyle = cfg.dark ? "#93c5fd" : "#64748b";
+        ctx.font = "800 11px 'Plus Jakarta Sans', sans-serif";
         ctx.fillText(cfg.label || "TOTAL", cx, cy - 11);
-        ctx.fillStyle = "#0f2557";
-        ctx.font = "900 15px 'Plus Jakarta Sans', sans-serif";
+        ctx.fillStyle = cfg.dark ? "#facc15" : "#0f2557";
+        ctx.font = "900 16px 'Plus Jakarta Sans', sans-serif";
         ctx.fillText(cfg.value, cx, cy + 9);
         ctx.restore();
       }
     };
 
+    const sjsValueLabelPlugin = {
+      id: "sjsValueLabel",
+      afterDatasetsDraw(chart) {
+        const cfg = chart.options?.plugins?.sjsValueLabel;
+        if (!cfg || cfg.enabled === false) return;
+        const { ctx } = chart;
+        const isHoriz = chart.options?.indexAxis === "y";
+        const fmt = cfg.format || shortRpTick;
+        const color = cfg.color || (cfg.dark ? "#fde047" : "#0f2557");
+        const dsIndex = cfg.datasetIndex ?? 0;
+        const meta = chart.getDatasetMeta(dsIndex);
+        const dataset = chart.data.datasets[dsIndex];
+        if (!meta || !dataset || meta.hidden) return;
+        ctx.save();
+        ctx.font = "800 11px 'Plus Jakarta Sans', sans-serif";
+        ctx.fillStyle = color;
+        meta.data.forEach((el, idx) => {
+          const val = Number(dataset.data[idx] || 0);
+          if (val <= 0 && !cfg.showZero) return;
+          const label = fmt(val, idx);
+          if (!label) return;
+          if (isHoriz) {
+            ctx.textAlign = "left";
+            ctx.textBaseline = "middle";
+            ctx.fillText(label, el.x + 7, el.y);
+          } else {
+            ctx.textAlign = "center";
+            ctx.textBaseline = "bottom";
+            ctx.fillText(label, el.x, el.y - 6);
+          }
+        });
+        ctx.restore();
+      }
+    };
+
     const SJS_TOOLTIP_BASE = {
-      backgroundColor: "#0f2557",
+      backgroundColor: "#071433",
       titleColor: "#facc15",
       bodyColor: "#ffffff",
       borderColor: "#facc15",
-      borderWidth: 1,
+      borderWidth: 1.5,
       padding: 12,
       cornerRadius: 12,
       displayColors: true,
@@ -4180,29 +4338,31 @@
       bodyFont: { family: "'Plus Jakarta Sans', sans-serif", size: 12, weight: "700" }
     };
 
-    const SJS_LEGEND_BASE = {
-      position: "bottom",
-      labels: {
-        usePointStyle: true,
-        pointStyle: "circle",
-        padding: 14,
-        color: "#334155",
-        font: { family: "'Plus Jakarta Sans', sans-serif", size: 12, weight: "700" }
-      }
-    };
+    function sjsLegend(dark = false) {
+      return {
+        position: "bottom",
+        labels: {
+          usePointStyle: true,
+          pointStyle: "circle",
+          padding: 14,
+          color: dark ? "#e2e8f0" : "#334155",
+          font: { family: "'Plus Jakarta Sans', sans-serif", size: 12, weight: "700" }
+        }
+      };
+    }
 
-    function sjsAxisScales(horizontal = false) {
+    function sjsAxisScales(horizontal = false, dark = false, tickCb = shortRpTick, sugMax = 100000) {
       const valueAxis = {
         beginAtZero: true,
-        suggestedMax: 100000,
+        suggestedMax: sugMax,
         border: { display: false },
-        grid: { color: "#e2e8f0", borderDash: [4, 4] },
-        ticks: { precision: 0, color: "#64748b", font: { size: 11, weight: "700" }, callback: shortRpTick }
+        grid: { color: dark ? "rgba(148, 163, 184, 0.16)" : "#e2e8f0", borderDash: [4, 4] },
+        ticks: { precision: 0, color: dark ? "#cbd5e1" : "#64748b", font: { size: 11, weight: "700" }, callback: tickCb }
       };
       const catAxis = {
         border: { display: false },
         grid: { display: false },
-        ticks: { color: "#334155", font: { size: 11, weight: "700" } }
+        ticks: { color: dark ? "#f1f5f9" : "#334155", font: { size: 11, weight: "700" } }
       };
       return horizontal ? { x: valueAxis, y: catAxis } : { x: catAxis, y: valueAxis };
     }
@@ -4211,21 +4371,67 @@
     function upsertChart(id, config) {
       const el = document.getElementById(id);
       if (!el || typeof Chart === "undefined") return;
-      if (charts[id]) {
-        charts[id].destroy();
-      }
+      if (charts[id]) charts[id].destroy();
       charts[id] = new Chart(el, config);
+    }
+
+    function renderKasirMiniChart() {
+      if (!isAdmin) return;
+      const canvas = document.getElementById("chartKasirMini");
+      if (!canvas) return;
+      const today = todayStr();
+      const todaySales = transactions.filter(t => t.date === today);
+      const hourMap = new Map();
+      for (let h = 8; h <= 21; h++) hourMap.set(String(h).padStart(2, "0") + ":00", 0);
+      for (const tx of todaySales) {
+        if (!tx.createdAt) continue;
+        const dt = new Date(tx.createdAt);
+        if (isNaN(dt)) continue;
+        const hr = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Makassar", hour: "2-digit", hour12: false }).format(dt) + ":00";
+        hourMap.set(hr, (hourMap.get(hr) || 0) + Number(tx.totalOmset || 0));
+      }
+      const entries = [...hourMap.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+      const ctx = canvas.getContext("2d");
+      upsertChart("chartKasirMini", {
+        type: "line",
+        plugins: [sjsValueLabelPlugin],
+        data: {
+          labels: entries.map(e => e[0].slice(0, 2) + "h"),
+          datasets: [{
+            label: "Omzet Hari Ini",
+            data: entries.map(e => e[1]),
+            borderColor: "#facc15",
+            borderWidth: 3,
+            backgroundColor: ctx ? makeGrad(ctx, "rgba(250, 204, 21, 0.35)", "rgba(250, 204, 21, 0.01)") : "rgba(250,204,21,0.2)",
+            pointBackgroundColor: "#38bdf8",
+            pointBorderColor: "#ffffff",
+            pointBorderWidth: 2,
+            pointRadius: 4,
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            sjsValueLabel: { dark: true, color: "#fde047" },
+            tooltip: { ...SJS_TOOLTIP_BASE, callbacks: { label: c => ` Omzet: ${rp(c.parsed.y)}` } }
+          },
+          scales: sjsAxisScales(false, true)
+        }
+      });
     }
 
     function renderSalesCharts(rows) {
       if (!isAdmin) return;
+      renderKasirMiniChart();
       const rpTooltip = {
         ...SJS_TOOLTIP_BASE,
         callbacks: {
           label: ctx => {
-            const val = ctx.parsed?.y !== undefined && ctx.chart.config.type !== "bar"
-              ? ctx.parsed.y
-              : (ctx.chart.options?.indexAxis === "y" ? ctx.parsed.x : (ctx.parsed?.y ?? ctx.parsed));
+            const val = ctx.chart.options?.indexAxis === "y" ? ctx.parsed.x : (ctx.parsed?.y ?? ctx.parsed);
             const prefix = ctx.dataset?.label ? ctx.dataset.label + ": " : (ctx.label ? ctx.label + ": " : "");
             return " " + prefix + rp(val);
           }
@@ -4275,40 +4481,49 @@
       const totalOmzetRows = omzetData.reduce((a, b) => a + b, 0);
       if (badgeEl) badgeEl.textContent = rp(totalOmzetRows);
 
-      const trendCanvas = document.getElementById("chartSalesTrend");
-      const trendCtx = trendCanvas?.getContext("2d");
+      // Combo Bar (Omzet) + Glowing Spline Line (Laba) on Dark Navy Card
+      const trendCtx = document.getElementById("chartSalesTrend")?.getContext("2d");
       upsertChart("chartSalesTrend", {
         type: "bar",
         data: {
           labels,
           datasets: [
             {
+              type: "bar",
               label: "Omzet",
               data: omzetData,
-              backgroundColor: trendCtx ? makeGrad(trendCtx, "#1d4ed8", "#60a5fa") : "#1d4ed8",
+              backgroundColor: trendCtx ? makeGrad(trendCtx, "#38bdf8", "#1d4ed8") : "#38bdf8",
               borderRadius: 8,
               borderSkipped: false,
-              maxBarThickness: 28
+              maxBarThickness: 28,
+              order: 2
             },
             {
-              label: "Laba kotor",
+              type: "line",
+              label: "Laba penjualan",
               data: labaData,
-              backgroundColor: trendCtx ? makeGrad(trendCtx, "#facc15", "#f59e0b") : "#facc15",
-              borderRadius: 8,
-              borderSkipped: false,
-              maxBarThickness: 28
+              borderColor: "#facc15",
+              borderWidth: 3,
+              backgroundColor: "rgba(250, 204, 21, 0.16)",
+              pointBackgroundColor: "#facc15",
+              pointBorderColor: "#071433",
+              pointBorderWidth: 2,
+              pointRadius: 4.5,
+              tension: 0.38,
+              fill: false,
+              order: 1
             }
           ]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: SJS_LEGEND_BASE, tooltip: rpTooltip },
-          scales: sjsAxisScales(false)
+          plugins: { legend: sjsLegend(true), tooltip: rpTooltip },
+          scales: sjsAxisScales(false, true)
         }
       });
 
-      // Komposisi cara bayar (Donat dengan total di tengah)
+      // Donat Cara Bayar dengan Total di Tengah
       const pay = { Cash: 0, QRIS: 0, Kartu: 0, Transfer: 0 };
       for (const tx of rows) {
         const m = tx.paymentMethod || "Cash";
@@ -4333,7 +4548,7 @@
           maintainAspectRatio: false,
           cutout: "66%",
           plugins: {
-            legend: SJS_LEGEND_BASE,
+            legend: sjsLegend(false),
             sjsCenterText: { label: "TOTAL", value: shortRpTick(payTotal) },
             tooltip: {
               ...SJS_TOOLTIP_BASE,
@@ -4349,7 +4564,7 @@
         }
       });
 
-      // Top 6 Barang Terlaris (Horizontal Gradient Bar)
+      // Top 6 Barang Terlaris dengan Label Angka Langsung
       const prodMap = new Map();
       for (const tx of rows) {
         for (const it of (tx.items || [])) {
@@ -4363,72 +4578,15 @@
       const top6 = [...prodMap.entries()].sort((a, b) => b[1].omset - a[1].omset).slice(0, 6);
       const topBadge = document.getElementById("badgeTopProducts");
       if (topBadge) topBadge.textContent = top6.length ? `${top6.length} Produk` : "Belum ada data";
-      const topCanvas = document.getElementById("chartTopProducts");
-      const topCtx = topCanvas?.getContext("2d");
       upsertChart("chartTopProducts", {
         type: "bar",
+        plugins: [sjsValueLabelPlugin],
         data: {
           labels: top6.length ? top6.map(([k]) => k.length > 26 ? k.slice(0, 25) + "…" : k) : ["Belum ada penjualan"],
           datasets: [{
             label: "Omzet",
             data: top6.length ? top6.map(([, v]) => v.omset) : [0],
-            backgroundColor: topCtx ? makeGrad(topCtx, "#0f2557", "#2563eb", true) : "#1d4ed8",
-            borderRadius: 10,
-            borderSkipped: false,
-            maxBarThickness: 26
-          }]
-        },
-        options: {
-          indexAxis: "y",
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              ...SJS_TOOLTIP_BASE,
-              callbacks: {
-                label: ctx => {
-                  const entry = top6[ctx.dataIndex];
-                  if (!entry) return " Rp 0";
-                  return ` Omzet: ${rp(entry[1].omset)} (${entry[1].qty} pcs)`;
-                }
-              }
-            }
-          },
-          scales: sjsAxisScales(true)
-        }
-      });
-    }
-
-    function renderInventoryCharts() {
-      if (!isAdmin) return;
-      const active = activeInventory();
-      const cats = { "Badminton": 0, "Futsal & Bola": 0, "Catur": 0, "Musik": 0, "Olahraga Lainnya": 0 };
-      let okCount = 0, lowCount = 0, outCount = 0, totalAsset = 0;
-      for (const item of active) {
-        const st = Number(item.stock || 0);
-        const val = Math.max(0, st) * Number(item.cost || 0);
-        totalAsset += val;
-        if (st <= 0) outCount++;
-        else if (st < LOW_STOCK_LIMIT) lowCount++;
-        else okCount++;
-        const lbl = detectProductCategoryLabel(item).label;
-        const mapKey = lbl === "Olahraga" ? "Olahraga Lainnya" : lbl;
-        cats[mapKey] = (cats[mapKey] || 0) + val;
-      }
-      const catBadge = document.getElementById("badgeStockCatTotal");
-      if (catBadge) catBadge.textContent = rp(totalAsset);
-
-      const catCanvas = document.getElementById("chartStockCategory");
-      const catCtx = catCanvas?.getContext("2d");
-      upsertChart("chartStockCategory", {
-        type: "bar",
-        data: {
-          labels: Object.keys(cats),
-          datasets: [{
-            label: "Nilai Modal Stok",
-            data: Object.values(cats),
-            backgroundColor: catCtx ? makeGrad(catCtx, "#1d4ed8", "#38bdf8", true) : "#1d4ed8",
+            backgroundColor: ["#eab308", "#1d4ed8", "#2563eb", "#3b82f6", "#0284c7", "#0f2557"],
             borderRadius: 10,
             borderSkipped: false,
             maxBarThickness: 28
@@ -4438,14 +4596,81 @@
           indexAxis: "y",
           responsive: true,
           maintainAspectRatio: false,
+          layout: { padding: { right: 86 } },
           plugins: {
             legend: { display: false },
+            sjsValueLabel: {
+              color: "#0f2557",
+              format: (v, i) => top6[i] ? `${shortRpTick(v)} · ${top6[i][1].qty} pcs` : ""
+            },
             tooltip: {
               ...SJS_TOOLTIP_BASE,
-              callbacks: { label: ctx => ` Nilai modal: ${rp(ctx.parsed.x)}` }
+              callbacks: {
+                label: ctx => {
+                  const entry = top6[ctx.dataIndex];
+                  return entry ? ` Omzet: ${rp(entry[1].omset)} (${entry[1].qty} pcs)` : " Rp 0";
+                }
+              }
             }
           },
-          scales: sjsAxisScales(true)
+          scales: sjsAxisScales(true, false)
+        }
+      });
+    }
+
+    function renderInventoryCharts() {
+      if (!isAdmin) return;
+      const active = activeInventory();
+      const catsCost = { "Badminton": 0, "Futsal & Bola": 0, "Catur": 0, "Musik": 0, "Olahraga Lainnya": 0 };
+      const catsSell = { "Badminton": 0, "Futsal & Bola": 0, "Catur": 0, "Musik": 0, "Olahraga Lainnya": 0 };
+      let okCount = 0, lowCount = 0, outCount = 0, totalAsset = 0, totalPotensi = 0;
+      for (const item of active) {
+        const st = Math.max(0, Number(item.stock || 0));
+        const valCost = st * Number(item.cost || 0);
+        const valSell = st * Number(item.price || 0);
+        totalAsset += valCost;
+        totalPotensi += valSell;
+        if (st <= 0) outCount++;
+        else if (st < LOW_STOCK_LIMIT) lowCount++;
+        else okCount++;
+        const lbl = detectProductCategoryLabel(item).label;
+        const mapKey = lbl === "Olahraga" ? "Olahraga Lainnya" : lbl;
+        catsCost[mapKey] = (catsCost[mapKey] || 0) + valCost;
+        catsSell[mapKey] = (catsSell[mapKey] || 0) + valSell;
+      }
+      const catBadge = document.getElementById("badgeStockCatTotal");
+      if (catBadge) catBadge.textContent = `Potensi ${shortRpTick(totalPotensi)}`;
+
+      const catCtx = document.getElementById("chartStockCategory")?.getContext("2d");
+      upsertChart("chartStockCategory", {
+        type: "bar",
+        data: {
+          labels: Object.keys(catsCost),
+          datasets: [
+            {
+              label: "Nilai Modal",
+              data: Object.values(catsCost),
+              backgroundColor: catCtx ? makeGrad(catCtx, "#38bdf8", "#1d4ed8") : "#38bdf8",
+              borderRadius: 8,
+              borderSkipped: false
+            },
+            {
+              label: "Potensi Jual",
+              data: Object.values(catsSell),
+              backgroundColor: catCtx ? makeGrad(catCtx, "#facc15", "#eab308") : "#facc15",
+              borderRadius: 8,
+              borderSkipped: false
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: sjsLegend(true),
+            tooltip: { ...SJS_TOOLTIP_BASE, callbacks: { label: ctx => ` ${ctx.dataset.label}: ${rp(ctx.parsed.y)}` } }
+          },
+          scales: sjsAxisScales(false, true)
         }
       });
 
@@ -4467,13 +4692,90 @@
           maintainAspectRatio: false,
           cutout: "66%",
           plugins: {
-            legend: SJS_LEGEND_BASE,
+            legend: sjsLegend(false),
             sjsCenterText: { label: "TOTAL SKU", value: active.length + " Item" },
-            tooltip: {
-              ...SJS_TOOLTIP_BASE,
-              callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed} barang` }
-            }
+            tooltip: { ...SJS_TOOLTIP_BASE, callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed} barang` } }
           }
+        }
+      });
+
+      // Top 6 Stok Paling Kritis
+      const lowest6 = active.slice().sort((a, b) => Number(a.stock || 0) - Number(b.stock || 0)).slice(0, 6);
+      const critBadge = document.getElementById("badgeStockCritical");
+      if (critBadge) critBadge.textContent = `${lowCount + outCount} Perlu Perhatian`;
+      upsertChart("chartStockCritical", {
+        type: "bar",
+        plugins: [sjsValueLabelPlugin],
+        data: {
+          labels: lowest6.length ? lowest6.map(i => i.name.length > 26 ? i.name.slice(0, 25) + "…" : i.name) : ["Belum ada produk"],
+          datasets: [{
+            label: "Sisa Stok",
+            data: lowest6.length ? lowest6.map(i => Math.max(0, Number(i.stock || 0))) : [0],
+            backgroundColor: lowest6.map(i => Number(i.stock || 0) <= 0 ? "#e11d48" : Number(i.stock || 0) < LOW_STOCK_LIMIT ? "#f59e0b" : "#1d4ed8"),
+            borderRadius: 10,
+            borderSkipped: false,
+            maxBarThickness: 24
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { right: 64 } },
+          plugins: {
+            legend: { display: false },
+            sjsValueLabel: {
+              showZero: true,
+              color: "#0f2557",
+              format: v => `${v} pcs`
+            },
+            tooltip: { ...SJS_TOOLTIP_BASE, callbacks: { label: ctx => ` Sisa stok: ${ctx.parsed.x} pcs` } }
+          },
+          scales: sjsAxisScales(true, false, v => v + " pcs", 10)
+        }
+      });
+
+      renderBackupVolumeChart();
+    }
+
+    function renderBackupVolumeChart() {
+      if (!isAdmin) return;
+      const canvas = document.getElementById("chartBackupVolume");
+      if (!canvas) return;
+      const counts = [
+        activeInventory().length,
+        transactions.length,
+        purchases.length,
+        books.expenses.length
+      ];
+      const total = counts.reduce((a, b) => a + b, 0);
+      const badge = document.getElementById("badgeBackupTotal");
+      if (badge) badge.textContent = `${total.toLocaleString("id-ID")} Catatan`;
+      upsertChart("chartBackupVolume", {
+        type: "bar",
+        plugins: [sjsValueLabelPlugin],
+        data: {
+          labels: ["Produk Stok", "Transaksi Penjualan", "Pembelian Stok", "Pengeluaran Toko"],
+          datasets: [{
+            label: "Jumlah Data",
+            data: counts,
+            backgroundColor: ["#38bdf8", "#facc15", "#60a5fa", "#fbbf24"],
+            borderRadius: 10,
+            borderSkipped: false,
+            maxBarThickness: 28
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { right: 70 } },
+          plugins: {
+            legend: { display: false },
+            sjsValueLabel: { showZero: true, dark: true, color: "#fde047", format: v => `${v} data` },
+            tooltip: { ...SJS_TOOLTIP_BASE, callbacks: { label: ctx => ` Tersimpan: ${ctx.parsed.x} catatan` } }
+          },
+          scales: sjsAxisScales(true, true, v => String(v), 20)
         }
       });
     }
@@ -4498,20 +4800,20 @@
         ...SJS_TOOLTIP_BASE,
         callbacks: {
           label: ctx => {
-            const val = ctx.parsed?.y !== undefined ? ctx.parsed.y : ctx.parsed;
+            const val = ctx.chart.options?.indexAxis === "y" ? ctx.parsed.x : (ctx.parsed?.y ?? ctx.parsed);
             const prefix = ctx.dataset?.label ? ctx.dataset.label + ": " : (ctx.label ? ctx.label + ": " : "");
             return " " + prefix + rp(val);
           }
         }
       };
 
-      // 1. Omzet & laba per hari (bulan terpilih)
+      // 1. Combo Bar (Omzet) + Golden Spline Line (Laba) per Hari (Dark Navy Hero)
       const daysInMonth = new Date(yearNum, monthNum, 0).getDate();
       const dayLabels = Array.from({ length: daysInMonth }, (_, i) => month + "-" + String(i + 1).padStart(2, "0"));
       const omzetPerDay = dayLabels.map(d => transactions.filter(t => t.date === d).reduce((s, t) => s + Number(t.totalOmset || 0), 0));
       const labaPerDay = dayLabels.map(d => transactions.filter(t => t.date === d).reduce((s, t) => s + Number(t.totalProfit || 0), 0));
       const badgeOL = document.getElementById("badgeBookOmzetLaba");
-      if (badgeOL) badgeOL.textContent = month;
+      if (badgeOL) badgeOL.textContent = `${month} · ${shortRpTick(omzetPerDay.reduce((a, b) => a + b, 0))}`;
 
       const olCtx = document.getElementById("chartOmzetLaba")?.getContext("2d");
       upsertChart("chartOmzetLaba", {
@@ -4520,26 +4822,35 @@
           labels: dayLabels.map(d => d.slice(8)),
           datasets: [
             {
+              type: "bar",
               label: "Omzet",
               data: omzetPerDay,
-              backgroundColor: olCtx ? makeGrad(olCtx, "#1d4ed8", "#60a5fa") : "#1d4ed8",
+              backgroundColor: olCtx ? makeGrad(olCtx, "#38bdf8", "#1d4ed8") : "#38bdf8",
               borderRadius: 6,
-              borderSkipped: false
+              borderSkipped: false,
+              order: 2
             },
             {
+              type: "line",
               label: "Laba penjualan",
               data: labaPerDay,
-              backgroundColor: olCtx ? makeGrad(olCtx, "#facc15", "#eab308") : "#facc15",
-              borderRadius: 6,
-              borderSkipped: false
+              borderColor: "#facc15",
+              borderWidth: 3,
+              pointBackgroundColor: "#facc15",
+              pointBorderColor: "#071433",
+              pointBorderWidth: 2,
+              pointRadius: 3.5,
+              tension: 0.35,
+              fill: false,
+              order: 1
             }
           ]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: SJS_LEGEND_BASE, tooltip: rpTooltip },
-          scales: sjsAxisScales(false)
+          plugins: { legend: sjsLegend(true), tooltip: rpTooltip },
+          scales: sjsAxisScales(false, true)
         }
       });
 
@@ -4571,7 +4882,7 @@
           maintainAspectRatio: false,
           cutout: "66%",
           plugins: {
-            legend: SJS_LEGEND_BASE,
+            legend: sjsLegend(false),
             sjsCenterText: { label: "OMZET", value: shortRpTick(payTotal) },
             tooltip: {
               ...SJS_TOOLTIP_BASE,
@@ -4587,7 +4898,7 @@
         }
       });
 
-      // 3. Pembelian stok per bulan (6 bulan terakhir)
+      // 3. Pembelian stok per bulan (6 bulan terakhir + label angka langsung)
       const months = [];
       for (let i = 5; i >= 0; i--) {
         const d = new Date(yearNum, monthNum - 1 - i, 1);
@@ -4599,6 +4910,7 @@
       const beliCtx = document.getElementById("chartPembelian")?.getContext("2d");
       upsertChart("chartPembelian", {
         type: "bar",
+        plugins: [sjsValueLabelPlugin],
         data: {
           labels: months,
           datasets: [{
@@ -4613,12 +4925,17 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: rpTooltip },
-          scales: sjsAxisScales(false)
+          layout: { padding: { top: 20 } },
+          plugins: {
+            legend: { display: false },
+            sjsValueLabel: { color: "#92400e" },
+            tooltip: rpTooltip
+          },
+          scales: sjsAxisScales(false, false)
         }
       });
 
-      // 4. Laba penjualan per bulan (Omzet - Modal barang terjual, 6 bulan terakhir)
+      // 4. Tren Laba Penjualan 6 Bulan (Dark Navy Glowing Spline + Label Angka)
       const untung = months.map(m => {
         const sales = transactions.filter(t => String(t.date || "").startsWith(m + "-"));
         return sales.reduce((s, t) => s + Number(t.totalProfit || 0), 0);
@@ -4628,16 +4945,17 @@
       const profCtx = document.getElementById("chartProfit")?.getContext("2d");
       upsertChart("chartProfit", {
         type: "line",
+        plugins: [sjsValueLabelPlugin],
         data: {
           labels: months,
           datasets: [{
             label: "Laba penjualan",
             data: untung,
-            borderColor: "#1d4ed8",
+            borderColor: "#38bdf8",
             borderWidth: 3.5,
-            backgroundColor: profCtx ? makeGrad(profCtx, "rgba(29, 78, 216, 0.34)", "rgba(29, 78, 216, 0.02)") : "rgba(59, 130, 246, 0.22)",
+            backgroundColor: profCtx ? makeGrad(profCtx, "rgba(56, 189, 248, 0.36)", "rgba(56, 189, 248, 0.02)") : "rgba(56,189,248,0.22)",
             pointBackgroundColor: "#facc15",
-            pointBorderColor: "#0f2557",
+            pointBorderColor: "#ffffff",
             pointBorderWidth: 2.5,
             pointRadius: 6,
             pointHoverRadius: 8,
@@ -4648,10 +4966,50 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { display: false }, tooltip: rpTooltip },
-          scales: sjsAxisScales(false)
+          layout: { padding: { top: 22 } },
+          plugins: {
+            legend: { display: false },
+            sjsValueLabel: { dark: true, color: "#fde047" },
+            tooltip: rpTooltip
+          },
+          scales: sjsAxisScales(false, true)
         }
       });
+
+      // 5. Perbandingan Arus Kas Bulan Ini (Horizontal Bar + Direct Labels)
+      const { revenue, cost, spending } = monthlyTotals(month);
+      const beliBulanIni = purchases.filter(p => String(p.date || "").startsWith(month + "-")).reduce((s, p) => s + Number(p.totalCost || 0), 0);
+      const cfBadge = document.getElementById("badgeBookCashflow");
+      if (cfBadge) cfBadge.textContent = month;
+      upsertChart("chartCashflowCompare", {
+        type: "bar",
+        plugins: [sjsValueLabelPlugin],
+        data: {
+          labels: ["Omzet Penjualan", "Laba Penjualan", "Modal Terjual", "Pengeluaran Toko", "Belanja Stok"],
+          datasets: [{
+            label: "Nominal",
+            data: [revenue, Math.max(0, revenue - cost), cost, spending, beliBulanIni],
+            backgroundColor: ["#1d4ed8", "#eab308", "#64748b", "#e11d48", "#38bdf8"],
+            borderRadius: 10,
+            borderSkipped: false,
+            maxBarThickness: 28
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: { padding: { right: 74 } },
+          plugins: {
+            legend: { display: false },
+            sjsValueLabel: { color: "#0f2557" },
+            tooltip: rpTooltip
+          },
+          scales: sjsAxisScales(true, false)
+        }
+      });
+
+      renderBackupVolumeChart();
     }
 
     function renderOwnerBooks() {
@@ -5344,6 +5702,8 @@
         requestAnimationFrame(() => Object.values(charts).forEach(c => c.resize()));
       }
       if (target === "inventory") { renderInventory(); requestAnimationFrame(() => Object.values(charts).forEach(c => c.resize())); }
+      if (target === "backup") { renderBackupVolumeChart(); requestAnimationFrame(() => Object.values(charts).forEach(c => c.resize())); }
+      if (target === "kasir") { renderKasirMiniChart(); requestAnimationFrame(() => Object.values(charts).forEach(c => c.resize())); }
     }
     function openDialog(id) {
       const d = document.getElementById(id);
@@ -5455,7 +5815,7 @@
         const amount = Number(expMatch[2].replace(/\./g, ""));
         const method = /transfer/i.test(expMatch[3] || "") ? "Transfer" : /kartu/i.test(expMatch[3] || "") ? "Kartu" : "Cash";
         if (!Number.isSafeInteger(amount) || amount <= 0) return assistantAdd("assistant", "Jumlah pengeluaran tidak valid.");
-        if (!window.confirm(`Simpan pengeluaran "${expMatch[1]}" sebesar ${rp(amount)} (${method === "Cash" ? "Tunai" : method})?`)) return assistantAdd("assistant", "Pengeluaran tidak disimpan.");
+        if (!(await sjsConfirm(`Simpan pengeluaran "${expMatch[1]}" sebesar ${rp(amount)} (${method === "Cash" ? "Tunai" : method})?`, "Simpan Pengeluaran"))) return assistantAdd("assistant", "Pengeluaran tidak disimpan.");
         try {
           await addDoc(collection(db, ...paths("expenses")), {
             date: todayStr(), category: expMatch[1].slice(0, 80), amount, method, createdAt: new Date().toISOString()
@@ -5578,6 +5938,7 @@
         handleScannedCode(card.dataset.posAdd, false);
       });
       document.getElementById("btnResetForm").addEventListener("click", resetSaleDraft);
+      document.getElementById("posMiniChartWrap")?.addEventListener("toggle", e => { if (e.target.open) { renderKasirMiniChart(); requestAnimationFrame(() => charts.chartKasirMini?.resize()); } });
       document.getElementById("btnPosStatLowStock")?.addEventListener("click", () => {
         switchWorkspace("inventory");
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -5888,7 +6249,7 @@
         if (!isAdmin) return;
         const ids = [...document.querySelectorAll("#posterBatchList input[type=checkbox]:checked")].map(cb => cb.value);
         if (!ids.length) return showToast("Pilih minimal 1 produk terlebih dahulu.");
-        if (!window.confirm(`Buat dan terapkan poster katalog seragam untuk ${ids.length} produk terpilih?`)) return;
+        if (!(await sjsConfirm(`Buat dan terapkan poster katalog seragam untuk ${ids.length} produk terpilih?`, "Buat Poster Katalog"))) return;
         const btn = document.getElementById("btnRunPosterBatch");
         const prog = document.getElementById("posterBatchProgress");
         btn.disabled = true;
@@ -5934,7 +6295,7 @@
         if (qr) return openProductQrModal(qr.dataset.qrItem);
         const a = e.target.closest("[data-archive-item]");
         const r = e.target.closest("[data-restore-item]");
-        if (a && window.confirm("Arsipkan barang ini dari kasir dan katalog?")) await archiveOrRestore(a.dataset.archiveItem, true);
+        if (a && (await sjsConfirm("Arsipkan barang ini dari kasir dan katalog?", "Arsipkan Barang"))) await archiveOrRestore(a.dataset.archiveItem, true);
         if (r) await archiveOrRestore(r.dataset.restoreItem, false);
       };
       document.getElementById("inventoryTableBody").addEventListener("click", inventoryActionClick);
@@ -6295,7 +6656,7 @@
             const method = panel.querySelector("#aiExpMethod").value;
             if (!cat) return assistantAdd("assistant", "Isi keterangan pengeluaran.");
             if (!Number.isSafeInteger(amount) || amount <= 0) return assistantAdd("assistant", "Isi jumlah pengeluaran (Rp) yang benar.");
-            if (!window.confirm(`Simpan pengeluaran "${cat}" sebesar ${rp(amount)} (${paymentMethodLabel(method)})?`)) return;
+            if (!(await sjsConfirm(`Simpan pengeluaran "${cat}" sebesar ${rp(amount)} (${paymentMethodLabel(method)})?`, "Simpan Pengeluaran"))) return;
             try {
               await addDoc(collection(db, ...paths("expenses")), {
                 date: todayStr(), category: cat.slice(0, 80), amount, method, createdAt: new Date().toISOString()
@@ -6544,7 +6905,7 @@
         a.click();
       });
       document.getElementById("publishCatalog").addEventListener("click", async () => {
-        if (!isAdmin || !window.confirm("Terbitkan barang aktif ke katalog publik?")) return;
+        if (!isAdmin || !(await sjsConfirm("Terbitkan barang aktif ke katalog publik?", "Terbitkan Katalog"))) return;
         const snap = await getDocsFromServer(collection(db, ...paths("inventory")));
         const pubSnap = await getDocsFromServer(collection(db, "publicCatalog"));
         const pubIds = new Set(pubSnap.docs.map(d => d.id));

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="60" viewBox="0 0 120 60" role="img" aria-label="Transfer Bank">
+  <rect x="1" y="1" width="118" height="58" rx="10" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+  <polygon points="27,14 13,22 41,22" fill="#0f2557"/>
+  <rect x="16" y="24" width="3.5" height="11" fill="#1d4ed8"/>
+  <rect x="25.2" y="24" width="3.5" height="11" fill="#1d4ed8"/>
+  <rect x="34.5" y="24" width="3.5" height="11" fill="#1d4ed8"/>
+  <rect x="13" y="36" width="28" height="3" rx="1" fill="#eab308"/>
+  <text x="48" y="31" font-family="Arial,sans-serif" font-weight="800" font-size="12.5" fill="#0f172a">TRANSFER</text>
+  <text x="48" y="43" font-family="Arial,sans-serif" font-weight="700" font-size="8" fill="#64748b">BANK / DP WA</text>
+</svg>

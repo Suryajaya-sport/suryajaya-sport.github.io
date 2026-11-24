@@ -8,7 +8,9 @@
   <meta name="description" content="Surya Jaya Sport — toko raket badminton Berau, jual bola futsal Tanjung Redeb, perlengkapan olahraga &amp; toko alat musik Berau. Jl. Ahmad Yani 37, Tanjung Redeb, Berau. Buka setiap hari 08.00–21.00 WITA.">
   <meta name="keywords" content="toko olahraga Berau, toko raket badminton Berau, jual bola futsal Tanjung Redeb, toko alat musik Berau, senar badminton Berau, Surya Jaya Sport Tanjung Redeb">
   <link rel="canonical" href="https://suryajaya-sport.github.io/">
-  <link rel="icon" href="/sjs-mark.png" type="image/png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="manifest" href="/manifest.webmanifest">
   <meta name="theme-color" content="#0f2557">
   <meta name="mobile-web-app-capable" content="yes">
@@ -20,7 +22,11 @@
   <meta property="og:url" content="https://suryajaya-sport.github.io/">
   <meta property="og:title" content="Surya Jaya Sport | Toko Olahraga &amp; Alat Musik Tanjung Redeb, Berau">
   <meta property="og:description" content="Toko raket badminton Berau, jual bola futsal Tanjung Redeb, catur, dan alat musik. Jl. Ahmad Yani 37, Tanjung Redeb, Berau. Buka setiap hari 08.00–21.00 WITA.">
-  <meta property="og:image" content="https://suryajaya-sport.github.io/sjs-mark.png">
+  <meta property="og:image" content="https://suryajaya-sport.github.io/og-surya-jaya-sport.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://suryajaya-sport.github.io/og-surya-jaya-sport.jpg">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -38,7 +44,7 @@
       "@type": "PostalAddress",
       "streetAddress": "Jl. Ahmad Yani 37",
       "addressLocality": "Tanjung Redeb",
-      "addressRegion": "Berau, Kalimantan Timur",
+      "addressRegion": "Kalimantan Timur",
       "addressCountry": "ID"
     },
     "openingHoursSpecification": [
@@ -49,9 +55,7 @@
         "closes": "21:00"
       }
     ],
-    "sameAs": [
-      "https://wa.me/6282320033333"
-    ]
+    "hasMap": "https://www.google.com/maps/search/?api=1&query=Surya+Jaya+Sport+Jl.+Ahmad+Yani+37+Tanjung+Redeb+Berau"
   }
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
@@ -100,7 +104,15 @@
     .shop-button-accent { background: linear-gradient(135deg,#facc15,#eab308); color: #0f172a; font-weight: 800; }
     .shop-button-outline { background: rgba(255,255,255,.14); color: #fff; border: 1.5px solid rgba(255,255,255,.35); }
 
-    .shop-hero { position: relative; border-radius: 2rem; overflow: hidden; min-height: 320px; background: radial-gradient(circle at 85% 20%, rgba(56,189,248,.28), transparent 45%), linear-gradient(125deg,#07132c 0%,#143382 55%,#1d4ed8 100%); color: #fff; display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,.8fr); gap: 1.5rem; align-items: center; padding: 2.35rem 2rem; }
+    .shop-hero { position: relative; border-radius: 2rem; overflow: hidden; min-height: 350px; background: linear-gradient(95deg, rgba(7,20,51,.94) 0%, rgba(15,37,87,.84) 52%, rgba(15,37,87,.22) 100%), url('hero-surya-jaya-sport.webp') right center / cover no-repeat, #071433; color: #fff; display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,.8fr); gap: 1.5rem; align-items: center; padding: 2.35rem 2rem; }
+    .shop-button-wa { background: linear-gradient(135deg,#16a34a,#15803d); color: #fff; border: 1.5px solid #22c55e; box-shadow: 0 4px 12px rgba(22,163,74,.25); }
+    .shop-button-wa:hover { background: #15803d; }
+    .quick-cat-thumb { width: 76px; height: 76px; border-radius: 1rem; object-fit: cover; border: 1.5px solid #dbeafe; background: #eff6ff; }
+    .quick-cat-btn.is-active .quick-cat-thumb { border-color: #facc15; }
+    .pay-badges-row { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
+    .pay-badges-row img { height: 42px; width: auto; border-radius: .55rem; }
+    .howto-icon-row { display: flex; align-items: center; gap: .65rem; }
+    .howto-icon-badge { width: 42px; height: 42px; border-radius: .95rem; background: #eff6ff; border: 1.5px solid #bfdbfe; color: #1d4ed8; display: inline-flex; align-items: center; justify-content: center; font-size: 1.15rem; }
     @media (max-width: 900px) { .shop-hero { grid-template-columns: 1fr; padding: 1.8rem 1.35rem; } }
     .shop-hero-content { position: relative; z-index: 2; display: flex; flex-direction: column; gap: .9rem; }
     .shop-eyebrow { display: inline-flex; align-items: center; gap: .45rem; width: fit-content; padding: .35rem .85rem; border-radius: 9999px; background: rgba(255,255,255,.14); font-size: .75rem; font-weight: 700; color: #fde68a; }
@@ -139,6 +151,7 @@
     .catalog-categories { display: flex; flex-wrap: wrap; gap: .45rem; }
     .catalog-categories label span { display: inline-block; padding: .48rem .95rem; border-radius: 9999px; font-size: .8125rem; font-weight: 700; background: #f1f5f9; color: #475569; cursor: pointer; }
     .catalog-categories label input:checked + span { background: linear-gradient(135deg,#0f2557,#1d4ed8); color: #fff; }
+    .catalog-categories label input:focus-visible + span, .catalog-card-photo-wrap:focus-visible, .quick-cat-btn:focus-visible, .hero-feature-card:focus-visible { outline: 3px solid #facc15; outline-offset: 2px; }
     #catalogResultCount { font-size: .8125rem; font-weight: 700; color: #64748b; }
 
     .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(255px,1fr)); gap: 1.2rem; }
@@ -204,8 +217,8 @@
         <a href="#lokasi-toko">Lokasi toko</a>
       </nav>
       <div class="shop-header-actions">
-        <a href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer" class="shop-button shop-button-accent !min-h-10 !py-2 !px-3.5 !text-xs">
-          <i class="fa-brands fa-whatsapp text-emerald-800 text-base" aria-hidden="true"></i>
+        <a href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer" class="shop-button shop-button-wa !min-h-10 !py-2 !px-3.5 !text-xs">
+          <i class="fa-brands fa-whatsapp text-base" aria-hidden="true"></i>
           <span>0823-2003-3333</span>
         </a>
       </div>
@@ -235,7 +248,7 @@
         <div class="shop-hero-actions pt-1">
           <a class="shop-button shop-button-accent" href="#publicProductCatalog">Jelajahi katalog <i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a>
           <a class="shop-button shop-button-outline" href="#cara-pesan"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> Cara pesan</a>
-          <a class="shop-button shop-button-outline" href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp text-emerald-300" aria-hidden="true"></i> Chat WhatsApp</a>
+          <a class="shop-button shop-button-wa" href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Chat WhatsApp</a>
         </div>
       </div>
       <div class="hero-feature-grid" aria-label="Pilih kategori cepat">
@@ -256,8 +269,8 @@
         </button>
         <button type="button" class="hero-feature-card" data-quick-cat="chess">
           <i class="fa-solid fa-chess-knight" aria-hidden="true"></i>
-          <strong>Catur &amp; Lainnya</strong>
-          <span>Papan catur &amp; perlengkapan</span>
+          <strong>Catur</strong>
+          <span>Papan &amp; bidak catur</span>
         </button>
       </div>
     </section>
@@ -269,34 +282,34 @@
       </div>
       <div id="quickCatGrid" class="quick-cat-grid">
         <button type="button" class="quick-cat-btn is-active" data-quick-cat="all">
-          <i class="fa-solid fa-border-all" aria-hidden="true"></i>
+          <img src="sjs-mark.png" alt="Semua Produk" width="76" height="76" class="quick-cat-thumb" loading="lazy">
           <strong>Semua Produk</strong>
           <span>Lihat seluruh stok</span>
         </button>
         <button type="button" class="quick-cat-btn" data-quick-cat="badminton">
-          <i class="fa-solid fa-feather-pointed" aria-hidden="true"></i>
+          <img src="cat-badminton.webp" alt="Badminton" width="76" height="76" class="quick-cat-thumb" loading="lazy">
           <strong>Badminton</strong>
           <span>Raket, kok, senar, grip</span>
         </button>
         <button type="button" class="quick-cat-btn" data-quick-cat="ball">
-          <i class="fa-solid fa-futbol" aria-hidden="true"></i>
+          <img src="cat-futsal-bola.webp" alt="Futsal dan Bola" width="76" height="76" class="quick-cat-thumb" loading="lazy">
           <strong>Futsal &amp; Bola</strong>
           <span>Bola, sepatu, deker</span>
         </button>
         <button type="button" class="quick-cat-btn" data-quick-cat="chess">
-          <i class="fa-solid fa-chess" aria-hidden="true"></i>
+          <img src="cat-catur.webp" alt="Catur" width="76" height="76" class="quick-cat-thumb" loading="lazy">
           <strong>Catur</strong>
           <span>Papan &amp; bidak catur</span>
         </button>
         <button type="button" class="quick-cat-btn" data-quick-cat="music">
-          <i class="fa-solid fa-music" aria-hidden="true"></i>
+          <img src="cat-musik.webp" alt="Musik" width="76" height="76" class="quick-cat-thumb" loading="lazy">
           <strong>Musik</strong>
-          <span>Senar gitar &amp; aksesori</span>
+          <span>Gitar, stik drum, senar</span>
         </button>
         <button type="button" class="quick-cat-btn" data-quick-cat="sport">
-          <i class="fa-solid fa-dumbbell" aria-hidden="true"></i>
+          <img src="cat-olahraga-lainnya.webp" alt="Olahraga Lainnya" width="76" height="76" class="quick-cat-thumb" loading="lazy">
           <strong>Olahraga Lainnya</strong>
-          <span>Taping, net &amp; aksesori</span>
+          <span>Pingpong, taping, piala</span>
         </button>
       </div>
     </section>
@@ -343,17 +356,17 @@
       </div>
       <div class="howto-grid">
         <article class="howto-card">
-          <span class="howto-step">1</span>
+          <div class="howto-icon-row"><span class="howto-step">1</span><span class="howto-icon-badge"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span></div>
           <h3>Cek produk &amp; masukkan keranjang</h3>
           <p>Pilih barang yang Anda butuhkan lalu klik <strong>+ Keranjang</strong>, atau klik <strong>Tanya stok</strong> untuk menanyakan langsung 1 produk. Harga dan stok akan dikonfirmasi kembali oleh toko.</p>
         </article>
         <article class="howto-card">
-          <span class="howto-step">2</span>
+          <div class="howto-icon-row"><span class="howto-step">2</span><span class="howto-icon-badge"><i class="fa-solid fa-basket-shopping" aria-hidden="true"></i></span></div>
           <h3>Pesan lewat WhatsApp (bisa DP / transfer)</h3>
           <p>Kirim daftar belanja ke WhatsApp <strong>0823-2003-3333</strong>. Anda boleh memesan dengan <strong>DP atau transfer</strong> terlebih dahulu—baik untuk pembelian jumlah besar maupun kecil—agar barang kami siapkan.</p>
         </article>
         <article class="howto-card">
-          <span class="howto-step">3</span>
+          <div class="howto-icon-row"><span class="howto-step">3</span><span class="howto-icon-badge"><i class="fa-solid fa-store" aria-hidden="true"></i></span></div>
           <h3>Ambil &amp; bayar di toko</h3>
           <p>Saat ini kami <strong>tidak melayani pengiriman</strong> maupun checkout online. Pengambilan dilakukan langsung di toko kami, dengan pilihan bayar <strong>Tunai, QRIS, Kartu, atau Transfer Bank</strong>.</p>
         </article>
@@ -371,12 +384,18 @@
             Telp / WhatsApp: <a href="tel:+6282320033333" class="font-bold text-blue-700 underline">0823-2003-3333</a>
           </address>
           <div class="rounded-2xl bg-blue-50 border border-blue-200 p-3 text-xs font-semibold text-blue-950 space-y-1">
-            <p><i class="fa-solid fa-wallet text-blue-700 mr-1" aria-hidden="true"></i> <strong>Pembayaran di toko:</strong> Tunai · QRIS · Kartu · Transfer Bank</p>
+            <p><i class="fa-solid fa-wallet text-blue-700 mr-1" aria-hidden="true"></i> <strong>Pembayaran di toko:</strong></p>
+            <div class="pay-badges-row pt-1">
+              <img src="pay-qris.svg" alt="QRIS" width="120" height="60" loading="lazy">
+              <img src="pay-tunai.svg" alt="Tunai" width="120" height="60" loading="lazy">
+              <img src="pay-kartu.svg" alt="Kartu Debit Kredit" width="120" height="60" loading="lazy">
+              <img src="pay-transfer.svg" alt="Transfer Bank" width="120" height="60" loading="lazy">
+            </div>
             <p><i class="fa-brands fa-whatsapp text-emerald-600 mr-1" aria-hidden="true"></i> <strong>Pemesanan WA:</strong> Bisa DP / transfer untuk pembelian besar maupun kecil, lalu ambil langsung di toko.</p>
           </div>
         </div>
         <div class="flex flex-wrap gap-2.5">
-          <a class="shop-button shop-button-primary" href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Chat WhatsApp</a>
+          <a class="shop-button shop-button-wa" href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Chat WhatsApp</a>
           <a class="shop-button shop-button-accent" href="https://www.google.com/maps/search/?api=1&amp;query=Surya+Jaya+Sport+Jl.+Ahmad+Yani+37+Tanjung+Redeb+Berau" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Buka di Google Maps</a>
         </div>
       </div>
@@ -526,11 +545,11 @@
     }
 
     function saveCart() {
-      try { sessionStorage.setItem(CART_KEY, JSON.stringify([...catalogCart])); } catch {}
+      try { localStorage.setItem(CART_KEY, JSON.stringify([...catalogCart])); } catch {}
     }
     function restoreCart() {
       try {
-        const saved = JSON.parse(sessionStorage.getItem(CART_KEY) || "[]");
+        const saved = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
         for (const [id, line] of saved) {
           if (typeof id === "string" && Number.isSafeInteger(line?.qty)) {
             catalogCart.set(id, { qty: Math.min(99, Math.max(1, line.qty)), note: String(line.note || "").slice(0, 100) });
@@ -599,7 +618,7 @@
           <span class="catalog-stock">Stok ${Number(item.stock || 0)} pcs</span>
         </div>
         <div class="grid grid-cols-2 gap-2 pt-2">
-          <button type="button" data-detail-add="${esc(item.id)}" class="shop-button shop-button-primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Keranjang</button>
+          <button type="button" data-detail-add="${esc(item.id)}" ${Number(item.stock || 0) <= 0 ? "disabled" : ""} class="shop-button shop-button-primary"><i class="fa-solid ${Number(item.stock || 0) <= 0 ? "fa-ban" : "fa-plus"}" aria-hidden="true"></i> ${Number(item.stock || 0) <= 0 ? "Stok Habis" : "Keranjang"}</button>
           <a href="${CATALOG_WA}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener noreferrer" class="shop-button shop-button-secondary"><i class="fa-brands fa-whatsapp text-emerald-600" aria-hidden="true"></i> Tanya WA</a>
         </div>`;
       const dlg = document.getElementById("catalogProductModal");
@@ -624,7 +643,7 @@
         btn.classList.toggle("is-active", btn.dataset.quickCat === category);
       }
       const sortMode = document.getElementById("catalogSort")?.value || "default";
-      const items = publicCatalog.filter(item => Number(item.stock) > 0);
+      const items = publicCatalog.slice().sort((a, b) => (Number(b.stock || 0) > 0) - (Number(a.stock || 0) > 0));
       const filtered = items.filter(item => {
         const hay = [item.name, item.code, item.size, item.color, item.description].filter(Boolean).join(" ").toLocaleLowerCase("id");
         return (!q || hay.includes(q)) && matchesCatalogCategory(item, category);
@@ -639,13 +658,16 @@
       }
       grid.innerHTML = filtered.map((item, index) => {
         const stockNum = Number(item.stock || 0);
-        const limited = stockNum < LOW_STOCK_LIMIT;
-        const msg = `Halo Surya Jaya Sport, saya ingin bertanya tentang ${item.name}${item.code ? ` (${item.code})` : ""} dengan harga ${rp(item.price)}. Apakah stoknya tersedia?`;
+        const outOfStock = stockNum <= 0;
+        const limited = !outOfStock && stockNum < LOW_STOCK_LIMIT;
+        const msg = outOfStock
+          ? `Halo Surya Jaya Sport, apakah stok ${item.name}${item.code ? ` (${item.code})` : ""} akan tersedia lagi?`
+          : `Halo Surya Jaya Sport, saya ingin bertanya tentang ${item.name}${item.code ? ` (${item.code})` : ""} dengan harga ${rp(item.price)}. Apakah stoknya tersedia?`;
         const showSenarNote = isSenarBadminton(item) && !/jasa\s+pasang\s+senar/i.test(String(item.description || ""));
         return `
-        <article class="catalog-card">
+        <article class="catalog-card ${outOfStock ? "opacity-85" : ""}">
           <div class="catalog-card-photo-wrap" data-view-product="${esc(item.id)}" role="button" tabindex="0" aria-label="Lihat detail ${esc(item.name)}">
-            <span class="catalog-card-badge ${limited ? "is-limited" : ""}">${limited ? "Stok terbatas" : "Tersedia"}</span>
+            <span class="catalog-card-badge ${outOfStock ? "!bg-rose-600" : limited ? "is-limited" : ""}">${outOfStock ? "Habis" : limited ? "Stok terbatas" : "Tersedia"}</span>
             ${productImageMarkup(item, "catalog-card-photo", 560, index < 2)}
           </div>
           <div class="catalog-card-body">
@@ -655,10 +677,10 @@
             ${showSenarNote ? `<p class="senar-service-note"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>${SENAR_SERVICE_NOTE}</span></p>` : ""}
             <div class="catalog-card-facts">
               <p class="catalog-card-price text-slate-900">${rp(item.price)}</p>
-              <span class="catalog-stock">Stok ${stockNum} pcs</span>
+              <span class="catalog-stock ${outOfStock ? "!bg-rose-50 !text-rose-700" : ""}">${outOfStock ? "Stok habis" : `Stok ${stockNum} pcs`}</span>
             </div>
             <div class="catalog-card-actions">
-              <button type="button" data-add-cart="${esc(item.id)}" class="shop-button shop-button-primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Keranjang</button>
+              <button type="button" data-add-cart="${esc(item.id)}" ${outOfStock ? "disabled" : ""} class="shop-button shop-button-primary"><i class="fa-solid ${outOfStock ? "fa-ban" : "fa-plus"}" aria-hidden="true"></i> ${outOfStock ? "Habis" : "Keranjang"}</button>
               <a href="${CATALOG_WA}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener noreferrer" class="shop-button shop-button-secondary"><i class="fa-brands fa-whatsapp text-emerald-600" aria-hidden="true"></i> Tanya stok</a>
             </div>
           </div>
