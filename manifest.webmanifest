@@ -1,0 +1,25 @@
+{
+  "name": "Surya Jaya Sport POS & Katalog",
+  "short_name": "Surya Jaya Sport",
+  "description": "Aplikasi kasir POS, stok, pembukuan, dan katalog Surya Jaya Sport Berau.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#0f172a",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/sjs-mark.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/sjs-mark.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
