@@ -1724,8 +1724,7 @@
       formData.append("file", blob, `${itemId}.${ext}`);
       formData.append("upload_preset", CLOUDINARY_PRESET);
       formData.append("folder", "products");
-      formData.append("public_id", itemId);
-      formData.append("overwrite", "true");
+      formData.append("public_id", `${itemId}-${Date.now()}`);
       const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, { method: "POST", body: formData });
       const result = await response.json().catch(() => ({}));
       if (!response.ok || !result.secure_url) {
@@ -1934,8 +1933,7 @@
       formData.append("file", blob, `${itemId}.${ext}`);
       formData.append("upload_preset", CLOUDINARY_PRESET);
       formData.append("folder", "products");
-      formData.append("public_id", itemId);
-      formData.append("overwrite", "true");
+      formData.append("public_id", `${itemId}-${Date.now()}`);
       const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, { method: "POST", body: formData });
       const result = await response.json().catch(() => ({}));
       if (!response.ok || !result.secure_url) {
