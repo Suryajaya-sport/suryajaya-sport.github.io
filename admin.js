@@ -1237,15 +1237,15 @@
       if (recInp && document.activeElement !== recInp) recInp.value = cashReceivedAmount > 0 ? String(cashReceivedAmount) : "";
       const diff = cashReceivedAmount - currentSaleTotalAmount;
       if (cashReceivedAmount === 0) {
-        if (lblEl) lblEl.textContent = "Kembalian";
+        if (lblEl) lblEl.textContent = "✅ Kembalian";
         if (chgEl) chgEl.textContent = rp(0);
         if (boxEl) { boxEl.classList.add("is-change"); boxEl.classList.remove("is-short"); }
       } else if (diff < 0) {
-        if (lblEl) lblEl.textContent = "Kurang Bayar";
+        if (lblEl) lblEl.textContent = "⚠ Kurang Bayar";
         if (chgEl) chgEl.textContent = rp(Math.abs(diff));
         if (boxEl) { boxEl.classList.remove("is-change"); boxEl.classList.add("is-short"); }
       } else {
-        if (lblEl) lblEl.textContent = "Kembalian";
+        if (lblEl) lblEl.textContent = "✅ Kembalian";
         if (chgEl) chgEl.textContent = rp(diff);
         if (boxEl) { boxEl.classList.add("is-change"); boxEl.classList.remove("is-short"); }
       }
@@ -1418,7 +1418,7 @@
     }
     function renderHeldSalesBar() {
       const lbl = document.getElementById("btnHoldSaleLabel");
-      if (lbl) lbl.textContent = `Hold (${heldSales.length})`;
+      if (lbl) lbl.textContent = `Tahan (${heldSales.length})`;
       const bar = document.getElementById("posHeldTabsBar");
       if (!bar) return;
       if (!heldSales.length) { bar.hidden = true; bar.innerHTML = ""; return; }
@@ -5174,11 +5174,36 @@
           instantDrop.classList.add("hidden");
         }
       });
+      const updateCustomerStatusBadges = () => {
+        const wrap = document.getElementById("posCustomerStatusBadges");
+        const val = String(document.getElementById("inputCustomer")?.value || "").trim().toLowerCase();
+        if (!wrap) return;
+        if (!val || /^(pelanggan\s+umum|umum)$/i.test(val)) { wrap.innerHTML = ""; return; }
+        const matched = transactions.filter(t => String(t.customer || "").trim().toLowerCase() === val);
+        const bonTx = matched.filter(t => t.paymentMethod === "Bon");
+        const badges = [];
+        if (matched.length >= 2) badges.push(`<span class="px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">⭐ MEMBER (${matched.length}x)</span>`);
+        if (bonTx.length > 0) {
+          const bonTot = bonTx.reduce((s, t) => s + Number(t.totalOmset || 0), 0);
+          badges.push(`<span class="px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300">🔴 BON ${esc(shortRpTick(bonTot))}</span>`);
+        }
+        wrap.innerHTML = badges.join("");
+      };
+      document.getElementById("inputCustomer")?.addEventListener("input", updateCustomerStatusBadges);
       document.getElementById("posRecentCustomersBar")?.addEventListener("click", e => {
         const btn = e.target.closest("[data-pick-customer]");
         if (!btn) return;
         const inp = document.getElementById("inputCustomer");
-        if (inp) inp.value = btn.dataset.pickCustomer;
+        if (inp) { inp.value = btn.dataset.pickCustomer; updateCustomerStatusBadges(); }
+      });
+      document.getElementById("btnPosActionRetur")?.addEventListener("click", () => {
+        const card = document.getElementById("posRecentTxCard");
+        if (card) card.scrollIntoView({ behavior: "smooth", block: "center" });
+        showToast("Pilih nota pada 'Transaksi Terakhir Hari Ini' lalu klik Retur, atau klik 'Lihat semua' untuk nota hari sebelumnya.");
+      });
+      document.getElementById("btnPosActionVoid")?.addEventListener("click", () => {
+        switchWorkspace("sales");
+        showToast("Pilih nota yang ingin di-Void lalu klik ikon batal merah.");
       });
       document.getElementById("posRecentTxList")?.addEventListener("click", e => {
         const rep = e.target.closest("[data-pos-reprint]");
@@ -5246,6 +5271,8 @@
           const val = numBtn.dataset.numpad;
           if (val === "C") {
             cashReceivedAmount = 0;
+          } else if (val === "BS") {
+            cashReceivedAmount = Math.floor(cashReceivedAmount / 10);
           } else {
             const nextStr = (cashReceivedAmount === 0 ? "" : String(cashReceivedAmount)) + val;
             const parsed = Number(nextStr.slice(0, 10));
