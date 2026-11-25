@@ -640,6 +640,28 @@
     .pos-cash-box span { display: block; font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: #475569; }
     .pos-cash-box strong { display: block; font-size: 1.12rem; font-weight: 900; color: #0f172a; font-variant-numeric: tabular-nums; margin-top: .08rem; }
     .pos-cash-box.is-short strong { color: #b91c1c; }
+    #posCashChangeBox.is-change {
+      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%) !important;
+      border: 2px solid #10b981 !important;
+      padding: .75rem .9rem !important;
+      text-align: center;
+    }
+    #posCashChangeBox.is-change span { color: #065f46 !important; font-size: .74rem !important; letter-spacing: .08em; }
+    #posCashChangeBox.is-change strong { color: #047857 !important; font-size: 1.75rem !important; line-height: 1.15 !important; letter-spacing: -.02em; }
+    #posCashChangeBox.is-short {
+      background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%) !important;
+      border: 2px solid #f43f5e !important;
+      padding: .75rem .9rem !important;
+      text-align: center;
+    }
+    #posCashChangeBox.is-short span { color: #9f1239 !important; font-size: .74rem !important; letter-spacing: .08em; }
+    #posCashChangeBox.is-short strong { color: #be123c !important; font-size: 1.55rem !important; line-height: 1.15 !important; }
+    @keyframes sjsCashPop {
+      0% { transform: scale(1); background-color: #dbeafe; }
+      45% { transform: scale(1.08); background-color: #fef08a; }
+      100% { transform: scale(1); background-color: transparent; }
+    }
+    .sjs-cash-pop { animation: sjsCashPop .48s ease-out; border-radius: .5rem; }
     .pos-cash-quick {
       display: flex; flex-wrap: wrap; gap: .45rem;
     }
@@ -2068,15 +2090,20 @@
                     <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900 flex items-center gap-1.5"><i class="fa-solid fa-calculator text-amber-500" aria-hidden="true"></i> Hitung Kembalian Tunai</span>
                     <button type="button" id="btnToggleCashNumpad" class="px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-200 text-xs font-extrabold text-blue-900" aria-expanded="false">Buka Numpad</button>
                   </div>
-                  <div class="pos-cash-summary">
-                    <div class="pos-cash-box">
-                      <span>Uang Diterima</span>
-                      <strong id="posCashReceivedText">Rp 0</strong>
-                      <input type="number" id="posCashReceivedInput" min="0" step="1000" inputmode="numeric" placeholder="Ketik nominal..." aria-label="Ketik uang diterima" class="mt-1 w-full rounded-lg border border-blue-200 bg-white px-2 py-1 text-xs font-extrabold text-slate-900 tabular-nums">
+                  <div class="space-y-2">
+                    <div id="posCashChangeBox" class="pos-cash-box is-change w-full">
+                      <span id="posCashChangeLabel" class="block font-extrabold uppercase">Kembalian</span>
+                      <strong id="posCashChangeText" class="block tabular-nums mt-0.5">Rp 0</strong>
                     </div>
-                    <div id="posCashChangeBox" class="pos-cash-box is-change">
-                      <span id="posCashChangeLabel">Kembalian</span>
-                      <strong id="posCashChangeText">Rp 0</strong>
+                    <div class="pos-cash-box w-full flex flex-wrap items-center justify-between gap-2">
+                      <div class="min-w-0">
+                        <span class="block">Uang Diterima</span>
+                        <div class="flex items-center gap-1.5">
+                          <strong id="posCashReceivedText" class="inline-block px-1 tabular-nums">Rp 0</strong>
+                          <span id="posCashFeedbackPill" class="hidden px-2 py-0.5 rounded-full bg-amber-200 text-amber-950 text-[10px] font-extrabold"></span>
+                        </div>
+                      </div>
+                      <input type="number" id="posCashReceivedInput" min="0" step="1000" inputmode="numeric" placeholder="Ketik nominal..." aria-label="Ketik uang diterima" class="w-32 rounded-lg border border-blue-200 bg-white px-2.5 py-1.5 text-xs font-extrabold text-right text-slate-900 tabular-nums">
                     </div>
                   </div>
                   <div class="pos-cash-quick">
@@ -2984,6 +3011,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261125-13"></script>
+  <script type="module" src="./admin.js?v=20261125-14"></script>
 </body>
 </html>

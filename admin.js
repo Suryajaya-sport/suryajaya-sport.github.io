@@ -1169,6 +1169,22 @@
 
     let currentSaleTotalAmount = 0;
     let cashReceivedAmount = 0;
+    let cashFeedbackTimer = null;
+    function flashCashFeedback(label) {
+      const recEl = document.getElementById("posCashReceivedText");
+      const pill = document.getElementById("posCashFeedbackPill");
+      if (recEl) {
+        recEl.classList.remove("sjs-cash-pop");
+        void recEl.offsetWidth;
+        recEl.classList.add("sjs-cash-pop");
+      }
+      if (pill && label) {
+        pill.textContent = label;
+        pill.classList.remove("hidden");
+        clearTimeout(cashFeedbackTimer);
+        cashFeedbackTimer = setTimeout(() => pill.classList.add("hidden"), 1100);
+      }
+    }
     function updateCashCalcUI() {
       const panel = document.getElementById("posCashCalcPanel");
       if (!panel) return;
@@ -4944,18 +4960,22 @@
         if (exactBtn) {
           cashReceivedAmount = currentSaleTotalAmount;
           updateCashCalcUI();
+          flashCashFeedback("Uang Pas");
           return;
         }
         const addBtn = e.target.closest("[data-cash-add]");
         if (addBtn) {
-          cashReceivedAmount += Number(addBtn.dataset.cashAdd || 0);
+          const addVal = Number(addBtn.dataset.cashAdd || 0);
+          cashReceivedAmount += addVal;
           updateCashCalcUI();
+          flashCashFeedback(`+${shortRpTick(addVal)}`);
           return;
         }
         const clrBtn = e.target.closest("[data-cash-clear]");
         if (clrBtn) {
           cashReceivedAmount = 0;
           updateCashCalcUI();
+          flashCashFeedback("Reset");
           return;
         }
         const numBtn = e.target.closest("[data-numpad]");
