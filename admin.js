@@ -1258,6 +1258,7 @@
     function receiptNumber(tx) { return "TRX-" + String(tx.id).slice(-6).toUpperCase(); }
     function cleanDisplayItemName(name) { return String(name || "Barang").replace(/^\s*\[?[A-Z]{2,5}-\d+\]?\s*[-·:]?\s*/i, "").trim() || String(name || "Barang").trim(); }
     let topProductsSortMode = localStorage.getItem("sjs-top-prod-sort") || "qty";
+    let hourlyChartMetric = localStorage.getItem("sjs-hourly-metric") || "omset";
     function formatWitaTime(iso) {
       if (!iso) return "";
       const dt = new Date(iso);
@@ -2544,38 +2545,63 @@
           hours[clamped - 8].val += Number(tx.totalOmset || 0);
           hours[clamped - 8].cnt += 1;
         }
+        const byOmset = hourlyChartMetric !== "nota";
+        const topRevHours = hours.filter(x => x.val > 0).slice().sort((a, b) => b.val - a.val || b.cnt - a.cnt);
         const maxCnt = Math.max(0, ...hours.map(x => x.cnt));
-        const tiedTop = hours.filter(x => x.cnt === maxCnt && maxCnt > 0);
-        const hasDominantPeak = maxCnt >= 2 && tiedTop.length === 1;
-        const peakHr = hasDominantPeak ? tiedTop[0] : null;
-        const mxCnt = Math.max(1, maxCnt);
+        const maxVal = Math.max(0, ...hours.map(x => x.val));
+        const tiedTopCnt = hours.filter(x => x.cnt === maxCnt && maxCnt > 0);
+        const hasDominantCnt = maxCnt >= 2 && tiedTopCnt.length === 1;
+        const peakHr = byOmset
+          ? (topRevHours.length ? topRevHours[0] : null)
+          : (hasDominantCnt ? tiedTopCnt[0] : null);
+        const mxMetric = Math.max(1, byOmset ? maxVal : maxCnt);
         const peakNote = maxCnt === 0
           ? "Belum ada transaksi"
-          : hasDominantPeak
-            ? `Paling ramai: ${peakHr.label}.00 WITA (${peakHr.cnt} nota)`
-            : "Belum ada jam dominan (seri)";
-        const chartHtml = `<div class="grid gap-1 pt-3" style="grid-template-columns:repeat(14,minmax(0,1fr))">` + hours.map(x => {
-          const pct = x.cnt > 0 ? Math.max(18, Math.round((x.cnt / mxCnt) * 100)) : 0;
+          : byOmset
+            ? `Omzet tertinggi: ${peakHr.label}.00 WITA (${shortRpTick(peakHr.val)})`
+            : hasDominantCnt
+              ? `Paling ramai: ${peakHr.label}.00 WITA (${peakHr.cnt} nota)`
+              : "Belum ada jam dominan (seri)";
+        const chartHtml = `<div class="grid gap-1 pt-2.5" style="grid-template-columns:repeat(14,minmax(0,1fr))">` + hours.map(x => {
+          const curM = byOmset ? x.val : x.cnt;
+          const pct = curM > 0 ? Math.max(18, Math.round((curM / mxMetric) * 100)) : 0;
           const isPeak = Boolean(peakHr && x.h === peakHr.h);
-          const fill = isPeak ? "#0f2557" : (x.cnt > 0 ? "#1d4ed8" : "transparent");
-          return `<div class="flex flex-col items-center gap-0.5" title="Jam ${x.label}.00–${x.label}.59 WITA: ${x.cnt} nota · ${rp(x.val)}">
-            <span class="text-[9px] font-extrabold ${isPeak ? "text-blue-900" : "text-slate-400"} tabular-nums">${x.cnt ? x.cnt : ""}</span>
+          const fill = isPeak ? "#0f2557" : (curM > 0 ? (byOmset ? "#eab308" : "#1d4ed8") : "transparent");
+          const topLbl = curM > 0 ? (byOmset ? shortRpTick(x.val).replace("Rp ", "").replace(" rb", "k").replace(" jt", "jt") : String(x.cnt)) : "";
+          return `<div class="flex flex-col items-center gap-0.5" title="Jam ${x.label}.00–${x.label}.59 WITA: ${rp(x.val)} (${x.cnt} nota)">
+            <span class="text-[8.5px] font-extrabold ${isPeak ? "text-blue-900" : "text-slate-400"} tabular-nums truncate max-w-full">${esc(topLbl)}</span>
             <div class="w-full h-14 rounded-md bg-slate-100 flex items-end p-[2px] overflow-hidden">
               <div class="w-full rounded-[4px]" style="height:${pct}%; background:${fill}"></div>
             </div>
             <span class="text-[9px] font-bold ${isPeak ? "text-blue-900" : "text-slate-500"} tabular-nums">${x.label}</span>
           </div>`;
         }).join("") + `</div>`;
+        const top3RevHtml = topRevHours.length
+          ? `<div class="mt-2.5 pt-2 border-t border-slate-100 flex flex-wrap items-center gap-1.5 text-[11px]">
+              <span class="font-extrabold text-slate-500">Top Jam Omzet:</span>
+              ${topRevHours.slice(0, 3).map((x, idx) => `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-extrabold ${idx === 0 ? "bg-blue-900 text-white" : "bg-amber-50 text-amber-900 border border-amber-200"}">${x.label}:00 · ${esc(shortRpTick(x.val))}</span>`).join("")}
+            </div>`
+          : "";
         heroCard.innerHTML = `
           <div class="flex items-start justify-between gap-2">
             <div>
-              <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900">Rata-Rata / Nota &amp; Jam Ramai (08–21 WITA)</span>
-              <p class="text-2xl font-black text-slate-950 tracking-tight mt-1 tabular-nums">${rp(avgBasket)}</p>
+              <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900">Jam Paling Menghasilkan (08–21 WITA)</span>
+              <p class="text-2xl font-black text-slate-950 tracking-tight mt-1 tabular-nums">${rp(avgBasket)} <span class="text-xs font-bold text-slate-500">/ nota</span></p>
               <span class="text-[11px] font-bold text-slate-600">${pcsLabel} · ${peakNote}</span>
             </div>
-            <span class="w-10 h-10 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-800 text-base shrink-0"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
+            <div class="flex items-center gap-1 shrink-0">
+              <button type="button" data-hour-metric="omset" class="px-2 py-1 rounded-full text-[10px] font-extrabold border ${byOmset ? "bg-blue-900 text-white border-blue-900" : "bg-white text-slate-600 border-slate-200"}">Omzet</button>
+              <button type="button" data-hour-metric="nota" class="px-2 py-1 rounded-full text-[10px] font-extrabold border ${!byOmset ? "bg-blue-900 text-white border-blue-900" : "bg-white text-slate-600 border-slate-200"}">Nota</button>
+            </div>
           </div>
-          ${chartHtml}`;
+          ${chartHtml}${top3RevHtml}`;
+        heroCard.querySelectorAll("[data-hour-metric]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            hourlyChartMetric = btn.dataset.hourMetric === "nota" ? "nota" : "omset";
+            localStorage.setItem("sjs-hourly-metric", hourlyChartMetric);
+            renderSalesCharts(rows);
+          });
+        });
       }
 
       // 3. Ring Donut Cara Bayar with Floating % Pills
