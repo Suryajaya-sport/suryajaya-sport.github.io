@@ -3430,6 +3430,80 @@
           </div>`;
       }
 
+      // Target Omzet Bulan Ini
+      const targetCard = document.getElementById("booksTargetOmzetCard");
+      if (targetCard) {
+        const tgt = Math.max(1, Number(monthlyRevenueTarget || 75000000));
+        const pctRaw = (revenue / tgt) * 100;
+        const pctDisp = Math.round(pctRaw);
+        const barW = Math.min(100, Math.max(0, pctRaw));
+        const diff = tgt - revenue;
+        const reached = revenue >= tgt;
+        const barColor = reached ? "#16a34a" : pctDisp >= 70 ? "#1d4ed8" : "#eab308";
+        targetCard.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h4 class="text-xs font-extrabold uppercase tracking-wider text-amber-950"><i class="fa-solid fa-bullseye text-amber-600 mr-1.5" aria-hidden="true"></i>Target Omzet Bulan Ini (${esc(month)})</h4>
+              <p class="text-[11px] font-semibold text-slate-600 mt-0.5">${reached ? `Target tercapai! Lebih ${rp(Math.abs(diff))} di atas target.` : `Kurang ${rp(diff)} lagi untuk mencapai target.`}</p>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <label for="inputMonthlyTarget" class="text-[11px] font-bold text-slate-600">Target (Rp):</label>
+              <input type="number" id="inputMonthlyTarget" min="100000" step="500000" value="${tgt}" class="w-32 rounded-xl border border-amber-300 bg-white px-2.5 py-1 text-xs font-extrabold text-slate-900 tabular-nums">
+              <button type="button" id="btnSaveMonthlyTarget" class="px-2.5 py-1 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 text-xs font-extrabold">Simpan</button>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-baseline justify-between gap-2">
+            <div class="text-sm font-extrabold text-slate-900 tabular-nums">Tercapai: <span class="${reached ? "text-emerald-700" : "text-blue-800"}">${rp(revenue)}</span> <span class="text-xs font-bold text-slate-500">/ ${rp(tgt)}</span></div>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold ${reached ? "bg-emerald-100 text-emerald-800" : "bg-blue-100 text-blue-900"}">${pctDisp}%</span>
+          </div>
+          <div class="w-full h-3 rounded-full bg-white border border-amber-200 overflow-hidden">
+            <div style="width:${barW.toFixed(1)}%;background:${barColor}" class="h-full rounded-full transition-all duration-300"></div>
+          </div>`;
+        targetCard.querySelector("#btnSaveMonthlyTarget")?.addEventListener("click", async () => {
+          const val = Number(targetCard.querySelector("#inputMonthlyTarget")?.value || 0);
+          if (!Number.isFinite(val) || val < 100000) return showToast("Target omzet minimal Rp 100.000.");
+          monthlyRevenueTarget = Math.round(val);
+          localStorage.setItem("sjs-monthly-revenue-target", String(monthlyRevenueTarget));
+          await saveConfig({ monthlyRevenueTarget });
+          renderOwnerBooks();
+          showToast(`Target omzet bulanan disimpan: ${rp(monthlyRevenueTarget)}`);
+        });
+      }
+
+      // Top Pengeluaran Operasional Bulan Ini (tabel ringkas)
+      const topExpTable = document.getElementById("ownerTopExpenseTable");
+      const topExpBadge = document.getElementById("ownerTopExpTotalBadge");
+      if (topExpTable) {
+        const monthOpsExp = books.expenses.filter(e => month && String(e.date || "").startsWith(month + "-") && !isNonExpenseTransfer(e));
+        const grouped = new Map();
+        for (const e of monthOpsExp) {
+          const k = String(e.category || "Operasional").trim();
+          grouped.set(k, (grouped.get(k) || 0) + Number(e.amount || 0));
+        }
+        const sortedExp = [...grouped.entries()].sort((a, b) => b[1] - a[1]);
+        if (topExpBadge) topExpBadge.textContent = rp(spending);
+        topExpTable.innerHTML = sortedExp.length
+          ? `<table class="w-full text-xs text-left border-collapse">
+              <thead class="sticky top-0 bg-slate-100 text-slate-600 uppercase text-[11px] font-extrabold">
+                <tr>
+                  <th class="py-2 px-2.5 rounded-tl-lg">Pengeluaran</th>
+                  <th class="py-2 px-2.5 text-right">Nominal</th>
+                  <th class="py-2 px-2.5 text-right rounded-tr-lg">Porsi</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-200 bg-white">${sortedExp.map(([cat, amt]) => {
+                const share = spending > 0 ? Math.round((amt / spending) * 100) : 0;
+                return `<tr>
+                  <td class="py-2 px-2.5 font-bold text-slate-800">${esc(cat)}</td>
+                  <td class="py-2 px-2.5 text-right tabular-nums font-extrabold text-rose-700 whitespace-nowrap" title="${rp(amt)}">${esc(shortRpTick(amt))}</td>
+                  <td class="py-2 px-2.5 text-right tabular-nums font-bold text-slate-500 whitespace-nowrap">${share}%</td>
+                </tr>`;
+              }).join("")}
+              </tbody>
+            </table>`
+          : `<p class="text-xs font-semibold text-slate-500 py-3">Belum ada pengeluaran operasional bulan ini (gaji, sewa, listrik, internet). Catat di tab <strong>Uang keluar</strong> agar laba bersih &amp; BEP akurat.</p>`;
+      }
+
       // Pajak UMKM (PP 55/2022 jo. PP 20/2026)
       const taxCard = document.getElementById("booksUmkmTaxCard");
       if (taxCard) {
@@ -4090,6 +4164,7 @@
     }
     let lockedBookMonths = new Set();
     let umkmTaxType = localStorage.getItem("sjs-umkm-tax-type") || "op";
+    let monthlyRevenueTarget = Number(localStorage.getItem("sjs-monthly-revenue-target") || 75000000);
     function isMonthLocked(ym) {
       return Boolean(ym && lockedBookMonths.has(String(ym).slice(0, 7)));
     }
@@ -4112,7 +4187,12 @@
       costCodeDigits = String(data.costCodeDigits || "");
       geminiApiKey = String(data.geminiApiKey || "");
       lockedBookMonths = new Set(Array.isArray(data.lockedBookMonths) ? data.lockedBookMonths.map(String) : []);
+      if (Number(data.monthlyRevenueTarget) > 0) {
+        monthlyRevenueTarget = Number(data.monthlyRevenueTarget);
+        localStorage.setItem("sjs-monthly-revenue-target", String(monthlyRevenueTarget));
+      }
       renderBookLockButton();
+      if (isAdmin) renderOwnerBooks();
       const keyInput = document.getElementById("geminiApiKeyInput");
       if (keyInput && !keyInput.value) keyInput.value = geminiApiKey;
       const keyBadge = document.getElementById("geminiKeyStatus");
