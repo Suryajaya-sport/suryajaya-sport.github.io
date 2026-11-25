@@ -302,14 +302,14 @@
     }
     .quick-cat-btn:hover { border-color: #2563eb; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(37,99,235,.1); }
     .quick-cat-btn.is-active { background: linear-gradient(135deg,#0f172a,#1d4ed8); border-color: #1d4ed8; color: #fff; }
-    .quick-cat-icon {
+    .quick-cat-btn .quick-cat-icon {
       width: 2.35rem; height: 2.35rem; border-radius: .85rem;
-      background: #eff6ff; color: #1d4ed8; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+      background: #eff6ff; color: #1d4ed8; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1rem;
     }
     .quick-cat-btn.is-active .quick-cat-icon { background: rgba(255,255,255,.18); color: #fbbf24; }
     .quick-cat-btn strong { display: block; font-size: .82rem; font-weight: 800; line-height: 1.2; }
-    .quick-cat-btn span { display: block; font-size: .7rem; color: #64748b; }
-    .quick-cat-btn.is-active span { color: #cbd5e1; }
+    .quick-cat-btn span:not(.quick-cat-icon) { display: block; font-size: .7rem; color: #64748b; }
+    .quick-cat-btn.is-active span:not(.quick-cat-icon) { color: #cbd5e1; }
 
     .catalog-card-photo-wrap { position: relative; cursor: pointer; overflow: hidden; }
     .catalog-card-photo-wrap img { transition: transform .28s ease; }

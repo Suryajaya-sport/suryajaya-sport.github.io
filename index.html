@@ -461,6 +461,13 @@
       .floating-wa-btn { width: 52px; height: 52px; justify-content: center; padding: 0; font-size: 1.35rem; }
     }
   </style>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZS9T9ZJXBK"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-ZS9T9ZJXBK');
+  </script>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
 
@@ -581,27 +588,27 @@
           <span>Lihat seluruh stok</span>
         </button>
         <button type="button" class="quick-cat-btn" data-quick-cat="badminton">
-          <img src="cat-badminton-150.webp" srcset="cat-badminton-150.webp 1x, cat-badminton.webp 2x" alt="" width="76" height="76" class="quick-cat-thumb" loading="lazy" decoding="async">
+          <img src="cat-badminton-150.webp" srcset="cat-badminton-150.webp 1x, cat-badminton-150.webp 2x, cat-badminton.webp 3x" alt="" width="76" height="76" class="quick-cat-thumb" loading="lazy" decoding="async">
           <strong>Badminton</strong>
           <span>Raket, kok, senar, grip</span>
         </button>
         <button type="button" class="quick-cat-btn" data-quick-cat="ball">
-          <img src="cat-futsal-bola-150.webp" srcset="cat-futsal-bola-150.webp 1x, cat-futsal-bola.webp 2x" alt="" width="76" height="76" class="quick-cat-thumb" loading="lazy" decoding="async">
+          <img src="cat-futsal-bola-150.webp" srcset="cat-futsal-bola-150.webp 1x, cat-futsal-bola-150.webp 2x, cat-futsal-bola.webp 3x" alt="" width="76" height="76" class="quick-cat-thumb" loading="lazy" decoding="async">
           <strong>Futsal &amp; Bola</strong>
           <span>Bola, sepatu, deker</span>
         </button>
         <button type="button" class="quick-cat-btn" data-quick-cat="chess">
-          <img src="cat-catur-150.webp" srcset="cat-catur-150.webp 1x, cat-catur.webp 2x" alt="" width="76" height="76" class="quick-cat-thumb" loading="lazy" decoding="async">
+          <img src="cat-catur-150.webp" srcset="cat-catur-150.webp 1x, cat-catur-150.webp 2x, cat-catur.webp 3x" alt="" width="76" height="76" class="quick-cat-thumb" loading="lazy" decoding="async">
           <strong>Catur</strong>
           <span>Papan &amp; bidak catur</span>
         </button>
         <button type="button" class="quick-cat-btn" data-quick-cat="music">
-          <img src="cat-musik-150.webp" srcset="cat-musik-150.webp 1x, cat-musik.webp 2x" alt="" width="76" height="76" class="quick-cat-thumb" loading="lazy" decoding="async">
+          <img src="cat-musik-150.webp" srcset="cat-musik-150.webp 1x, cat-musik-150.webp 2x, cat-musik.webp 3x" alt="" width="76" height="76" class="quick-cat-thumb" loading="lazy" decoding="async">
           <strong>Musik</strong>
           <span>Gitar, stik drum, senar</span>
         </button>
         <button type="button" class="quick-cat-btn" data-quick-cat="sport">
-          <img src="cat-olahraga-lainnya-150.webp" srcset="cat-olahraga-lainnya-150.webp 1x, cat-olahraga-lainnya.webp 2x" alt="" width="76" height="76" class="quick-cat-thumb" loading="lazy" decoding="async">
+          <img src="cat-olahraga-lainnya-150.webp" srcset="cat-olahraga-lainnya-150.webp 1x, cat-olahraga-lainnya-150.webp 2x, cat-olahraga-lainnya.webp 3x" alt="" width="76" height="76" class="quick-cat-thumb" loading="lazy" decoding="async">
           <strong>Olahraga Lainnya</strong>
           <span>Pingpong, taping, piala</span>
         </button>
@@ -948,6 +955,9 @@
       if (!item) return;
       const msg = `Halo Surya Jaya Sport, saya ingin bertanya tentang ${item.name}${item.code ? ` (${item.code})` : ""} dengan harga ${rp(item.price)}. Apakah stoknya tersedia?`;
       document.getElementById("catalogDetailTitle").textContent = item.name;
+      if (typeof window.gtag === "function") {
+        window.gtag("event", "view_item", { currency: "IDR", value: Number(item.price || 0), items: [{ item_id: item.code || item.id, item_name: item.name, price: Number(item.price || 0) }] });
+      }
       const showSenarNote = isSenarBadminton(item);
       document.getElementById("catalogDetailBody").innerHTML = `
         <div class="rounded-2xl border border-slate-100 bg-white overflow-hidden">${productImageMarkup(item, "aspect-[4/3] w-full", 720, true)}</div>
@@ -1144,6 +1154,26 @@
       catalogLoadState = "error";
       renderProductCatalog();
     }
+
+    document.addEventListener("click", e => {
+      const a = e.target.closest('a[href*="wa.me"]');
+      if (!a || typeof window.gtag !== "function") return;
+      const card = a.closest(".catalog-card");
+      const modal = a.closest("#catalogProductModal");
+      const cart = a.closest("#catalogCartDialog");
+      const productName = card?.querySelector("h3")?.textContent?.trim()
+        || (modal ? document.getElementById("catalogDetailTitle")?.textContent?.trim() : "")
+        || (cart ? "Keranjang Belanja" : "Umum / Tanya Toko");
+      const locationTag = card ? "katalog_kartu"
+        : modal ? "modal_detail"
+        : cart ? "keranjang_wa"
+        : a.closest("#lokasi-toko") ? "lokasi_toko"
+        : "header_hero";
+      window.gtag("event", "whatsapp_click", {
+        product_name: productName,
+        click_location: locationTag
+      });
+    });
   </script>
 </body>
 </html>
