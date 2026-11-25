@@ -1680,6 +1680,7 @@
             <h3 class="workspace-section-title">Laporan bulanan</h3>
             <div class="flex flex-wrap items-center gap-2.5">
               <label class="text-sm font-bold text-slate-700 flex items-center gap-2">Bulan laporan <input type="month" id="bookMonth" class="rounded-xl border border-slate-300 px-3 py-2 font-bold"></label>
+              <button type="button" id="btnToggleBookLock" class="shop-button shop-button-secondary !min-h-10 !py-2 !px-3.5 !text-xs"><i class="fa-solid fa-lock" aria-hidden="true"></i> Kunci Tutup Buku</button>
               <button type="button" id="btnPrintMonthlyBook" class="shop-button shop-button-primary !min-h-10 !py-2 !px-3.5 !text-xs"><i class="fa-solid fa-print" aria-hidden="true"></i> Cetak Tutup Buku A4</button>
             </div>
           </div>
@@ -1699,69 +1700,43 @@
               <span><span class="sjs-ratio-dot bg-rose-500"></span>Pengeluaran Toko: <strong id="booksLegendExp">Rp 0</strong></span>
             </div>
           </div>
+          <div id="booksCashCard" class="rounded-2xl border border-blue-200 bg-blue-50/40 p-4 space-y-2.5"></div>
+          <div id="booksUmkmTaxCard" class="rounded-2xl border border-slate-200 bg-slate-50/80 p-4 space-y-2.5"></div>
           <details class="rounded-2xl border border-slate-200 bg-slate-50 p-4"><summary class="font-bold cursor-pointer">Pembelian stok bulan ini</summary><ul id="ownerPurchaseHistory" class="mt-3 space-y-2 text-sm"></ul></details>
         </section>
 
         <section id="booksCharts" class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          <!-- BARIS 2 KIRI (2 KOLOM): Waterfall Omzet -> Modal -> Biaya -> Laba Bersih + Ringkasan Keuangan -->
           <div class="sjs-chart-card lg:col-span-2">
             <div class="sjs-chart-head">
               <div class="sjs-chart-title-wrap">
-                <span class="sjs-chart-badge-icon is-blue"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i></span>
+                <span class="sjs-chart-badge-icon is-blue"><i class="fa-solid fa-water" aria-hidden="true"></i></span>
                 <div>
-                  <h3 class="workspace-section-title">Rasio Laba &amp; Arus Kas Bulan Ini</h3>
-                  <p class="sjs-chart-sub">Gauge persentase margin laba &amp; rincian batang kapsul</p>
+                  <h3 class="workspace-section-title">Alur Laba Rugi (Omzet &rarr; Modal &rarr; Biaya &rarr; Laba Bersih)</h3>
+                  <p class="sjs-chart-sub">Waterfall arus uang &amp; status titik impas bulan terpilih</p>
                 </div>
               </div>
               <span id="badgeBookGauge" class="sjs-chart-pill">Bulan ini</span>
             </div>
-            <div id="svgBookGaugeWrap" class="w-full space-y-4"></div>
+            <div id="svgBookGaugeWrap" class="w-full space-y-3"></div>
           </div>
 
-          <div class="flex flex-col gap-4">
-            <div id="bentoBookOmzetCard" class="bento-pastel-card"></div>
-            <div class="sjs-chart-card flex-1">
-              <div class="sjs-chart-head">
-                <div class="sjs-chart-title-wrap">
-                  <span class="sjs-chart-badge-icon is-navy"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i></span>
-                  <div>
-                    <h3 class="workspace-section-title">Komposisi Pembayaran</h3>
-                    <p class="sjs-chart-sub">Persentase tiap metode bayar</p>
-                  </div>
-                </div>
-                <span id="badgeBookPay" class="sjs-chart-pill">Rp 0</span>
-              </div>
-              <div id="svgBookPayWrap" class="w-full flex flex-col gap-2"></div>
-            </div>
-          </div>
-
-          <div class="sjs-chart-card lg:col-span-2">
-            <div class="sjs-chart-head">
-              <div class="sjs-chart-title-wrap">
-                <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i></span>
-                <div>
-                  <h3 class="workspace-section-title">Tren Laba Penjualan (6 Bulan)</h3>
-                  <p class="sjs-chart-sub">Laba bersih penjualan barang (Omzet − Modal Terjual)</p>
-                </div>
-              </div>
-              <span id="badgeBookProfit" class="sjs-chart-pill">Rp 0</span>
-            </div>
-            <div id="svgBookProfitWrap" class="w-full min-h-[220px] flex items-center justify-center"></div>
-          </div>
-
+          <!-- BARIS 2 KANAN (1 KOLOM): Produk Paling Menguntungkan (Omzet & Laba) -->
           <div class="sjs-chart-card">
             <div class="sjs-chart-head">
               <div class="sjs-chart-title-wrap">
-                <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-fire" aria-hidden="true"></i></span>
+                <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-sack-dollar" aria-hidden="true"></i></span>
                 <div>
-                  <h3 class="workspace-section-title">Produk Terlaris Bulan Ini</h3>
-                  <p class="sjs-chart-sub">Paling banyak menghasilkan omzet</p>
+                  <h3 class="workspace-section-title">Produk Paling Menguntungkan</h3>
+                  <p class="sjs-chart-sub">Diurutkan dari laba bersih tertinggi</p>
                 </div>
               </div>
             </div>
-            <div id="bentoBookTrendingWrap" class="space-y-3"></div>
+            <div id="bentoBookTrendingWrap" class="w-full overflow-x-auto"></div>
           </div>
 
-          <div class="sjs-chart-card lg:col-span-3">
+          <!-- BARIS 3 KIRI (2 KOLOM): Omzet & Laba Harian -->
+          <div class="sjs-chart-card lg:col-span-2">
             <div class="sjs-chart-head">
               <div class="sjs-chart-title-wrap">
                 <span class="sjs-chart-badge-icon is-blue"><i class="fa-solid fa-chart-column" aria-hidden="true"></i></span>
@@ -1773,6 +1748,50 @@
               <span id="badgeBookOmzetLaba" class="sjs-chart-pill">Bulan ini</span>
             </div>
             <div id="svgBookDailyWrap" class="w-full min-h-[210px] overflow-x-auto"></div>
+          </div>
+
+          <!-- BARIS 3 KANAN (1 KOLOM): Komposisi Metode Pembayaran -->
+          <div class="sjs-chart-card">
+            <div class="sjs-chart-head">
+              <div class="sjs-chart-title-wrap">
+                <span class="sjs-chart-badge-icon is-navy"><i class="fa-solid fa-credit-card" aria-hidden="true"></i></span>
+                <div>
+                  <h3 class="workspace-section-title">Metode Pembayaran</h3>
+                  <p class="sjs-chart-sub">Porsi Tunai, Transfer, QRIS &amp; Kartu</p>
+                </div>
+              </div>
+              <span id="badgeBookPay" class="sjs-chart-pill">Rp 0</span>
+            </div>
+            <div id="svgBookPayWrap" class="w-full flex flex-col gap-2"></div>
+          </div>
+
+          <!-- BARIS 4 (3 KOLOM): Top Pengeluaran Bulan Ini + Tren Laba 6 Bulan -->
+          <div class="sjs-chart-card lg:col-span-2">
+            <div class="sjs-chart-head">
+              <div class="sjs-chart-title-wrap">
+                <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-money-bill-transfer" aria-hidden="true"></i></span>
+                <div>
+                  <h3 class="workspace-section-title">Pengeluaran Operasional vs Belanja Restok</h3>
+                  <p class="sjs-chart-sub">Dipisah: biaya operasional mengurangi laba bersih, restok menjadi aset stok</p>
+                </div>
+              </div>
+              <span id="badgeBookTopExpense" class="sjs-chart-pill">Rp 0</span>
+            </div>
+            <div id="svgBookTopExpenseWrap" class="w-full"></div>
+          </div>
+
+          <div class="sjs-chart-card">
+            <div class="sjs-chart-head">
+              <div class="sjs-chart-title-wrap">
+                <span class="sjs-chart-badge-icon is-blue"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i></span>
+                <div>
+                  <h3 class="workspace-section-title">Tren Laba 6 Bulan</h3>
+                  <p class="sjs-chart-sub">Laba kotor penjualan 6 bulan terakhir</p>
+                </div>
+              </div>
+              <span id="badgeBookProfit" class="sjs-chart-pill">Rp 0</span>
+            </div>
+            <div id="svgBookProfitWrap" class="w-full min-h-[200px] flex items-center justify-center"></div>
           </div>
         </section>
 

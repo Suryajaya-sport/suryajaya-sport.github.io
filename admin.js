@@ -903,6 +903,7 @@
     async function saveSaleAndUpdateStock(txData, replacementFor = "") {
       if (!isAdmin) throw new Error("Masuk sebagai pemilik untuk mencatat penjualan.");
       if (!salePaymentMethods.has(txData.paymentMethod)) throw new Error("Pilih cara bayar.");
+      if (isMonthLocked(String(txData.date || todayStr()).slice(0, 7))) throw new Error(`Bulan ${String(txData.date || todayStr()).slice(0, 7)} sudah dikunci tutup buku.`);
       if (saleSaveInProgress) throw new Error("Penjualan sedang disimpan, tunggu sebentar.");
       saleSaveInProgress = true;
       try {
@@ -971,6 +972,7 @@
         const sale = await tx.get(saleRef);
         if (!sale.exists()) throw new Error("Transaksi tidak ditemukan.");
         const data = sale.data();
+        if (isMonthLocked(String(data.date || "").slice(0, 7))) throw new Error(`Bulan ${String(data.date || "").slice(0, 7)} sudah dikunci tutup buku.`);
         if (data.cancelledAt) return { alreadyCancelled: true };
         const restores = [];
         for (const [invId, qty] of saleInventoryQuantities(data.items)) {
@@ -2760,6 +2762,46 @@
       return { revenue, cost, spending, profit: revenue - cost - spending };
     }
 
+    function buildBookWaterfallSvg(revenue, cost, spending, netProfit) {
+      const mx = Math.max(1000, revenue, cost + spending, Math.abs(netProfit));
+      const W = 440, H = 164, padT = 26, padB = 28, plotH = H - padT - padB;
+      const baseZero = padT + plotH;
+      const hRev = Math.max(8, (revenue / mx) * plotH);
+      const yRev = baseZero - hRev;
+      const hCost = Math.max(cost > 0 ? 6 : 0, (cost / mx) * plotH);
+      const yCost = yRev;
+      const afterCostY = yRev + hCost;
+      const hExp = Math.max(spending > 0 ? 6 : 0, (spending / mx) * plotH);
+      const yExp = afterCostY;
+      const netAbsH = Math.max(8, (Math.abs(netProfit) / mx) * plotH);
+      const isLoss = netProfit < 0;
+      const yNet = isLoss ? baseZero - netAbsH : Math.max(padT, baseZero - netAbsH);
+      const netColor = isLoss ? "#e11d48" : "#16a34a";
+
+      return `<svg viewBox="0 0 ${W} ${H}" class="w-full h-44">
+        <line x1="20" y1="${baseZero}" x2="${W - 20}" y2="${baseZero}" stroke="#cbd5e1" stroke-width="1.2"/>
+        <line x1="88" y1="${yRev.toFixed(1)}" x2="128" y2="${yRev.toFixed(1)}" stroke="#94a3b8" stroke-dasharray="3 2"/>
+        <line x1="188" y1="${afterCostY.toFixed(1)}" x2="228" y2="${afterCostY.toFixed(1)}" stroke="#94a3b8" stroke-dasharray="3 2"/>
+        <line x1="288" y1="${Math.min(baseZero, yExp + hExp).toFixed(1)}" x2="328" y2="${Math.min(baseZero, yExp + hExp).toFixed(1)}" stroke="#94a3b8" stroke-dasharray="3 2"/>
+
+        <rect x="34" y="${yRev.toFixed(1)}" width="54" height="${hRev.toFixed(1)}" rx="6" fill="#1d4ed8"/>
+        <text x="61" y="${Math.max(14, yRev - 7).toFixed(1)}" text-anchor="middle" fill="#0f2557" font-size="10" font-weight="900">${esc(shortRpTick(revenue))}</text>
+        <text x="61" y="${H - 8}" text-anchor="middle" fill="#475569" font-size="10" font-weight="800">Omzet</text>
+
+        <rect x="134" y="${yCost.toFixed(1)}" width="54" height="${Math.max(4, Math.min(baseZero - yCost, hCost)).toFixed(1)}" rx="6" fill="#64748b"/>
+        <text x="161" y="${Math.max(14, yCost - 7).toFixed(1)}" text-anchor="middle" fill="#475569" font-size="10" font-weight="800">−${esc(shortRpTick(cost))}</text>
+        <text x="161" y="${H - 8}" text-anchor="middle" fill="#475569" font-size="10" font-weight="800">Modal</text>
+
+        <rect x="234" y="${Math.min(baseZero - 4, yExp).toFixed(1)}" width="54" height="${Math.max(4, Math.min(baseZero - Math.min(baseZero - 4, yExp), hExp)).toFixed(1)}" rx="6" fill="#eab308"/>
+        <text x="261" y="${Math.max(14, Math.min(baseZero - 10, yExp) - 7).toFixed(1)}" text-anchor="middle" fill="#b45309" font-size="10" font-weight="800">−${esc(shortRpTick(spending))}</text>
+        <text x="261" y="${H - 8}" text-anchor="middle" fill="#b45309" font-size="10" font-weight="800">Biaya</text>
+
+        <rect x="334" y="${yNet.toFixed(1)}" width="54" height="${netAbsH.toFixed(1)}" rx="6" fill="${netColor}"/>
+        <text x="361" y="${Math.max(14, yNet - 7).toFixed(1)}" text-anchor="middle" fill="${netColor}" font-size="10" font-weight="900">${isLoss ? "−" : "+"}${esc(shortRpTick(Math.abs(netProfit)))}</text>
+        <text x="361" y="${H - 8}" text-anchor="middle" fill="${netColor}" font-size="10" font-weight="900">${isLoss ? "Rugi" : "Laba Bersih"}</text>
+      </svg>`;
+    }
+
     function renderCharts() {
       if (!isAdmin) return;
       const month = document.getElementById("bookMonth").value || todayStr().slice(0, 7);
@@ -2767,51 +2809,38 @@
       const monthNum = Number(month.slice(5, 7));
 
       const monthSales = transactions.filter(t => String(t.date || "").startsWith(month + "-"));
-      const { revenue, cost, spending } = monthlyTotals(month);
-      const gross = Math.max(0, revenue - cost);
-      const beliBulanIni = purchases.filter(p => String(p.date || "").startsWith(month + "-")).reduce((s, p) => s + Number(p.totalCost || 0), 0);
+      const monthExp = books.expenses.filter(e => String(e.date || "").startsWith(month + "-"));
+      const monthPurch = purchases.filter(p => String(p.date || "").startsWith(month + "-"));
+      const { revenue, cost, spending, profit: netProfit } = monthlyTotals(month);
+      const gross = revenue - cost;
+      const beliBulanIni = monthPurch.reduce((s, p) => s + Number(p.totalCost || 0), 0);
 
-      // 1. Bento Semi-Circle Gauge + Pill Bars
+      // Baris 2 Kiri: Waterfall Omzet -> Modal -> Biaya -> Laba Bersih + Ringkasan Keuangan (Margin & BEP)
       const badgeGauge = document.getElementById("badgeBookGauge");
       if (badgeGauge) badgeGauge.textContent = month;
       const gaugeWrap = document.getElementById("svgBookGaugeWrap");
       if (gaugeWrap) {
-        const labaPct = revenue > 0 ? Math.round((gross / revenue) * 100) : 0;
-        const modalPct = revenue > 0 ? Math.max(0, 100 - labaPct) : 0;
-        const maxBar = Math.max(1, revenue, cost, gross, spending, beliBulanIni);
-        const rows = [
-          { label: "Omzet Penjualan", val: revenue, color: "#0f2557" },
-          { label: "Laba Penjualan", val: gross, color: "#1d4ed8" },
-          { label: "Modal Terjual", val: cost, color: "#64748b" },
-          { label: "Belanja Stok", val: beliBulanIni, color: "#eab308" },
-          { label: "Pengeluaran Toko", val: spending, color: "#e11d48" }
-        ];
-        gaugeWrap.innerHTML = buildSemiGaugeSvg(labaPct, modalPct, "Laba Penjualan", "Modal Barang") + buildUiKitProgressRows(rows, maxBar);
-      }
-
-      // 2. Bento Pastel Hero KPI Card (Omzet Bulan Ini + Mini 4-Bar Chart)
-      const pastelCard = document.getElementById("bentoBookOmzetCard");
-      if (pastelCard) {
-        const netProfit = revenue - cost - spending;
+        const grossMarginFrac = revenue > 0 ? (gross / revenue) : 0;
+        const grossMargin = Math.round(grossMarginFrac * 100);
         const netMargin = revenue > 0 ? Math.round((netProfit / revenue) * 100) : 0;
-        const chartHtml = buildRealMiniBarChart([
-          { label: "Omzet", val: revenue, top: shortRpTick(revenue), color: "#1d4ed8", tip: "Omzet: " + rp(revenue) },
-          { label: "Modal+Biaya", val: cost + spending, top: shortRpTick(cost + spending), color: "#64748b", tip: "HPP + Pengeluaran: " + rp(cost + spending) },
-          { label: "Laba Bersih", val: Math.max(0, netProfit), top: shortRpTick(netProfit), color: "#eab308", tip: "Laba Bersih: " + rp(netProfit) }
-        ]);
-        pastelCard.innerHTML = `
-          <div class="flex items-start justify-between gap-2">
-            <div>
-              <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900">Laba Bersih ${esc(month)}</span>
-              <p class="text-2xl font-black ${netProfit < 0 ? "text-rose-700" : "text-slate-950"} tracking-tight mt-1 tabular-nums">${rp(netProfit)}</p>
-              <span class="text-[11px] font-bold text-emerald-700">Margin bersih ${netMargin}% · ${monthSales.length} nota</span>
-            </div>
-            <span class="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 text-base shrink-0"><i class="fa-solid fa-wallet" aria-hidden="true"></i></span>
+        const bepOmzet = grossMarginFrac > 0 ? Math.round(spending / grossMarginFrac) : 0;
+        const bepReached = revenue > 0 && revenue >= bepOmzet && gross > 0;
+        const bepDiff = revenue - bepOmzet;
+        const bepStatus = revenue <= 0
+          ? "Belum ada penjualan"
+          : grossMarginFrac <= 0
+            ? "Margin kotor 0% (belum bisa hitung BEP)"
+            : (bepReached ? `Tercapai (+${rp(bepDiff)} di atas BEP)` : `Kurang omzet ${rp(Math.abs(bepDiff))} lagi`);
+        gaugeWrap.innerHTML = buildBookWaterfallSvg(revenue, cost, spending, netProfit) + `
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 border-t border-slate-100">
+            <div class="uikit-row"><div class="uikit-row-head"><span class="uikit-row-label">Margin Kotor</span><span class="uikit-row-val text-blue-800">${grossMargin}%</span></div><span class="text-[10px] text-slate-500 font-semibold">Laba Kotor &divide; Omzet</span></div>
+            <div class="uikit-row"><div class="uikit-row-head"><span class="uikit-row-label">Margin Bersih</span><span class="uikit-row-val ${netProfit < 0 ? "text-rose-700" : "text-emerald-700"}">${netMargin}%</span></div><span class="text-[10px] text-slate-500 font-semibold">Laba Bersih &divide; Omzet</span></div>
+            <div class="uikit-row"><div class="uikit-row-head"><span class="uikit-row-label">Titik Impas (BEP)</span><span class="text-xs font-extrabold ${bepReached ? "text-emerald-700" : "text-rose-700"}">${bepOmzet > 0 ? rp(bepOmzet) : "-"}</span></div><span class="text-[10px] font-bold ${bepReached ? "text-emerald-700" : "text-rose-700"}">${esc(bepStatus)}</span></div>
           </div>
-          ${chartHtml}`;
+          <p class="text-[11px] font-semibold text-slate-500 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">Rumus BEP: <strong>Pengeluaran Operasional (${rp(spending)}) &divide; Margin Kotor (${grossMargin}%) = ${bepOmzet > 0 ? rp(bepOmzet) : "Rp 0"}</strong></p>`;
       }
 
-      // 3. Komposisi Pembayaran Bulan Terpilih (Floating % Ring Donut)
+      // Baris 3 Kanan: Komposisi Pembayaran (%)
       const pay = { Cash: 0, QRIS: 0, Kartu: 0, Transfer: 0 };
       for (const t of monthSales) {
         const m = t.paymentMethod || "Cash";
@@ -2824,13 +2853,13 @@
       if (payWrap) {
         payWrap.innerHTML = buildSvgDonut([
           { label: "Tunai", value: pay.Cash, color: "#1d4ed8", display: rp(pay.Cash) },
+          { label: "Transfer", value: pay.Transfer, color: "#0f2557", display: rp(pay.Transfer) },
           { label: "QRIS", value: pay.QRIS, color: "#38bdf8", display: rp(pay.QRIS) },
-          { label: "Kartu", value: pay.Kartu, color: "#facc15", display: rp(pay.Kartu) },
-          { label: "Transfer", value: pay.Transfer, color: "#0f2557", display: rp(pay.Transfer) }
+          { label: "Kartu", value: pay.Kartu, color: "#facc15", display: rp(pay.Kartu) }
         ], "OMZET", shortRpTick(payTotal));
       }
 
-      // 4. Tren Laba Penjualan 6 Bulan (Pure SVG Area Trend)
+      // Baris 4 Kanan: Tren Laba Penjualan 6 Bulan
       const months = [];
       for (let i = 5; i >= 0; i--) {
         const d = new Date(yearNum, monthNum - 1 - i, 1);
@@ -2845,39 +2874,41 @@
       const profWrap = document.getElementById("svgBookProfitWrap");
       if (profWrap) profWrap.innerHTML = buildSvgAreaTrend(profitPts);
 
-      // 5. Produk Terlaris Bulan Ini (Bento Trending Pills + List)
+      // Baris 2 Kanan: Produk Paling Menguntungkan (Omzet & Laba)
       const prodMap = new Map();
       for (const tx of monthSales) {
         for (const it of (tx.items || [])) {
           const key = String(it.name || "Barang").trim();
-          const cur = prodMap.get(key) || { omset: 0, qty: 0 };
-          cur.omset += Number(it.price || 0) * Number(it.qty || 0);
-          cur.qty += Number(it.qty || 0);
+          const q = Number(it.qty || 0);
+          const itemOmzet = Number(it.subtotal ?? Number(it.price || 0) * q);
+          const itemCost = Number(it.cost || 0) * q;
+          const cur = prodMap.get(key) || { omset: 0, profit: 0, qty: 0 };
+          cur.omset += itemOmzet;
+          cur.profit += (itemOmzet - itemCost);
+          cur.qty += q;
           prodMap.set(key, cur);
         }
       }
-      const topMonth = [...prodMap.entries()].sort((a, b) => b[1].omset - a[1].omset).slice(0, 5);
+      const topProfitable = [...prodMap.entries()].sort((a, b) => b[1].profit - a[1].profit).slice(0, 6);
       const trendBox = document.getElementById("bentoBookTrendingWrap");
       if (trendBox) {
-        if (!topMonth.length) {
+        if (!topProfitable.length) {
           trendBox.innerHTML = `<p class="text-sm text-slate-500 py-8 text-center">Belum ada penjualan pada bulan ini.</p>`;
         } else {
-          const chips = topMonth.slice(0, 3).map(([n, v]) =>
-            `<span class="bento-trending-chip"><span class="truncate max-w-[125px]">${esc(n)}</span><span class="bento-trending-badge">${v.qty}x</span></span>`
-          ).join("");
-          const rows = topMonth.map(([n, v], i) => `
-            <div class="flex items-center justify-between gap-2 py-2 border-b border-slate-100 last:border-0 text-xs">
-              <div class="flex items-center gap-2 min-w-0">
-                <span class="w-6 h-6 rounded-full ${i === 0 ? "bg-amber-400 text-slate-950" : "bg-blue-100 text-blue-900"} font-black flex items-center justify-center shrink-0">${i + 1}</span>
-                <span class="font-bold text-slate-800 truncate">${esc(n)}</span>
-              </div>
-              <span class="font-extrabold text-slate-900 shrink-0 tabular-nums">${rp(v.omset)}</span>
-            </div>`).join("");
-          trendBox.innerHTML = `<div class="flex flex-wrap gap-1.5 pb-1">${chips}</div><div>${rows}</div>`;
+          trendBox.innerHTML = `<table class="w-full text-left border-collapse text-xs">
+            <thead><tr class="border-b border-slate-200 text-[10px] font-extrabold uppercase text-slate-500"><th class="py-2 pr-1">Produk</th><th class="py-2 px-1 text-right">Omzet</th><th class="py-2 pl-1 text-right">Laba</th></tr></thead>
+            <tbody class="divide-y divide-slate-100">${topProfitable.map(([n, v], i) => `
+              <tr>
+                <td class="py-2 pr-1 font-bold text-slate-800 max-w-[145px] truncate" title="${esc(n)}">${i + 1}. ${esc(n)}</td>
+                <td class="py-2 px-1 text-right text-slate-500 tabular-nums whitespace-nowrap">${esc(shortRpTick(v.omset))}</td>
+                <td class="py-2 pl-1 text-right font-extrabold text-emerald-700 tabular-nums whitespace-nowrap">${esc(shortRpTick(v.profit))}</td>
+              </tr>`).join("")}
+            </tbody>
+          </table>`;
         }
       }
 
-      // 6. Omzet & Laba Harian Bulan Terpilih (Pure SVG Bars)
+      // Baris 3 Kiri: Omzet & Laba Harian Bulan Terpilih
       const daysInMonth = new Date(yearNum, monthNum, 0).getDate();
       const dailyItems = Array.from({ length: daysInMonth }, (_, i) => {
         const d = month + "-" + String(i + 1).padStart(2, "0");
@@ -2892,24 +2923,38 @@
       if (badgeOL) badgeOL.textContent = `${month} · ${rp(dailyItems.reduce((a, b) => a + b.v1, 0))}`;
       const dailyWrap = document.getElementById("svgBookDailyWrap");
       if (dailyWrap) dailyWrap.innerHTML = buildSvgBarPairChart(dailyItems, false);
-    }
 
-    function renderBackupVolumeChart() {
-      if (!isAdmin) return;
-      const wrap = document.getElementById("svgBackupVolumeWrap");
-      const badge = document.getElementById("badgeBackupTotal");
-      const rows = [
-        { label: "Stok Barang (Aktif & Arsip)", val: inventory.length, display: `${inventory.length} item`, color: "#0f2557" },
-        { label: "Transaksi Penjualan", val: transactions.length, display: `${transactions.length} nota`, color: "#1d4ed8" },
-        { label: "Riwayat Pembelian Stok", val: purchases.length, display: `${purchases.length} catatan`, color: "#3b82f6" },
-        { label: "Pengeluaran Operasional", val: (books.expenses || []).length, display: `${(books.expenses || []).length} catatan`, color: "#eab308" },
-        { label: "Tutup Kas Harian", val: (books.cashClosings || []).length, display: `${(books.cashClosings || []).length} hari`, color: "#0ea5e9" },
-        { label: "Katalog Publik Terbit", val: publicCatalog.length, display: `${publicCatalog.length} produk`, color: "#16a34a" }
-      ];
-      const total = rows.reduce((s, r) => s + r.val, 0);
-      const maxVal = Math.max(1, ...rows.map(r => r.val));
-      if (badge) badge.textContent = `${total} Data`;
-      if (wrap) wrap.innerHTML = buildUiKitProgressRows(rows, maxVal);
+      // Baris 4 Kiri: Pengeluaran Operasional (mengurangi laba bersih) terpisah dari Belanja Restok (aset stok)
+      const expGroups = new Map();
+      for (const e of monthExp) {
+        const lbl = String(e.category || e.note || "Pengeluaran Toko").trim();
+        expGroups.set(lbl, (expGroups.get(lbl) || 0) + Number(e.amount || 0));
+      }
+      const topExp = [...expGroups.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6);
+      const badgeTopExp = document.getElementById("badgeBookTopExpense");
+      if (badgeTopExp) badgeTopExp.textContent = `Biaya ${rp(spending)}`;
+      const topExpWrap = document.getElementById("svgBookTopExpenseWrap");
+      if (topExpWrap) {
+        const expHtml = topExp.length
+          ? `<div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">` + topExp.map(([lbl, val], idx) => {
+              const pct = Math.max(8, Math.round((val / (topExp[0][1] || 1)) * 100));
+              const share = spending > 0 ? Math.round((val / spending) * 100) : 0;
+              const clr = idx === 0 ? "#e11d48" : idx === 1 ? "#eab308" : "#1d4ed8";
+              return `<div class="uikit-row">
+                <div class="uikit-row-head">
+                  <span class="uikit-row-label">${idx + 1}. ${esc(lbl)} (${share}%)</span>
+                  <span class="uikit-row-val">${rp(val)}</span>
+                </div>
+                <div class="uikit-bar-track"><div class="uikit-bar-fill" style="width:${pct}%; background:${clr}"></div></div>
+              </div>`;
+            }).join("") + `</div>`
+          : `<p class="text-sm text-slate-500 py-4 text-center">Belum ada pengeluaran operasional toko pada bulan ini.</p>`;
+        const restockNote = `<div class="mt-3 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-blue-50/70 border border-blue-200 px-3.5 py-2.5 text-xs">
+          <span class="font-bold text-blue-950"><i class="fa-solid fa-boxes-stacked text-blue-700 mr-1.5" aria-hidden="true"></i>Belanja Restok Barang Bulan Ini (Aset Stok — tidak mengurangi Laba Bersih):</span>
+          <strong class="text-sm font-extrabold text-blue-900 tabular-nums">${rp(beliBulanIni)} (${monthPurch.length} nota)</strong>
+        </div>`;
+        topExpWrap.innerHTML = expHtml + restockNote;
+      }
     }
 
     function renderAllReportsView() {
@@ -3083,10 +3128,14 @@
       if (bLC) bLC.textContent = `${rp(cost)} (${bCostPct}%)`;
       if (bLP) bLP.textContent = `${rp(gross)} (${bProfPct}%)`;
       if (bLE) bLE.textContent = rp(spending);
+      const isLoss = profit < 0;
       document.getElementById("ownerMonthlyReport").innerHTML = [
-        ["Uang dari penjualan", revenue, false], ["Modal barang terjual", cost, false],
-        ["Laba penjualan", revenue - cost, true], ["Pengeluaran toko", spending, false], ["Sisa setelah pengeluaran", profit, false]
-      ].map(([l, v, hi]) => `<div class="rounded-2xl border ${hi ? "border-blue-300 bg-blue-50" : "border-slate-200 bg-slate-50"} p-3.5"><dt class="text-xs font-bold ${hi ? "text-blue-900" : "text-slate-500"}">${l}</dt><dd class="text-lg font-extrabold mt-1 tabular-nums ${hi ? "text-blue-950" : ""}">${rp(v)}</dd></div>`).join("");
+        { l: "Laba Bersih Bulan Ini", v: profit, cls: isLoss ? "border-2 border-rose-300 bg-rose-50" : "border-2 border-emerald-300 bg-emerald-50", lblCls: isLoss ? "text-rose-900" : "text-emerald-900", valCls: isLoss ? "text-rose-800" : "text-emerald-900" },
+        { l: "Omzet Penjualan", v: revenue, cls: "border border-slate-200 bg-slate-50", lblCls: "text-slate-500", valCls: "text-slate-900" },
+        { l: "Laba Kotor", v: revenue - cost, cls: "border border-blue-200 bg-blue-50", lblCls: "text-blue-900", valCls: "text-blue-950" },
+        { l: "Modal Terjual (HPP)", v: cost, cls: "border border-slate-200 bg-slate-50", lblCls: "text-slate-500", valCls: "text-slate-800" },
+        { l: "Pengeluaran Toko", v: spending, cls: "border border-amber-200 bg-amber-50", lblCls: "text-amber-900", valCls: "text-amber-950" }
+      ].map(c => `<div class="rounded-2xl ${c.cls} p-3.5"><dt class="text-xs font-extrabold ${c.lblCls}">${c.l}</dt><dd class="text-lg font-extrabold mt-1 tabular-nums ${c.valCls}">${rp(c.v)}</dd></div>`).join("");
 
       const em = document.getElementById("expenseMonth").value;
       const exp = books.expenses.filter(e => em && String(e.date || "").startsWith(em + "-"))
@@ -3100,6 +3149,72 @@
         ? pur.map(p => `<li>${esc(p.date)} · ${esc(p.name)} · ${p.qty} pcs · ${rp(p.totalCost)}</li>`).join("")
         : `<li class="text-slate-500">Belum ada pembelian stok untuk bulan ini.</li>`;
       renderCashClosing();
+      renderBookLockButton();
+      // Kas & Saldo Akhir
+      const cashCard = document.getElementById("booksCashCard");
+      if (cashCard) {
+        const monthSales = transactions.filter(t => String(t.date || "").startsWith(month + "-"));
+        const cashIn = monthSales.filter(t => (t.paymentMethod || "Cash") === "Cash").reduce((s, t) => s + Number(t.totalOmset || 0), 0);
+        const nonCashIn = revenue - cashIn;
+        const monthRestockTotal = purchases.filter(p => String(p.date || "").startsWith(month + "-")).reduce((s, p) => s + Number(p.totalCost || 0), 0);
+        const netCashFlow = revenue - spending - monthRestockTotal;
+        const sortedClosings = (books.cashClosings || []).slice().sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
+        const monthClosings = sortedClosings.filter(c => String(c.date || "").startsWith(month + "-"));
+        const latestClosing = monthClosings[0] || sortedClosings[0] || null;
+        const closingVal = latestClosing ? Number(latestClosing.actualCash || 0) : 0;
+        const closingInfo = latestClosing ? `Tutup kas ${latestClosing.date}` : "Belum ada catatan tutup kas";
+        cashCard.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <h4 class="text-xs font-extrabold uppercase tracking-wider text-blue-950"><i class="fa-solid fa-vault text-blue-700 mr-1.5" aria-hidden="true"></i>Kas &amp; Saldo Akhir (${esc(month)})</h4>
+            <span class="text-[11px] font-bold text-slate-600">${esc(closingInfo)}</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+            <div class="rounded-xl bg-white border border-blue-100 p-3"><span class="text-[11px] font-bold text-slate-500">Kas Masuk Tunai</span><strong class="block text-base font-extrabold text-slate-900 mt-0.5 tabular-nums">${rp(cashIn)}</strong><span class="text-[10px] font-semibold text-slate-500">Non-tunai: ${rp(nonCashIn)}</span></div>
+            <div class="rounded-xl bg-white border border-blue-100 p-3"><span class="text-[11px] font-bold text-slate-500">Total Uang Keluar</span><strong class="block text-base font-extrabold text-rose-700 mt-0.5 tabular-nums">${rp(spending + monthRestockTotal)}</strong><span class="text-[10px] font-semibold text-slate-500">Biaya ${shortRpTick(spending)} + Restok ${shortRpTick(monthRestockTotal)}</span></div>
+            <div class="rounded-xl bg-white border border-blue-100 p-3"><span class="text-[11px] font-bold text-slate-500">Arus Kas Bersih Bulan Ini</span><strong class="block text-base font-extrabold ${netCashFlow < 0 ? "text-rose-700" : "text-emerald-700"} mt-0.5 tabular-nums">${rp(netCashFlow)}</strong><span class="text-[10px] font-semibold text-slate-500">Omzet &minus; Biaya &minus; Restok</span></div>
+            <div class="rounded-xl bg-white border border-emerald-200 p-3"><span class="text-[11px] font-bold text-emerald-800">Saldo Akhir Kas Fisik</span><strong class="block text-base font-extrabold text-emerald-900 mt-0.5 tabular-nums">${rp(closingVal)}</strong><span class="text-[10px] font-semibold text-slate-500">${esc(closingInfo)}</span></div>
+          </div>`;
+      }
+
+      // Pajak UMKM (PP 55/2022 jo. PP 20/2026)
+      const taxCard = document.getElementById("booksUmkmTaxCard");
+      if (taxCard) {
+        const yearStr = month.slice(0, 4);
+        const yearSales = transactions.filter(t => String(t.date || "").startsWith(yearStr + "-"));
+        const yearOmzet = yearSales.reduce((s, t) => s + Number(t.totalOmset || 0), 0);
+        const ytdUpToMonth = yearSales.filter(t => String(t.date || "").slice(0, 7) <= month).reduce((s, t) => s + Number(t.totalOmset || 0), 0);
+        const ytdBeforeMonth = Math.max(0, ytdUpToMonth - revenue);
+        const threshold = umkmTaxType === "op" ? 500000000 : 0;
+        const taxableYear = Math.max(0, yearOmzet - threshold);
+        const estTaxYear = Math.round(taxableYear * 0.005);
+        const taxableBefore = Math.max(0, ytdBeforeMonth - threshold);
+        const taxableUpTo = Math.max(0, ytdUpToMonth - threshold);
+        const taxableThisMonth = Math.max(0, taxableUpTo - taxableBefore);
+        const estTaxMonth = Math.round(taxableThisMonth * 0.005);
+        const remainingFree = Math.max(0, threshold - yearOmzet);
+        taxCard.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-800"><i class="fa-solid fa-landmark text-blue-700 mr-1.5" aria-hidden="true"></i>Estimasi Pajak UMKM 0,5% (PP 55/2022 jo. PP 20/2026)</h4>
+              <p class="text-[11px] font-semibold text-slate-500 mt-0.5">${umkmTaxType === "op" ? (remainingFree > 0 ? `Sisa kuota bebas pajak tahun ${yearStr}: ${rp(remainingFree)} dari Rp 500 jt` : `Omzet tahun ${yearStr} telah melewati batas Rp 500 jt`) : "Tarif 0,5% berlaku dari seluruh omzet (Badan Usaha)"}</p>
+            </div>
+            <select id="umkmTaxTypeSelect" aria-label="Jenis Wajib Pajak UMKM" class="rounded-xl border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-extrabold text-slate-800">
+              <option value="op" ${umkmTaxType === "op" ? "selected" : ""}>Orang Pribadi (Bebas s.d. 500 jt/thn)</option>
+              <option value="badan" ${umkmTaxType === "badan" ? "selected" : ""}>Badan Usaha / CV / PT (0,5% penuh)</option>
+            </select>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+            <div class="rounded-xl bg-white border border-slate-200 p-3"><span class="text-[11px] font-bold text-slate-500">Akumulasi Omzet ${esc(yearStr)}</span><strong class="block text-base font-extrabold text-slate-900 mt-0.5 tabular-nums">${rp(yearOmzet)}</strong></div>
+            <div class="rounded-xl bg-white border border-slate-200 p-3"><span class="text-[11px] font-bold text-slate-500">Omzet Kena Pajak ${esc(yearStr)}</span><strong class="block text-base font-extrabold text-slate-800 mt-0.5 tabular-nums">${rp(taxableYear)}</strong></div>
+            <div class="rounded-xl bg-white border border-blue-200 p-3"><span class="text-[11px] font-bold text-blue-800">Est. Pajak Bulan ${esc(month)}</span><strong class="block text-base font-extrabold text-blue-900 mt-0.5 tabular-nums">${rp(estTaxMonth)}</strong></div>
+            <div class="rounded-xl bg-white border border-amber-200 p-3"><span class="text-[11px] font-bold text-amber-800">Est. Pajak Tahun ${esc(yearStr)}</span><strong class="block text-base font-extrabold text-amber-900 mt-0.5 tabular-nums">${rp(estTaxYear)}</strong></div>
+          </div>`;
+        taxCard.querySelector("#umkmTaxTypeSelect")?.addEventListener("change", e => {
+          umkmTaxType = e.target.value === "badan" ? "badan" : "op";
+          localStorage.setItem("sjs-umkm-tax-type", umkmTaxType);
+          renderOwnerBooks();
+        });
+      }
       renderCharts();
       renderAllReportsView();
     }
@@ -3138,6 +3253,7 @@
       const qty = Number(document.getElementById("restockQty").value);
       const total = Number(document.getElementById("restockTotal").value) || 0;
       const date = document.getElementById("restockDate").value || todayStr();
+      if (isMonthLocked(date.slice(0, 7))) return showToast(`Bulan ${date.slice(0, 7)} sudah dikunci tutup buku.`);
       const item = activeInventory().find(i => i.id === id);
       if (!item) return showToast("Pilih barang terlebih dahulu.");
       if (!Number.isSafeInteger(qty) || qty < 1) return showToast("Jumlah pembelian harus lebih dari 0.");
@@ -3718,11 +3834,31 @@
         return false;
       }
     }
+    let lockedBookMonths = new Set();
+    let umkmTaxType = localStorage.getItem("sjs-umkm-tax-type") || "op";
+    function isMonthLocked(ym) {
+      return Boolean(ym && lockedBookMonths.has(String(ym).slice(0, 7)));
+    }
+    function renderBookLockButton() {
+      const btn = document.getElementById("btnToggleBookLock");
+      const month = document.getElementById("bookMonth")?.value || todayStr().slice(0, 7);
+      if (!btn) return;
+      const locked = isMonthLocked(month);
+      btn.className = locked
+        ? "shop-button !min-h-10 !py-2 !px-3.5 !text-xs bg-emerald-100 hover:bg-emerald-200 text-emerald-900 border border-emerald-300"
+        : "shop-button shop-button-secondary !min-h-10 !py-2 !px-3.5 !text-xs";
+      btn.innerHTML = locked
+        ? `<i class="fa-solid fa-lock" aria-hidden="true"></i> ${esc(month)} Terkunci (Buka)`
+        : `<i class="fa-solid fa-unlock" aria-hidden="true"></i> Kunci Tutup Buku`;
+    }
+
     function applyConfig(data) {
       if (data.shopName) setShopName(data.shopName);
       if (data.qrisPayload) savedQrisPayload = data.qrisPayload;
       costCodeDigits = String(data.costCodeDigits || "");
       geminiApiKey = String(data.geminiApiKey || "");
+      lockedBookMonths = new Set(Array.isArray(data.lockedBookMonths) ? data.lockedBookMonths.map(String) : []);
+      renderBookLockButton();
       const keyInput = document.getElementById("geminiApiKeyInput");
       if (keyInput && !keyInput.value) keyInput.value = geminiApiKey;
       const keyBadge = document.getElementById("geminiKeyStatus");
@@ -4489,6 +4625,24 @@
       document.getElementById("searchInput").addEventListener("input", renderTransactions);
       document.getElementById("filterPayment").addEventListener("change", renderTransactions);
       document.getElementById("btnPrintReport").addEventListener("click", () => printMode("report"));
+      document.getElementById("btnToggleBookLock")?.addEventListener("click", async () => {
+        if (!isAdmin) return;
+        const month = document.getElementById("bookMonth")?.value || todayStr().slice(0, 7);
+        const currentlyLocked = isMonthLocked(month);
+        const msg = currentlyLocked
+          ? `Buka kunci tutup buku bulan ${month}? Setelah dibuka, transaksi/biaya bulan tersebut bisa diubah kembali.`
+          : `Kunci tutup buku bulan ${month}? Penjualan, restok, dan pengeluaran di bulan ${month} tidak bisa diubah atau dibatalkan sebelum kunci dibuka.`;
+        if (!(await sjsConfirm(msg, currentlyLocked ? "Buka Kunci Tutup Buku" : "Kunci Tutup Buku"))) return;
+        const next = new Set(lockedBookMonths);
+        if (currentlyLocked) next.delete(month);
+        else next.add(month);
+        const ok = await saveConfig({ lockedBookMonths: [...next] });
+        if (ok) {
+          lockedBookMonths = next;
+          renderBookLockButton();
+          showToast(currentlyLocked ? `Kunci bulan ${month} dibuka.` : `Tutup buku bulan ${month} dikunci.`);
+        }
+      });
       document.getElementById("btnPrintMonthlyBook")?.addEventListener("click", () => {
         if (!isAdmin) return;
         const month = document.getElementById("bookMonth")?.value || todayStr().slice(0, 7);
