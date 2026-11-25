@@ -1123,6 +1123,32 @@
       currentSaleTotalAmount = netTotal;
       document.getElementById("previewTotalOmset").textContent = rp(netTotal);
       document.getElementById("previewTotalProfit").textContent = rp(netProfit);
+      const sumBox = document.getElementById("posCartSummaryList");
+      if (sumBox) {
+        const summaryRows = [];
+        for (const row of document.querySelectorAll("#saleItemsContainer > div")) {
+          const nm = (row.querySelector(".item-name-input")?.value || "").trim();
+          const pr = parseFloat(row.querySelector(".item-price-input")?.value) || 0;
+          const qt = Number(row.querySelector(".item-qty")?.value) || 0;
+          if (nm && qt > 0) summaryRows.push({ nm: cleanDisplayItemName(nm), qt, sub: pr * qt });
+        }
+        if (!summaryRows.length) {
+          sumBox.hidden = true;
+          sumBox.innerHTML = "";
+        } else {
+          sumBox.hidden = false;
+          sumBox.innerHTML = `<table class="w-full text-left border-collapse">
+            <thead><tr class="border-b border-blue-200 text-[10px] font-extrabold uppercase text-blue-900"><th class="py-1 pr-1">Barang</th><th class="py-1 px-1 text-center">Qty</th><th class="py-1 pl-1 text-right">Subtotal</th></tr></thead>
+            <tbody class="divide-y divide-blue-100">${summaryRows.map(r => `
+              <tr>
+                <td class="py-1 pr-1 font-bold text-slate-800 max-w-[165px] truncate" title="${esc(r.nm)}">${esc(r.nm)}</td>
+                <td class="py-1 px-1 text-center font-extrabold text-blue-900 tabular-nums">${r.qt}</td>
+                <td class="py-1 pl-1 text-right font-extrabold text-slate-900 tabular-nums whitespace-nowrap">${esc(shortRpTick(r.sub))}</td>
+              </tr>`).join("")}
+            </tbody>
+          </table>`;
+        }
+      }
       updateCashCalcUI();
     }
 
@@ -1139,6 +1165,8 @@
       const lblEl = document.getElementById("posCashChangeLabel");
       const boxEl = document.getElementById("posCashChangeBox");
       if (recEl) recEl.textContent = rp(cashReceivedAmount);
+      const recInp = document.getElementById("posCashReceivedInput");
+      if (recInp && document.activeElement !== recInp) recInp.value = cashReceivedAmount > 0 ? String(cashReceivedAmount) : "";
       const diff = cashReceivedAmount - currentSaleTotalAmount;
       if (cashReceivedAmount === 0) {
         if (lblEl) lblEl.textContent = "Kembalian";
@@ -1623,9 +1651,9 @@
       }
       grid.innerHTML = list.map(item => {
         const st = Number(item.stock || 0);
-        const cls = st <= 0 ? "out" : st < LOW_STOCK_LIMIT ? "low" : "ok";
+        const cls = st <= 0 ? "out" : st < 5 ? "crit" : st <= 10 ? "mid" : "ok";
         const label = st <= 0 ? "Habis" : `${st} pcs`;
-        return `<button type="button" class="pos-card" data-pos-add="${esc(item.id)}" ${st <= 0 ? "disabled" : ""}>
+        return `<button type="button" class="pos-card ${st <= 0 ? "opacity-60" : ""}" data-pos-add="${esc(item.id)}">
           <div class="pos-card-thumb">
             <span class="pos-stock-pill ${cls}">${label}</span>
             ${productImageMarkup(item, "h-full w-full p-1.5 bg-white", 260)}
@@ -4757,8 +4785,24 @@
       });
       document.getElementById("posCatalogGrid")?.addEventListener("click", e => {
         const card = e.target.closest("[data-pos-add]");
-        if (!card || card.disabled) return;
+        if (!card) return;
+        const item = activeInventory().find(i => i.id === card.dataset.posAdd);
+        if (item) {
+          const st = Number(item.stock || 0);
+          if (st <= 0) {
+            showToast(`❌ Barang habis: ${item.name} (stok 0 pcs)`);
+            return;
+          }
+          handleScannedCode(card.dataset.posAdd, false);
+          if (st < 5) showToast(`⚠ Stok tersisa ${st} pcs: ${item.name}`);
+          return;
+        }
         handleScannedCode(card.dataset.posAdd, false);
+      });
+      document.getElementById("posCashReceivedInput")?.addEventListener("input", e => {
+        const val = Math.max(0, Math.round(Number(e.target.value) || 0));
+        cashReceivedAmount = Number.isSafeInteger(val) ? val : 0;
+        updateCashCalcUI();
       });
       document.getElementById("btnResetForm").addEventListener("click", resetSaleDraft);
       document.getElementById("btnPosStatLowStock")?.addEventListener("click", () => {
