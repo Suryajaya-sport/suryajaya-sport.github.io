@@ -1695,7 +1695,7 @@
           if (pub.exists()) tx.update(pubRef, { stock: newStock });
         });
         document.getElementById("stockOutCard").close();
-        showToast(`Stok "${item.name}" dikurangi -${qty} pcs (${reason}).`);
+        recordQrActivity("out"); showToast(`Stok "${item.name}" dikurangi -${qty} pcs (${reason}).`);
       } catch (err) {
         showToast("Gagal mencatat barang keluar: " + (err.message || "kesalahan"));
       }
@@ -1774,13 +1774,16 @@
     }
 
     let inventorySort = { key: "", dir: "asc" };
-    const selectedQrIds = new Set();
+    const selectedQrQty = new Map();
     function updateBatchQrCount() {
-      const cnt = selectedQrIds.size;
+      let totalLabels = 0;
+      for (const q of selectedQrQty.values()) totalLabels += Math.max(1, Number(q) || 1);
       const span = document.getElementById("batchQrCount");
       const btn = document.getElementById("btnBatchPrintQr");
-      if (span) span.textContent = String(cnt);
-      if (btn) btn.disabled = cnt === 0;
+      const pbtn = document.getElementById("btnPreviewBatchQr");
+      if (span) span.textContent = selectedQrQty.size ? `${selectedQrQty.size} item · ${totalLabels} label` : "0";
+      if (btn) btn.disabled = selectedQrQty.size === 0;
+      if (pbtn) pbtn.disabled = selectedQrQty.size === 0;
     }
 
     function updateInventorySortUI() {
@@ -1897,7 +1900,7 @@
         row.innerHTML = `
           <td class="py-3 px-3">
             <div class="flex items-center gap-2.5">
-              <input type="checkbox" data-qr-select="${id}" ${selectedQrIds.has(item.id) ? "checked" : ""} aria-label="Pilih ${esc(item.name)} untuk cetak QR" class="h-4 w-4 rounded border-slate-300 shrink-0 cursor-pointer">
+              <div class="flex flex-col items-center gap-1 shrink-0"><input type="checkbox" data-qr-select="${id}" ${selectedQrQty.has(item.id) ? "checked" : ""} aria-label="Pilih ${esc(item.name)} untuk cetak QR" class="h-4 w-4 rounded border-slate-300 cursor-pointer">${selectedQrQty.has(item.id) ? `<input type="number" min="1" max="50" value="${selectedQrQty.get(item.id)}" data-qr-qty="${id}" title="Jumlah label QR" class="w-11 px-1 py-0.5 text-[11px] font-extrabold text-center border border-blue-300 rounded-md bg-blue-50">` : ""}</div>
               ${productImageMarkup(item, "w-12 h-12 rounded-xl border border-slate-200 shrink-0", 140)}
               <div class="min-w-0">
                 <p class="font-extrabold text-slate-900 leading-snug">${esc(item.name)}</p>
@@ -1921,7 +1924,7 @@
         card.className = "workspace-record";
         card.innerHTML = `
           <div class="flex items-center gap-3">
-            <input type="checkbox" data-qr-select="${id}" ${selectedQrIds.has(item.id) ? "checked" : ""} aria-label="Pilih ${esc(item.name)} untuk cetak QR" class="h-4 w-4 rounded border-slate-300 shrink-0 cursor-pointer">
+            <div class="flex flex-col items-center gap-1 shrink-0"><input type="checkbox" data-qr-select="${id}" ${selectedQrQty.has(item.id) ? "checked" : ""} aria-label="Pilih ${esc(item.name)} untuk cetak QR" class="h-4 w-4 rounded border-slate-300 cursor-pointer">${selectedQrQty.has(item.id) ? `<input type="number" min="1" max="50" value="${selectedQrQty.get(item.id)}" data-qr-qty="${id}" title="Jumlah label QR" class="w-11 px-1 py-0.5 text-[11px] font-extrabold text-center border border-blue-300 rounded-md bg-blue-50">` : ""}</div>
             ${productImageMarkup(item, "w-14 h-14 rounded-2xl border border-slate-200 shrink-0", 140)}
             <div class="min-w-0 flex-1">
               <p class="font-extrabold break-words leading-snug">${esc(item.name)}</p>
@@ -2432,12 +2435,12 @@
       if (heroCard) {
         const avgBasket = rows.length > 0 ? Math.round(totalOmzetRows / rows.length) : 0;
         const avgPcs = rows.length > 0 ? (totalPcs / rows.length).toFixed(1).replace(".", ",") : "0";
-        const slots = [
-          { label: "Pagi", val: 0, cnt: 0 },
-          { label: "Siang", val: 0, cnt: 0 },
-          { label: "Sore", val: 0, cnt: 0 },
-          { label: "Malam", val: 0, cnt: 0 }
-        ];
+        const hours = Array.from({ length: 14 }, (_, i) => ({
+          h: i + 8,
+          label: String(i + 8).padStart(2, "0"),
+          val: 0,
+          cnt: 0
+        }));
         for (const tx of rows) {
           let h = 12;
           if (tx.createdAt) {
@@ -2445,22 +2448,34 @@
               h = Number(new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Makassar", hour: "2-digit", hour12: false }).format(new Date(tx.createdAt))) % 24;
             } catch {}
           }
-          const idx = h < 12 ? 0 : h < 15 ? 1 : h < 18 ? 2 : 3;
-          slots[idx].val += Number(tx.totalOmset || 0);
-          slots[idx].cnt += 1;
+          const clamped = Math.max(8, Math.min(21, h));
+          hours[clamped - 8].val += Number(tx.totalOmset || 0);
+          hours[clamped - 8].cnt += 1;
         }
-        const chartHtml = buildRealMiniBarChart(slots.map(s => ({
-          label: s.label,
-          val: s.val,
-          top: s.cnt ? `${s.cnt}x` : "0",
-          tip: `${s.label}: ${s.cnt} nota · ${rp(s.val)}`
-        })));
+        let peakHr = hours[0];
+        for (const item of hours) {
+          if (item.cnt > peakHr.cnt || (item.cnt === peakHr.cnt && item.val > peakHr.val)) peakHr = item;
+        }
+        const mxCnt = Math.max(1, ...hours.map(x => x.cnt));
+        const peakNote = peakHr.cnt > 0 ? `Paling ramai: ${peakHr.label}.00 WITA (${peakHr.cnt} nota)` : "Belum ada transaksi";
+        const chartHtml = `<div class="grid gap-1 pt-3" style="grid-template-columns:repeat(14,minmax(0,1fr))">` + hours.map(x => {
+          const pct = x.cnt > 0 ? Math.max(18, Math.round((x.cnt / mxCnt) * 100)) : 0;
+          const isPeak = x.cnt > 0 && x.h === peakHr.h;
+          const fill = isPeak ? "#0f2557" : (x.cnt > 0 ? "#1d4ed8" : "transparent");
+          return `<div class="flex flex-col items-center gap-0.5" title="Jam ${x.label}.00–${x.label}.59 WITA: ${x.cnt} nota · ${rp(x.val)}">
+            <span class="text-[9px] font-extrabold ${isPeak ? "text-blue-900" : "text-slate-400"} tabular-nums">${x.cnt ? x.cnt : ""}</span>
+            <div class="w-full h-14 rounded-md bg-slate-100 flex items-end p-[2px] overflow-hidden">
+              <div class="w-full rounded-[4px]" style="height:${pct}%; background:${fill}"></div>
+            </div>
+            <span class="text-[9px] font-bold ${isPeak ? "text-blue-900" : "text-slate-500"} tabular-nums">${x.label}</span>
+          </div>`;
+        }).join("") + `</div>`;
         heroCard.innerHTML = `
           <div class="flex items-start justify-between gap-2">
             <div>
-              <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900">Rata-Rata / Nota &amp; Jam Ramai</span>
+              <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900">Rata-Rata / Nota &amp; Jam Ramai (08–21 WITA)</span>
               <p class="text-2xl font-black text-slate-950 tracking-tight mt-1 tabular-nums">${rp(avgBasket)}</p>
-              <span class="text-[11px] font-bold text-slate-500">${avgPcs} pcs/nota · ${rows.length} transaksi</span>
+              <span class="text-[11px] font-bold text-slate-600">${avgPcs} pcs/nota · ${peakNote}</span>
             </div>
             <span class="w-10 h-10 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-800 text-base shrink-0"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
           </div>
@@ -2514,61 +2529,172 @@
       }
     }
 
+    function buildWaterfallValueSvg(modalVal, labaVal, jualVal) {
+      const mx = Math.max(1000, jualVal, modalVal + labaVal);
+      const W = 280, H = 132, padT = 22, padB = 24, plotH = H - padT - padB;
+      const hModal = Math.max(8, (modalVal / mx) * plotH);
+      const hLaba = Math.max(6, (labaVal / mx) * plotH);
+      const hJual = Math.max(10, (jualVal / mx) * plotH);
+      const yModal = padT + plotH - hModal;
+      const yLaba = Math.max(padT, yModal - hLaba);
+      const yJual = padT + plotH - hJual;
+      return `<svg viewBox="0 0 ${W} ${H}" class="w-full h-32 mt-2">
+        <line x1="20" y1="${padT + plotH}" x2="${W - 20}" y2="${padT + plotH}" stroke="#e2e8f0" stroke-width="1"/>
+        <line x1="68" y1="${yModal.toFixed(1)}" x2="112" y2="${yModal.toFixed(1)}" stroke="#94a3b8" stroke-dasharray="3 2" stroke-width="1.2"/>
+        <line x1="168" y1="${yLaba.toFixed(1)}" x2="212" y2="${yLaba.toFixed(1)}" stroke="#94a3b8" stroke-dasharray="3 2" stroke-width="1.2"/>
+
+        <rect x="28" y="${yModal.toFixed(1)}" width="44" height="${hModal.toFixed(1)}" rx="6" fill="#64748b"/>
+        <text x="50" y="${Math.max(12, yModal - 6).toFixed(1)}" text-anchor="middle" fill="#334155" font-size="9.5" font-weight="800">${esc(shortRpTick(modalVal))}</text>
+        <text x="50" y="${H - 7}" text-anchor="middle" fill="#64748b" font-size="9.5" font-weight="800">Modal</text>
+
+        <rect x="118" y="${yLaba.toFixed(1)}" width="44" height="${hLaba.toFixed(1)}" rx="6" fill="#eab308"/>
+        <text x="140" y="${Math.max(12, yLaba - 6).toFixed(1)}" text-anchor="middle" fill="#b45309" font-size="9.5" font-weight="900">+${esc(shortRpTick(labaVal))}</text>
+        <text x="140" y="${H - 7}" text-anchor="middle" fill="#b45309" font-size="9.5" font-weight="800">Est. Laba</text>
+
+        <rect x="208" y="${yJual.toFixed(1)}" width="44" height="${hJual.toFixed(1)}" rx="6" fill="#1d4ed8"/>
+        <text x="230" y="${Math.max(12, yJual - 6).toFixed(1)}" text-anchor="middle" fill="#0f2557" font-size="9.5" font-weight="900">${esc(shortRpTick(jualVal))}</text>
+        <text x="230" y="${H - 7}" text-anchor="middle" fill="#0f2557" font-size="9.5" font-weight="800">Potensi Jual</text>
+      </svg>`;
+    }
+
+    function renderQrActivityChart() {
+      const wrap = document.getElementById("svgQrActivityWrap");
+      const badge = document.getElementById("badgeQrTodayCount");
+      if (!wrap) return;
+      let log = {};
+      try { log = JSON.parse(localStorage.getItem(QR_ACTIVITY_KEY) || "{}"); } catch {}
+      const days = Array.from({ length: 7 }, (_, i) => {
+        const dt = new Date();
+        dt.setDate(dt.getDate() - (6 - i));
+        const ds = dt.getFullYear() + "-" + String(dt.getMonth() + 1).padStart(2, "0") + "-" + String(dt.getDate()).padStart(2, "0");
+        const rec = log[ds] || { ok: 0, fail: 0, in: 0, out: 0 };
+        const total = (rec.ok || 0) + (rec.fail || 0);
+        return { ds, label: ds.slice(8, 10) + "/" + ds.slice(5, 7), value: total, ...rec };
+      });
+      const todayRec = days[days.length - 1];
+      if (badge) badge.textContent = `${todayRec.value} Scan Hari Ini`;
+      const maxVal = Math.max(5, ...days.map(d => d.value));
+      const W = 340, H = 148, padL = 28, padR = 14, padT = 22, padB = 26;
+      const plotW = W - padL - padR, plotH = H - padT - padB;
+      const coords = days.map((d, i) => ({
+        x: padL + (i / (days.length - 1)) * plotW,
+        y: padT + plotH - (d.value / maxVal) * plotH,
+        ...d
+      }));
+      let linePath = `M${coords[0].x.toFixed(1)},${coords[0].y.toFixed(1)}`;
+      for (let i = 0; i < coords.length - 1; i++) {
+        const c0 = coords[i], c1 = coords[i + 1];
+        const mx = ((c0.x + c1.x) / 2).toFixed(1);
+        linePath += ` C${mx},${c0.y.toFixed(1)} ${mx},${c1.y.toFixed(1)} ${c1.x.toFixed(1)},${c1.y.toFixed(1)}`;
+      }
+      const areaPath = `${linePath} L${coords[coords.length - 1].x.toFixed(1)},${(padT + plotH).toFixed(1)} L${coords[0].x.toFixed(1)},${(padT + plotH).toFixed(1)} Z`;
+      const grids = [0, 0.5, 1].map(f => {
+        const y = (padT + plotH * (1 - f)).toFixed(1);
+        return `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#f1f5f9" stroke-width="1"/>
+                <text x="${padL - 5}" y="${Number(y) + 3.5}" text-anchor="end" fill="#94a3b8" font-size="9" font-weight="700">${Math.round(maxVal * f)}</text>`;
+      }).join("");
+      const dots = coords.map(c => `<g><title>${esc(c.label)}: ${c.value} scan (${c.ok} berhasil, ${c.fail} gagal)</title>
+        <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="4" fill="#ffffff" stroke="#1d4ed8" stroke-width="2.2"/>
+        <text x="${c.x.toFixed(1)}" y="${(c.y - 8).toFixed(1)}" text-anchor="middle" fill="#0f2557" font-size="9" font-weight="800">${c.value}</text>
+        <text x="${c.x.toFixed(1)}" y="${H - 7}" text-anchor="middle" fill="#64748b" font-size="9" font-weight="700">${esc(c.label)}</text>
+      </g>`).join("");
+      const svg = `<svg viewBox="0 0 ${W} ${H}" class="w-full h-36">
+        <defs><linearGradient id="qrLineGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1d4ed8" stop-opacity="0.22"/><stop offset="100%" stop-color="#1d4ed8" stop-opacity="0.01"/></linearGradient></defs>
+        ${grids}<path d="${areaPath}" fill="url(#qrLineGrad)"/><path d="${linePath}" fill="none" stroke="#1d4ed8" stroke-width="2.5" stroke-linecap="round"/>${dots}
+      </svg>`;
+      wrap.innerHTML = `${svg}
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="uikit-row !py-1.5 !px-2.5"><div class="uikit-row-head"><span class="uikit-row-label">Scan Berhasil</span><span class="uikit-row-val text-emerald-700">${todayRec.ok}x</span></div></div>
+          <div class="uikit-row !py-1.5 !px-2.5"><div class="uikit-row-head"><span class="uikit-row-label">Scan Gagal</span><span class="uikit-row-val text-rose-700">${todayRec.fail}x</span></div></div>
+          <div class="uikit-row !py-1.5 !px-2.5"><div class="uikit-row-head"><span class="uikit-row-label">Barang Masuk</span><span class="uikit-row-val text-blue-700">${todayRec.in}x</span></div></div>
+          <div class="uikit-row !py-1.5 !px-2.5"><div class="uikit-row-head"><span class="uikit-row-label">Barang Keluar</span><span class="uikit-row-val text-amber-700">${todayRec.out}x</span></div></div>
+        </div>`;
+    }
+
     function renderInventoryCharts() {
       if (!isAdmin) return;
       const active = activeInventory();
-      const catsSell = { "Badminton": 0, "Futsal & Bola": 0, "Catur": 0, "Musik": 0, "Olahraga Lainnya": 0 };
-      let okCount = 0, lowCount = 0, outCount = 0, totalCost = 0, totalPotensi = 0, totalUnits = 0;
+      const catStats = {
+        "Badminton": { cost: 0, sell: 0, profit: 0, ok: 0, low: 0, out: 0 },
+        "Futsal & Bola": { cost: 0, sell: 0, profit: 0, ok: 0, low: 0, out: 0 },
+        "Catur": { cost: 0, sell: 0, profit: 0, ok: 0, low: 0, out: 0 },
+        "Musik": { cost: 0, sell: 0, profit: 0, ok: 0, low: 0, out: 0 },
+        "Olahraga Lainnya": { cost: 0, sell: 0, profit: 0, ok: 0, low: 0, out: 0 }
+      };
+      let okCount = 0, lowCount = 0, outCount = 0, totalCost = 0, totalPotensi = 0;
+      const urgentItems = [];
       for (const item of active) {
         const st = Math.max(0, Number(item.stock || 0));
-        totalUnits += st;
         const valCost = st * Number(item.cost || 0);
         const valSell = st * Number(item.price || 0);
+        const valProfit = Math.max(0, valSell - valCost);
         totalCost += valCost;
         totalPotensi += valSell;
-        if (st <= 0) outCount++;
-        else if (st < LOW_STOCK_LIMIT) lowCount++;
-        else okCount++;
         const lbl = detectProductCategoryLabel(item).label;
         const mapKey = lbl === "Olahraga" ? "Olahraga Lainnya" : lbl;
-        catsSell[mapKey] = (catsSell[mapKey] || 0) + valSell;
+        if (!catStats[mapKey]) catStats[mapKey] = { cost: 0, sell: 0, profit: 0, ok: 0, low: 0, out: 0 };
+        catStats[mapKey].cost += valCost;
+        catStats[mapKey].sell += valSell;
+        catStats[mapKey].profit += valProfit;
+        if (st <= 0) { outCount++; catStats[mapKey].out++; urgentItems.push(item); }
+        else if (st < LOW_STOCK_LIMIT) { lowCount++; catStats[mapKey].low++; urgentItems.push(item); }
+        else { okCount++; catStats[mapKey].ok++; }
       }
+      const totalPotensiLaba = Math.max(0, totalPotensi - totalCost);
       const catBadge = document.getElementById("badgeStockCatTotal");
-      if (catBadge) catBadge.textContent = `Potensi ${shortRpTick(totalPotensi)}`;
+      if (catBadge) catBadge.textContent = `Modal ${shortRpTick(totalCost)}`;
 
+      // Baris 2 Kiri: Distribusi Nilai Modal Stok per Kategori + Stacked Bar Status Stok
       const okPct = active.length > 0 ? Math.round((okCount / active.length) * 100) : 0;
-      const attnPct = active.length > 0 ? Math.max(0, 100 - okPct) : 0;
       const catWrap = document.getElementById("svgStockCatWrap");
       if (catWrap) {
-        const maxCat = Math.max(1, ...Object.values(catsSell));
+        const sortedCats = Object.entries(catStats).sort((a, b) => b[1].cost - a[1].cost);
+        const maxCost = Math.max(1, sortedCats[0]?.[1]?.cost || 1);
         const colors = ["#0f2557", "#1d4ed8", "#3b82f6", "#0ea5e9", "#eab308"];
-        catWrap.innerHTML = buildSemiGaugeSvg(okPct, attnPct, "Stok Aman", "Perlu Restok") + buildUiKitProgressRows(
-          Object.entries(catsSell).map(([k, v], idx) => ({ label: k, val: v, color: colors[idx % colors.length] })),
-          maxCat
+        const valueBars = buildUiKitProgressRows(
+          sortedCats.map(([k, v], idx) => {
+            const share = totalCost > 0 ? Math.round((v.cost / totalCost) * 100) : 0;
+            return {
+              label: `${idx + 1}. ${k} (${share}% modal)`,
+              val: v.cost,
+              display: `Modal ${rp(v.cost)} · Est. Laba ${shortRpTick(v.profit)}`,
+              color: colors[idx % colors.length]
+            };
+          }),
+          maxCost
         );
-      }
-
-      const assetCard = document.getElementById("bentoStockAssetCard");
-      if (assetCard) {
-        const potensiLaba = Math.max(0, totalPotensi - totalCost);
-        const avgMargin = totalPotensi > 0 ? Math.round((potensiLaba / totalPotensi) * 100) : 0;
-        const chartHtml = buildRealMiniBarChart([
-          { label: "Modal", val: totalCost, top: shortRpTick(totalCost), color: "#64748b", tip: "Nilai Modal Stok: " + rp(totalCost) },
-          { label: "Est. Jual", val: totalPotensi, top: shortRpTick(totalPotensi), color: "#1d4ed8", tip: "Potensi Omzet Jual: " + rp(totalPotensi) },
-          { label: "Est. Laba", val: potensiLaba, top: shortRpTick(potensiLaba), color: "#eab308", tip: "Potensi Laba Bersih: " + rp(potensiLaba) }
-        ]);
-        assetCard.innerHTML = `
-          <div class="flex items-start justify-between gap-2">
-            <div>
-              <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900">Potensi Laba Stok</span>
-              <p class="text-2xl font-black text-slate-950 tracking-tight mt-1 tabular-nums">${rp(potensiLaba)}</p>
-              <span class="text-[11px] font-bold text-emerald-700">Margin rata-rata ${avgMargin}% · ${lowCount + outCount} perlu restok</span>
+        const stackedHtml = `
+          <div class="pt-3 mt-2 border-t border-slate-100 space-y-2">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-slate-700">Status Stok per Kategori</span>
+              <div class="flex items-center gap-3 text-[11px] font-bold text-slate-600">
+                <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#1d4ed8]"></span>Aman</span>
+                <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#eab308]"></span>Menipis</span>
+                <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#e11d48]"></span>Habis</span>
+              </div>
             </div>
-            <span class="w-10 h-10 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 text-base shrink-0"><i class="fa-solid fa-coins" aria-hidden="true"></i></span>
-          </div>
-          ${chartHtml}`;
+            ${sortedCats.map(([k, v]) => {
+              const tot = Math.max(1, v.ok + v.low + v.out);
+              const wOk = (v.ok / tot) * 100;
+              const wLow = (v.low / tot) * 100;
+              const wOut = (v.out / tot) * 100;
+              return `<div class="uikit-row !py-1.5 !px-2.5">
+                <div class="uikit-row-head">
+                  <span class="uikit-row-label">${esc(k)}</span>
+                  <span class="text-[11px] font-extrabold text-slate-700 tabular-nums">${v.ok} aman · ${v.low} menipis · ${v.out} habis</span>
+                </div>
+                <div class="w-full h-2.5 rounded-full bg-slate-200 overflow-hidden flex">
+                  ${wOk > 0 ? `<div style="width:${wOk.toFixed(1)}%;background:#1d4ed8"></div>` : ""}
+                  ${wLow > 0 ? `<div style="width:${wLow.toFixed(1)}%;background:#eab308"></div>` : ""}
+                  ${wOut > 0 ? `<div style="width:${wOut.toFixed(1)}%;background:#e11d48"></div>` : ""}
+                </div>
+              </div>`;
+            }).join("")}
+          </div>`;
+        catWrap.innerHTML = valueBars + stackedHtml;
       }
 
+      // Baris 2 Kanan: Donut Kesehatan Stok + Waterfall Modal -> Laba -> Potensi Jual
       const healthWrap = document.getElementById("svgStockHealthWrap");
       if (healthWrap) {
         healthWrap.innerHTML = buildSvgDonut([
@@ -2576,6 +2702,56 @@
           { label: "Menipis (1–4)", value: lowCount, color: "#facc15", display: `${lowCount} item` },
           { label: "Habis (0)", value: outCount, color: "#e11d48", display: `${outCount} item` }
         ], "AMAN", `${okPct}%`);
+      }
+      const assetCard = document.getElementById("bentoStockAssetCard");
+      if (assetCard) {
+        const avgMargin = totalPotensi > 0 ? Math.round((totalPotensiLaba / totalPotensi) * 100) : 0;
+        assetCard.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900">Alur Nilai Stok (Waterfall)</span>
+              <p class="text-2xl font-black text-slate-950 tracking-tight mt-0.5 tabular-nums">${rp(totalPotensiLaba)}</p>
+              <span class="text-[11px] font-bold text-emerald-700">Potensi laba bersih · Margin ${avgMargin}%</span>
+            </div>
+            <span class="w-10 h-10 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 text-base shrink-0"><i class="fa-solid fa-coins" aria-hidden="true"></i></span>
+          </div>
+          ${buildWaterfallValueSvg(totalCost, totalPotensiLaba, totalPotensi)}`;
+      }
+
+      // Baris 3 Kiri: Aktivitas & Tren Scan QR 7 Hari
+      renderQrActivityChart();
+
+      // Baris 3 Kanan: Top 10 Barang Menipis dengan tombol + Tambah stok & Cetak QR
+      const prioBadge = document.getElementById("badgeStockPriority");
+      if (prioBadge) prioBadge.textContent = `${urgentItems.length} Barang`;
+      const prioWrap = document.getElementById("tableStockPriorityWrap");
+      if (prioWrap) {
+        const top10Urgent = urgentItems
+          .slice()
+          .sort((a, b) => Number(a.stock || 0) - Number(b.stock || 0) || String(a.name || "").localeCompare(String(b.name || ""), "id"))
+          .slice(0, 10);
+        if (!top10Urgent.length) {
+          prioWrap.innerHTML = `<p class="text-sm font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-2xl px-4 py-6 text-center">Semua barang aktif stoknya aman (&ge; ${LOW_STOCK_LIMIT} pcs).</p>`;
+        } else {
+          prioWrap.innerHTML = `<table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead><tr class="border-b border-slate-200 text-[11px] font-extrabold uppercase text-slate-500"><th class="py-2 pr-2">No &amp; Nama Barang</th><th class="py-2 px-2 text-center">Sisa</th><th class="py-2 pl-2 text-right">Aksi Cepat</th></tr></thead>
+            <tbody class="divide-y divide-slate-100">${top10Urgent.map((it, idx) => {
+              const st = Math.max(0, Number(it.stock || 0));
+              const eid = esc(it.id);
+              const badgeCls = st <= 0 ? "bg-rose-100 text-rose-800" : "bg-amber-100 text-amber-900";
+              return `<tr>
+                <td class="py-2 pr-2"><strong class="text-slate-900 block leading-snug">${idx + 1}. ${esc(it.name)}</strong><span class="text-[11px] font-mono text-blue-700">${esc(it.code || "-")}</span></td>
+                <td class="py-2 px-2 text-center whitespace-nowrap"><span class="px-2 py-0.5 rounded-full text-xs font-extrabold ${badgeCls}">${st === 0 ? "Habis" : st + " pcs"}</span></td>
+                <td class="py-2 pl-2 text-right whitespace-nowrap">
+                  <div class="inline-flex items-center gap-1.5">
+                    ${isAdmin ? `<button type="button" data-quick-in="${eid}" class="px-2.5 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-extrabold text-xs">+ Tambah stok</button>
+                    <button type="button" data-qr-item="${eid}" class="px-2.5 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-950 font-extrabold text-xs"><i class="fa-solid fa-qrcode mr-1" aria-hidden="true"></i>Cetak QR</button>` : ""}
+                  </div>
+                </td>
+              </tr>`;
+            }).join("")}</tbody>
+          </table>`;
+        }
       }
     }
 
@@ -3275,22 +3451,24 @@
     }
 
     async function printBatchQrStickers() {
-      const items = activeInventory().filter(i => selectedQrIds.has(i.id));
+      const items = activeInventory().filter(i => selectedQrQty.has(i.id));
       if (!items.length) return showToast("Pilih minimal 1 barang terlebih dahulu.");
       const prevActive = activeQrProduct;
       const imgs = [];
-      const tempCanvas = document.createElement("canvas");
-      tempCanvas.width = 591; tempCanvas.height = 354;
       for (const item of items) {
         renderQrLabel(item);
         const srcCanvas = document.getElementById("niimbotPreviewCanvas");
         if (!srcCanvas) continue;
-        const img = document.createElement("img");
-        img.alt = item.name || "";
-        img.src = srcCanvas.toDataURL("image/png");
-        img.style.cssText = "display:block;width:100%;max-width:100mm;height:auto;margin:0 auto 10px;page-break-inside:avoid;";
-        try { await img.decode(); } catch {}
-        imgs.push(img);
+        const dataUrl = srcCanvas.toDataURL("image/png");
+        const copies = Math.max(1, Math.min(50, Number(selectedQrQty.get(item.id) || 1)));
+        for (let c = 0; c < copies; c++) {
+          const img = document.createElement("img");
+          img.alt = item.name || "";
+          img.src = dataUrl;
+          img.style.cssText = "display:block;width:100%;max-width:100mm;height:auto;margin:0 auto 10px;page-break-inside:avoid;";
+          try { await img.decode(); } catch {}
+          imgs.push(img);
+        }
       }
       if (prevActive) renderQrLabel(prevActive);
       const sheet = document.getElementById("stickerPrintSheet");
@@ -3423,6 +3601,23 @@
       document.getElementById("scannerModal").classList.add("hidden");
       scanLocked = false;
     }
+    const QR_ACTIVITY_KEY = "sjs-qr-activity-v1";
+    function recordQrActivity(kind) {
+      try {
+        const log = JSON.parse(localStorage.getItem(QR_ACTIVITY_KEY) || "{}");
+        const d = todayStr();
+        if (!log[d]) log[d] = { ok: 0, fail: 0, in: 0, out: 0 };
+        if (kind === "ok") log[d].ok = (log[d].ok || 0) + 1;
+        else if (kind === "fail") log[d].fail = (log[d].fail || 0) + 1;
+        else if (kind === "in") log[d].in = (log[d].in || 0) + 1;
+        else if (kind === "out") log[d].out = (log[d].out || 0) + 1;
+        const keys = Object.keys(log).sort();
+        if (keys.length > 14) for (const k of keys.slice(0, keys.length - 14)) delete log[k];
+        localStorage.setItem(QR_ACTIVITY_KEY, JSON.stringify(log));
+        renderQrActivityChart();
+      } catch {}
+    }
+
     function handleScannedCode(code, fromLiveCam = false) {
       if (fromLiveCam) {
         if (scanLocked) return;
@@ -3445,9 +3640,11 @@
         || items.find(i => i.code && q.includes(i.code.toLowerCase()))
         || items.find(i => i.id && q.includes(i.id.toLowerCase()));
       if (!found) {
+        recordQrActivity("fail");
         if (fromLiveCam) setTimeout(() => { scanLocked = false; }, 1500);
         return showToast(`Kode "${raw}" tidak ditemukan.`);
       }
+      recordQrActivity("ok");
 
       const rows = [...document.querySelectorAll("#saleItemsContainer > div")];
       const existingRow = rows.find(r => r.dataset.invId === found.id);
@@ -3970,6 +4167,11 @@
       document.getElementById("inputDate").addEventListener("change", updateSaleDateSummary);
       document.getElementById("inputSaleDiscount")?.addEventListener("input", calculateSaleTotals);
       document.getElementById("btnBatchPrintQr")?.addEventListener("click", printBatchQrStickers);
+      document.getElementById("btnPreviewBatchQr")?.addEventListener("click", () => {
+        const firstId = selectedQrQty.keys().next().value;
+        if (!firstId) return showToast("Pilih minimal 1 barang terlebih dahulu.");
+        openProductQrModal(firstId);
+      });
       for (const b of document.querySelectorAll(".pay-option-btn")) b.addEventListener("click", () => selectSalePayment(b.dataset.pay));
       document.getElementById("btnSaveTx").addEventListener("click", () => saveSale(false));
       document.getElementById("btnSaveAndPrintTx").addEventListener("click", () => saveSale(true));
@@ -4206,9 +4408,10 @@
         if (ed) return editInventoryItem(ed.dataset.editItem);
         const qsel = e.target.closest("[data-qr-select]");
         if (qsel) {
-          if (qsel.checked) selectedQrIds.add(qsel.dataset.qrSelect);
-          else selectedQrIds.delete(qsel.dataset.qrSelect);
+          if (qsel.checked) selectedQrQty.set(qsel.dataset.qrSelect, 1);
+          else selectedQrQty.delete(qsel.dataset.qrSelect);
           updateBatchQrCount();
+          renderInventory();
           return;
         }
         const swa = e.target.closest("[data-share-wa]");
@@ -4233,6 +4436,16 @@
       };
       document.getElementById("inventoryTableBody").addEventListener("click", inventoryActionClick);
       document.getElementById("inventoryMobileList").addEventListener("click", inventoryActionClick);
+      document.getElementById("inventoryCharts")?.addEventListener("click", inventoryActionClick);
+      const handleQrQtyInput = e => {
+        const inp = e.target.closest("[data-qr-qty]");
+        if (!inp) return;
+        const v = Math.max(1, Math.min(50, Math.round(Number(inp.value) || 1)));
+        selectedQrQty.set(inp.dataset.qrQty, v);
+        updateBatchQrCount();
+      };
+      document.getElementById("inventoryTableBody")?.addEventListener("input", handleQrQtyInput);
+      document.getElementById("inventoryMobileList")?.addEventListener("input", handleQrQtyInput);
 
       const txActionClick = e => {
         const rc = e.target.closest("[data-receipt-tx]");

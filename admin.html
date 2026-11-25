@@ -2283,6 +2283,7 @@
           <div><h2 class="font-bold">Katalog Publik</h2><p id="inventoryCatalogStatus" class="text-sm text-slate-600" aria-live="polite"></p></div>
           <div class="flex flex-wrap gap-2">
             <button id="btnBatchPrintQr" type="button" class="shop-button shop-button-secondary" disabled><i class="fa-solid fa-qrcode" aria-hidden="true"></i> Cetak QR (<span id="batchQrCount">0</span>)</button>
+            <button id="btnPreviewBatchQr" type="button" class="shop-button shop-button-secondary" disabled><i class="fa-solid fa-eye" aria-hidden="true"></i> Pratinjau QR</button>
             <button id="openReorderList" type="button" class="shop-button shop-button-secondary">Daftar belanja stok</button>
             <button id="publishCatalog" type="button" class="shop-button shop-button-secondary">Terbitkan barang aktif</button>
           </div>
@@ -2290,29 +2291,31 @@
       </section>
 
       <section class="workspace-metrics" aria-label="Ringkasan stok">
-        <div class="bg-white p-4 rounded-2xl border border-slate-200"><span class="text-xs font-extrabold uppercase text-slate-500">Jenis barang</span><p id="invTotalTypes" class="text-2xl font-extrabold mt-1.5">0 Item</p></div>
-        <div class="bg-white p-4 rounded-2xl border border-slate-200"><span class="text-xs font-extrabold uppercase text-blue-900">Jumlah stok</span><p id="invTotalUnits" class="text-2xl font-extrabold mt-1.5">0 Pcs</p></div>
+        <div class="bg-amber-50 p-4 rounded-2xl border-2 border-amber-300"><span class="text-xs font-extrabold uppercase text-amber-900">Stok menipis &amp; habis</span><p id="invLowStockCount" class="text-2xl font-extrabold text-amber-950 mt-1.5">0 Barang</p></div>
         <div class="bg-white p-4 rounded-2xl border border-slate-200"><span class="text-xs font-extrabold uppercase text-emerald-900">Nilai modal stok</span><p id="invTotalAsset" class="text-2xl font-extrabold mt-1.5">Rp 0</p></div>
-        <div class="bg-amber-50 p-4 rounded-2xl border border-amber-200"><span class="text-xs font-extrabold uppercase text-amber-900">Stok menipis</span><p id="invLowStockCount" class="text-2xl font-extrabold mt-1.5">0 Barang</p></div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200"><span class="text-xs font-extrabold uppercase text-slate-500">Jenis barang (SKU)</span><p id="invTotalTypes" class="text-2xl font-extrabold mt-1.5">0 Aktif</p></div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200"><span class="text-xs font-extrabold uppercase text-blue-900">Jumlah stok</span><p id="invTotalUnits" class="text-2xl font-extrabold mt-1.5">0 Pcs</p></div>
       </section>
 
-      <section id="inventoryCharts" class="grid grid-cols-1 lg:grid-cols-3 gap-4 no-print" aria-label="Grafik analitik stok">
+      <section id="inventoryCharts" class="grid grid-cols-1 lg:grid-cols-3 gap-4 no-print" aria-label="Grafik analitik stok dan QR">
+        <!-- BARIS 2 KIRI: Distribusi Nilai Stok per Kategori + Status Stok -->
         <div class="sjs-chart-card lg:col-span-2">
           <div class="sjs-chart-head">
             <div class="sjs-chart-title-wrap">
               <span class="sjs-chart-badge-icon is-blue"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
               <div>
-                <h3 class="workspace-section-title">Modal &amp; Potensi Jual per Kategori</h3>
-                <p class="sjs-chart-sub">Rasio stok aman &amp; nilai aset tiap kategori</p>
+                <h3 class="workspace-section-title">Distribusi Nilai Stok per Kategori</h3>
+                <p class="sjs-chart-sub">Modal tertanam &amp; potensi laba per kategori + status stok aman/menipis/habis</p>
               </div>
             </div>
-            <span id="badgeStockCatTotal" class="sjs-chart-pill">Potensi Rp 0</span>
+            <span id="badgeStockCatTotal" class="sjs-chart-pill">Modal Rp 0</span>
           </div>
           <div id="svgStockCatWrap" class="w-full space-y-4"></div>
         </div>
+
+        <!-- BARIS 2 KANAN: Kesehatan Stok (Donut) + Waterfall Nilai -->
         <div class="flex flex-col gap-4">
-          <div id="bentoStockAssetCard" class="bento-pastel-card"></div>
-          <div class="sjs-chart-card flex-1">
+          <div class="sjs-chart-card">
             <div class="sjs-chart-head">
               <div class="sjs-chart-title-wrap">
                 <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i></span>
@@ -2324,6 +2327,37 @@
             </div>
             <div id="svgStockHealthWrap" class="w-full flex flex-col gap-2"></div>
           </div>
+          <div id="bentoStockAssetCard" class="bento-pastel-card"></div>
+        </div>
+
+        <!-- BARIS 3 KIRI: Aktivitas & Tren Scan QR 7 Hari -->
+        <div class="sjs-chart-card">
+          <div class="sjs-chart-head">
+            <div class="sjs-chart-title-wrap">
+              <span class="sjs-chart-badge-icon is-navy"><i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
+              <div>
+                <h3 class="workspace-section-title">Aktivitas &amp; Tren Scan QR (7 Hari)</h3>
+                <p class="sjs-chart-sub">Scan kasir, cek produk, dan scan gagal per hari</p>
+              </div>
+            </div>
+            <span id="badgeQrTodayCount" class="sjs-chart-pill">0 Scan</span>
+          </div>
+          <div id="svgQrActivityWrap" class="w-full space-y-3"></div>
+        </div>
+
+        <!-- BARIS 3 KANAN: Top 10 Barang Menipis (Prioritas Restok) -->
+        <div class="sjs-chart-card lg:col-span-2">
+          <div class="sjs-chart-head">
+            <div class="sjs-chart-title-wrap">
+              <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>
+              <div>
+                <h3 class="workspace-section-title">Top 10 Barang Menipis (Prioritas Restok)</h3>
+                <p class="sjs-chart-sub">Klik + Tambah stok atau Cetak QR langsung dari daftar kritis</p>
+              </div>
+            </div>
+            <span id="badgeStockPriority" class="sjs-chart-pill">0 Barang</span>
+          </div>
+          <div id="tableStockPriorityWrap" class="w-full overflow-x-auto"></div>
         </div>
       </section>
 
