@@ -1761,9 +1761,21 @@
 
     // ==================== RENDER: STOK ====================
     let activePosCat = "all";
+    let posShowPhotos = localStorage.getItem("sjs-pos-show-photos") === "1";
+    function syncPosPhotoToggleBtn() {
+      const btn = document.getElementById("btnTogglePosPhotos");
+      if (!btn) return;
+      btn.setAttribute("aria-pressed", String(posShowPhotos));
+      btn.innerHTML = posShowPhotos
+        ? '<i class="fa-regular fa-eye-slash" aria-hidden="true"></i><span>Sembunyikan Foto</span>'
+        : '<i class="fa-regular fa-image" aria-hidden="true"></i><span>Tampilkan Foto</span>';
+    }
+
     function renderPosCatalog() {
       const grid = document.getElementById("posCatalogGrid");
       if (!grid) return;
+      syncPosPhotoToggleBtn();
+      grid.classList.toggle("is-compact", !posShowPhotos);
       const q = (document.getElementById("posCatalogSearch")?.value || "").trim().toLocaleLowerCase("id");
       const list = activeInventory().filter(item => {
         const hay = [item.name, item.code, item.size, item.color].filter(Boolean).join(" ").toLocaleLowerCase("id");
@@ -1778,6 +1790,19 @@
         const cls = st <= 0 ? "out" : st < 5 ? "crit" : st <= 10 ? "mid" : "ok";
         const dot = st < 5 ? "🔴" : st <= 10 ? "🟡" : "🟢";
         const label = st <= 0 ? "🔴 Habis" : `${dot} ${st} pcs`;
+        if (!posShowPhotos) {
+          return `<button type="button" class="pos-card is-compact ${st <= 0 ? "opacity-60" : ""}" data-pos-add="${esc(item.id)}">
+            <div class="flex items-center justify-between gap-1.5 w-full">
+              <span class="pos-card-code">${esc(item.code || "-")}</span>
+              <span class="pos-stock-pill ${cls}">${label}</span>
+            </div>
+            <span class="pos-card-name">${esc(item.name)}</span>
+            <div class="flex items-center justify-between gap-1.5 w-full mt-auto pt-1">
+              <span class="pos-card-price !pt-0">${rp(item.price)}</span>
+              ${isSenarItem(item) ? `<span class="text-[9px] font-bold text-blue-800 bg-blue-50 border border-blue-200 rounded px-1 py-0.5">+Pasang</span>` : ""}
+            </div>
+          </button>`;
+        }
         return `<button type="button" class="pos-card ${st <= 0 ? "opacity-60" : ""}" data-pos-add="${esc(item.id)}">
           <div class="pos-card-thumb">
             <span class="pos-stock-pill ${cls}">${label}</span>
@@ -4899,6 +4924,11 @@
 
       document.getElementById("btnAddItemRow").addEventListener("click", () => addSaleItemRow());
       document.getElementById("posCatalogSearch")?.addEventListener("input", renderPosCatalog);
+      document.getElementById("btnTogglePosPhotos")?.addEventListener("click", () => {
+        posShowPhotos = !posShowPhotos;
+        localStorage.setItem("sjs-pos-show-photos", posShowPhotos ? "1" : "0");
+        renderPosCatalog();
+      });
       document.getElementById("posCategoryTabs")?.addEventListener("click", e => {
         const btn = e.target.closest("[data-pos-cat]");
         if (!btn) return;
