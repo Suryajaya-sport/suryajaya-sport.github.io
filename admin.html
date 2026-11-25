@@ -2198,13 +2198,13 @@
             </div>
           </div>
 
-          <div class="kledo-card items-center text-center justify-between">
+          <div class="kledo-card justify-between">
             <div class="w-full flex items-center justify-between">
-              <span class="kledo-card-title">Rasio Laba Penjualan</span>
-              <span class="text-xs font-extrabold text-blue-800 bg-blue-50 px-2 py-0.5 rounded-full">Speedometer</span>
+              <span class="kledo-card-title">Pelanggan / Nota Terbesar</span>
+              <span id="badgeTopCustomersSales" class="text-xs font-extrabold text-blue-800 bg-blue-50 px-2 py-0.5 rounded-full">Top 4</span>
             </div>
-            <div id="kledoSpeedometerWrap" class="w-full flex flex-col items-center justify-center py-1"></div>
-            <p id="kledoSpeedometerNote" class="kledo-card-sub">Perbandingan laba terhadap omzet</p>
+            <div id="topCustomersSalesWrap" class="w-full space-y-1.5 my-1"></div>
+            <p id="topCustomersSalesNote" class="kledo-card-sub">Pembeli terbesar pada periode terpilih</p>
           </div>
         </section>
 
@@ -2215,34 +2215,19 @@
           <div class="bg-white px-4 py-3.5 rounded-2xl border border-slate-200 flex items-center justify-between gap-2"><div><span class="text-xs font-extrabold uppercase text-purple-900">Transfer Bank</span><p id="payTransfer" class="text-lg font-extrabold mt-0.5 tabular-nums">Rp 0</p></div><span id="countTransfer" class="text-xs font-extrabold bg-purple-100 px-2.5 py-1 rounded-full">0x</span></div>
         </section>
 
-        <div id="salesRatioBarCard" class="sjs-ratio-card no-print">
-          <div class="flex flex-wrap items-center justify-between gap-2">
-            <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900"><i class="fa-solid fa-scale-balanced text-amber-500 mr-1.5" aria-hidden="true"></i>Perbandingan Modal vs Laba Kotor (Periode Terpilih)</span>
-            <span id="salesRatioHeadline" class="text-xs font-extrabold text-slate-600">Belum ada transaksi</span>
-          </div>
-          <div class="sjs-ratio-track" aria-hidden="true">
-            <div id="salesSegCost" class="sjs-ratio-seg bg-blue-600" style="width:0%"></div>
-            <div id="salesSegProfit" class="sjs-ratio-seg bg-amber-400" style="width:0%"></div>
-          </div>
-          <div class="sjs-ratio-legend">
-            <span><span class="sjs-ratio-dot bg-blue-600"></span>Modal: <strong id="salesLegendCost">0%</strong></span>
-            <span><span class="sjs-ratio-dot bg-amber-400"></span>Laba Kotor: <strong id="salesLegendProfit">0%</strong></span>
-          </div>
-        </div>
-
         <section id="salesCharts" class="grid grid-cols-1 xl:grid-cols-3 gap-4 no-print">
           <div class="sjs-chart-card xl:col-span-2">
             <div class="sjs-chart-head">
               <div class="sjs-chart-title-wrap">
-                <span class="sjs-chart-badge-icon is-blue"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i></span>
+                <span class="sjs-chart-badge-icon is-blue"><i class="fa-solid fa-sack-dollar" aria-hidden="true"></i></span>
                 <div>
-                  <h3 id="salesTrendChartTitle" class="workspace-section-title">Performa Penjualan &amp; Laba</h3>
-                  <p class="sjs-chart-sub">Gauge margin laba &amp; rincian omzet per jam/hari</p>
+                  <h3 id="salesTrendChartTitle" class="workspace-section-title">Produk Paling Untung &amp; Margin Tertinggi</h3>
+                  <p class="sjs-chart-sub">Produk penyumbang laba kotor terbesar (berbeda dari terlaris berdasarkan qty)</p>
                 </div>
               </div>
               <span id="badgeSalesTrend" class="sjs-chart-pill">Rp 0</span>
             </div>
-            <div id="svgSalesGaugeWrap" class="w-full space-y-4"></div>
+            <div id="svgSalesGaugeWrap" class="w-full space-y-3 overflow-x-auto"></div>
           </div>
 
           <div class="flex flex-col gap-4">
@@ -2275,6 +2260,21 @@
             <div id="svgTopProductsWrap" class="w-full space-y-2.5"></div>
           </div>
         </section>
+
+        <div id="salesRatioBarCard" class="sjs-ratio-card no-print">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900"><i class="fa-solid fa-scale-balanced text-amber-500 mr-1.5" aria-hidden="true"></i>Perbandingan Modal vs Laba Kotor (Periode Terpilih)</span>
+            <span id="salesRatioHeadline" class="text-xs font-extrabold text-slate-600">Belum ada transaksi</span>
+          </div>
+          <div class="sjs-ratio-track" aria-hidden="true">
+            <div id="salesSegCost" class="sjs-ratio-seg bg-blue-600" style="width:0%"></div>
+            <div id="salesSegProfit" class="sjs-ratio-seg bg-amber-400" style="width:0%"></div>
+          </div>
+          <div class="sjs-ratio-legend">
+            <span><span class="sjs-ratio-dot bg-blue-600"></span>Modal: <strong id="salesLegendCost">0%</strong></span>
+            <span><span class="sjs-ratio-dot bg-amber-400"></span>Laba Kotor: <strong id="salesLegendProfit">0%</strong></span>
+          </div>
+        </div>
 
         <section class="bg-white rounded-3xl border border-slate-200 overflow-hidden">
           <div class="px-5 py-4 border-b border-slate-200 flex items-center justify-between">
@@ -2946,6 +2946,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261125-6"></script>
+  <script type="module" src="./admin.js?v=20261125-7"></script>
 </body>
 </html>

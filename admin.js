@@ -2344,7 +2344,7 @@
       if (!isAdmin) return;
       const titleEl = document.getElementById("salesTrendChartTitle");
       const badgeEl = document.getElementById("badgeSalesTrend");
-      if (titleEl) titleEl.textContent = currentViewMode === "day" ? "Performa Penjualan Hari Ini" : "Performa Penjualan Semua Hari";
+      if (titleEl) titleEl.textContent = currentViewMode === "day" ? "Produk Paling Untung Hari Ini" : "Produk Paling Untung (Semua Hari)";
 
       let totalOmzetRows = 0, totalLabaRows = 0, totalPcs = 0;
       const pay = { Cash: 0, QRIS: 0, Kartu: 0, Transfer: 0 };
@@ -2358,8 +2358,12 @@
           const q = Number(it.qty || 0);
           totalPcs += q;
           const key = cleanDisplayItemName(it.name);
-          const cur = prodMap.get(key) || { omset: 0, qty: 0 };
-          cur.omset += Number(it.price || 0) * q;
+          const cur = prodMap.get(key) || { omset: 0, cost: 0, profit: 0, qty: 0 };
+          const itemOmzet = Number(it.subtotal ?? Number(it.price || 0) * q);
+          const itemCost = Number(it.cost || 0) * q;
+          cur.omset += itemOmzet;
+          cur.cost += itemCost;
+          cur.profit += (itemOmzet - itemCost);
           cur.qty += q;
           prodMap.set(key, cur);
         }
@@ -2429,23 +2433,86 @@
       if (currentViewMode !== "day") labaVs = vsLabel;
       applyTrend("kledoLabaTrendIcon", "kledoMarginBadge", "kledoLabaTrendVs", totalLabaRows, prevLaba, labaVs);
       if (kCb) kCb.textContent = (totalOmzetRows > 0 ? Math.max(0, 100 - sProfPct) : 0) + "%";
-      if (kSp) kSp.innerHTML = buildKledoSpeedometerSvg(sProfPct);
-      if (kSn) kSn.textContent = totalOmzetRows > 0 ? `Laba ${rp(totalLabaRows)} dari ${rp(totalOmzetRows)}` : "Belum ada transaksi";
       const sCostPct = totalOmzetRows > 0 ? Math.max(0, 100 - sProfPct) : 0;
-      if (badgeEl) badgeEl.textContent = rp(totalOmzetRows);
+      if (badgeEl) badgeEl.textContent = `Laba ${rp(totalLabaRows)}`;
 
-      // 1. Bento Semi-Circle Gauge + Pill Bars in Penjualan
+      // Pelanggan / Nota Terbesar (pengganti Speedometer duplikat)
+      const custWrap = document.getElementById("topCustomersSalesWrap");
+      const custNote = document.getElementById("topCustomersSalesNote");
+      const custBadge = document.getElementById("badgeTopCustomersSales");
+      if (custWrap) {
+        const namedMap = new Map();
+        for (const tx of rows) {
+          const c = String(tx.customer || "").trim();
+          if (c && c !== "Pelanggan Umum") {
+            const cur = namedMap.get(c) || { total: 0, cnt: 0 };
+            cur.total += Number(tx.totalOmset || 0);
+            cur.cnt += 1;
+            namedMap.set(c, cur);
+          }
+        }
+        if (namedMap.size > 0) {
+          const topCust = [...namedMap.entries()].sort((a, b) => b[1].total - a[1].total).slice(0, 4);
+          if (custBadge) custBadge.textContent = `${topCust.length} Pelanggan`;
+          if (custNote) custNote.textContent = "Pembeli tercatat terbesar pada periode ini";
+          custWrap.innerHTML = topCust.map(([name, v], i) => `
+            <div class="flex items-center justify-between gap-2 text-xs py-1 border-b border-slate-100 last:border-0">
+              <span class="font-bold text-slate-800 truncate" title="${esc(name)}">${i + 1}. ${esc(name)} <span class="text-[10px] text-slate-400">(${v.cnt}x)</span></span>
+              <strong class="font-extrabold text-blue-900 tabular-nums shrink-0">${esc(shortRpTick(v.total))}</strong>
+            </div>`).join("");
+        } else if (rows.length > 0) {
+          const topTx = rows.slice().sort((a, b) => Number(b.totalOmset || 0) - Number(a.totalOmset || 0)).slice(0, 4);
+          if (custBadge) custBadge.textContent = `Top ${topTx.length} Nota`;
+          if (custNote) custNote.textContent = "Isi nama pelanggan di Kasir untuk lacak pelanggan terbesar";
+          custWrap.innerHTML = topTx.map((tx, i) => `
+            <div class="flex items-center justify-between gap-2 text-xs py-1 border-b border-slate-100 last:border-0">
+              <span class="font-bold text-slate-700 truncate"><span class="font-mono text-[11px] text-slate-900">${esc(receiptNumber(tx))}</span> · ${esc(paymentMethodLabel(tx.paymentMethod || "Cash"))}</span>
+              <strong class="font-extrabold text-blue-900 tabular-nums shrink-0">${esc(shortRpTick(tx.totalOmset))}</strong>
+            </div>`).join("");
+        } else {
+          if (custBadge) custBadge.textContent = "Kosong";
+          custWrap.innerHTML = `<p class="text-xs text-slate-400 py-4 text-center">Belum ada transaksi</p>`;
+        }
+      }
+
+      // 1. Produk Paling Untung & Margin Tertinggi (pengganti Gauge Rasio Laba duplikat)
       const gaugeWrap = document.getElementById("svgSalesGaugeWrap");
       if (gaugeWrap) {
-        const maxBar = Math.max(1, totalOmzetRows, totalLabaRows, totalModalRows);
-        const pillRows = [
-          { label: "Total Omzet", val: totalOmzetRows, color: "#0f2557" },
-          { label: "Laba Kotor", val: totalLabaRows, color: "#1d4ed8" },
-          { label: "Modal Terjual", val: totalModalRows, color: "#64748b" },
-          { label: "Bayar Tunai", val: pay.Cash, color: "#0ea5e9" },
-          { label: "QRIS & Transfer", val: pay.QRIS + pay.Transfer + pay.Kartu, color: "#eab308" }
-        ];
-        gaugeWrap.innerHTML = buildSemiGaugeSvg(sProfPct, sCostPct, "Laba Kotor", "Modal Barang") + buildUiKitProgressRows(pillRows, maxBar);
+        const topProfitProds = [...prodMap.entries()]
+          .map(([name, v]) => ({ name, ...v, marginPct: v.omset > 0 ? Math.round((v.profit / v.omset) * 100) : 0 }))
+          .sort((a, b) => b.profit - a.profit || b.marginPct - a.marginPct)
+          .slice(0, 8);
+        if (!topProfitProds.length) {
+          gaugeWrap.innerHTML = `<p class="text-sm text-slate-500 py-8 text-center">Belum ada transaksi pada periode ini.</p>`;
+        } else {
+          const maxP = Math.max(1, topProfitProds[0].profit);
+          gaugeWrap.innerHTML = `
+            <table class="w-full text-left border-collapse text-xs sm:text-sm">
+              <thead>
+                <tr class="border-b border-slate-200 text-[11px] font-extrabold uppercase text-slate-500">
+                  <th class="py-2 pr-2">Produk</th>
+                  <th class="py-2 px-2 text-right">Qty</th>
+                  <th class="py-2 px-2 text-right">Omzet</th>
+                  <th class="py-2 px-2 text-right">Untung</th>
+                  <th class="py-2 pl-2 text-right">Margin</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">${topProfitProds.map((p, idx) => {
+                const wPct = Math.max(8, Math.round((Math.max(0, p.profit) / maxP) * 100));
+                const mCls = p.marginPct >= 30 ? "bg-emerald-100 text-emerald-800" : p.marginPct >= 15 ? "bg-blue-100 text-blue-800" : "bg-amber-100 text-amber-800";
+                return `<tr>
+                  <td class="py-2 pr-2">
+                    <span class="font-bold text-slate-900 block leading-snug">${idx + 1}. ${esc(p.name)}</span>
+                    <div class="w-full h-1.5 rounded-full bg-slate-100 mt-1 overflow-hidden"><div style="width:${wPct}%;background:${idx === 0 ? "#0f2557" : idx === 1 ? "#1d4ed8" : "#3b82f6"}" class="h-full rounded-full"></div></div>
+                  </td>
+                  <td class="py-2 px-2 text-right tabular-nums text-slate-600 whitespace-nowrap">${p.qty} pcs</td>
+                  <td class="py-2 px-2 text-right tabular-nums text-slate-600 whitespace-nowrap">${esc(shortRpTick(p.omset))}</td>
+                  <td class="py-2 px-2 text-right tabular-nums font-extrabold text-emerald-700 whitespace-nowrap">${rp(p.profit)}</td>
+                  <td class="py-2 pl-2 text-right whitespace-nowrap"><span class="inline-block px-2 py-0.5 rounded-full text-[11px] font-extrabold ${mCls}">${p.marginPct}%</span></td>
+                </tr>`;
+              }).join("")}</tbody>
+            </table>`;
+        }
       }
 
       // 2. Bento Pastel Hero Card in Penjualan
