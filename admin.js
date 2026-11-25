@@ -2753,13 +2753,45 @@
     }
 
     // ==================== RENDER: PEMBUKUAN & GRAFIK ====================
+    const BANK_TRANSFER_RE = /\b(setor|setoran|transfer\s*(ke\s*)?(bank|atm|rekening)|tarik\s*(tunai|bank|atm)|mutasi|pindah\s*buku)\b|\b(bri|bca|bni|mandiri|bsi|atm)\b/i;
+    const PRIVE_RE = /\b(prive|ambil\s*(uang\s*)?pemilik|tarik\s*pribadi|keperluan\s*pribadi)\b/i;
+    function renderProfitTrendHtml(profitPts) {
+      const active = (profitPts || []).filter(p => Number(p.value || 0) !== 0);
+      if (active.length < 2) {
+        const detail = active.length === 1
+          ? `Baru tersedia 1 bulan data (${esc(active[0].label)}: ${rp(active[0].value)}). Grafik tren otomatis tampil setelah minimal 2 bulan tercatat.`
+          : "Belum ada transaksi laba yang tercatat dalam 6 bulan terakhir.";
+        return `<div class="w-full rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 px-4 py-6 text-center space-y-1.5">
+          <p class="text-sm font-extrabold text-slate-700"><i class="fa-solid fa-chart-line text-slate-400 mr-1.5" aria-hidden="true"></i>Data historis belum cukup untuk analisis tren 6 bulan.</p>
+          <p class="text-xs font-semibold text-slate-500">${detail}</p>
+        </div>`;
+      }
+      return buildSvgAreaTrend(profitPts);
+    }
+
+    function getCashOutKind(e) {
+      if (!e) return "expense";
+      if (e.kind === "transfer" || e.kind === "prive" || e.kind === "expense") return e.kind;
+      const text = `${e.category || ""} ${e.note || ""}`.trim();
+      if (PRIVE_RE.test(text)) return "prive";
+      if (BANK_TRANSFER_RE.test(text)) return "transfer";
+      return "expense";
+    }
+    function isNonExpenseTransfer(e) {
+      const k = getCashOutKind(e);
+      return k === "transfer" || k === "prive";
+    }
+
     function monthlyTotals(month) {
       const sales = transactions.filter(t => month && String(t.date || "").startsWith(month + "-"));
-      const expenses = books.expenses.filter(e => month && String(e.date || "").startsWith(month + "-"));
+      const monthAllExp = books.expenses.filter(e => month && String(e.date || "").startsWith(month + "-"));
+      const expenses = monthAllExp.filter(e => !isNonExpenseTransfer(e));
+      const transfers = monthAllExp.filter(e => isNonExpenseTransfer(e));
       const revenue = sales.reduce((s, t) => s + Number(t.totalOmset || 0), 0);
       const cost = sales.reduce((s, t) => s + Number(t.totalModal || 0), 0);
       const spending = expenses.reduce((s, e) => s + Number(e.amount || 0), 0);
-      return { revenue, cost, spending, profit: revenue - cost - spending };
+      const bankDepositTotal = transfers.reduce((s, e) => s + Number(e.amount || 0), 0);
+      return { revenue, cost, spending, bankDepositTotal, profit: revenue - cost - spending };
     }
 
     function buildBookWaterfallSvg(revenue, cost, spending, netProfit) {
@@ -2809,9 +2841,11 @@
       const monthNum = Number(month.slice(5, 7));
 
       const monthSales = transactions.filter(t => String(t.date || "").startsWith(month + "-"));
-      const monthExp = books.expenses.filter(e => String(e.date || "").startsWith(month + "-"));
+      const monthExpAll = books.expenses.filter(e => String(e.date || "").startsWith(month + "-"));
+      const monthExp = monthExpAll.filter(e => !isNonExpenseTransfer(e));
+      const monthTransfers = monthExpAll.filter(e => isNonExpenseTransfer(e));
       const monthPurch = purchases.filter(p => String(p.date || "").startsWith(month + "-"));
-      const { revenue, cost, spending, profit: netProfit } = monthlyTotals(month);
+      const { revenue, cost, spending, bankDepositTotal, profit: netProfit } = monthlyTotals(month);
       const gross = revenue - cost;
       const beliBulanIni = monthPurch.reduce((s, p) => s + Number(p.totalCost || 0), 0);
 
@@ -2872,7 +2906,7 @@
       const badgeProf = document.getElementById("badgeBookProfit");
       if (badgeProf) badgeProf.textContent = rp(profitPts[profitPts.length - 1]?.value || 0);
       const profWrap = document.getElementById("svgBookProfitWrap");
-      if (profWrap) profWrap.innerHTML = buildSvgAreaTrend(profitPts);
+      if (profWrap) profWrap.innerHTML = renderProfitTrendHtml(profitPts);
 
       // Baris 2 Kanan: Produk Paling Menguntungkan (Omzet & Laba)
       const prodMap = new Map();
@@ -2953,7 +2987,11 @@
           <span class="font-bold text-blue-950"><i class="fa-solid fa-boxes-stacked text-blue-700 mr-1.5" aria-hidden="true"></i>Belanja Restok Barang Bulan Ini (Aset Stok — tidak mengurangi Laba Bersih):</span>
           <strong class="text-sm font-extrabold text-blue-900 tabular-nums">${rp(beliBulanIni)} (${monthPurch.length} nota)</strong>
         </div>`;
-        topExpWrap.innerHTML = expHtml + restockNote;
+        const transferNote = bankDepositTotal > 0 ? `<div class="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-xl bg-slate-50 border border-slate-200 px-3.5 py-2.5 text-xs">
+          <span class="font-bold text-slate-700"><i class="fa-solid fa-building-columns text-slate-600 mr-1.5" aria-hidden="true"></i>Setor ke Bank / ATM Bulan Ini (Mutasi Kas &mdash; bukan pengeluaran, tidak mengurangi Laba Bersih):</span>
+          <strong class="text-sm font-extrabold text-slate-800 tabular-nums">${rp(bankDepositTotal)} (${monthTransfers.length} catatan)</strong>
+        </div>` : "";
+        topExpWrap.innerHTML = expHtml + restockNote + transferNote;
       }
     }
 
@@ -3022,7 +3060,7 @@
       const bt = document.getElementById("repBadgeTrend");
       if (bt) bt.textContent = rp(profitPts[profitPts.length - 1]?.value || 0);
       const ptW = document.getElementById("repProfitTrendWrap");
-      if (ptW) ptW.innerHTML = buildSvgAreaTrend(profitPts);
+      if (ptW) ptW.innerHTML = renderProfitTrendHtml(profitPts);
 
       const pay = { Cash: 0, QRIS: 0, Kartu: 0, Transfer: 0 };
       for (const t of monthSales) { const m = t.paymentMethod || "Cash"; if (m in pay) pay[m] += Number(t.totalOmset || 0); }
@@ -3112,7 +3150,7 @@
     function renderOwnerBooks() {
       if (!isAdmin) return;
       const month = document.getElementById("bookMonth").value;
-      const { revenue, cost, spending, profit } = monthlyTotals(month);
+      const { revenue, cost, spending, bankDepositTotal, profit } = monthlyTotals(month);
       const gross = Math.max(0, revenue - cost);
       const bCostPct = revenue > 0 ? Math.round((cost / revenue) * 100) : 0;
       const bProfPct = revenue > 0 ? Math.max(0, 100 - bCostPct) : 0;
@@ -3141,13 +3179,44 @@
       const exp = books.expenses.filter(e => em && String(e.date || "").startsWith(em + "-"))
         .sort((a, b) => String(b.date).localeCompare(String(a.date)));
       document.getElementById("expenseList").innerHTML = exp.length
-        ? exp.map(e => `<li class="py-2.5">${esc(e.category)} · ${rp(e.amount)} · ${esc(e.date)} · ${e.method === "Cash" ? "Tunai" : esc(e.method)}</li>`).join("")
+        ? exp.map(e => {
+            const kind = getCashOutKind(e);
+            const badge = kind === "transfer"
+              ? `<span class="inline-block ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-slate-100 text-slate-700 border border-slate-300">Perpindahan Kas · bukan biaya</span>`
+              : kind === "prive"
+                ? `<span class="inline-block ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-purple-50 text-purple-800 border border-purple-200">Prive Pemilik · bukan biaya</span>`
+                : `<span class="inline-block ml-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-50 text-amber-800 border border-amber-200">Biaya Operasional</span>`;
+            return `<li class="py-2.5 flex flex-wrap items-center justify-between gap-2"><span>${esc(e.category)} · <strong>${rp(e.amount)}</strong> · ${esc(e.date)} · ${e.method === "Cash" ? "Tunai" : esc(e.method)}${badge}</span></li>`;
+          }).join("")
         : `<li class="py-2 text-slate-500">Belum ada catatan uang keluar untuk bulan ini.</li>`;
 
-      const pur = purchases.filter(p => month && String(p.date || "").startsWith(month + "-"));
+      const pur = purchases.filter(p => month && String(p.date || "").startsWith(month + "-"))
+        .slice().sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
+      const shortMonthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+      const fmtShortDate = d => {
+        const m = String(d || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        return m ? `${Number(m[3])} ${shortMonthNames[Number(m[2]) - 1] || m[2]}` : esc(d || "-");
+      };
       document.getElementById("ownerPurchaseHistory").innerHTML = pur.length
-        ? pur.map(p => `<li>${esc(p.date)} · ${esc(p.name)} · ${p.qty} pcs · ${rp(p.totalCost)}</li>`).join("")
-        : `<li class="text-slate-500">Belum ada pembelian stok untuk bulan ini.</li>`;
+        ? `<table class="w-full text-xs text-left border-collapse">
+            <thead class="sticky top-0 bg-slate-100 text-slate-600 uppercase text-[11px] font-extrabold">
+              <tr>
+                <th class="py-2 px-2.5 rounded-tl-lg">Tanggal</th>
+                <th class="py-2 px-2.5">Barang</th>
+                <th class="py-2 px-2.5 text-right">Qty</th>
+                <th class="py-2 px-2.5 text-right rounded-tr-lg">Nominal</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 bg-white">${pur.map(p => `
+              <tr>
+                <td class="py-2 px-2.5 whitespace-nowrap text-slate-600 font-semibold">${fmtShortDate(p.date)}</td>
+                <td class="py-2 px-2.5 font-bold text-slate-800">${esc(p.name || "-")}</td>
+                <td class="py-2 px-2.5 text-right tabular-nums text-slate-700">${Number(p.qty || 0)}</td>
+                <td class="py-2 px-2.5 text-right tabular-nums font-extrabold text-slate-900 whitespace-nowrap" title="${rp(p.totalCost)}">${esc(shortRpTick(p.totalCost))}</td>
+              </tr>`).join("")}
+            </tbody>
+          </table>`
+        : `<p class="text-sm text-slate-500 py-2">Belum ada pembelian stok untuk bulan ini.</p>`;
       renderCashClosing();
       renderBookLockButton();
       // Kas & Saldo Akhir
@@ -3162,7 +3231,7 @@
         const monthClosings = sortedClosings.filter(c => String(c.date || "").startsWith(month + "-"));
         const latestClosing = monthClosings[0] || sortedClosings[0] || null;
         const closingVal = latestClosing ? Number(latestClosing.actualCash || 0) : 0;
-        const closingInfo = latestClosing ? `Tutup kas ${latestClosing.date}` : "Belum ada catatan tutup kas";
+        const closingInfo = (latestClosing ? `Tutup kas ${latestClosing.date}` : "Belum ada catatan tutup kas") + (bankDepositTotal > 0 ? ` · Setor Bank/ATM: ${rp(bankDepositTotal)}` : "");
         cashCard.innerHTML = `
           <div class="flex flex-wrap items-center justify-between gap-2">
             <h4 class="text-xs font-extrabold uppercase tracking-wider text-blue-950"><i class="fa-solid fa-vault text-blue-700 mr-1.5" aria-hidden="true"></i>Kas &amp; Saldo Akhir (${esc(month)})</h4>
@@ -4020,7 +4089,7 @@
     }
     function periodSum(from, to) {
       const sales = transactions.filter(t => t.date >= from && t.date <= to);
-      const exp = books.expenses.filter(e => e.date >= from && e.date <= to);
+      const exp = books.expenses.filter(e => e.date >= from && e.date <= to && !isNonExpenseTransfer(e));
       const omset = sales.reduce((s, t) => s + Number(t.totalOmset || 0), 0);
       const laba = sales.reduce((s, t) => s + Number(t.totalProfit || 0), 0);
       const pengeluaran = exp.reduce((s, e) => s + Number(e.amount || 0), 0);
@@ -4646,10 +4715,12 @@
       document.getElementById("btnPrintMonthlyBook")?.addEventListener("click", () => {
         if (!isAdmin) return;
         const month = document.getElementById("bookMonth")?.value || todayStr().slice(0, 7);
-        const { revenue, cost, spending, profit } = monthlyTotals(month);
+        const { revenue, cost, spending, bankDepositTotal, profit } = monthlyTotals(month);
         const gross = revenue - cost;
         const monthSales = transactions.filter(t => String(t.date || "").startsWith(month + "-"));
-        const monthExp = books.expenses.filter(e => String(e.date || "").startsWith(month + "-"));
+        const monthExpAll = books.expenses.filter(e => String(e.date || "").startsWith(month + "-"));
+        const monthExp = monthExpAll.filter(e => !isNonExpenseTransfer(e));
+        const monthTransfers = monthExpAll.filter(e => isNonExpenseTransfer(e));
         const monthPurch = purchases.filter(pr => String(pr.date || "").startsWith(month + "-"));
         const totalPurch = monthPurch.reduce((s, pr) => s + Number(pr.totalCost || 0), 0);
         const pay = { Cash: [0, 0], QRIS: [0, 0], Kartu: [0, 0], Transfer: [0, 0] };
@@ -4689,6 +4760,7 @@
               <tr><td>Total Pengeluaran Operasional Toko (${monthExp.length} catatan)</td><td class="r">− ${rp(spending)}</td></tr>
               <tr><td><strong>Sisa / Laba Bersih Setelah Pengeluaran</strong></td><td class="r"><strong>${rp(profit)}</strong></td></tr>
               <tr><td>Total Belanja Restok Barang Bulan Ini (${monthPurch.length} nota, catatan aset)</td><td class="r">${rp(totalPurch)}</td></tr>
+              ${bankDepositTotal > 0 ? `<tr><td>Mutasi Setor ke Bank / ATM (${monthTransfers.length} catatan, bukan pengeluaran)</td><td class="r">${rp(bankDepositTotal)}</td></tr>` : ""}
             </tbody>
           </table>
           <table style="width:360px">
@@ -5091,14 +5163,24 @@
         e.preventDefault();
         if (!isAdmin) return;
         const f = new FormData(e.target);
+        const date = f.get("date");
+        if (typeof isMonthLocked === "function" && isMonthLocked(String(date || "").slice(0, 7))) {
+          return showToast(`Bulan ${String(date || "").slice(0, 7)} sudah dikunci tutup buku. Buka kunci di Pembukuan terlebih dahulu.`);
+        }
         const amount = Number(f.get("amount"));
         if (!Number.isSafeInteger(amount) || amount <= 0) return showToast("Jumlah tidak valid.");
+        const rawKind = f.get("kind");
+        const kind = rawKind === "transfer" ? "transfer" : rawKind === "prive" ? "prive" : "expense";
         await addDoc(collection(db, ...paths("expenses")), {
-          date: f.get("date"), category: String(f.get("category")).trim(), amount,
+          date, kind, category: String(f.get("category")).trim(), amount,
           method: f.get("method"), createdAt: new Date().toISOString()
         });
         e.target.reset();
-        showToast("Catatan uang keluar tersimpan.");
+        showToast(kind === "transfer"
+          ? "Setor ke Bank / ATM tersimpan (tidak mengurangi laba)."
+          : kind === "prive"
+            ? "Prive / ambil pemilik tersimpan (tidak mengurangi laba)."
+            : "Biaya operasional tersimpan.");
       });
       document.getElementById("cashClosingForm").addEventListener("submit", async e => {
         e.preventDefault();
