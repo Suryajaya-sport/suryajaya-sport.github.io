@@ -64,7 +64,7 @@
       if (document.getElementById("invCropBottom")) { document.getElementById("invCropBottom").value = "0"; document.getElementById("invCropBottomVal").textContent = "0%"; }
     const catalogCart = new Map();
     const CART_KEY = "sjs-catalog-cart-v1";
-    const salePaymentMethods = new Set(["Cash", "QRIS", "Kartu", "Transfer"]);
+    const salePaymentMethods = new Set(["Cash", "QRIS", "Kartu", "Transfer", "Split", "Bon"]);
     const activeInventory = () => inventory.filter(item => !item.archivedAt);
 
     // ==================== UTILITAS ====================
@@ -144,7 +144,7 @@
       document.getElementById("shopNameDisplay").textContent = name;
       document.getElementById("footerShopName").textContent = name;
     }
-    function paymentMethodLabel(m) { return m === "Cash" ? "Tunai" : m || "Belum tercatat"; }
+    function paymentMethodLabel(m) { return m === "Cash" ? "Tunai" : m === "Split" ? "Split (Campuran)" : m === "Bon" ? "Bon (Belum Lunas)" : m || "Belum tercatat"; }
 
     // ==================== KOMPRESI & UNGGAH FOTO ====================
     function isCanvasReadBlocked() {
@@ -1033,9 +1033,12 @@
             </div>
           </div>
         </div>
-        <div class="flex justify-between items-center gap-2 pt-2 border-t border-slate-200/80 text-[11px]">
-          <span class="item-mode-badge font-bold ${prefill?.id ? "text-emerald-700" : "text-slate-500"}">${prefill?.id ? "Dari stok" : "Di luar stok"}</span>
-          <div class="flex items-center gap-1.5">
+        <div class="flex flex-wrap justify-between items-center gap-2 pt-2 border-t border-slate-200/80 text-[11px]">
+          <div class="flex flex-wrap items-center gap-1.5 min-w-0">
+            <span class="item-mode-badge font-bold ${prefill?.id ? "text-emerald-700" : "text-slate-500"}">${prefill?.id ? `Stok: ${Number(prefill.stock || 0)}` : "Di luar stok"}</span>
+            <input type="text" class="item-note-input w-40 px-2 py-0.5 rounded-lg border border-slate-200 bg-white text-[11px] font-semibold text-slate-700" placeholder="Varian/satuan/catatan..." maxlength="80">
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
             <span class="font-semibold text-slate-500">Subtotal:</span>
             <span class="item-subtotal font-extrabold text-sm text-slate-900 tabular-nums">Rp 0</span>
           </div>
@@ -1114,16 +1117,37 @@
     }
 
     function calculateSaleTotals() {
-      let total = 0, profit = 0;
+      let total = 0, profit = 0, itemLines = 0, totalQty = 0;
       for (const row of document.querySelectorAll("#saleItemsContainer > div")) {
+        const nm = (row.querySelector(".item-name-input")?.value || "").trim();
         const price = parseFloat(row.querySelector(".item-price-input").value) || 0;
         const qtyInput = row.querySelector(".item-qty");
         const qty = qtyInput.validity.valid ? Number(qtyInput.value) : 0;
         const inv = activeInventory().find(i => i.id === row.dataset.invId);
         const cost = inv ? Number(inv.cost || 0) : (parseFloat(row.querySelector(".item-cost-input")?.value) || 0);
+        if (nm && qty > 0) { itemLines++; totalQty += qty; }
         total += price * qty;
         profit += (price - cost) * qty;
         row.querySelector(".item-subtotal").textContent = rp(price * qty);
+        const badge = row.querySelector(".item-mode-badge");
+        if (badge) {
+          if (inv) {
+            const st = Number(inv.stock || 0);
+            if (qty > st) {
+              badge.textContent = `⚠ Melebihi stok (tersisa ${st})`;
+              badge.className = "item-mode-badge font-extrabold text-rose-700";
+            } else if (st < LOW_STOCK_LIMIT) {
+              badge.textContent = `Stok: ${st} ⚠`;
+              badge.className = "item-mode-badge font-extrabold text-amber-700";
+            } else {
+              badge.textContent = `Stok: ${st}`;
+              badge.className = "item-mode-badge font-bold text-emerald-700";
+            }
+          } else {
+            badge.textContent = "Di luar stok";
+            badge.className = "item-mode-badge font-bold text-amber-700";
+          }
+        }
       }
       const discType = document.getElementById("inputSaleDiscountType")?.value || "rp";
       const rawDisc = Math.max(0, Number(document.getElementById("inputSaleDiscount")?.value) || 0);
@@ -1134,6 +1158,13 @@
       currentSaleTotalAmount = netTotal;
       document.getElementById("previewTotalOmset").textContent = rp(netTotal);
       document.getElementById("previewTotalProfit").textContent = rp(netProfit);
+      const subLine = document.getElementById("previewSubtotalLine");
+      if (subLine) subLine.textContent = discount > 0 ? `Subtotal ${rp(total)} − Diskon ${rp(discount)}` : `Subtotal ${rp(total)}`;
+      const metaEl = document.getElementById("posCartCountMeta");
+      if (metaEl) metaEl.textContent = `${itemLines} Item · ${totalQty} Pcs`;
+      const splitCash = Math.max(0, Math.round(Number(document.getElementById("inputSplitCash")?.value) || 0));
+      const splitRemEl = document.getElementById("posSplitRemainVal");
+      if (splitRemEl) splitRemEl.textContent = rp(Math.max(0, netTotal - splitCash));
       const sumBox = document.getElementById("posCartSummaryList");
       if (sumBox) {
         const summaryRows = [];
@@ -1262,6 +1293,61 @@
         lwNames.title = lowItems.map(i => `${i.name} (${Number(i.stock || 0)} pcs)`).join(" · ");
       }
       renderPosQuickFavorites();
+      renderPosRecentCustomers();
+      renderPosRecentTransactions();
+    }
+
+    function renderPosRecentCustomers() {
+      const bar = document.getElementById("posRecentCustomersBar");
+      if (!bar) return;
+      const seen = new Set();
+      const recent = [];
+      for (const tx of transactions.slice().sort((a, b) => String(b.createdAt || b.date || "").localeCompare(String(a.createdAt || a.date || "")))) {
+        const c = String(tx.customer || "").trim();
+        if (c && c !== "Pelanggan Umum" && !seen.has(c.toLowerCase())) {
+          seen.add(c.toLowerCase());
+          recent.push(c);
+          if (recent.length >= 6) break;
+        }
+      }
+      if (!recent.length) { bar.hidden = true; bar.innerHTML = ""; return; }
+      bar.hidden = false;
+      bar.innerHTML = `<span class="font-extrabold text-slate-500">Pelanggan terakhir:</span>` + recent.map(c =>
+        `<button type="button" data-pick-customer="${esc(c)}" class="px-2 py-0.5 rounded-full bg-slate-100 hover:bg-blue-100 border border-slate-200 text-slate-700 hover:text-blue-900 font-bold">${esc(c)}</button>`
+      ).join("");
+    }
+
+    function renderPosRecentTransactions() {
+      const wrap = document.getElementById("posRecentTxList");
+      if (!wrap) return;
+      const today = todayStr();
+      const recent = transactions
+        .filter(t => t.date === today)
+        .slice()
+        .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")))
+        .slice(0, 5);
+      if (!recent.length) {
+        wrap.innerHTML = `<p class="py-2 text-slate-400 font-semibold">Belum ada transaksi hari ini.</p>`;
+        return;
+      }
+      wrap.innerHTML = recent.map(tx => {
+        const items = tx.items || [];
+        const firstName = items.length ? cleanDisplayItemName(items[0].name) + (items.length > 1 ? ` +${items.length - 1} lainnya` : "") : "Transaksi";
+        const tm = formatWitaTime(tx.createdAt);
+        const id = esc(tx.id);
+        return `<div class="py-2 flex flex-wrap items-center justify-between gap-2">
+          <div class="min-w-0">
+            <span class="font-extrabold text-slate-800">✅ ${esc(firstName)}</span>
+            <span class="ml-1.5 font-extrabold text-blue-900 tabular-nums">${esc(shortRpTick(tx.totalOmset))}</span>
+            <span class="ml-1 text-[10px] font-semibold text-slate-400">${esc(receiptNumber(tx))}${tm ? " · " + esc(tm) : ""} · ${esc(paymentMethodLabel(tx.paymentMethod || "Cash"))}</span>
+          </div>
+          <div class="flex items-center gap-1 shrink-0">
+            <button type="button" data-pos-reprint="${id}" class="px-2 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 font-extrabold text-[11px]"><i class="fa-solid fa-print mr-1" aria-hidden="true"></i>Nota</button>
+            <button type="button" data-pos-wa-rcpt="${id}" class="px-2 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-extrabold text-[11px]"><i class="fa-brands fa-whatsapp mr-1" aria-hidden="true"></i>WA</button>
+            <button type="button" data-pos-void="${id}" title="Batalkan / Retur nota ini" class="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-extrabold text-[11px]">Retur</button>
+          </div>
+        </div>`;
+      }).join("");
     }
 
     function selectSalePayment(method) {
@@ -1301,6 +1387,20 @@
       const canSave = okPay && okItems && !saleFormSaving;
       document.getElementById("btnSaveTx").disabled = !canSave;
       document.getElementById("btnSaveAndPrintTx").disabled = !canSave;
+      const splitPanel = document.getElementById("posSplitBonPanel");
+      if (splitPanel) {
+        const isSplitOrBon = selectedPaymentMethod === "Split" || selectedPaymentMethod === "Bon";
+        splitPanel.classList.toggle("hidden", !isSplitOrBon);
+        const pLbl = document.getElementById("posSplitPrimaryLbl");
+        const rLbl = document.getElementById("posSplitRemainLbl");
+        if (selectedPaymentMethod === "Bon") {
+          if (pLbl) pLbl.textContent = "DP / Dibayar (Rp)";
+          if (rLbl) rLbl.textContent = "Sisa Tagihan (Bon)";
+        } else {
+          if (pLbl) pLbl.textContent = "Bayar Tunai (Rp)";
+          if (rLbl) rLbl.textContent = "Sisa QRIS / Transfer";
+        }
+      }
       updateCashCalcUI();
     }
 
@@ -1311,15 +1411,21 @@
       try { localStorage.setItem(POS_HELD_KEY, JSON.stringify(heldSales)); } catch {}
     }
     function renderHeldSalesBar() {
+      const lbl = document.getElementById("btnHoldSaleLabel");
+      if (lbl) lbl.textContent = `Hold (${heldSales.length})`;
       const bar = document.getElementById("posHeldTabsBar");
       if (!bar) return;
       if (!heldSales.length) { bar.hidden = true; bar.innerHTML = ""; return; }
       bar.hidden = false;
-      bar.innerHTML = `<span class="text-[11px] font-extrabold text-amber-900 mr-1"><i class="fa-solid fa-pause mr-1" aria-hidden="true"></i>Tertahan:</span>` + heldSales.map((h, idx) => `
-        <span class="inline-flex items-center rounded-full bg-white border border-amber-300 overflow-hidden shadow-xs">
-          <button type="button" data-resume-hold="${idx}" class="px-2.5 py-1 text-[11px] font-extrabold text-amber-950 hover:bg-amber-100">Hold #${idx + 1} · ${h.items.length} item (${esc(shortRpTick(h.total))})</button>
-          <button type="button" data-drop-hold="${idx}" title="Hapus Hold #${idx + 1}" class="px-1.5 py-1 text-[11px] font-extrabold text-rose-600 hover:bg-rose-50 border-l border-amber-200">&times;</button>
-        </span>`).join("");
+      const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      bar.innerHTML = `<span class="text-[11px] font-extrabold text-amber-900 mr-1"><i class="fa-solid fa-pause mr-1" aria-hidden="true"></i>Tertunda (${heldSales.length}):</span>` + heldSales.map((h, idx) => {
+        const draftLbl = `Draft ${letters[idx] || (idx + 1)}`;
+        const custTag = h.customer ? ` (${esc(h.customer)})` : "";
+        return `<span class="inline-flex items-center rounded-full bg-white border border-amber-300 overflow-hidden shadow-xs">
+          <button type="button" data-resume-hold="${idx}" class="px-2.5 py-1 text-[11px] font-extrabold text-amber-950 hover:bg-amber-100">${draftLbl}${custTag} · ${h.items.length} item (${esc(shortRpTick(h.total))})</button>
+          <button type="button" data-drop-hold="${idx}" title="Hapus ${draftLbl}" class="px-1.5 py-1 text-[11px] font-extrabold text-rose-600 hover:bg-rose-50 border-l border-amber-200">&times;</button>
+        </span>`;
+      }).join("");
     }
     function holdCurrentSale() {
       const rows = [...document.querySelectorAll("#saleItemsContainer > div")];
@@ -1408,10 +1514,13 @@
         if (!inv && !typedName) { showToast("Isi nama barang atau pilih dari daftar stok."); row.querySelector(".item-name-input").focus(); return; }
         if (!Number.isSafeInteger(qty) || qty < 1) return showToast("Jumlah minimal 1 pcs.");
         if (!Number.isSafeInteger(price) || price < 0) return showToast("Isi harga jual dalam Rupiah.");
+        const itemNote = String(row.querySelector(".item-note-input")?.value || "").trim().slice(0, 80);
+        const displayItemName = inv ? formatItemLabel(inv) : typedName.slice(0, 160);
+        const finalItemName = itemNote ? `${displayItemName} (${itemNote})` : displayItemName;
         if (inv) {
-          itemsToSave.push({ inventoryId: invId, name: formatItemLabel(inv), qty, price, cost: Number(inv.cost || 0), imageUrl: inv.imageUrl || "" });
+          itemsToSave.push({ inventoryId: invId, name: finalItemName, qty, price, cost: Number(inv.cost || 0), imageUrl: inv.imageUrl || "" });
         } else {
-          itemsToSave.push({ inventoryId: "", isCustom: true, name: typedName.slice(0, 160), qty, price, cost: manualCost, imageUrl: "" });
+          itemsToSave.push({ inventoryId: "", isCustom: true, name: finalItemName, qty, price, cost: manualCost, imageUrl: "" });
         }
       }
       if (!itemsToSave.length) return showToast("Tambahkan minimal 1 barang.");
@@ -1421,7 +1530,16 @@
       const saleDiscType = document.getElementById("inputSaleDiscountType")?.value || "rp";
       const rawSaleDisc = Math.max(0, Number(document.getElementById("inputSaleDiscount")?.value) || 0);
       const saleDiscount = Math.min(grossTotal, saleDiscType === "pct" ? Math.round(grossTotal * Math.min(100, rawSaleDisc) / 100) : Math.round(rawSaleDisc));
-      const saleNote = String(document.getElementById("inputSaleNote")?.value || "").trim().slice(0, 160);
+      const rawSaleNote = String(document.getElementById("inputSaleNote")?.value || "").trim();
+      const cashierName = String(document.getElementById("inputCashierName")?.value || "").trim();
+      const splitPaid = Math.max(0, Math.round(Number(document.getElementById("inputSplitCash")?.value) || 0));
+      const netEst = Math.max(0, grossTotal - saleDiscount);
+      const noteParts = [];
+      if (rawSaleNote) noteParts.push(rawSaleNote);
+      if (selectedPaymentMethod === "Split") noteParts.push(`Split: Tunai ${rp(splitPaid)} + Non-tunai ${rp(Math.max(0, netEst - splitPaid))}`);
+      if (selectedPaymentMethod === "Bon") noteParts.push(`BON: DP ${rp(splitPaid)} · Sisa ${rp(Math.max(0, netEst - splitPaid))}`);
+      if (cashierName) noteParts.push(`Kasir: ${cashierName}`);
+      const saleNote = noteParts.join(" | ").slice(0, 200);
       const txData = {
         date: txDate,
         customer: document.getElementById("inputCustomer").value.trim() || "Pelanggan Umum",
@@ -4973,6 +5091,103 @@
         }
       });
       renderHeldSalesBar();
+      // Instant Search Dropdown (Model C)
+      const instantInp = document.getElementById("posInstantSearch");
+      const instantDrop = document.getElementById("posInstantDropdown");
+      const renderInstantDrop = () => {
+        if (!instantInp || !instantDrop) return;
+        const q = instantInp.value.trim().toLocaleLowerCase("id");
+        if (!q) { instantDrop.classList.add("hidden"); instantDrop.innerHTML = ""; return; }
+        const matches = activeInventory().filter(it => {
+          const hay = [it.name, it.code, it.size, it.color].filter(Boolean).join(" ").toLocaleLowerCase("id");
+          return hay.includes(q);
+        }).sort((a, b) => (Number(b.stock || 0) > 0) - (Number(a.stock || 0) > 0) || String(a.name || "").localeCompare(String(b.name || ""), "id")).slice(0, 8);
+        if (!matches.length) {
+          instantDrop.innerHTML = `<div class="px-3.5 py-3 text-xs font-semibold text-slate-500">Barang tidak ditemukan. Klik "Barang Bebas" untuk input manual.</div>`;
+          instantDrop.classList.remove("hidden");
+          return;
+        }
+        instantDrop.innerHTML = matches.map(it => {
+          const st = Number(it.stock || 0);
+          const dot = st < 5 ? "🔴" : st <= 10 ? "🟡" : "🟢";
+          const varMeta = [it.size, it.color].filter(Boolean).join(" · ");
+          return `<button type="button" data-instant-pick="${esc(it.id)}" class="w-full px-3.5 py-2.5 text-left hover:bg-blue-50 flex items-center justify-between gap-2 transition">
+            <div class="min-w-0">
+              <span class="block text-xs font-extrabold text-slate-900 truncate">${esc(it.name)}${varMeta ? ` <span class="text-slate-500 font-semibold">(${esc(varMeta)})</span>` : ""}</span>
+              <span class="text-[11px] font-mono font-bold text-blue-700">${esc(it.code || "-")}</span>
+            </div>
+            <div class="text-right shrink-0">
+              <span class="block text-xs font-extrabold text-emerald-700 tabular-nums">${rp(it.price)}</span>
+              <span class="text-[10px] font-extrabold ${st <= 0 ? "text-rose-700" : st < 5 ? "text-amber-700" : "text-slate-500"}">${st <= 0 ? "🔴 Habis" : `${dot} Stok ${st}`}</span>
+            </div>
+          </button>`;
+        }).join("");
+        instantDrop.classList.remove("hidden");
+      };
+      const pickInstantItem = id => {
+        const it = activeInventory().find(i => i.id === id);
+        if (!it) return;
+        const st = Number(it.stock || 0);
+        if (st <= 0) {
+          showToast(`❌ Barang habis: ${it.name} (stok 0 pcs)`);
+          return;
+        }
+        handleScannedCode(it.id, false);
+        if (st < 5) showToast(`⚠ Stok tersisa ${st} pcs: ${it.name}`);
+        if (instantInp) { instantInp.value = ""; instantInp.focus(); }
+        if (instantDrop) { instantDrop.classList.add("hidden"); instantDrop.innerHTML = ""; }
+      };
+      instantInp?.addEventListener("input", renderInstantDrop);
+      instantInp?.addEventListener("keydown", e => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          const firstBtn = instantDrop?.querySelector("[data-instant-pick]");
+          if (firstBtn) pickInstantItem(firstBtn.dataset.instantPick);
+        } else if (e.key === "Escape") {
+          instantDrop?.classList.add("hidden");
+        }
+      });
+      instantDrop?.addEventListener("click", e => {
+        const btn = e.target.closest("[data-instant-pick]");
+        if (btn) pickInstantItem(btn.dataset.instantPick);
+      });
+      document.addEventListener("click", e => {
+        if (instantDrop && !instantDrop.contains(e.target) && e.target !== instantInp) {
+          instantDrop.classList.add("hidden");
+        }
+      });
+      document.getElementById("posRecentCustomersBar")?.addEventListener("click", e => {
+        const btn = e.target.closest("[data-pick-customer]");
+        if (!btn) return;
+        const inp = document.getElementById("inputCustomer");
+        if (inp) inp.value = btn.dataset.pickCustomer;
+      });
+      document.getElementById("posRecentTxList")?.addEventListener("click", e => {
+        const rep = e.target.closest("[data-pos-reprint]");
+        if (rep) {
+          const tx = transactions.find(t => t.id === rep.dataset.posReprint);
+          if (tx) openReceiptModal(tx);
+          return;
+        }
+        const wa = e.target.closest("[data-pos-wa-rcpt]");
+        if (wa) {
+          const tx = transactions.find(t => t.id === wa.dataset.posWaRcpt);
+          if (tx) {
+            const lines = (tx.items || []).map(it => `• ${cleanDisplayItemName(it.name)} (${it.qty}x) = ${rp(it.subtotal ?? it.price * it.qty)}`).join("\n");
+            const msg = `*STRUK ${shopName.toUpperCase()}*\nNota: ${receiptNumber(tx)}\nTanggal: ${tx.date}\n${lines}\n----------------\n*Total: ${rp(tx.totalOmset)}* (${paymentMethodLabel(tx.paymentMethod || "Cash")})\nTerima kasih telah berbelanja di ${shopName}!`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
+          }
+          return;
+        }
+        const vd = e.target.closest("[data-pos-void]");
+        if (vd) promptCancelSale(vd.dataset.posVoid);
+      });
+      document.getElementById("inputSplitCash")?.addEventListener("input", calculateSaleTotals);
+      document.getElementById("btnPosQuickClosing")?.addEventListener("click", () => {
+        switchWorkspace("books");
+        document.querySelector('[data-books-section="booksClosing"]')?.click();
+      });
+      document.getElementById("btnPosOpenHistory")?.addEventListener("click", () => switchWorkspace("sales"));
       document.getElementById("btnPosStatLowStock")?.addEventListener("click", () => {
         switchWorkspace("inventory");
         window.scrollTo({ top: 0, behavior: "smooth" });
