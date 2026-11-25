@@ -2260,6 +2260,7 @@
           <div class="flex flex-wrap gap-2">
             <button id="btnBatchPrintQr" type="button" class="shop-button shop-button-secondary" disabled><i class="fa-solid fa-qrcode" aria-hidden="true"></i> Cetak QR (<span id="batchQrCount">0</span>)</button>
             <button id="openReorderList" type="button" class="shop-button shop-button-secondary">Daftar belanja stok</button>
+            <button id="btnCleanAutoSeoDesc" type="button" class="shop-button shop-button-secondary"><i class="fa-solid fa-broom" aria-hidden="true"></i> Bersihkan deskripsi otomatis</button>
             <button id="publishCatalog" type="button" class="shop-button shop-button-secondary">Terbitkan barang aktif</button>
           </div>
         </div>
@@ -7751,6 +7752,22 @@
           }
         });
         showToast(`${targets.length} barang berhasil dilengkapi deskripsi SEO.`);
+      });
+      document.getElementById("btnCleanAutoSeoDesc")?.addEventListener("click", async () => {
+        if (!isAdmin) return;
+        const autoRe = /tersedia di Surya Jaya Sport.*Tanjung Redeb,\s*Berau\./i;
+        const targets = inventory.filter(i => autoRe.test(String(i.description || "")));
+        if (!targets.length) return showToast("Tidak ada deskripsi otomatis yang perlu dibersihkan.");
+        if (!(await sjsConfirm(`Hapus deskripsi otomatis dari ${targets.length} barang? (Deskripsi yang Anda tulis manual tetap aman.)`, "Bersihkan Deskripsi Otomatis"))) return;
+        const pubSnap = await getDocsFromServer(collection(db, "publicCatalog"));
+        const pubIds = new Set(pubSnap.docs.map(d => d.id));
+        await runTransaction(db, async tx => {
+          for (const item of targets) {
+            tx.set(doc(db, ...paths("inventory", item.id)), { description: "", updatedAt: new Date().toISOString() }, { merge: true });
+            if (pubIds.has(item.id)) tx.set(doc(db, "publicCatalog", item.id), publicProductData({ ...item, description: "" }));
+          }
+        });
+        showToast(`${targets.length} deskripsi otomatis berhasil dibersihkan.`);
       });
       document.getElementById("publishCatalog").addEventListener("click", async () => {
         if (!isAdmin || !(await sjsConfirm("Terbitkan barang aktif ke katalog publik?", "Terbitkan Katalog"))) return;
