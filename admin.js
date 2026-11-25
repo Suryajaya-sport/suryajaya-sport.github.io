@@ -1255,7 +1255,9 @@
     }
 
     // ==================== NOTA & LAPORAN ====================
-    function receiptNumber(tx) { return "SJS-" + String(tx.id).slice(-6).toUpperCase(); }
+    function receiptNumber(tx) { return "TRX-" + String(tx.id).slice(-6).toUpperCase(); }
+    function cleanDisplayItemName(name) { return String(name || "Barang").replace(/^\s*\[?[A-Z]{2,5}-\d+\]?\s*[-·:]?\s*/i, "").trim() || String(name || "Barang").trim(); }
+    let topProductsSortMode = localStorage.getItem("sjs-top-prod-sort") || "qty";
     function formatWitaTime(iso) {
       if (!iso) return "";
       const dt = new Date(iso);
@@ -2024,7 +2026,7 @@
               <div class="text-xs font-bold text-slate-700 mt-1">${esc(tx.date)}${timeStr ? ` <span class="text-slate-400 font-semibold">· ${esc(timeStr)}</span>` : ""}</div>
               ${custBadge}
             </td>` : ""}
-            <td class="py-3 px-3 font-bold text-slate-900">${esc(it.name)} <span class="inline-block ml-1 px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-xs font-extrabold">${Number(it.qty || 0)}×</span></td>
+            <td class="py-3 px-3 font-bold text-slate-900">${esc(cleanDisplayItemName(it.name))} <span class="inline-block ml-1 px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-xs font-extrabold">${Number(it.qty || 0)}×</span></td>
             <td class="py-3 px-3 text-right tabular-nums text-slate-600">${rp(it.price)}</td>
             <td class="py-3 px-3 text-right font-extrabold text-slate-900 tabular-nums">${rp(it.subtotal ?? it.price * it.qty)}</td>
             ${idx === 0 ? `<td${rs} class="py-3 px-3 text-center align-middle"><span class="inline-block px-2.5 py-1 rounded-full text-xs font-extrabold ${pmClass}">${pm}</span></td>
@@ -2033,7 +2035,7 @@
             <td${rs} class="py-3 px-3 text-center align-middle no-print">
               <div class="inline-flex items-center gap-1.5">
                 <button type="button" data-receipt-tx="${id}" title="Lihat & cetak nota" class="px-2.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs inline-flex items-center gap-1"><i class="fa-solid fa-print"></i><span>Nota</span></button>
-                ${isAdmin ? `<button type="button" data-cancel-tx="${id}" title="Batalkan transaksi" class="w-8 h-8 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-800 inline-flex items-center justify-center"><i class="fa-solid fa-ban"></i></button>` : ""}
+                ${isAdmin ? `<span class="h-5 w-px bg-slate-200 mx-0.5" aria-hidden="true"></span><button type="button" data-cancel-tx="${id}" title="Batalkan transaksi (butuh konfirmasi & alasan)" class="w-8 h-8 rounded-xl bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 inline-flex items-center justify-center"><i class="fa-solid fa-ban"></i></button>` : ""}
               </div>
             </td>` : ""}`;
           tbody.appendChild(tr);
@@ -2050,7 +2052,7 @@
           </div>
           ${custBadge}
           <div class="space-y-1.5">
-            ${items.map(it => `<div class="flex justify-between gap-2 text-sm"><span class="font-bold text-slate-800">${esc(it.name)} <span class="text-slate-500 font-semibold">${Number(it.qty || 0)}×</span></span><span class="font-extrabold tabular-nums">${rp(it.subtotal ?? it.price * it.qty)}</span></div>`).join("")}
+            ${items.map(it => `<div class="flex justify-between gap-2 text-sm"><span class="font-bold text-slate-800">${esc(cleanDisplayItemName(it.name))} <span class="text-slate-500 font-semibold">${Number(it.qty || 0)}×</span></span><span class="font-extrabold tabular-nums">${rp(it.subtotal ?? it.price * it.qty)}</span></div>`).join("")}
           </div>
           <div class="grid grid-cols-3 gap-2 rounded-xl bg-slate-50 border border-slate-100 p-2.5 text-center text-xs">
             <div><span class="text-slate-500">Total</span><strong class="block text-slate-900 font-extrabold mt-0.5 tabular-nums">${rp(tx.totalOmset)}</strong></div>
@@ -2355,7 +2357,7 @@
         for (const it of (tx.items || [])) {
           const q = Number(it.qty || 0);
           totalPcs += q;
-          const key = String(it.name || "Barang").trim();
+          const key = cleanDisplayItemName(it.name);
           const cur = prodMap.get(key) || { omset: 0, qty: 0 };
           cur.omset += Number(it.price || 0) * q;
           cur.qty += q;
@@ -2370,14 +2372,28 @@
       const kSn = document.getElementById("kledoSpeedometerNote");
       // Hitung perbandingan nyata: vs kemarin (mode harian) atau bulan ini vs bulan lalu (mode semua hari)
       let prevOmzet = 0, prevLaba = 0, vsLabel = "vs kemarin";
+      let labaVs = "vs kemarin";
       if (currentViewMode === "day" && selectedDateStr) {
         const prevDt = parseLocalDate(selectedDateStr);
         prevDt.setDate(prevDt.getDate() - 1);
         const prevStr = prevDt.getFullYear() + "-" + String(prevDt.getMonth() + 1).padStart(2, "0") + "-" + String(prevDt.getDate()).padStart(2, "0");
-        const prevRows = transactions.filter(t => t.date === prevStr);
+        const isTodayRunning = selectedDateStr === todayStr();
+        const getWitaHM = iso => {
+          try {
+            const parts = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Makassar", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(iso));
+            return parts;
+          } catch { return ""; }
+        };
+        const nowHM = getWitaHM(new Date().toISOString());
+        const prevAll = transactions.filter(t => t.date === prevStr);
+        const prevRows = isTodayRunning && nowHM
+          ? prevAll.filter(t => { const hm = t.createdAt ? getWitaHM(t.createdAt) : ""; return !hm || hm <= nowHM; })
+          : prevAll;
         prevOmzet = prevRows.reduce((s, t) => s + Number(t.totalOmset || 0), 0);
         prevLaba = prevRows.reduce((s, t) => s + Number(t.totalProfit || 0), 0);
-        vsLabel = `vs ${prevStr.slice(5)} (${shortRpTick(prevOmzet)})`;
+        const suffix = isTodayRunning && nowHM ? ` s.d. ${nowHM} (hari berjalan)` : "";
+        vsLabel = `vs ${prevStr.slice(5)}${suffix} (${shortRpTick(prevOmzet)})`;
+        labaVs = `vs kemarin${suffix} (${shortRpTick(prevLaba)})`;
       } else {
         const curM = todayStr().slice(0, 7);
         const dtM = new Date(Number(curM.slice(0, 4)), Number(curM.slice(5, 7)) - 2, 1);
@@ -2410,7 +2426,7 @@
         }
       };
       applyTrend("kledoSalesTrendIcon", "kledoSalesTrendPct", "kledoSalesTrendVs", totalOmzetRows, prevOmzet, vsLabel);
-      const labaVs = currentViewMode === "day" ? `vs kemarin (${shortRpTick(prevLaba)})` : vsLabel;
+      if (currentViewMode !== "day") labaVs = vsLabel;
       applyTrend("kledoLabaTrendIcon", "kledoMarginBadge", "kledoLabaTrendVs", totalLabaRows, prevLaba, labaVs);
       if (kCb) kCb.textContent = (totalOmzetRows > 0 ? Math.max(0, 100 - sProfPct) : 0) + "%";
       if (kSp) kSp.innerHTML = buildKledoSpeedometerSvg(sProfPct);
@@ -2437,6 +2453,13 @@
       if (heroCard) {
         const avgBasket = rows.length > 0 ? Math.round(totalOmzetRows / rows.length) : 0;
         const avgPcs = rows.length > 0 ? (totalPcs / rows.length).toFixed(1).replace(".", ",") : "0";
+        const pcsPerTx = rows.map(tx => (tx.items || []).reduce((s, it) => s + Number(it.qty || 0), 0)).sort((a, b) => a - b);
+        const midIdx = Math.floor(pcsPerTx.length / 2);
+        const medPcs = pcsPerTx.length ? (pcsPerTx.length % 2 ? pcsPerTx[midIdx] : (pcsPerTx[midIdx - 1] + pcsPerTx[midIdx]) / 2) : 0;
+        const maxTxPcs = pcsPerTx.length ? pcsPerTx[pcsPerTx.length - 1] : 0;
+        const pcsLabel = (pcsPerTx.length >= 3 && medPcs > 0 && maxTxPcs >= medPcs * 3)
+          ? `${avgPcs} pcs/nota (median ${String(medPcs).replace(".", ",")})`
+          : `${avgPcs} pcs/nota`;
         const hours = Array.from({ length: 14 }, (_, i) => ({
           h: i + 8,
           label: String(i + 8).padStart(2, "0"),
@@ -2454,15 +2477,19 @@
           hours[clamped - 8].val += Number(tx.totalOmset || 0);
           hours[clamped - 8].cnt += 1;
         }
-        let peakHr = hours[0];
-        for (const item of hours) {
-          if (item.cnt > peakHr.cnt || (item.cnt === peakHr.cnt && item.val > peakHr.val)) peakHr = item;
-        }
-        const mxCnt = Math.max(1, ...hours.map(x => x.cnt));
-        const peakNote = peakHr.cnt > 0 ? `Paling ramai: ${peakHr.label}.00 WITA (${peakHr.cnt} nota)` : "Belum ada transaksi";
+        const maxCnt = Math.max(0, ...hours.map(x => x.cnt));
+        const tiedTop = hours.filter(x => x.cnt === maxCnt && maxCnt > 0);
+        const hasDominantPeak = maxCnt >= 2 && tiedTop.length === 1;
+        const peakHr = hasDominantPeak ? tiedTop[0] : null;
+        const mxCnt = Math.max(1, maxCnt);
+        const peakNote = maxCnt === 0
+          ? "Belum ada transaksi"
+          : hasDominantPeak
+            ? `Paling ramai: ${peakHr.label}.00 WITA (${peakHr.cnt} nota)`
+            : "Belum ada jam dominan (seri)";
         const chartHtml = `<div class="grid gap-1 pt-3" style="grid-template-columns:repeat(14,minmax(0,1fr))">` + hours.map(x => {
           const pct = x.cnt > 0 ? Math.max(18, Math.round((x.cnt / mxCnt) * 100)) : 0;
-          const isPeak = x.cnt > 0 && x.h === peakHr.h;
+          const isPeak = Boolean(peakHr && x.h === peakHr.h);
           const fill = isPeak ? "#0f2557" : (x.cnt > 0 ? "#1d4ed8" : "transparent");
           return `<div class="flex flex-col items-center gap-0.5" title="Jam ${x.label}.00–${x.label}.59 WITA: ${x.cnt} nota · ${rp(x.val)}">
             <span class="text-[9px] font-extrabold ${isPeak ? "text-blue-900" : "text-slate-400"} tabular-nums">${x.cnt ? x.cnt : ""}</span>
@@ -2477,7 +2504,7 @@
             <div>
               <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900">Rata-Rata / Nota &amp; Jam Ramai (08–21 WITA)</span>
               <p class="text-2xl font-black text-slate-950 tracking-tight mt-1 tabular-nums">${rp(avgBasket)}</p>
-              <span class="text-[11px] font-bold text-slate-600">${avgPcs} pcs/nota · ${peakNote}</span>
+              <span class="text-[11px] font-bold text-slate-600">${pcsLabel} · ${peakNote}</span>
             </div>
             <span class="w-10 h-10 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-800 text-base shrink-0"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
           </div>
@@ -2507,26 +2534,40 @@
       if (sLC) sLC.textContent = `${rp(totalModalRows)} (${sCostPct}%)`;
       if (sLP) sLP.textContent = `${rp(totalLabaRows)} (${sProfPct}%)`;
 
-      // 5. Top 5 Barang Terlaris (Trending Chips + Pill Bars)
-      const top5 = [...prodMap.entries()].sort((a, b) => b[1].omset - a[1].omset).slice(0, 5);
+      // 5. Top 5 Barang Terlaris (Pilih Urut Qty atau Omzet + Chips & Bars konsisten)
+      const byQty = topProductsSortMode !== "omset";
+      const top5 = [...prodMap.entries()]
+        .sort((a, b) => byQty ? (b[1].qty - a[1].qty || b[1].omset - a[1].omset) : (b[1].omset - a[1].omset || b[1].qty - a[1].qty))
+        .slice(0, 5);
       const topBadge = document.getElementById("badgeTopProducts");
-      if (topBadge) topBadge.textContent = top5.length ? `${top5.length} Terlaris` : "Kosong";
+      if (topBadge) topBadge.textContent = top5.length ? `${top5.length} Terlaris (${byQty ? "Qty" : "Omzet"})` : "Kosong";
       const topWrap = document.getElementById("svgTopProductsWrap");
       if (topWrap) {
-        const maxTop = top5[0]?.[1]?.omset || 1;
+        const sortToggle = `<div class="flex items-center justify-end gap-1.5 pb-2">
+          <button type="button" data-top-prod-sort="qty" class="px-2.5 py-1 rounded-full text-[11px] font-extrabold border ${byQty ? "bg-blue-700 text-white border-blue-700" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"}">Urut Qty</button>
+          <button type="button" data-top-prod-sort="omset" class="px-2.5 py-1 rounded-full text-[11px] font-extrabold border ${!byQty ? "bg-blue-700 text-white border-blue-700" : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"}">Urut Omzet</button>
+        </div>`;
         if (!top5.length) {
           topWrap.innerHTML = `<p class="text-sm text-slate-500 py-8 text-center">Belum ada transaksi pada periode ini.</p>`;
         } else {
-          const chips = top5.slice(0, 3).map(([n, v]) =>
+          const maxTop = byQty ? (top5[0]?.[1]?.qty || 1) : (top5[0]?.[1]?.omset || 1);
+          const chips = top5.map(([n, v]) =>
             `<span class="bento-trending-chip"><span class="truncate max-w-[160px]">${esc(n)}</span><span class="bento-trending-badge">${v.qty}x</span></span>`
           ).join("");
           const bars = buildUiKitProgressRows(top5.map(([name, v], idx) => ({
             label: `${idx + 1}. ${name}`,
-            val: v.omset,
-            display: `${rp(v.omset)} · ${v.qty} pcs`,
+            val: byQty ? v.qty : v.omset,
+            display: byQty ? `${v.qty} pcs · ${rp(v.omset)}` : `${rp(v.omset)} · ${v.qty} pcs`,
             color: idx === 0 ? "#0f2557" : idx === 1 ? "#1d4ed8" : idx === 2 ? "#3b82f6" : "#eab308"
           })), maxTop);
-          topWrap.innerHTML = `<div class="flex flex-wrap gap-2 pb-1">${chips}</div>${bars}`;
+          topWrap.innerHTML = `${sortToggle}<div class="flex flex-wrap gap-2 pb-1">${chips}</div>${bars}`;
+          topWrap.querySelectorAll("[data-top-prod-sort]").forEach(btn => {
+            btn.addEventListener("click", () => {
+              topProductsSortMode = btn.dataset.topProdSort === "omset" ? "omset" : "qty";
+              localStorage.setItem("sjs-top-prod-sort", topProductsSortMode);
+              renderSalesCharts(rows);
+            });
+          });
         }
       }
     }
