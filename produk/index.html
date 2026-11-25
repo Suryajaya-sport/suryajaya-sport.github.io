@@ -105,6 +105,13 @@
     .btn-cat { background: linear-gradient(135deg,#1d4ed8,#2563eb); color: #fff; border-bottom: 4px solid #1e3a8a; }
     .info-foot { font-size: .78rem; color: #64748b; text-align: center; padding: 1.25rem 1rem; }
   </style>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZS9T9ZJXBK"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-ZS9T9ZJXBK');
+  </script>
 </head>
 <body>
   <header class="hdr">
@@ -202,23 +209,41 @@
       </div>`;
     }
 
+    async function fetchProductItem(id) {
+      const decodeV = v => !v || typeof v !== "object" ? "" : "stringValue" in v ? v.stringValue : "integerValue" in v ? Number(v.integerValue) : "doubleValue" in v ? Number(v.doubleValue) : "booleanValue" in v ? Boolean(v.booleanValue) : "";
+      try {
+        const res = await fetch(`https://firestore.googleapis.com/v1/projects/${EMBEDDED_FIREBASE_CONFIG.projectId}/databases/(default)/documents/publicCatalog/${encodeURIComponent(id)}?key=${encodeURIComponent(EMBEDDED_FIREBASE_CONFIG.apiKey)}`, { mode: "cors", cache: "no-store" });
+        if (res.status === 404) return null;
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const docJson = await res.json();
+        const item = { id };
+        for (const [k, v] of Object.entries(docJson.fields || {})) item[k] = decodeV(v);
+        return item;
+      } catch {
+        const [appM, fsM] = await Promise.all([
+          import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"),
+          import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js")
+        ]);
+        const app = appM.getApps().length ? appM.getApps()[0] : appM.initializeApp(EMBEDDED_FIREBASE_CONFIG);
+        const db = fsM.getFirestore(app);
+        const snap = await fsM.getDoc(fsM.doc(db, "publicCatalog", id));
+        return snap.exists() ? { ...snap.data(), id: snap.id } : null;
+      }
+    }
+    (async () => {
     if (!productId) {
       renderNotFound("Silakan buka katalog utama untuk melihat semua barang kami.");
     } else {
       try {
-        const decodeV = v => !v || typeof v !== "object" ? "" : "stringValue" in v ? v.stringValue : "integerValue" in v ? Number(v.integerValue) : "doubleValue" in v ? Number(v.doubleValue) : "booleanValue" in v ? Boolean(v.booleanValue) : "";
-        const res = await fetch(`https://firestore.googleapis.com/v1/projects/${EMBEDDED_FIREBASE_CONFIG.projectId}/databases/(default)/documents/publicCatalog/${encodeURIComponent(productId)}`);
-        if (!res.ok) {
+        const item = await fetchProductItem(productId);
+        if (!item) {
           renderNotFound();
         } else {
-          const docJson = await res.json();
-          const item = { id: productId };
-          for (const [k, v] of Object.entries(docJson.fields || {})) item[k] = decodeV(v);
           const imgUrl = safeHttpsUrl(item.imageUrl);
           const stockNum = Number(item.stock || 0);
           const out = stockNum <= 0;
           const meta = [item.code, item.size, item.color].filter(Boolean).join(" · ");
-          const seoTitle = `${item.name} — Surya Jaya Sport Berau`;
+          const seoTitle = `${item.name} | Surya Jaya Sport Berau`;
           const seoDesc = item.description
             ? `${item.description} Harga ${rp(item.price)} di Surya Jaya Sport Jl. Ahmad Yani 37, Tanjung Redeb, Berau.`
             : `${item.name}${meta ? ` (${meta})` : ""} harga ${rp(item.price)} (${out ? "Stok habis" : `Stok tersedia ${stockNum} pcs`}) di Surya Jaya Sport Jl. Ahmad Yani 37, Tanjung Redeb, Berau.`;
@@ -228,7 +253,6 @@
           setMeta('meta[property="og:title"]', "content", seoTitle);
           setMeta('meta[property="og:description"]', "content", seoDesc);
           if (imgUrl) setMeta('meta[property="og:image"]', "content", imgUrl);
-          setMeta('link[rel="canonical"]', "href", window.location.href);
           let ld = document.getElementById("productSchema");
           if (!ld) {
             ld = document.createElement("script");
@@ -282,6 +306,14 @@
                 <a href="/" class="btn btn-cat">Katalog Lain</a>
               </div>
             </div>`;
+          if (typeof window.gtag === "function") {
+            window.gtag("event", "view_item", { currency: "IDR", value: Number(item.price || 0), items: [{ item_id: item.code || item.id, item_name: item.name, price: Number(item.price || 0) }] });
+          }
+          box.querySelector('a[href*="wa.me"]')?.addEventListener("click", () => {
+            if (typeof window.gtag === "function") {
+              window.gtag("event", "whatsapp_click", { product_name: item.name, click_location: "halaman_produk" });
+            }
+          });
           const copyBtn = document.getElementById("btnCopyProductLink");
           copyBtn?.addEventListener("click", async () => {
             try {
@@ -302,6 +334,7 @@
         renderNotFound("Gagal memuat data produk. Silakan hubungi WhatsApp 0823-200-33333.");
       }
     }
+    })();
   </script>
 </body>
 </html>

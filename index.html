@@ -794,10 +794,10 @@
     async function fetchPublicCatalogRest() {
       const docs = [];
       let pageToken = "";
-      const base = `https://firestore.googleapis.com/v1/projects/${EMBEDDED_FIREBASE_CONFIG.projectId}/databases/(default)/documents/publicCatalog?pageSize=300`;
+      const base = `https://firestore.googleapis.com/v1/projects/${EMBEDDED_FIREBASE_CONFIG.projectId}/databases/(default)/documents/publicCatalog?pageSize=200&key=${encodeURIComponent(EMBEDDED_FIREBASE_CONFIG.apiKey)}`;
       for (let page = 0; page < 5; page++) {
         const url = pageToken ? `${base}&pageToken=${encodeURIComponent(pageToken)}` : base;
-        const res = await fetch(url);
+        const res = await fetch(url, { mode: "cors", cache: "no-store" });
         if (!res.ok) throw new Error("HTTP " + res.status);
         const json = await res.json();
         if (Array.isArray(json.documents)) {
@@ -807,6 +807,16 @@
         pageToken = json.nextPageToken;
       }
       return docs;
+    }
+    async function fetchPublicCatalogSdkFallback() {
+      const [appM, fsM] = await Promise.all([
+        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"),
+        import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js")
+      ]);
+      const app = appM.getApps().length ? appM.getApps()[0] : appM.initializeApp(EMBEDDED_FIREBASE_CONFIG);
+      const db = fsM.getFirestore(app);
+      const snap = await fsM.getDocs(fsM.collection(db, "publicCatalog"));
+      return snap.docs.map(d => ({ ...d.data(), id: d.id }));
     }
 
     let publicCatalog = [];
@@ -1141,19 +1151,39 @@
 
     let deepLinkOpened = false;
     const requestedProductId = new URLSearchParams(location.search).get("id");
-    try {
-      publicCatalog = await fetchPublicCatalogRest();
+    const CATALOG_CACHE_KEY = "sjs-public-catalog-cache-v1";
+    function applyLoadedCatalog(items) {
+      publicCatalog = Array.isArray(items) ? items : [];
       catalogLoadState = "ready";
       renderProductCatalog();
       updateCartSummary();
-      if (requestedProductId && !deepLinkOpened) {
+      if (requestedProductId && !deepLinkOpened && publicCatalog.some(p => p.id === requestedProductId)) {
         deepLinkOpened = true;
         openProductDetail(requestedProductId);
       }
-    } catch {
-      catalogLoadState = "error";
-      renderProductCatalog();
     }
+    (async () => {
+      try {
+        const cached = JSON.parse(localStorage.getItem(CATALOG_CACHE_KEY) || "null");
+        if (Array.isArray(cached) && cached.length) applyLoadedCatalog(cached);
+      } catch {}
+      try {
+        const fresh = await fetchPublicCatalogRest();
+        try { localStorage.setItem(CATALOG_CACHE_KEY, JSON.stringify(fresh)); } catch {}
+        applyLoadedCatalog(fresh);
+      } catch {
+        try {
+          const fallback = await fetchPublicCatalogSdkFallback();
+          try { localStorage.setItem(CATALOG_CACHE_KEY, JSON.stringify(fallback)); } catch {}
+          applyLoadedCatalog(fallback);
+        } catch {
+          if (catalogLoadState !== "ready") {
+            catalogLoadState = "error";
+            renderProductCatalog();
+          }
+        }
+      }
+    })();
 
     document.addEventListener("click", e => {
       const a = e.target.closest('a[href*="wa.me"]');
