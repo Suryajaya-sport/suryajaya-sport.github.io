@@ -2085,6 +2085,25 @@
       }).join("") + `</div>`;
     }
 
+    function buildRealMiniBarChart(items) {
+      const mx = Math.max(1, ...items.map(i => Math.max(0, Number(i.val) || 0)));
+      let peakIdx = 0;
+      items.forEach((it, i) => { if ((it.val || 0) > (items[peakIdx].val || 0)) peakIdx = i; });
+      return `<div class="grid gap-2 pt-3" style="grid-template-columns:repeat(${items.length},minmax(0,1fr))">` + items.map((it, i) => {
+        const v = Math.max(0, Number(it.val) || 0);
+        const pct = v > 0 ? Math.max(12, Math.round((v / mx) * 100)) : 0;
+        const isPeak = i === peakIdx && v > 0;
+        const fill = it.color || (isPeak ? "#1d4ed8" : "#93c5fd");
+        return `<div class="flex flex-col items-center gap-1" title="${esc(it.tip || it.label)}">
+          <span class="text-[10px] font-extrabold ${isPeak ? "text-blue-900" : "text-slate-500"} tabular-nums">${esc(it.top || "")}</span>
+          <div class="w-full max-w-[34px] h-14 rounded-lg bg-slate-100 flex items-end p-0.5 overflow-hidden">
+            <div class="w-full rounded-md transition-all" style="height:${pct}%; background:${fill}"></div>
+          </div>
+          <span class="text-[10px] font-bold ${isPeak ? "text-slate-900" : "text-slate-500"} truncate max-w-full">${esc(it.label)}</span>
+        </div>`;
+      }).join("") + `</div>`;
+    }
+
     function buildUiKitSpectrumSvg(color1 = "#1d4ed8", color2 = "#facc15") {
       const heights = [18, 28, 22, 36, 44, 30, 40, 26, 48, 34, 24, 38, 20, 32];
       const bars = heights.map((h, i) => {
@@ -2411,21 +2430,41 @@
       // 2. Bento Pastel Hero Card in Penjualan
       const heroCard = document.getElementById("bentoSalesHeroCard");
       if (heroCard) {
+        const avgBasket = rows.length > 0 ? Math.round(totalOmzetRows / rows.length) : 0;
+        const avgPcs = rows.length > 0 ? (totalPcs / rows.length).toFixed(1).replace(".", ",") : "0";
+        const slots = [
+          { label: "Pagi", val: 0, cnt: 0 },
+          { label: "Siang", val: 0, cnt: 0 },
+          { label: "Sore", val: 0, cnt: 0 },
+          { label: "Malam", val: 0, cnt: 0 }
+        ];
+        for (const tx of rows) {
+          let h = 12;
+          if (tx.createdAt) {
+            try {
+              h = Number(new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Makassar", hour: "2-digit", hour12: false }).format(new Date(tx.createdAt))) % 24;
+            } catch {}
+          }
+          const idx = h < 12 ? 0 : h < 15 ? 1 : h < 18 ? 2 : 3;
+          slots[idx].val += Number(tx.totalOmset || 0);
+          slots[idx].cnt += 1;
+        }
+        const chartHtml = buildRealMiniBarChart(slots.map(s => ({
+          label: s.label,
+          val: s.val,
+          top: s.cnt ? `${s.cnt}x` : "0",
+          tip: `${s.label}: ${s.cnt} nota · ${rp(s.val)}`
+        })));
         heroCard.innerHTML = `
           <div class="flex items-start justify-between gap-2">
             <div>
-              <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900">Omzet Terpilih</span>
-              <p class="text-3xl font-black text-slate-950 tracking-tight mt-1 tabular-nums">${esc(shortRpTick(totalOmzetRows))}</p>
+              <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900">Rata-Rata / Nota &amp; Jam Ramai</span>
+              <p class="text-2xl font-black text-slate-950 tracking-tight mt-1 tabular-nums">${rp(avgBasket)}</p>
+              <span class="text-[11px] font-bold text-slate-500">${avgPcs} pcs/nota · ${rows.length} transaksi</span>
             </div>
-            <span class="w-11 h-11 rounded-full bg-white/85 border border-blue-200 flex items-center justify-center text-blue-900 text-lg shadow-sm"><i class="fa-solid fa-receipt" aria-hidden="true"></i></span>
+            <span class="w-10 h-10 rounded-full bg-blue-50 border border-blue-200 flex items-center justify-center text-blue-800 text-base shrink-0"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
           </div>
-          <div class="flex items-end justify-between gap-3 pt-4">
-            <div>
-              <span class="block text-xs font-extrabold text-slate-700">${rows.length} Nota · ${totalPcs} Pcs</span>
-              <span class="block text-[11px] font-bold text-blue-900">Laba: ${rp(totalLabaRows)}</span>
-            </div>
-            ${buildUiKitSpectrumSvg()}
-          </div>`;
+          ${chartHtml}`;
       }
 
       // 3. Ring Donut Cara Bayar with Floating % Pills
@@ -2511,21 +2550,23 @@
 
       const assetCard = document.getElementById("bentoStockAssetCard");
       if (assetCard) {
+        const potensiLaba = Math.max(0, totalPotensi - totalCost);
+        const avgMargin = totalPotensi > 0 ? Math.round((potensiLaba / totalPotensi) * 100) : 0;
+        const chartHtml = buildRealMiniBarChart([
+          { label: "Modal", val: totalCost, top: shortRpTick(totalCost), color: "#64748b", tip: "Nilai Modal Stok: " + rp(totalCost) },
+          { label: "Est. Jual", val: totalPotensi, top: shortRpTick(totalPotensi), color: "#1d4ed8", tip: "Potensi Omzet Jual: " + rp(totalPotensi) },
+          { label: "Est. Laba", val: potensiLaba, top: shortRpTick(potensiLaba), color: "#eab308", tip: "Potensi Laba Bersih: " + rp(potensiLaba) }
+        ]);
         assetCard.innerHTML = `
           <div class="flex items-start justify-between gap-2">
             <div>
-              <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900">Nilai Modal Stok</span>
-              <p class="text-3xl font-black text-slate-950 tracking-tight mt-1 tabular-nums">${esc(shortRpTick(totalCost))}</p>
+              <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900">Potensi Laba Stok</span>
+              <p class="text-2xl font-black text-slate-950 tracking-tight mt-1 tabular-nums">${rp(potensiLaba)}</p>
+              <span class="text-[11px] font-bold text-emerald-700">Margin rata-rata ${avgMargin}% · ${lowCount + outCount} perlu restok</span>
             </div>
-            <span class="w-11 h-11 rounded-full bg-white/85 border border-blue-200 flex items-center justify-center text-blue-900 text-lg shadow-sm"><i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i></span>
+            <span class="w-10 h-10 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 text-base shrink-0"><i class="fa-solid fa-coins" aria-hidden="true"></i></span>
           </div>
-          <div class="flex items-end justify-between gap-3 pt-4">
-            <div>
-              <span class="block text-xs font-extrabold text-slate-700">${active.length} Jenis · ${totalUnits} Pcs</span>
-              <span class="block text-[11px] font-bold text-blue-900">Potensi Jual: ${rp(totalPotensi)}</span>
-            </div>
-            ${buildUiKitSpectrumSvg()}
-          </div>`;
+          ${chartHtml}`;
       }
 
       const healthWrap = document.getElementById("svgStockHealthWrap");
@@ -2580,21 +2621,23 @@
       // 2. Bento Pastel Hero KPI Card (Omzet Bulan Ini + Mini 4-Bar Chart)
       const pastelCard = document.getElementById("bentoBookOmzetCard");
       if (pastelCard) {
+        const netProfit = revenue - cost - spending;
+        const netMargin = revenue > 0 ? Math.round((netProfit / revenue) * 100) : 0;
+        const chartHtml = buildRealMiniBarChart([
+          { label: "Omzet", val: revenue, top: shortRpTick(revenue), color: "#1d4ed8", tip: "Omzet: " + rp(revenue) },
+          { label: "Modal+Biaya", val: cost + spending, top: shortRpTick(cost + spending), color: "#64748b", tip: "HPP + Pengeluaran: " + rp(cost + spending) },
+          { label: "Laba Bersih", val: Math.max(0, netProfit), top: shortRpTick(netProfit), color: "#eab308", tip: "Laba Bersih: " + rp(netProfit) }
+        ]);
         pastelCard.innerHTML = `
           <div class="flex items-start justify-between gap-2">
             <div>
-              <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900">Omzet Bulan ${esc(month)}</span>
-              <p class="text-3xl font-black text-slate-950 tracking-tight mt-1 tabular-nums">${esc(shortRpTick(revenue))}</p>
+              <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900">Laba Bersih ${esc(month)}</span>
+              <p class="text-2xl font-black ${netProfit < 0 ? "text-rose-700" : "text-slate-950"} tracking-tight mt-1 tabular-nums">${rp(netProfit)}</p>
+              <span class="text-[11px] font-bold text-emerald-700">Margin bersih ${netMargin}% · ${monthSales.length} nota</span>
             </div>
-            <span class="w-11 h-11 rounded-full bg-white/85 border border-blue-200 flex items-center justify-center text-blue-900 text-lg shadow-sm"><i class="fa-solid fa-sack-dollar" aria-hidden="true"></i></span>
+            <span class="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 text-base shrink-0"><i class="fa-solid fa-wallet" aria-hidden="true"></i></span>
           </div>
-          <div class="flex items-end justify-between gap-3 pt-4">
-            <div>
-              <span class="block text-xs font-extrabold text-slate-700">${monthSales.length} Transaksi</span>
-              <span class="block text-[11px] font-bold text-blue-900">Laba: ${rp(gross)}</span>
-            </div>
-            ${buildUiKitSpectrumSvg()}
-          </div>`;
+          ${chartHtml}`;
       }
 
       // 3. Komposisi Pembayaran Bulan Terpilih (Floating % Ring Donut)
@@ -2732,15 +2775,19 @@
 
       const pc = document.getElementById("repPastelOmzetCard");
       if (pc) {
+        const netProfit = revenue - cost - spending;
+        const netMargin = revenue > 0 ? Math.round((netProfit / revenue) * 100) : 0;
+        const chartHtml = buildRealMiniBarChart([
+          { label: "Omzet", val: revenue, top: shortRpTick(revenue), color: "#1d4ed8", tip: "Omzet: " + rp(revenue) },
+          { label: "Modal+Biaya", val: cost + spending, top: shortRpTick(cost + spending), color: "#64748b", tip: "HPP + Pengeluaran: " + rp(cost + spending) },
+          { label: "Laba Bersih", val: Math.max(0, netProfit), top: shortRpTick(netProfit), color: "#eab308", tip: "Laba Bersih: " + rp(netProfit) }
+        ]);
         pc.innerHTML = `
           <div class="flex items-start justify-between gap-2">
-            <div><span class="text-xs font-extrabold uppercase tracking-wider text-blue-900">Omzet ${esc(month)}</span><p class="text-3xl font-black text-slate-950 tracking-tight mt-1 tabular-nums">${esc(shortRpTick(revenue))}</p></div>
-            <span class="w-11 h-11 rounded-full bg-white/85 border border-blue-200 flex items-center justify-center text-blue-900 text-lg shadow-sm"><i class="fa-solid fa-sack-dollar" aria-hidden="true"></i></span>
+            <div><span class="text-xs font-extrabold uppercase tracking-wider text-blue-900">Laba Bersih ${esc(month)}</span><p class="text-2xl font-black ${netProfit < 0 ? "text-rose-700" : "text-slate-950"} tracking-tight mt-1 tabular-nums">${rp(netProfit)}</p><span class="text-[11px] font-bold text-emerald-700">Margin bersih ${netMargin}% · ${monthSales.length} nota</span></div>
+            <span class="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-700 text-base shrink-0"><i class="fa-solid fa-wallet" aria-hidden="true"></i></span>
           </div>
-          <div class="flex items-end justify-between gap-3 pt-4">
-            <div><span class="block text-xs font-extrabold text-slate-700">${monthSales.length} Transaksi</span><span class="block text-[11px] font-bold text-blue-900">Laba: ${rp(gross)}</span></div>
-            ${buildUiKitSpectrumSvg()}
-          </div>`;
+          ${chartHtml}`;
       }
       const spP = document.getElementById("repSpeedoPctPill");
       if (spP) spP.textContent = labaPct + "%";
