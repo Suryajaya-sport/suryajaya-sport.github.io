@@ -861,25 +861,27 @@
       color: #facc15 !important;
     }
     body.sjs-admin #btnSaveAndPrintTx {
-      background: linear-gradient(135deg, #facc15, #eab308) !important;
-      color: #0f172a !important;
-      border: 2px solid #fde047 !important;
+      background: linear-gradient(135deg, #059669, #10b981) !important;
+      color: #ffffff !important;
+      border: 2px solid #34d399 !important;
       min-height: 48px !important;
       font-weight: 900 !important;
-      box-shadow: 0 6px 16px rgba(234, 179, 8, .32) !important;
+      box-shadow: 0 6px 16px rgba(5, 150, 105, .28) !important;
     }
     body.sjs-admin.sjs-tablet-mode #btnSaveAndPrintTx {
       min-height: 60px !important;
       font-size: 1.05rem !important;
     }
-    body.sjs-admin #btnSaveAndPrintTx:disabled {
-      opacity: .45 !important; box-shadow: none !important;
+    body.sjs-admin #btnSaveAndPrintTx:disabled,
+    body.sjs-admin #btnSaveTx:disabled {
+      opacity: .45 !important; box-shadow: none !important; cursor: not-allowed !important;
     }
     body.sjs-admin #btnSaveTx {
-      background: linear-gradient(135deg, #1d4ed8, #1e40af) !important;
-      color: #ffffff !important;
+      background: #ffffff !important;
+      color: #1e293b !important;
+      border: 1.5px solid #cbd5e1 !important;
       min-height: 48px !important;
-      font-weight: 900 !important;
+      font-weight: 800 !important;
     }
     body.sjs-admin.sjs-tablet-mode #btnSaveTx {
       min-height: 60px !important;
@@ -1029,8 +1031,8 @@
     body.sjs-admin .pos-num-btn:active {
       transform: translateY(2px) scale(.96) !important;
     }
-    body.sjs-admin #btnSaveAndPrintTx { border-bottom: 4px solid #ca8a04 !important; }
-    body.sjs-admin #btnSaveTx { border-bottom: 4px solid #0f2557 !important; }
+    body.sjs-admin #btnSaveAndPrintTx { border-bottom: 4px solid #047857 !important; }
+    body.sjs-admin #btnSaveTx { border-bottom: 3px solid #94a3b8 !important; }
     body.sjs-admin #btnOpenScanner { border-bottom: 4px solid #ca8a04 !important; }
     body.sjs-admin .pos-num-btn { border-bottom: 4px solid #94a3b8 !important; }
     body.sjs-admin .pos-num-btn.is-clear { border-bottom: 4px solid #ca8a04 !important; }
@@ -2018,14 +2020,22 @@
 
             <!-- SISI KANAN: PANEL KASIR AKTIF (STICKY SIDEBAR) -->
             <div class="pos-cart-sticky bg-white rounded-3xl border border-slate-200 shadow-md overflow-hidden">
-              <div class="shrink-0 bg-gradient-to-r from-slate-900 via-blue-950 to-blue-800 px-4 py-3 text-white flex flex-wrap items-center justify-between gap-2">
-                <h2 class="font-extrabold text-base flex items-center gap-2"><i class="fa-solid fa-cash-register text-emerald-400"></i><span>Keranjang Kasir</span></h2>
-                <button type="button" id="btnAddItemRow" class="px-3 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-xs inline-flex items-center gap-1.5"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>Barang bebas / luar stok</span></button>
+              <div class="shrink-0 bg-gradient-to-r from-slate-900 via-blue-950 to-blue-800 px-4 py-2.5 text-white flex flex-wrap items-center justify-between gap-2">
+                <h2 class="font-extrabold text-sm sm:text-base flex items-center gap-2"><i class="fa-solid fa-cash-register text-emerald-400"></i><span>Keranjang Kasir</span></h2>
+                <div class="flex items-center gap-1.5">
+                  <button type="button" id="btnHoldSale" title="Tahan transaksi ini sementara untuk melayani pelanggan lain" class="px-2.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs inline-flex items-center gap-1"><i class="fa-solid fa-pause" aria-hidden="true"></i><span>Hold</span></button>
+                  <button type="button" id="btnAddItemRow" class="px-2.5 py-1.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-xs inline-flex items-center gap-1"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>Barang bebas</span></button>
+                </div>
               </div>
+              <div id="posHeldTabsBar" class="shrink-0 bg-amber-50 border-b border-amber-200 px-3 py-2 flex flex-wrap items-center gap-1.5 text-xs" hidden></div>
 
-              <div class="flex-1 min-h-0 overflow-y-auto p-3.5 space-y-3">
+              <div class="flex-1 min-h-0 overflow-y-auto p-3 pb-10 space-y-3">
                 <p id="replacementSaleNotice" class="rounded-2xl bg-blue-50 border border-blue-200 p-3 text-xs font-bold text-blue-900" role="status" hidden></p>
 
+                <div id="posCartEmptyHint" class="rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 px-4 py-6 text-center space-y-1">
+                  <p class="text-sm font-extrabold text-slate-700">🛒 Keranjang Kosong</p>
+                  <p class="text-xs font-semibold text-slate-500">Klik produk di kiri, pilih Favorit Cepat, atau tekan <strong>F2</strong> untuk Scan QR.</p>
+                </div>
                 <div id="posCartSummaryList" class="rounded-2xl border border-blue-100 bg-blue-50/40 px-3 py-2 text-xs" hidden></div>
                 <div id="saleItemsContainer" class="space-y-2.5 max-h-[34vh] overflow-y-auto pr-0.5"></div>
 
@@ -2053,7 +2063,7 @@
                   </details>
                 </div>
 
-                <div id="posCashCalcPanel" class="pos-cash-calc" hidden aria-label="Hitung uang tunai dan kembalian">
+                <div id="posCashCalcPanel" class="pos-cash-calc shrink-0" hidden aria-label="Hitung uang tunai dan kembalian">
                   <div class="flex items-center justify-between gap-2">
                     <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900 flex items-center gap-1.5"><i class="fa-solid fa-calculator text-amber-500" aria-hidden="true"></i> Hitung Kembalian Tunai</span>
                     <button type="button" id="btnToggleCashNumpad" class="px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-200 text-xs font-extrabold text-blue-900" aria-expanded="false">Buka Numpad</button>
@@ -2071,6 +2081,8 @@
                   </div>
                   <div class="pos-cash-quick">
                     <button type="button" class="pos-cash-pill is-exact" data-cash-exact="1">Uang Pas</button>
+                    <button type="button" class="pos-cash-pill" data-cash-add="2000">+2rb</button>
+                    <button type="button" class="pos-cash-pill" data-cash-add="5000">+5rb</button>
                     <button type="button" class="pos-cash-pill" data-cash-add="10000">+10rb</button>
                     <button type="button" class="pos-cash-pill" data-cash-add="20000">+20rb</button>
                     <button type="button" class="pos-cash-pill" data-cash-add="50000">+50rb</button>
@@ -2972,6 +2984,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261125-11"></script>
+  <script type="module" src="./admin.js?v=20261125-13"></script>
 </body>
 </html>

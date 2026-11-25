@@ -1023,9 +1023,13 @@
           <div>
             <label class="block text-[11px] font-bold text-slate-600 mb-1">Jumlah</label>
             <div class="flex items-center gap-1">
-              <button type="button" aria-label="Kurangi" class="btn-qty-minus w-8 h-9 shrink-0 rounded-lg bg-slate-200 hover:bg-slate-300 font-extrabold text-sm">−</button>
-              <input type="number" min="1" step="1" inputmode="numeric" value="1" class="item-qty min-w-0 flex-1 px-1 py-1.5 border border-slate-300 rounded-lg bg-white font-extrabold text-center !text-sm">
-              <button type="button" aria-label="Tambah" class="btn-qty-plus w-8 h-9 shrink-0 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-900 font-extrabold text-sm">+</button>
+              <button type="button" aria-label="Kurangi" class="btn-qty-minus w-7 h-8 shrink-0 rounded-lg bg-slate-200 hover:bg-slate-300 font-extrabold text-sm">−</button>
+              <input type="number" min="1" step="1" inputmode="numeric" value="1" class="item-qty min-w-0 flex-1 px-1 py-1 border border-slate-300 rounded-lg bg-white font-extrabold text-center !text-sm">
+              <button type="button" aria-label="Tambah" class="btn-qty-plus w-7 h-8 shrink-0 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-900 font-extrabold text-sm">+</button>
+            </div>
+            <div class="flex items-center justify-end gap-1 mt-1">
+              <button type="button" data-quick-qty="5" class="btn-quick-qty px-1.5 py-0.5 rounded bg-blue-50 hover:bg-blue-100 border border-blue-200 text-[10px] font-extrabold text-blue-900">+5</button>
+              <button type="button" data-quick-qty="10" class="btn-quick-qty px-1.5 py-0.5 rounded bg-amber-50 hover:bg-amber-100 border border-amber-200 text-[10px] font-extrabold text-amber-900">+10</button>
             </div>
           </div>
         </div>
@@ -1093,6 +1097,13 @@
         qtyInput.value = (parseInt(qtyInput.value, 10) || 1) + 1;
         calculateSaleTotals();
       });
+      row.querySelectorAll(".btn-quick-qty").forEach(qb => {
+        qb.addEventListener("click", () => {
+          const addN = Number(qb.dataset.quickQty || 0);
+          qtyInput.value = Math.max(1, (parseInt(qtyInput.value, 10) || 0) + addN);
+          calculateSaleTotals();
+        });
+      });
       row.querySelector(".btn-remove-row").addEventListener("click", () => {
         row.remove();
         if (!container.children.length) addSaleItemRow();
@@ -1132,6 +1143,10 @@
           const qt = Number(row.querySelector(".item-qty")?.value) || 0;
           if (nm && qt > 0) summaryRows.push({ nm: cleanDisplayItemName(nm), qt, sub: pr * qt });
         }
+        const emptyHint = document.getElementById("posCartEmptyHint");
+        const itemsCont = document.getElementById("saleItemsContainer");
+        const hasAnyRowValue = summaryRows.length > 0 || (itemsCont && itemsCont.children.length > 1);
+        if (emptyHint) emptyHint.hidden = hasAnyRowValue;
         if (!summaryRows.length) {
           sumBox.hidden = true;
           sumBox.innerHTML = "";
@@ -1149,7 +1164,7 @@
           </table>`;
         }
       }
-      updateCashCalcUI();
+      renderSalePayment();
     }
 
     let currentSaleTotalAmount = 0;
@@ -1237,19 +1252,105 @@
       selectedPaymentMethod = salePaymentMethods.has(method) ? method : "";
       renderSalePayment();
     }
+    function hasSaleItems() {
+      for (const row of document.querySelectorAll("#saleItemsContainer > div")) {
+        const nm = (row.querySelector(".item-name-input")?.value || "").trim();
+        const qt = Number(row.querySelector(".item-qty")?.value || 0);
+        if (nm && qt > 0) return true;
+      }
+      return false;
+    }
     function renderSalePayment() {
-      const ok = salePaymentMethods.has(selectedPaymentMethod);
+      const okPay = salePaymentMethods.has(selectedPaymentMethod);
+      const okItems = hasSaleItems();
       for (const b of document.querySelectorAll(".pay-option-btn")) {
         b.setAttribute("aria-pressed", String(b.dataset.pay === selectedPaymentMethod));
       }
-      document.getElementById("salePaymentHint").hidden = ok;
+      const hintEl = document.getElementById("salePaymentHint");
+      if (hintEl) {
+        if (!okItems) {
+          hintEl.textContent = "Tambahkan minimal 1 barang untuk menyimpan penjualan.";
+          hintEl.hidden = false;
+        } else if (!okPay) {
+          hintEl.textContent = "Pilih cara bayar untuk menyimpan penjualan.";
+          hintEl.hidden = false;
+        } else {
+          hintEl.hidden = true;
+        }
+      }
       const topBadge = document.getElementById("salePaymentTopBadge");
-      if (topBadge) topBadge.hidden = ok;
+      if (topBadge) topBadge.hidden = okPay;
       const payBox = document.getElementById("posPaySectionBox");
-      if (payBox) payBox.classList.toggle("border-amber-300", !ok);
-      document.getElementById("btnSaveTx").disabled = !ok || saleFormSaving;
-      document.getElementById("btnSaveAndPrintTx").disabled = !ok || saleFormSaving;
+      if (payBox) payBox.classList.toggle("border-amber-300", !okPay);
+      const canSave = okPay && okItems && !saleFormSaving;
+      document.getElementById("btnSaveTx").disabled = !canSave;
+      document.getElementById("btnSaveAndPrintTx").disabled = !canSave;
       updateCashCalcUI();
+    }
+
+    const POS_HELD_KEY = "sjs-pos-held-carts-v1";
+    let heldSales = [];
+    try { heldSales = JSON.parse(localStorage.getItem(POS_HELD_KEY) || "[]"); if (!Array.isArray(heldSales)) heldSales = []; } catch { heldSales = []; }
+    function saveHeldSalesStorage() {
+      try { localStorage.setItem(POS_HELD_KEY, JSON.stringify(heldSales)); } catch {}
+    }
+    function renderHeldSalesBar() {
+      const bar = document.getElementById("posHeldTabsBar");
+      if (!bar) return;
+      if (!heldSales.length) { bar.hidden = true; bar.innerHTML = ""; return; }
+      bar.hidden = false;
+      bar.innerHTML = `<span class="text-[11px] font-extrabold text-amber-900 mr-1"><i class="fa-solid fa-pause mr-1" aria-hidden="true"></i>Tertahan:</span>` + heldSales.map((h, idx) => `
+        <span class="inline-flex items-center rounded-full bg-white border border-amber-300 overflow-hidden shadow-xs">
+          <button type="button" data-resume-hold="${idx}" class="px-2.5 py-1 text-[11px] font-extrabold text-amber-950 hover:bg-amber-100">Hold #${idx + 1} · ${h.items.length} item (${esc(shortRpTick(h.total))})</button>
+          <button type="button" data-drop-hold="${idx}" title="Hapus Hold #${idx + 1}" class="px-1.5 py-1 text-[11px] font-extrabold text-rose-600 hover:bg-rose-50 border-l border-amber-200">&times;</button>
+        </span>`).join("");
+    }
+    function holdCurrentSale() {
+      const rows = [...document.querySelectorAll("#saleItemsContainer > div")];
+      const items = rows.map(r => ({
+        invId: r.dataset.invId || "",
+        name: (r.querySelector(".item-name-input")?.value || "").trim(),
+        price: Number(r.querySelector(".item-price-input")?.value || 0),
+        cost: Number(r.querySelector(".item-cost-input")?.value || 0),
+        qty: Math.max(1, Number(r.querySelector(".item-qty")?.value || 1))
+      })).filter(it => it.name);
+      if (!items.length) return showToast("Keranjang masih kosong, tidak ada yang bisa di-Hold.");
+      heldSales.push({
+        heldAt: new Date().toISOString(),
+        customer: document.getElementById("inputCustomer")?.value || "",
+        note: document.getElementById("inputSaleNote")?.value || "",
+        discount: document.getElementById("inputSaleDiscount")?.value || "0",
+        discountType: document.getElementById("inputSaleDiscountType")?.value || "rp",
+        paymentMethod: selectedPaymentMethod || "",
+        total: currentSaleTotalAmount,
+        items
+      });
+      saveHeldSalesStorage();
+      resetSaleDraft();
+      renderHeldSalesBar();
+      showToast(`Transaksi disimpan ke Hold #${heldSales.length}.`);
+    }
+    function resumeHeldSale(idx) {
+      const h = heldSales[idx];
+      if (!h) return;
+      heldSales.splice(idx, 1);
+      saveHeldSalesStorage();
+      document.getElementById("saleItemsContainer").replaceChildren();
+      for (const it of h.items) {
+        const inv = it.invId ? activeInventory().find(i => i.id === it.invId) : null;
+        const row = addSaleItemRow(inv || { name: it.name, price: it.price, cost: it.cost });
+        row.querySelector(".item-price-input").value = it.price;
+        if (!inv) row.querySelector(".item-cost-input").value = it.cost;
+        row.querySelector(".item-qty").value = it.qty;
+      }
+      if (document.getElementById("inputCustomer")) document.getElementById("inputCustomer").value = h.customer || "";
+      if (document.getElementById("inputSaleNote")) document.getElementById("inputSaleNote").value = h.note || "";
+      if (document.getElementById("inputSaleDiscountType")) document.getElementById("inputSaleDiscountType").value = h.discountType || "rp";
+      if (document.getElementById("inputSaleDiscount")) document.getElementById("inputSaleDiscount").value = h.discount || "0";
+      selectSalePayment(h.paymentMethod || "");
+      calculateSaleTotals();
+      renderHeldSalesBar();
+      showToast("Transaksi Hold dilanjutkan.");
     }
 
     function resetSaleDraft() {
@@ -1261,6 +1362,10 @@
       document.getElementById("inputDate").value = todayStr();
       document.getElementById("saleItemsContainer").replaceChildren();
       cashReceivedAmount = 0;
+      const pad = document.getElementById("posCashNumpad");
+      if (pad) pad.hidden = true;
+      const padBtn = document.getElementById("btnToggleCashNumpad");
+      if (padBtn) padBtn.setAttribute("aria-expanded", "false");
       selectSalePayment("");
       updateSaleDateSummary();
       addSaleItemRow();
@@ -1273,6 +1378,9 @@
     async function saveSale(printAfterSave) {
       if (!isAdmin) return showToast("Masuk ke akun pemilik terlebih dahulu.");
       if (!salePaymentMethods.has(selectedPaymentMethod)) return showToast("Pilih cara bayar sebelum menyimpan.");
+      if (selectedPaymentMethod === "Cash" && cashReceivedAmount > 0 && cashReceivedAmount < currentSaleTotalAmount) {
+        return showToast(`⚠ Uang diterima kurang ${rp(currentSaleTotalAmount - cashReceivedAmount)} dari total bayar.`);
+      }
       const itemsToSave = [];
       for (const row of document.querySelectorAll("#saleItemsContainer > div")) {
         const invId = row.dataset.invId;
@@ -1652,7 +1760,8 @@
       grid.innerHTML = list.map(item => {
         const st = Number(item.stock || 0);
         const cls = st <= 0 ? "out" : st < 5 ? "crit" : st <= 10 ? "mid" : "ok";
-        const label = st <= 0 ? "Habis" : `${st} pcs`;
+        const dot = st < 5 ? "🔴" : st <= 10 ? "🟡" : "🟢";
+        const label = st <= 0 ? "🔴 Habis" : `${dot} ${st} pcs`;
         return `<button type="button" class="pos-card ${st <= 0 ? "opacity-60" : ""}" data-pos-add="${esc(item.id)}">
           <div class="pos-card-thumb">
             <span class="pos-stock-pill ${cls}">${label}</span>
@@ -4805,6 +4914,19 @@
         updateCashCalcUI();
       });
       document.getElementById("btnResetForm").addEventListener("click", resetSaleDraft);
+      document.getElementById("btnHoldSale")?.addEventListener("click", holdCurrentSale);
+      document.getElementById("posHeldTabsBar")?.addEventListener("click", e => {
+        const res = e.target.closest("[data-resume-hold]");
+        if (res) return resumeHeldSale(Number(res.dataset.resumeHold));
+        const drop = e.target.closest("[data-drop-hold]");
+        if (drop) {
+          heldSales.splice(Number(drop.dataset.dropHold), 1);
+          saveHeldSalesStorage();
+          renderHeldSalesBar();
+          showToast("Transaksi tertahan dihapus.");
+        }
+      });
+      renderHeldSalesBar();
       document.getElementById("btnPosStatLowStock")?.addEventListener("click", () => {
         switchWorkspace("inventory");
         window.scrollTo({ top: 0, behavior: "smooth" });
