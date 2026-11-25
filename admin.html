@@ -2297,55 +2297,37 @@
         <div class="bg-white p-4 rounded-2xl border border-slate-200"><span class="text-xs font-extrabold uppercase text-blue-900">Jumlah stok</span><p id="invTotalUnits" class="text-2xl font-extrabold mt-1.5">0 Pcs</p></div>
       </section>
 
-      <section id="inventoryCharts" class="grid grid-cols-1 lg:grid-cols-3 gap-4 no-print" aria-label="Grafik analitik stok dan QR">
-        <!-- BARIS 2 KIRI: Distribusi Nilai Stok per Kategori + Status Stok -->
+      <section id="inventoryCharts" class="grid grid-cols-1 lg:grid-cols-3 gap-4 no-print" aria-label="Dashboard operasional stok">
+        <!-- BARIS 2 KIRI (BESAR): Status Stok per Kategori -->
         <div class="sjs-chart-card lg:col-span-2">
           <div class="sjs-chart-head">
             <div class="sjs-chart-title-wrap">
               <span class="sjs-chart-badge-icon is-blue"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
               <div>
-                <h3 class="workspace-section-title">Distribusi Nilai Stok per Kategori</h3>
-                <p class="sjs-chart-sub">Modal tertanam &amp; potensi laba per kategori + status stok aman/menipis/habis</p>
+                <h3 class="workspace-section-title">Status Stok per Kategori</h3>
+                <p class="sjs-chart-sub">Pola stok Aman, Menipis, &amp; Habis serta nilai modal tiap kategori</p>
               </div>
             </div>
             <span id="badgeStockCatTotal" class="sjs-chart-pill">Modal Rp 0</span>
           </div>
-          <div id="svgStockCatWrap" class="w-full space-y-4"></div>
+          <div id="svgStockCatWrap" class="w-full space-y-2.5"></div>
         </div>
 
-        <!-- BARIS 2 KANAN: Kesehatan Stok (Donut) + Waterfall Nilai -->
-        <div class="flex flex-col gap-4">
-          <div class="sjs-chart-card">
-            <div class="sjs-chart-head">
-              <div class="sjs-chart-title-wrap">
-                <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i></span>
-                <div>
-                  <h3 class="workspace-section-title">Kesehatan Stok</h3>
-                  <p class="sjs-chart-sub">Aman vs Menipis vs Habis</p>
-                </div>
-              </div>
-            </div>
-            <div id="svgStockHealthWrap" class="w-full flex flex-col gap-2"></div>
-          </div>
-          <div id="bentoStockAssetCard" class="bento-pastel-card"></div>
-        </div>
-
-        <!-- BARIS 3 KIRI: Aktivitas & Tren Scan QR 7 Hari -->
+        <!-- BARIS 2 KANAN (KECIL): Kesehatan Stok (Donut) -->
         <div class="sjs-chart-card">
           <div class="sjs-chart-head">
             <div class="sjs-chart-title-wrap">
-              <span class="sjs-chart-badge-icon is-navy"><i class="fa-solid fa-qrcode" aria-hidden="true"></i></span>
+              <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i></span>
               <div>
-                <h3 class="workspace-section-title">Aktivitas &amp; Tren Scan QR (7 Hari)</h3>
-                <p class="sjs-chart-sub">Scan kasir, cek produk, dan scan gagal per hari</p>
+                <h3 class="workspace-section-title">Kesehatan Stok</h3>
+                <p class="sjs-chart-sub">Aman vs Menipis vs Habis</p>
               </div>
             </div>
-            <span id="badgeQrTodayCount" class="sjs-chart-pill">0 Scan</span>
           </div>
-          <div id="svgQrActivityWrap" class="w-full space-y-3"></div>
+          <div id="svgStockHealthWrap" class="w-full flex flex-col gap-2"></div>
         </div>
 
-        <!-- BARIS 3 KANAN: Top 10 Barang Menipis (Prioritas Restok) -->
+        <!-- BARIS 3 KIRI (BESAR): Top 10 Barang Menipis (Prioritas Restok) -->
         <div class="sjs-chart-card lg:col-span-2">
           <div class="sjs-chart-head">
             <div class="sjs-chart-title-wrap">
@@ -2358,6 +2340,21 @@
             <span id="badgeStockPriority" class="sjs-chart-pill">0 Barang</span>
           </div>
           <div id="tableStockPriorityWrap" class="w-full overflow-x-auto"></div>
+        </div>
+
+        <!-- BARIS 3 KANAN (KECIL): Barang Untung Besar yang Menipis -->
+        <div class="sjs-chart-card">
+          <div class="sjs-chart-head">
+            <div class="sjs-chart-title-wrap">
+              <span class="sjs-chart-badge-icon is-navy"><i class="fa-solid fa-coins" aria-hidden="true"></i></span>
+              <div>
+                <h3 class="workspace-section-title">Untung Besar Hampir Habis</h3>
+                <p class="sjs-chart-sub">Barang margin tertinggi yang stoknya menipis/habis</p>
+              </div>
+            </div>
+            <span id="badgeHighMarginLow" class="sjs-chart-pill">Potensi</span>
+          </div>
+          <div id="listHighMarginLowWrap" class="w-full space-y-2"></div>
         </div>
       </section>
 

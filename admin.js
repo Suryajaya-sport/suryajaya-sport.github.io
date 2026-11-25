@@ -2621,80 +2621,60 @@
         "Musik": { cost: 0, sell: 0, profit: 0, ok: 0, low: 0, out: 0 },
         "Olahraga Lainnya": { cost: 0, sell: 0, profit: 0, ok: 0, low: 0, out: 0 }
       };
-      let okCount = 0, lowCount = 0, outCount = 0, totalCost = 0, totalPotensi = 0;
+      let okCount = 0, lowCount = 0, outCount = 0, totalCost = 0;
       const urgentItems = [];
       for (const item of active) {
         const st = Math.max(0, Number(item.stock || 0));
         const valCost = st * Number(item.cost || 0);
         const valSell = st * Number(item.price || 0);
-        const valProfit = Math.max(0, valSell - valCost);
         totalCost += valCost;
-        totalPotensi += valSell;
         const lbl = detectProductCategoryLabel(item).label;
         const mapKey = lbl === "Olahraga" ? "Olahraga Lainnya" : lbl;
         if (!catStats[mapKey]) catStats[mapKey] = { cost: 0, sell: 0, profit: 0, ok: 0, low: 0, out: 0 };
         catStats[mapKey].cost += valCost;
         catStats[mapKey].sell += valSell;
-        catStats[mapKey].profit += valProfit;
+        catStats[mapKey].profit += Math.max(0, valSell - valCost);
         if (st <= 0) { outCount++; catStats[mapKey].out++; urgentItems.push(item); }
         else if (st < LOW_STOCK_LIMIT) { lowCount++; catStats[mapKey].low++; urgentItems.push(item); }
         else { okCount++; catStats[mapKey].ok++; }
       }
-      const totalPotensiLaba = Math.max(0, totalPotensi - totalCost);
       const catBadge = document.getElementById("badgeStockCatTotal");
       if (catBadge) catBadge.textContent = `Modal ${shortRpTick(totalCost)}`;
 
-      // Baris 2 Kiri: Distribusi Nilai Modal Stok per Kategori + Stacked Bar Status Stok
+      // Baris 2 Kiri: Status Stok per Kategori (Stacked Bar: Aman / Menipis / Habis + Modal)
       const okPct = active.length > 0 ? Math.round((okCount / active.length) * 100) : 0;
       const catWrap = document.getElementById("svgStockCatWrap");
       if (catWrap) {
-        const sortedCats = Object.entries(catStats).sort((a, b) => b[1].cost - a[1].cost);
-        const maxCost = Math.max(1, sortedCats[0]?.[1]?.cost || 1);
-        const colors = ["#0f2557", "#1d4ed8", "#3b82f6", "#0ea5e9", "#eab308"];
-        const valueBars = buildUiKitProgressRows(
-          sortedCats.map(([k, v], idx) => {
-            const share = totalCost > 0 ? Math.round((v.cost / totalCost) * 100) : 0;
-            return {
-              label: `${idx + 1}. ${k} (${share}% modal)`,
-              val: v.cost,
-              display: `Modal ${rp(v.cost)} · Est. Laba ${shortRpTick(v.profit)}`,
-              color: colors[idx % colors.length]
-            };
-          }),
-          maxCost
-        );
-        const stackedHtml = `
-          <div class="pt-3 mt-2 border-t border-slate-100 space-y-2">
-            <div class="flex flex-wrap items-center justify-between gap-2">
-              <span class="text-xs font-extrabold uppercase tracking-wider text-slate-700">Status Stok per Kategori</span>
-              <div class="flex items-center gap-3 text-[11px] font-bold text-slate-600">
-                <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#1d4ed8]"></span>Aman</span>
-                <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#eab308]"></span>Menipis</span>
-                <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#e11d48]"></span>Habis</span>
-              </div>
+        const sortedCats = Object.entries(catStats).sort((a, b) => (b[1].out + b[1].low) - (a[1].out + a[1].low) || b[1].cost - a[1].cost);
+        catWrap.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2 pb-1">
+            <span class="text-xs font-bold text-slate-500">Diurutkan dari kategori yang paling butuh perhatian restok</span>
+            <div class="flex items-center gap-3 text-[11px] font-bold text-slate-600">
+              <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#1d4ed8]"></span>Aman (&ge;5)</span>
+              <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#eab308]"></span>Menipis (1–4)</span>
+              <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#e11d48]"></span>Habis (0)</span>
             </div>
-            ${sortedCats.map(([k, v]) => {
-              const tot = Math.max(1, v.ok + v.low + v.out);
-              const wOk = (v.ok / tot) * 100;
-              const wLow = (v.low / tot) * 100;
-              const wOut = (v.out / tot) * 100;
-              return `<div class="uikit-row !py-1.5 !px-2.5">
-                <div class="uikit-row-head">
-                  <span class="uikit-row-label">${esc(k)}</span>
-                  <span class="text-[11px] font-extrabold text-slate-700 tabular-nums">${v.ok} aman · ${v.low} menipis · ${v.out} habis</span>
-                </div>
-                <div class="w-full h-2.5 rounded-full bg-slate-200 overflow-hidden flex">
-                  ${wOk > 0 ? `<div style="width:${wOk.toFixed(1)}%;background:#1d4ed8"></div>` : ""}
-                  ${wLow > 0 ? `<div style="width:${wLow.toFixed(1)}%;background:#eab308"></div>` : ""}
-                  ${wOut > 0 ? `<div style="width:${wOut.toFixed(1)}%;background:#e11d48"></div>` : ""}
-                </div>
-              </div>`;
-            }).join("")}
-          </div>`;
-        catWrap.innerHTML = valueBars + stackedHtml;
+          </div>
+          ${sortedCats.map(([k, v]) => {
+            const tot = Math.max(1, v.ok + v.low + v.out);
+            const wOk = (v.ok / tot) * 100;
+            const wLow = (v.low / tot) * 100;
+            const wOut = (v.out / tot) * 100;
+            return `<div class="uikit-row">
+              <div class="uikit-row-head">
+                <span class="uikit-row-label">${esc(k)} <span class="text-slate-400 font-semibold">· Modal ${shortRpTick(v.cost)}</span></span>
+                <span class="text-xs font-extrabold text-slate-800 tabular-nums shrink-0">${v.ok} aman · <span class="text-amber-700">${v.low} menipis</span> · <span class="text-rose-700">${v.out} habis</span></span>
+              </div>
+              <div class="w-full h-3 rounded-full bg-slate-200 overflow-hidden flex">
+                ${wOk > 0 ? `<div style="width:${wOk.toFixed(1)}%;background:#1d4ed8" title="${v.ok} aman"></div>` : ""}
+                ${wLow > 0 ? `<div style="width:${wLow.toFixed(1)}%;background:#eab308" title="${v.low} menipis"></div>` : ""}
+                ${wOut > 0 ? `<div style="width:${wOut.toFixed(1)}%;background:#e11d48" title="${v.out} habis"></div>` : ""}
+              </div>
+            </div>`;
+          }).join("")}`;
       }
 
-      // Baris 2 Kanan: Donut Kesehatan Stok + Waterfall Modal -> Laba -> Potensi Jual
+      // Baris 2 Kanan: Donut Kesehatan Stok
       const healthWrap = document.getElementById("svgStockHealthWrap");
       if (healthWrap) {
         healthWrap.innerHTML = buildSvgDonut([
@@ -2703,25 +2683,8 @@
           { label: "Habis (0)", value: outCount, color: "#e11d48", display: `${outCount} item` }
         ], "AMAN", `${okPct}%`);
       }
-      const assetCard = document.getElementById("bentoStockAssetCard");
-      if (assetCard) {
-        const avgMargin = totalPotensi > 0 ? Math.round((totalPotensiLaba / totalPotensi) * 100) : 0;
-        assetCard.innerHTML = `
-          <div class="flex items-start justify-between gap-2">
-            <div>
-              <span class="text-xs font-extrabold uppercase tracking-wider text-blue-900">Alur Nilai Stok (Waterfall)</span>
-              <p class="text-2xl font-black text-slate-950 tracking-tight mt-0.5 tabular-nums">${rp(totalPotensiLaba)}</p>
-              <span class="text-[11px] font-bold text-emerald-700">Potensi laba bersih · Margin ${avgMargin}%</span>
-            </div>
-            <span class="w-10 h-10 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700 text-base shrink-0"><i class="fa-solid fa-coins" aria-hidden="true"></i></span>
-          </div>
-          ${buildWaterfallValueSvg(totalCost, totalPotensiLaba, totalPotensi)}`;
-      }
 
-      // Baris 3 Kiri: Aktivitas & Tren Scan QR 7 Hari
-      renderQrActivityChart();
-
-      // Baris 3 Kanan: Top 10 Barang Menipis dengan tombol + Tambah stok & Cetak QR
+      // Baris 3 Kiri: Top 10 Barang Menipis dengan tombol + Tambah stok & Cetak QR
       const prioBadge = document.getElementById("badgeStockPriority");
       if (prioBadge) prioBadge.textContent = `${urgentItems.length} Barang`;
       const prioWrap = document.getElementById("tableStockPriorityWrap");
@@ -2751,6 +2714,38 @@
               </tr>`;
             }).join("")}</tbody>
           </table>`;
+        }
+      }
+
+      // Baris 3 Kanan: Barang Untung Besar yang Menipis/Habis
+      const highMarginLow = urgentItems
+        .map(it => ({ item: it, unitProfit: Math.max(0, Number(it.price || 0) - Number(it.cost || 0)) }))
+        .filter(x => x.unitProfit > 0)
+        .sort((a, b) => b.unitProfit - a.unitProfit)
+        .slice(0, 6);
+      const hmBadge = document.getElementById("badgeHighMarginLow");
+      if (hmBadge) hmBadge.textContent = highMarginLow.length ? `${highMarginLow.length} Prioritas` : "Aman";
+      const hmWrap = document.getElementById("listHighMarginLowWrap");
+      if (hmWrap) {
+        if (!highMarginLow.length) {
+          hmWrap.innerHTML = `<p class="text-sm text-emerald-700 font-bold bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-4 text-center">Tidak ada barang margin tinggi yang menipis.</p>`;
+        } else {
+          const maxP = highMarginLow[0].unitProfit || 1;
+          hmWrap.innerHTML = highMarginLow.map(({ item: it, unitProfit }) => {
+            const st = Math.max(0, Number(it.stock || 0));
+            const pct = Math.max(10, Math.round((unitProfit / maxP) * 100));
+            return `<div class="uikit-row !py-2 !px-2.5">
+              <div class="uikit-row-head">
+                <span class="uikit-row-label">${esc(it.name)}</span>
+                <span class="text-xs font-extrabold text-blue-900 shrink-0 tabular-nums">+${rp(unitProfit)}/pcs</span>
+              </div>
+              <div class="flex items-center justify-between gap-2 text-[11px] font-bold">
+                <span class="${st <= 0 ? "text-rose-700" : "text-amber-700"}">${st === 0 ? "Stok Habis" : `Sisa ${st} pcs`}</span>
+                ${isAdmin ? `<button type="button" data-quick-in="${esc(it.id)}" class="text-emerald-800 hover:underline font-extrabold">+ Restok</button>` : ""}
+              </div>
+              <div class="uikit-bar-track !h-1.5"><div class="uikit-bar-fill" style="width:${pct}%; background:${st <= 0 ? "#e11d48" : "#1d4ed8"}"></div></div>
+            </div>`;
+          }).join("");
         }
       }
     }
