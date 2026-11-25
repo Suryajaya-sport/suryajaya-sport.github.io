@@ -1840,7 +1840,7 @@
         </div>
         <div class="bg-white rounded-3xl border border-slate-200 p-5 space-y-3">
           <div class="flex items-center justify-between gap-2">
-            <h3 class="workspace-section-title">Jadwal otomatis (Senin–Sabtu, 22:00 WITA)</h3>
+            <h3 class="workspace-section-title">Jadwal otomatis (Senin–Sabtu, 20:30 WITA)</h3>
             <label class="inline-flex items-center gap-2 text-sm font-bold text-slate-700 cursor-pointer">
               <input type="checkbox" id="autoBackupEnabled" class="h-4 w-4">
               <span>Aktif</span>
@@ -1852,6 +1852,26 @@
             <button id="btnRunWeekdayBackupNow" type="button" class="shop-button shop-button-primary"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Cadangkan hari ini</button>
           </div>
           <p id="autoBackupStatus" class="text-xs font-semibold text-slate-600" aria-live="polite"></p>
+        </div>
+      </div>
+      <div class="bg-white rounded-3xl border border-slate-200 p-5 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 class="workspace-section-title">Pulihkan cadangan (.json)</h3>
+            <p class="text-sm text-slate-600">Pilih file <code>cadangan-sjs-*.json</code> untuk melihat pratinjau isi dan memulihkan data ke cloud (mode gabung/merge, tidak menghapus data baru secara paksa).</p>
+          </div>
+          <label class="shop-button shop-button-secondary cursor-pointer">
+            <i class="fa-solid fa-file-import" aria-hidden="true"></i> Pilih file JSON
+            <input type="file" id="restoreBackupFile" accept="application/json,.json" class="hidden">
+          </label>
+        </div>
+        <div id="restoreBackupPreview" class="hidden rounded-2xl border border-blue-200 bg-blue-50/60 p-4 space-y-3">
+          <p id="restoreBackupSummary" class="text-xs font-bold text-slate-800"></p>
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" id="btnConfirmRestoreBackup" class="shop-button shop-button-primary !min-h-10 !py-2 !px-4 !text-xs"><i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i> Pulihkan ke Cloud</button>
+            <button type="button" id="btnCancelRestoreBackup" class="shop-button shop-button-secondary !min-h-10 !py-2 !px-4 !text-xs">Batal</button>
+            <span id="restoreBackupProgress" class="text-xs font-extrabold text-blue-800" aria-live="polite"></span>
+          </div>
         </div>
       </div>
       <div class="sjs-chart-card is-dark">
@@ -7672,7 +7692,7 @@
       function checkScheduledBackup() {
         if (!isAdmin || localStorage.getItem(AUTO_BACKUP_ENABLED_KEY) !== "1") return;
         const wita = getWitaClock();
-        if (!wita.weekday || wita.hour < 22) return;
+        if (!wita.weekday || wita.hour < 20 || (wita.hour === 20 && wita.minute < 30)) return;
         const last = localStorage.getItem(AUTO_BACKUP_LAST_KEY) || "";
         if (last.startsWith(wita.date)) return;
         runWeekdayBackup(false);
@@ -7705,6 +7725,78 @@
         a.click();
         localStorage.setItem(MANUAL_BACKUP_LAST_KEY, new Date().toISOString());
         renderManualBackupReminder();
+      let pendingRestorePayload = null;
+      const restoreInput = document.getElementById("restoreBackupFile");
+      const restoreBox = document.getElementById("restoreBackupPreview");
+      const restoreSummary = document.getElementById("restoreBackupSummary");
+      const restoreProg = document.getElementById("restoreBackupProgress");
+      restoreInput?.addEventListener("change", async e => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        try {
+          const parsed = JSON.parse(await file.text());
+          const cols = ["inventory", "transactions", "purchases", "expenses", "cashClosings", "publicCatalog"];
+          const hasAny = cols.some(c => Array.isArray(parsed?.[c]) && parsed[c].length > 0);
+          if (!hasAny) throw new Error("Format file tidak dikenali sebagai cadangan Surya Jaya Sport.");
+          pendingRestorePayload = parsed;
+          const expStr = parsed.exportedAt ? new Date(parsed.exportedAt).toLocaleString("id-ID") : "-";
+          restoreSummary.textContent = `File: ${file.name} · Diekspor: ${expStr} · Stok: ${(parsed.inventory || []).length} · Transaksi: ${(parsed.transactions || []).length} · Pembelian: ${(parsed.purchases || []).length} · Pengeluaran: ${(parsed.expenses || []).length} · Tutup Kas: ${(parsed.cashClosings || []).length} · Katalog Publik: ${(parsed.publicCatalog || []).length}`;
+          restoreProg.textContent = "";
+          restoreBox.classList.remove("hidden");
+        } catch (err) {
+          pendingRestorePayload = null;
+          restoreBox.classList.add("hidden");
+          showToast("Gagal membaca file cadangan: " + (err.message || "JSON tidak valid"));
+        }
+      });
+      document.getElementById("btnCancelRestoreBackup")?.addEventListener("click", () => {
+        pendingRestorePayload = null;
+        if (restoreInput) restoreInput.value = "";
+        restoreBox?.classList.add("hidden");
+      });
+      document.getElementById("btnConfirmRestoreBackup")?.addEventListener("click", async () => {
+        if (!isAdmin || !pendingRestorePayload) return;
+        const ok1 = await sjsConfirm("Pulihkan data dari file cadangan JSON ini ke database cloud?", "Konfirmasi Pemulihan (1/2)");
+        if (!ok1) return;
+        const ok2 = await sjsConfirm("Dokumen dengan ID sama akan diperbarui dari file cadangan. Lanjutkan pemulihan sekarang?", "Konfirmasi Akhir (2/2)");
+        if (!ok2) return;
+        const btn = document.getElementById("btnConfirmRestoreBackup");
+        btn.disabled = true;
+        try {
+          const ops = [];
+          for (const colName of ["inventory", "transactions", "purchases", "expenses", "cashClosings"]) {
+            for (const row of (pendingRestorePayload[colName] || [])) {
+              if (!row || !row.id) continue;
+              const { id, ...data } = row;
+              ops.push({ ref: doc(db, ...paths(colName, String(id))), data });
+            }
+          }
+          for (const row of (pendingRestorePayload.publicCatalog || [])) {
+            if (!row || !row.id) continue;
+            const { id, ...data } = row;
+            ops.push({ ref: doc(db, "publicCatalog", String(id)), data });
+          }
+          const chunkSize = 400;
+          for (let i = 0; i < ops.length; i += chunkSize) {
+            restoreProg.textContent = `Memulihkan ${Math.min(i + chunkSize, ops.length)}/${ops.length} data...`;
+            const batch = fsM.writeBatch(db);
+            for (const op of ops.slice(i, i + chunkSize)) {
+              batch.set(op.ref, op.data, { merge: true });
+            }
+            await batch.commit();
+          }
+          restoreProg.textContent = `Selesai! ${ops.length} data berhasil dipulihkan.`;
+          showToast(`${ops.length} data cadangan berhasil dipulihkan ke cloud.`);
+          pendingRestorePayload = null;
+          if (restoreInput) restoreInput.value = "";
+        } catch (err) {
+          console.error(err);
+          restoreProg.textContent = "Gagal: " + (err.message || "kesalahan tidak diketahui");
+          showToast("Gagal memulihkan cadangan.");
+        } finally {
+          btn.disabled = false;
+        }
+      });
         showToast("Cadangan data JSON berhasil diunduh.");
       });
       renderManualBackupReminder();
