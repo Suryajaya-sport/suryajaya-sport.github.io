@@ -1123,6 +1123,77 @@
       padding: .1rem .45rem; border-radius: 9999px;
       background: #facc15; color: #0f172a; font-size: .68rem; font-weight: 900;
     }
+
+    /* === MENU PINTASAN PASTEL (GAYA JURNAL/KLEDO) === */
+    .sjs-pastel-menu-card {
+      background: #ffffff;
+      border: 1.5px solid #dbeafe;
+      border-radius: 1.65rem;
+      padding: 1rem 1.15rem;
+      box-shadow: 0 12px 30px -12px rgba(15, 37, 87, .10);
+    }
+    .sjs-pastel-grid {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      gap: .65rem;
+    }
+    @media (max-width: 1024px) { .sjs-pastel-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+    .sjs-pastel-btn {
+      display: flex; flex-direction: column; align-items: center; gap: .42rem;
+      padding: .5rem .25rem; border-radius: 1.1rem; cursor: pointer;
+      transition: transform .15s cubic-bezier(.34,1.56,.64,1), background .15s ease;
+    }
+    .sjs-pastel-btn:hover { background: #f8fafc; transform: translateY(-2px); }
+    .sjs-pastel-btn:active { transform: scale(.94); }
+    .sjs-pastel-tile {
+      width: 54px; height: 54px; border-radius: 1.05rem;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 1.35rem;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, .06);
+    }
+    .sjs-pastel-btn span:last-child {
+      font-size: .78rem; font-weight: 700; color: #334155; text-align: center; line-height: 1.2;
+    }
+    .tile-peach { background: #ffe4d6; color: #15803d; }
+    .tile-sky { background: #bae6fd; color: #0284c7; }
+    .tile-lime { background: #d9f99d; color: #15803d; }
+    .tile-amber { background: #fde68a; color: #dc2626; }
+    .tile-pink { background: #fda4af; color: #ffffff; }
+    .tile-lav { background: #e9d5ff; color: #7e22ce; }
+    .tile-mint { background: #a7f3d0; color: #1d4ed8; }
+    .tile-cream { background: #fef3c7; color: #ea580c; }
+
+    /* === KLEDO OVERVIEW PENJUALAN GRID (2x2 KPI + SPEEDOMETER GAUGE) === */
+    .kledo-overview-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+      gap: 1rem;
+    }
+    @media (max-width: 1024px) { .kledo-overview-grid { grid-template-columns: 1fr; } }
+    .kledo-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+    @media (max-width: 600px) { .kledo-kpi-grid { grid-template-columns: 1fr; } }
+    .kledo-card {
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 1.35rem;
+      padding: 1.1rem 1.25rem;
+      box-shadow: 0 8px 24px -10px rgba(15, 37, 87, .08);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: .65rem;
+    }
+    .kledo-card-title {
+      font-size: .74rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: #64748b;
+    }
+    .kledo-card-val {
+      font-size: 1.48rem; font-weight: 900; color: #0f172a; font-variant-numeric: tabular-nums; line-height: 1.15;
+    }
+    .kledo-card-sub { font-size: .78rem; font-weight: 600; color: #64748b; }
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -1180,6 +1251,43 @@
       <button type="button" id="tabBtnBackup" data-workspace="backup" aria-controls="viewBackup"><i class="fa-solid fa-database" aria-hidden="true"></i><span>Cadangan data</span></button>
       <button type="button" id="tabBtnCatalog" data-workspace="catalog" aria-controls="viewCatalog" aria-current="page"><i class="fa-solid fa-store" aria-hidden="true"></i><span>Mode Pelanggan</span></button>
     </nav>
+
+    <section id="adminPastelMenu" hidden class="sjs-pastel-menu-card no-print" aria-label="Menu cepat admin">
+      <div class="sjs-pastel-grid">
+        <button type="button" class="sjs-pastel-btn" data-quick-jump="kasir">
+          <span class="sjs-pastel-tile tile-peach"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></span>
+          <span>Kasir</span>
+        </button>
+        <button type="button" class="sjs-pastel-btn" data-quick-jump="sales">
+          <span class="sjs-pastel-tile tile-pink"><i class="fa-solid fa-chart-line" aria-hidden="true"></i></span>
+          <span>Penjualan</span>
+        </button>
+        <button type="button" class="sjs-pastel-btn" data-quick-jump="restock">
+          <span class="sjs-pastel-tile tile-sky"><i class="fa-solid fa-cart-plus" aria-hidden="true"></i></span>
+          <span>Pembelian</span>
+        </button>
+        <button type="button" class="sjs-pastel-btn" data-quick-jump="expenses">
+          <span class="sjs-pastel-tile tile-lime"><i class="fa-solid fa-wallet" aria-hidden="true"></i></span>
+          <span>Biaya</span>
+        </button>
+        <button type="button" class="sjs-pastel-btn" data-quick-jump="inventory">
+          <span class="sjs-pastel-tile tile-amber"><i class="fa-solid fa-box-open" aria-hidden="true"></i></span>
+          <span>Produk &amp; QR</span>
+        </button>
+        <button type="button" class="sjs-pastel-btn" data-quick-jump="books">
+          <span class="sjs-pastel-tile tile-lav"><i class="fa-solid fa-sack-dollar" aria-hidden="true"></i></span>
+          <span>Laporan</span>
+        </button>
+        <button type="button" class="sjs-pastel-btn" data-quick-jump="closing">
+          <span class="sjs-pastel-tile tile-mint"><i class="fa-solid fa-building-columns" aria-hidden="true"></i></span>
+          <span>Tutup Kas</span>
+        </button>
+        <button type="button" class="sjs-pastel-btn" data-quick-jump="backup">
+          <span class="sjs-pastel-tile tile-cream"><i class="fa-solid fa-database" aria-hidden="true"></i></span>
+          <span>Cadangan</span>
+        </button>
+      </div>
+    </section>
 
     <!-- KATALOG PUBLIK -->
     <section id="viewCatalog" class="flex flex-col gap-7">
@@ -1777,26 +1885,68 @@
           </div>
         </section>
 
-        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5" aria-label="Ringkasan penjualan">
-          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-            <span class="text-xs font-extrabold uppercase tracking-wide text-blue-900">Total Omzet</span>
-            <p id="totalOmset" class="text-2xl font-extrabold mt-1.5 text-slate-900 tabular-nums">Rp 0</p>
-            <p class="text-xs font-bold text-slate-500 mt-1"><span id="totalTransaksi">0 Transaksi</span> · rata-rata <span id="avgTransaksi" class="tabular-nums">Rp 0</span></p>
+        <section class="kledo-overview-grid" aria-label="Overview Penjualan">
+          <div class="kledo-kpi-grid">
+            <div class="kledo-card">
+              <div class="flex items-center justify-between"><span class="kledo-card-title">Penjualan</span><span class="text-slate-400 text-xs font-bold">Omzet</span></div>
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <p id="totalOmset" class="kledo-card-val tabular-nums">Rp 0</p>
+                  <p class="kledo-card-sub mt-1"><span id="totalTransaksi">0 Transaksi</span> · rata-rata <span id="avgTransaksi" class="tabular-nums">Rp 0</span></p>
+                </div>
+                <div class="text-right shrink-0">
+                  <i class="fa-solid fa-arrow-trend-up text-emerald-600 text-3xl" aria-hidden="true"></i>
+                  <span class="block text-xs font-extrabold text-emerald-600 mt-0.5">Aktif</span>
+                </div>
+              </div>
+            </div>
+            <div class="kledo-card">
+              <div class="flex items-center justify-between"><span class="kledo-card-title">Laba Kotor</span><span class="text-slate-400 text-xs font-bold">Margin</span></div>
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <p id="totalUntung" class="kledo-card-val text-blue-900 tabular-nums">Rp 0</p>
+                  <p class="kledo-card-sub mt-1">Margin bersih: <strong id="grossMarginPct" class="text-emerald-700">0%</strong></p>
+                </div>
+                <div class="text-right shrink-0">
+                  <i class="fa-solid fa-arrow-trend-up text-emerald-600 text-3xl" aria-hidden="true"></i>
+                  <span id="kledoMarginBadge" class="block text-xs font-extrabold text-emerald-600 mt-0.5">0%</span>
+                </div>
+              </div>
+            </div>
+            <div class="kledo-card">
+              <div class="flex items-center justify-between"><span class="kledo-card-title">Harga Pokok (HPP)</span><span class="text-slate-400 text-xs font-bold">Modal</span></div>
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <p id="totalModal" class="kledo-card-val tabular-nums">Rp 0</p>
+                  <p class="kledo-card-sub mt-1">Modal barang terjual</p>
+                </div>
+                <div class="text-right shrink-0">
+                  <i class="fa-solid fa-chart-pie text-amber-500 text-3xl" aria-hidden="true"></i>
+                  <span id="kledoCostPctBadge" class="block text-xs font-extrabold text-slate-600 mt-0.5">0%</span>
+                </div>
+              </div>
+            </div>
+            <div id="cardProductBreakdown" class="kledo-card cursor-pointer hover:border-blue-400 transition-colors">
+              <div class="flex items-center justify-between"><span class="kledo-card-title">Barang Terjual</span><span class="text-blue-700 text-xs font-extrabold underline">Rincian</span></div>
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <p id="totalTerjual" class="kledo-card-val text-indigo-950">0 Pcs</p>
+                  <p class="kledo-card-sub mt-1">Klik untuk daftar per produk</p>
+                </div>
+                <div class="text-right shrink-0">
+                  <i class="fa-solid fa-box-open text-blue-600 text-3xl" aria-hidden="true"></i>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm">
-            <span class="text-xs font-extrabold uppercase tracking-wide text-amber-900">Harga Pokok (HPP)</span>
-            <p id="totalModal" class="text-2xl font-extrabold mt-1.5 text-slate-900 tabular-nums">Rp 0</p>
-            <p class="text-xs font-semibold text-slate-500 mt-1">Modal barang terjual</p>
-          </div>
-          <div class="bg-gradient-to-br from-emerald-600 to-teal-700 p-4 rounded-2xl text-white shadow-sm">
-            <span class="text-xs font-extrabold uppercase tracking-wide text-emerald-100">Laba Kotor</span>
-            <p id="totalUntung" class="text-2xl font-extrabold mt-1.5 tabular-nums">Rp 0</p>
-            <p class="text-xs font-bold text-emerald-100 mt-1">Margin: <span id="grossMarginPct">0%</span></p>
-          </div>
-          <div id="cardProductBreakdown" class="bg-indigo-50 hover:bg-indigo-100/80 p-4 rounded-2xl border border-indigo-200 cursor-pointer shadow-sm transition-colors">
-            <span class="text-xs font-extrabold uppercase tracking-wide text-indigo-950">Barang Terjual</span>
-            <p id="totalTerjual" class="text-2xl font-extrabold mt-1.5 text-indigo-950">0 Pcs</p>
-            <p class="text-xs text-indigo-800 font-extrabold underline mt-1">Klik lihat rincian barang</p>
+
+          <div class="kledo-card items-center text-center justify-between">
+            <div class="w-full flex items-center justify-between">
+              <span class="kledo-card-title">Rasio Laba Penjualan</span>
+              <span class="text-xs font-extrabold text-blue-800 bg-blue-50 px-2 py-0.5 rounded-full">Speedometer</span>
+            </div>
+            <div id="kledoSpeedometerWrap" class="w-full flex flex-col items-center justify-center py-1"></div>
+            <p id="kledoSpeedometerNote" class="kledo-card-sub">Perbandingan laba terhadap omzet</p>
           </div>
         </section>
 
@@ -4496,6 +4646,33 @@
       return `${svg}<div class="w-full">${rows}</div>`;
     }
 
+    function buildKledoSpeedometerSvg(pct) {
+      const p = Math.max(0, Math.min(100, Number(pct) || 0));
+      const cx = 130, cy = 115, r = 84;
+      const segs = [
+        { a0: 180, a1: 216, c: "#e2e8f0" },
+        { a0: 218, a1: 252, c: "#93c5fd" },
+        { a0: 254, a1: 288, c: "#3b82f6" },
+        { a0: 290, a1: 324, c: "#facc15" },
+        { a0: 326, a1: 360, c: "#16a34a" }
+      ];
+      const arcPath = (a0, a1) => {
+        const rad = a => (a * Math.PI) / 180;
+        const x1 = cx + r * Math.cos(rad(a0)), y1 = cy + r * Math.sin(rad(a0));
+        const x2 = cx + r * Math.cos(rad(a1)), y2 = cy + r * Math.sin(rad(a1));
+        return `M ${x1.toFixed(1)} ${y1.toFixed(1)} A ${r} ${r} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)}`;
+      };
+      const needleAng = (180 + (p / 100) * 180) * Math.PI / 180;
+      const nx = cx + (r - 12) * Math.cos(needleAng);
+      const ny = cy + (r - 12) * Math.sin(needleAng);
+      return `<svg viewBox="0 0 260 142" class="w-full max-w-[260px]">
+        ${segs.map(s => `<path d="${arcPath(s.a0, s.a1)}" fill="none" stroke="${s.c}" stroke-width="24"/>`).join("")}
+        <line x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="#0f2557" stroke-width="5" stroke-linecap="round"/>
+        <circle cx="${cx}" cy="${cy}" r="8" fill="#0f2557"/>
+        <text x="${cx}" y="${cy + 22}" text-anchor="middle" fill="#0f2557" font-size="16" font-weight="900">${p}% Laba</text>
+      </svg>`;
+    }
+
     function buildSemiGaugeSvg(primaryPct, secondaryPct, primaryLabel, secondaryLabel) {
       const cx = 160, cy = 132, r = 98;
       const arcLen = Math.PI * r;
@@ -4632,6 +4809,14 @@
       }
       const totalModalRows = Math.max(0, totalOmzetRows - totalLabaRows);
       const sProfPct = totalOmzetRows > 0 ? Math.round((totalLabaRows / totalOmzetRows) * 100) : 0;
+      const kMb = document.getElementById("kledoMarginBadge");
+      const kCb = document.getElementById("kledoCostPctBadge");
+      const kSp = document.getElementById("kledoSpeedometerWrap");
+      const kSn = document.getElementById("kledoSpeedometerNote");
+      if (kMb) kMb.textContent = sProfPct + "%";
+      if (kCb) kCb.textContent = (totalOmzetRows > 0 ? Math.max(0, 100 - sProfPct) : 0) + "%";
+      if (kSp) kSp.innerHTML = buildKledoSpeedometerSvg(sProfPct);
+      if (kSn) kSn.textContent = totalOmzetRows > 0 ? `Laba ${rp(totalLabaRows)} dari ${rp(totalOmzetRows)}` : "Belum ada transaksi";
       const sCostPct = totalOmzetRows > 0 ? Math.max(0, 100 - sProfPct) : 0;
       if (badgeEl) badgeEl.textContent = rp(totalOmzetRows);
 
@@ -5623,6 +5808,7 @@
       document.getElementById("adminModeText").textContent = isAdmin ? "Admin Aktif" : "Login Pemilik";
       document.getElementById("adminModeIcon").className = isAdmin ? "fa-solid fa-unlock-keyhole" : "fa-solid fa-lock";
       document.getElementById("mainNavigation").hidden = !isAdmin;
+      const qm = document.getElementById("adminPastelMenu"); if (qm) qm.hidden = !isAdmin;
       document.getElementById("syncStatusBadge").classList.toggle("hidden", !isAdmin);
       document.getElementById("btnToggleTabletMode")?.classList.toggle("hidden", !isAdmin);
       document.getElementById("currentDateBadge").classList.toggle("hidden", !isAdmin);
@@ -5891,6 +6077,24 @@
       syncStickyHeaderHeight();
       window.addEventListener("resize", syncStickyHeaderHeight);
 
+      for (const qb of document.querySelectorAll("[data-quick-jump]")) {
+        qb.addEventListener("click", () => {
+          const dest = qb.dataset.quickJump;
+          if (dest === "restock") {
+            switchWorkspace("inventory");
+            requestAnimationFrame(() => openRestockFor());
+            return;
+          }
+          if (dest === "expenses" || dest === "closing") {
+            switchWorkspace("books");
+            const sec = dest === "expenses" ? "booksExpenses" : "booksClosing";
+            requestAnimationFrame(() => document.querySelector(`[data-books-section="${sec}"]`)?.click());
+            return;
+          }
+          switchWorkspace(dest);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+      }
       for (const b of document.querySelectorAll("[data-workspace]")) {
         b.addEventListener("click", () => {
           switchWorkspace(b.dataset.workspace);
