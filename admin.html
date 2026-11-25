@@ -1134,7 +1134,7 @@
     }
     .sjs-pastel-grid {
       display: grid;
-      grid-template-columns: repeat(8, minmax(0, 1fr));
+      grid-template-columns: repeat(9, minmax(0, 1fr));
       gap: .65rem;
     }
     @media (max-width: 1024px) { .sjs-pastel-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
@@ -1248,6 +1248,7 @@
       <button type="button" id="tabBtnSales" data-workspace="sales" aria-controls="salesHistoryWorkspace"><i class="fa-solid fa-chart-column" aria-hidden="true"></i><span>Penjualan</span></button>
       <button type="button" id="tabBtnInventory" data-workspace="inventory" aria-controls="viewInventory"><i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i><span>Stok &amp; QR</span><span id="navStockBadge">0</span></button>
       <button type="button" id="tabBtnBooks" data-workspace="books" aria-controls="viewBooks"><i class="fa-solid fa-book" aria-hidden="true"></i><span>Pembukuan</span></button>
+      <button type="button" id="tabBtnAllReports" data-workspace="reports" aria-controls="viewAllReports"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i><span>Semua Laporan</span></button>
       <button type="button" id="tabBtnBackup" data-workspace="backup" aria-controls="viewBackup"><i class="fa-solid fa-database" aria-hidden="true"></i><span>Cadangan data</span></button>
       <button type="button" id="tabBtnCatalog" data-workspace="catalog" aria-controls="viewCatalog" aria-current="page"><i class="fa-solid fa-store" aria-hidden="true"></i><span>Mode Pelanggan</span></button>
     </nav>
@@ -1282,10 +1283,139 @@
           <span class="sjs-pastel-tile tile-mint"><i class="fa-solid fa-building-columns" aria-hidden="true"></i></span>
           <span>Tutup Kas</span>
         </button>
+        <button type="button" class="sjs-pastel-btn" data-quick-jump="reports">
+          <span class="sjs-pastel-tile tile-sky"><i class="fa-solid fa-chart-simple" aria-hidden="true"></i></span>
+          <span>Semua Laporan</span>
+        </button>
         <button type="button" class="sjs-pastel-btn" data-quick-jump="backup">
           <span class="sjs-pastel-tile tile-cream"><i class="fa-solid fa-database" aria-hidden="true"></i></span>
           <span>Cadangan</span>
         </button>
+      </div>
+    </section>
+
+    <!-- SEMUA LAPORAN (PUSAT GRAFIK BENTO) -->
+    <section id="viewAllReports" class="hidden no-print flex flex-col gap-5" aria-labelledby="allReportsTitle">
+      <header class="workspace-heading">
+        <div>
+          <h2 id="allReportsTitle" tabindex="-1">Semua Laporan</h2>
+          <span class="text-xs font-bold text-slate-500">Pusat seluruh grafik penjualan, laba rugi, pembayaran, dan kesehatan stok</span>
+        </div>
+        <div class="flex flex-wrap items-center gap-2.5">
+          <label class="text-xs font-extrabold text-slate-700 flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2">
+            <span>Bulan</span>
+            <input type="month" id="allReportsMonth" class="font-extrabold text-blue-900 bg-transparent outline-none">
+          </label>
+          <button type="button" id="btnAllReportsPrint" class="shop-button shop-button-primary"><i class="fa-solid fa-print" aria-hidden="true"></i> Cetak Laporan 1 Hal A4</button>
+        </div>
+      </header>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="sjs-chart-card lg:col-span-2">
+          <div class="sjs-chart-head">
+            <div class="sjs-chart-title-wrap">
+              <span class="sjs-chart-badge-icon is-blue"><i class="fa-solid fa-gauge-high" aria-hidden="true"></i></span>
+              <div>
+                <h3 class="workspace-section-title">Rasio Laba &amp; Arus Kas Bulanan</h3>
+                <p class="sjs-chart-sub">Persentase laba penjualan vs modal, belanja stok &amp; pengeluaran</p>
+              </div>
+            </div>
+            <span id="repBadgeGauge" class="sjs-chart-pill">Bulan ini</span>
+          </div>
+          <div id="repGaugeWrap" class="w-full space-y-4"></div>
+        </div>
+
+        <div class="flex flex-col gap-4">
+          <div id="repPastelOmzetCard" class="bento-pastel-card"></div>
+          <div class="kledo-card items-center text-center justify-between flex-1">
+            <div class="w-full flex items-center justify-between">
+              <span class="kledo-card-title">Speedometer Laba</span>
+              <span id="repSpeedoPctPill" class="text-xs font-extrabold text-blue-800 bg-blue-50 px-2 py-0.5 rounded-full">0%</span>
+            </div>
+            <div id="repSpeedoWrap" class="w-full flex flex-col items-center justify-center py-1"></div>
+          </div>
+        </div>
+
+        <div class="sjs-chart-card lg:col-span-2">
+          <div class="sjs-chart-head">
+            <div class="sjs-chart-title-wrap">
+              <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-arrow-trend-up" aria-hidden="true"></i></span>
+              <div>
+                <h3 class="workspace-section-title">Tren Laba Penjualan (6 Bulan Terakhir)</h3>
+                <p class="sjs-chart-sub">Laba bersih penjualan barang (Omzet − Modal Terjual)</p>
+              </div>
+            </div>
+            <span id="repBadgeTrend" class="sjs-chart-pill">Rp 0</span>
+          </div>
+          <div id="repProfitTrendWrap" class="w-full min-h-[220px] flex items-center justify-center"></div>
+        </div>
+
+        <div class="sjs-chart-card">
+          <div class="sjs-chart-head">
+            <div class="sjs-chart-title-wrap">
+              <span class="sjs-chart-badge-icon is-navy"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i></span>
+              <div>
+                <h3 class="workspace-section-title">Komposisi Pembayaran</h3>
+                <p class="sjs-chart-sub">Tunai, QRIS, Kartu &amp; Transfer</p>
+              </div>
+            </div>
+          </div>
+          <div id="repPayDonutWrap" class="w-full flex flex-col gap-2"></div>
+        </div>
+
+        <div class="sjs-chart-card lg:col-span-3">
+          <div class="sjs-chart-head">
+            <div class="sjs-chart-title-wrap">
+              <span class="sjs-chart-badge-icon is-blue"><i class="fa-solid fa-chart-column" aria-hidden="true"></i></span>
+              <div>
+                <h3 class="workspace-section-title">Omzet &amp; Laba Harian</h3>
+                <p class="sjs-chart-sub">Biru = Omzet harian · Kuning = Laba penjualan</p>
+              </div>
+            </div>
+            <span id="repBadgeDaily" class="sjs-chart-pill">Bulan ini</span>
+          </div>
+          <div id="repDailyBarsWrap" class="w-full min-h-[210px] overflow-x-auto"></div>
+        </div>
+
+        <div class="sjs-chart-card lg:col-span-2">
+          <div class="sjs-chart-head">
+            <div class="sjs-chart-title-wrap">
+              <span class="sjs-chart-badge-icon is-blue"><i class="fa-solid fa-layer-group" aria-hidden="true"></i></span>
+              <div>
+                <h3 class="workspace-section-title">Potensi Jual &amp; Kesehatan Stok Kategori</h3>
+                <p class="sjs-chart-sub">Nilai jual stok aktif tiap kategori</p>
+              </div>
+            </div>
+            <span id="repBadgeStock" class="sjs-chart-pill">Rp 0</span>
+          </div>
+          <div id="repStockCatWrap" class="w-full space-y-4"></div>
+        </div>
+
+        <div class="sjs-chart-card">
+          <div class="sjs-chart-head">
+            <div class="sjs-chart-title-wrap">
+              <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-heart-pulse" aria-hidden="true"></i></span>
+              <div>
+                <h3 class="workspace-section-title">Kesehatan Stok</h3>
+                <p class="sjs-chart-sub">Aman vs Menipis vs Habis</p>
+              </div>
+            </div>
+          </div>
+          <div id="repStockDonutWrap" class="w-full flex flex-col gap-2"></div>
+        </div>
+
+        <div class="sjs-chart-card lg:col-span-3">
+          <div class="sjs-chart-head">
+            <div class="sjs-chart-title-wrap">
+              <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-fire" aria-hidden="true"></i></span>
+              <div>
+                <h3 class="workspace-section-title">Top 6 Barang Terlaris Bulan Ini</h3>
+                <p class="sjs-chart-sub">Produk paling laku berdasarkan total omzet</p>
+              </div>
+            </div>
+          </div>
+          <div id="repTopProductsWrap" class="w-full space-y-2.5"></div>
+        </div>
       </div>
     </section>
 
@@ -1895,8 +2025,9 @@
                   <p class="kledo-card-sub mt-1"><span id="totalTransaksi">0 Transaksi</span> · rata-rata <span id="avgTransaksi" class="tabular-nums">Rp 0</span></p>
                 </div>
                 <div class="text-right shrink-0">
-                  <i class="fa-solid fa-arrow-trend-up text-emerald-600 text-3xl" aria-hidden="true"></i>
-                  <span class="block text-xs font-extrabold text-emerald-600 mt-0.5">Aktif</span>
+                  <i id="kledoSalesTrendIcon" class="fa-solid fa-arrow-trend-up text-emerald-600 text-3xl" aria-hidden="true"></i>
+                  <span id="kledoSalesTrendPct" class="block text-xs font-extrabold text-emerald-600 mt-0.5">0%</span>
+                  <span id="kledoSalesTrendVs" class="block text-[10px] font-bold text-slate-500">vs kemarin</span>
                 </div>
               </div>
             </div>
@@ -1908,8 +2039,9 @@
                   <p class="kledo-card-sub mt-1">Margin bersih: <strong id="grossMarginPct" class="text-emerald-700">0%</strong></p>
                 </div>
                 <div class="text-right shrink-0">
-                  <i class="fa-solid fa-arrow-trend-up text-emerald-600 text-3xl" aria-hidden="true"></i>
+                  <i id="kledoLabaTrendIcon" class="fa-solid fa-arrow-trend-up text-emerald-600 text-3xl" aria-hidden="true"></i>
                   <span id="kledoMarginBadge" class="block text-xs font-extrabold text-emerald-600 mt-0.5">0%</span>
+                  <span id="kledoLabaTrendVs" class="block text-[10px] font-bold text-slate-500">vs kemarin</span>
                 </div>
               </div>
             </div>
@@ -4012,31 +4144,38 @@
     };
 
     // ==================== RENDER: KATALOG PUBLIK ====================
-    function matchesCatalogCategory(item, category) {
-      if (category === "all") return true;
-      const name = item.name || "";
-      const badminton = /\b(badminton|raket|shuttlecock|kok|yonex|lining|li-ning|victor)\b/i.test(name);
-      const music = /\b(gitar|ukulele|bass|capo|plektrum|musik)\b/i.test(name) || (!badminton && /\bsenar\b/i.test(name));
-      if (category === "music") return music;
-      if (category === "sport") return !music;
-      if (category === "badminton") return !music && badminton;
-      if (category === "ball") return !music && /\b(futsal|bola|sepak|basket|voli|volley|football|soccer)\b/i.test(name);
-      if (category === "chess") return /\b(catur|chess)\b/i.test(name);
-      return false;
-    }
+    const MUSIC_RE = /\b(gitar|guitar|ukulele|bass|capo|plektrum|musik|akustik|acoustic|klasik|classic|elektrik|electric|biola|violin|drum|stik\s*drum|cajon|jimbe|harmonika|tama|sonor|zildjian|yamaha\s*f|pyramid|d'?addario|orphee|ernie\s*ball|elixir|fender|nilon|nylon|kawat)\b/i;
+    const BADMINTON_BRAND_RE = /\b(badminton|bulutangkis|raket|shuttlecock|kok|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|power\s*max|tectonic|bg\s*\d+|nbg\s*\d+|exbolt|nanogy|aerobite|aerosonic|ultimax|vbs\s*\d+)\b/i;
+    const NOT_STRING_ITEM_RE = /\b(raket|racket|sepatu|baju|jersey|celana|tas|grip|kok|shuttlecock|kaos|net|celana|piala|taping)\b/i;
 
-    const SENAR_SERVICE_NOTE = "Harga tercantum sudah termasuk jasa pasang senar.";
-    function isSenarItem(item) {
+    function isSenarBadminton(item) {
       const name = String(item?.name || "");
       const txt = [item?.name, item?.category, item?.description].filter(Boolean).join(" ");
-      if (/\b(gitar|guitar|ukulele|bass|akustik|acoustic|klasik|classic|elektrik|electric|biola|violin|musik|pyramid|d'?addario|orphee|ernie\s*ball|elixir|fender)\b/i.test(txt)) {
-        return false;
-      }
-      const hasSenarWord = /\bsenar\b/i.test(name) || /\bsenar\s+(badminton|bulutangkis|raket)\b/i.test(txt);
-      const isBadmintonCue = /\b(badminton|bulutangkis|raket|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|bg\s*\d+|nbg\s*\d+|exbolt|nanogy|aerobite|aerosonic|ultimax|vbs\s*\d+)\b/i.test(txt);
-      const isKnownBadmintonStringName = !/\b(raket|sepatu|baju|celana|tas|grip|kok|shuttlecock|kaos)\b/i.test(name) && /\b(bg\s*65|bg\s*66|bg\s*80|nbg\s*98|nbg\s*99|exbolt|aerobite|aerosonic|nanogy)\b/i.test(name);
-      return (hasSenarWord && isBadmintonCue) || isKnownBadmintonStringName;
+      if (MUSIC_RE.test(txt)) return false;
+      if (NOT_STRING_ITEM_RE.test(name)) return false;
+      const hasSenarWord = /\bsenar\b/i.test(name);
+      const isBadmintonCue = BADMINTON_BRAND_RE.test(txt);
+      const isModelOnly = /\b(bg\s*\d+|nbg\s*\d+|exbolt|nanogy|aerobite|aerosonic|ultimax|tectonic\s*65|vbs\s*\d+)\b/i.test(name);
+      return (hasSenarWord && isBadmintonCue) || isModelOnly;
     }
+
+    function matchesCatalogCategory(item, category) {
+      if (category === "all") return true;
+      const name = String(item?.name || "");
+      const isPingpong = /\b(pingpong|tenis\s*meja)\b/i.test(name);
+      const badminton = !isPingpong && !MUSIC_RE.test(name) && (isSenarBadminton(item) || /\b(badminton|bulutangkis|raket|shuttlecock|kok|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|power\s*max|tectonic|bg\s*\d+|nbg\s*\d+|exbolt|nanogy)\b/i.test(name));
+      const music = MUSIC_RE.test(name) || (!badminton && /\bsenar\b/i.test(name));
+      const ball = !music && /\b(futsal|bola|sepak|basket|voli|volley|football|soccer)\b/i.test(name);
+      const chess = /\b(catur|chess)\b/i.test(name);
+      if (category === "music") return music;
+      if (category === "badminton") return badminton;
+      if (category === "ball") return ball;
+      if (category === "chess") return chess;
+      if (category === "sport") return !music && !badminton && !ball && !chess;
+      return false;
+    }
+    const SENAR_SERVICE_NOTE = "Harga tercantum sudah termasuk jasa pasang senar.";
+    const isSenarItem = isSenarBadminton;
     function getProductDisplayDescription(item) {
       const base = String(item?.description || "").trim();
       if (!isSenarItem(item)) return base;
@@ -4813,7 +4952,50 @@
       const kCb = document.getElementById("kledoCostPctBadge");
       const kSp = document.getElementById("kledoSpeedometerWrap");
       const kSn = document.getElementById("kledoSpeedometerNote");
-      if (kMb) kMb.textContent = sProfPct + "%";
+      // Hitung perbandingan nyata: vs kemarin (mode harian) atau bulan ini vs bulan lalu (mode semua hari)
+      let prevOmzet = 0, prevLaba = 0, vsLabel = "vs kemarin";
+      if (currentViewMode === "day" && selectedDateStr) {
+        const prevDt = parseLocalDate(selectedDateStr);
+        prevDt.setDate(prevDt.getDate() - 1);
+        const prevStr = prevDt.getFullYear() + "-" + String(prevDt.getMonth() + 1).padStart(2, "0") + "-" + String(prevDt.getDate()).padStart(2, "0");
+        const prevRows = transactions.filter(t => t.date === prevStr);
+        prevOmzet = prevRows.reduce((s, t) => s + Number(t.totalOmset || 0), 0);
+        prevLaba = prevRows.reduce((s, t) => s + Number(t.totalProfit || 0), 0);
+        vsLabel = `vs ${prevStr.slice(5)} (${shortRpTick(prevOmzet)})`;
+      } else {
+        const curM = todayStr().slice(0, 7);
+        const dtM = new Date(Number(curM.slice(0, 4)), Number(curM.slice(5, 7)) - 2, 1);
+        const prevM = dtM.getFullYear() + "-" + String(dtM.getMonth() + 1).padStart(2, "0");
+        const curRows = transactions.filter(t => String(t.date || "").startsWith(curM + "-"));
+        const prevRows = transactions.filter(t => String(t.date || "").startsWith(prevM + "-"));
+        const curMOmzet = curRows.reduce((s, t) => s + Number(t.totalOmset || 0), 0);
+        const curMLaba = curRows.reduce((s, t) => s + Number(t.totalProfit || 0), 0);
+        prevOmzet = prevRows.reduce((s, t) => s + Number(t.totalOmset || 0), 0);
+        prevLaba = prevRows.reduce((s, t) => s + Number(t.totalProfit || 0), 0);
+        vsLabel = `bln ini vs ${prevM.slice(5)}`;
+        totalOmzetRows = currentViewMode === "all" ? totalOmzetRows : curMOmzet;
+      }
+      const applyTrend = (iconId, pctId, vsId, curVal, prevVal, vsText) => {
+        const ic = document.getElementById(iconId);
+        const pc = document.getElementById(pctId);
+        const vs = document.getElementById(vsId);
+        if (vs) vs.textContent = vsText;
+        if (prevVal <= 0) {
+          if (ic) ic.className = curVal > 0 ? "fa-solid fa-arrow-trend-up text-emerald-600 text-3xl" : "fa-solid fa-minus text-slate-400 text-2xl";
+          if (pc) { pc.textContent = curVal > 0 ? "Baru" : "0%"; pc.className = "block text-xs font-extrabold mt-0.5 " + (curVal > 0 ? "text-emerald-600" : "text-slate-500"); }
+          return;
+        }
+        const diffPct = Math.round(((curVal - prevVal) / prevVal) * 100);
+        const up = diffPct >= 0;
+        if (ic) ic.className = up ? "fa-solid fa-arrow-trend-up text-emerald-600 text-3xl" : "fa-solid fa-arrow-trend-down text-rose-600 text-3xl";
+        if (pc) {
+          pc.textContent = (up ? "+" : "") + diffPct + "%";
+          pc.className = "block text-xs font-extrabold mt-0.5 " + (up ? "text-emerald-600" : "text-rose-600");
+        }
+      };
+      applyTrend("kledoSalesTrendIcon", "kledoSalesTrendPct", "kledoSalesTrendVs", totalOmzetRows, prevOmzet, vsLabel);
+      const labaVs = currentViewMode === "day" ? `vs kemarin (${shortRpTick(prevLaba)})` : vsLabel;
+      applyTrend("kledoLabaTrendIcon", "kledoMarginBadge", "kledoLabaTrendVs", totalLabaRows, prevLaba, labaVs);
       if (kCb) kCb.textContent = (totalOmzetRows > 0 ? Math.max(0, 100 - sProfPct) : 0) + "%";
       if (kSp) kSp.innerHTML = buildKledoSpeedometerSvg(sProfPct);
       if (kSn) kSn.textContent = totalOmzetRows > 0 ? `Laba ${rp(totalLabaRows)} dari ${rp(totalOmzetRows)}` : "Belum ada transaksi";
@@ -5143,6 +5325,158 @@
       if (dailyWrap) dailyWrap.innerHTML = buildSvgBarPairChart(dailyItems, false);
     }
 
+    function renderAllReportsView() {
+      if (!isAdmin) return;
+      const mInput = document.getElementById("allReportsMonth");
+      if (mInput && !mInput.value) {
+        mInput.value = document.getElementById("bookMonth")?.value || todayStr().slice(0, 7);
+      }
+      const month = mInput?.value || todayStr().slice(0, 7);
+      const yearNum = Number(month.slice(0, 4));
+      const monthNum = Number(month.slice(5, 7));
+
+      const monthSales = transactions.filter(t => String(t.date || "").startsWith(month + "-"));
+      const { revenue, cost, spending } = monthlyTotals(month);
+      const gross = Math.max(0, revenue - cost);
+      const beliBulanIni = purchases.filter(p => String(p.date || "").startsWith(month + "-")).reduce((s, p) => s + Number(p.totalCost || 0), 0);
+      const labaPct = revenue > 0 ? Math.round((gross / revenue) * 100) : 0;
+      const modalPct = revenue > 0 ? Math.max(0, 100 - labaPct) : 0;
+
+      const bgG = document.getElementById("repBadgeGauge");
+      if (bgG) bgG.textContent = month;
+      const gw = document.getElementById("repGaugeWrap");
+      if (gw) {
+        const maxBar = Math.max(1, revenue, cost, gross, spending, beliBulanIni);
+        const rows = [
+          { label: "Omzet Penjualan", val: revenue, color: "#0f2557" },
+          { label: "Laba Penjualan", val: gross, color: "#1d4ed8" },
+          { label: "Modal Terjual", val: cost, color: "#64748b" },
+          { label: "Belanja Stok", val: beliBulanIni, color: "#eab308" },
+          { label: "Pengeluaran Toko", val: spending, color: "#e11d48" }
+        ];
+        gw.innerHTML = buildSemiGaugeSvg(labaPct, modalPct, "Laba Penjualan", "Modal Barang") +
+          `<div class="space-y-2">` + rows.map(r => {
+            const w = Math.max(r.val > 0 ? 22 : 18, Math.round((r.val / maxBar) * 76));
+            return `<div class="bento-pill-track"><div class="bento-pill-fill" style="width:${w}%; background:${r.color}">${esc(r.label)}</div><span class="text-xs font-extrabold text-slate-900 shrink-0 tabular-nums">${rp(r.val)}</span></div>`;
+          }).join("") + `</div>`;
+      }
+
+      const pc = document.getElementById("repPastelOmzetCard");
+      if (pc) {
+        pc.innerHTML = `
+          <div class="flex items-start justify-between gap-2">
+            <div><span class="text-xs font-extrabold uppercase tracking-wider text-blue-900">Omzet ${esc(month)}</span><p class="text-3xl font-black text-slate-950 tracking-tight mt-1 tabular-nums">${esc(shortRpTick(revenue))}</p></div>
+            <span class="w-11 h-11 rounded-full bg-white/85 border border-blue-200 flex items-center justify-center text-blue-900 text-lg shadow-sm"><i class="fa-solid fa-sack-dollar" aria-hidden="true"></i></span>
+          </div>
+          <div class="flex items-end justify-between gap-3 pt-4">
+            <div><span class="block text-xs font-extrabold text-slate-700">${monthSales.length} Transaksi</span><span class="block text-[11px] font-bold text-blue-900">Laba: ${rp(gross)}</span></div>
+            <div class="flex items-end gap-1.5 h-12" aria-hidden="true"><span class="w-3 rounded-t-md bg-blue-400/70" style="height:45%"></span><span class="w-3 rounded-t-md bg-blue-600/80" style="height:75%"></span><span class="w-3 rounded-t-md bg-indigo-700" style="height:100%"></span><span class="w-3 rounded-t-md bg-amber-400" style="height:62%"></span></div>
+          </div>`;
+      }
+      const spP = document.getElementById("repSpeedoPctPill");
+      if (spP) spP.textContent = labaPct + "%";
+      const spW = document.getElementById("repSpeedoWrap");
+      if (spW) spW.innerHTML = buildKledoSpeedometerSvg(labaPct);
+
+      const months = [];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(yearNum, monthNum - 1 - i, 1);
+        months.push(d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"));
+      }
+      const profitPts = months.map(m => ({
+        label: m.slice(2),
+        value: transactions.filter(t => String(t.date || "").startsWith(m + "-")).reduce((s, t) => s + Number(t.totalProfit || 0), 0)
+      }));
+      const bt = document.getElementById("repBadgeTrend");
+      if (bt) bt.textContent = rp(profitPts[profitPts.length - 1]?.value || 0);
+      const ptW = document.getElementById("repProfitTrendWrap");
+      if (ptW) ptW.innerHTML = buildSvgAreaTrend(profitPts);
+
+      const pay = { Cash: 0, QRIS: 0, Kartu: 0, Transfer: 0 };
+      for (const t of monthSales) { const m = t.paymentMethod || "Cash"; if (m in pay) pay[m] += Number(t.totalOmset || 0); }
+      const payTotal = Object.values(pay).reduce((a, b) => a + b, 0);
+      const pdW = document.getElementById("repPayDonutWrap");
+      if (pdW) {
+        pdW.innerHTML = buildSvgDonut([
+          { label: "Tunai", value: pay.Cash, color: "#1d4ed8", display: rp(pay.Cash) },
+          { label: "QRIS", value: pay.QRIS, color: "#38bdf8", display: rp(pay.QRIS) },
+          { label: "Kartu", value: pay.Kartu, color: "#facc15", display: rp(pay.Kartu) },
+          { label: "Transfer", value: pay.Transfer, color: "#0f2557", display: rp(pay.Transfer) }
+        ], "OMZET", shortRpTick(payTotal));
+      }
+
+      const daysInMonth = new Date(yearNum, monthNum, 0).getDate();
+      const dailyItems = Array.from({ length: daysInMonth }, (_, i) => {
+        const d = month + "-" + String(i + 1).padStart(2, "0");
+        const ds = transactions.filter(t => t.date === d);
+        return { label: String(i + 1).padStart(2, "0"), v1: ds.reduce((s, t) => s + Number(t.totalOmset || 0), 0), v2: ds.reduce((s, t) => s + Number(t.totalProfit || 0), 0) };
+      });
+      const bd = document.getElementById("repBadgeDaily");
+      if (bd) bd.textContent = `${month} · ${rp(dailyItems.reduce((a, b) => a + b.v1, 0))}`;
+      const dbW = document.getElementById("repDailyBarsWrap");
+      if (dbW) dbW.innerHTML = buildSvgBarPairChart(dailyItems, false);
+
+      // Stock Category & Health
+      const active = activeInventory();
+      const catsSell = { "Badminton": 0, "Futsal & Bola": 0, "Catur": 0, "Musik": 0, "Olahraga Lainnya": 0 };
+      let okC = 0, lowC = 0, outC = 0, totPot = 0;
+      for (const item of active) {
+        const st = Math.max(0, Number(item.stock || 0));
+        const vs = st * Number(item.price || 0);
+        totPot += vs;
+        if (st <= 0) outC++; else if (st < LOW_STOCK_LIMIT) lowC++; else okC++;
+        const lbl = detectProductCategoryLabel(item).label;
+        const mk = lbl === "Olahraga" ? "Olahraga Lainnya" : lbl;
+        catsSell[mk] = (catsSell[mk] || 0) + vs;
+      }
+      const bsEl = document.getElementById("repBadgeStock");
+      if (bsEl) bsEl.textContent = `Potensi ${shortRpTick(totPot)}`;
+      const okPct = active.length > 0 ? Math.round((okC / active.length) * 100) : 0;
+      const scW = document.getElementById("repStockCatWrap");
+      if (scW) {
+        const maxCat = Math.max(1, ...Object.values(catsSell));
+        const colors = ["#0f2557", "#1d4ed8", "#3b82f6", "#0ea5e9", "#eab308"];
+        scW.innerHTML = buildSemiGaugeSvg(okPct, 100 - okPct, "Stok Aman", "Perlu Restok") +
+          `<div class="space-y-2">` + Object.entries(catsSell).map(([k, v], idx) => {
+            const w = Math.max(v > 0 ? 22 : 18, Math.round((v / maxCat) * 76));
+            return `<div class="bento-pill-track"><div class="bento-pill-fill" style="width:${w}%; background:${colors[idx % colors.length]}">${esc(k)}</div><span class="text-xs font-extrabold text-slate-900 shrink-0 tabular-nums">${rp(v)}</span></div>`;
+          }).join("") + `</div>`;
+      }
+      const sdW = document.getElementById("repStockDonutWrap");
+      if (sdW) {
+        sdW.innerHTML = buildSvgDonut([
+          { label: "Stok Aman (≥5)", value: okC, color: "#1d4ed8", display: `${okC} item` },
+          { label: "Menipis (1–4)", value: lowC, color: "#facc15", display: `${lowC} item` },
+          { label: "Habis (0)", value: outC, color: "#e11d48", display: `${outC} item` }
+        ], "AMAN", `${okPct}%`);
+      }
+
+      // Top 6 products
+      const prodMap = new Map();
+      for (const tx of monthSales) {
+        for (const it of (tx.items || [])) {
+          const k = String(it.name || "Barang").trim();
+          const cur = prodMap.get(k) || { omset: 0, qty: 0 };
+          cur.omset += Number(it.price || 0) * Number(it.qty || 0);
+          cur.qty += Number(it.qty || 0);
+          prodMap.set(k, cur);
+        }
+      }
+      const top6 = [...prodMap.entries()].sort((a, b) => b[1].omset - a[1].omset).slice(0, 6);
+      const tpW = document.getElementById("repTopProductsWrap");
+      if (tpW) {
+        const maxTop = top6[0]?.[1]?.omset || 1;
+        tpW.innerHTML = top6.length
+          ? `<div class="flex flex-wrap gap-2 pb-1">` + top6.slice(0, 3).map(([n, v]) => `<span class="bento-trending-chip"><span class="truncate max-w-[160px]">${esc(n)}</span><span class="bento-trending-badge">${v.qty}x</span></span>`).join("") + `</div>` +
+            top6.map(([name, v], idx) => {
+              const w = Math.max(24, Math.round((v.omset / maxTop) * 76));
+              const fc = idx === 0 ? "#0f2557" : idx === 1 ? "#1d4ed8" : idx === 2 ? "#3b82f6" : "#eab308";
+              return `<div class="bento-pill-track"><div class="bento-pill-fill" style="width:${w}%; background:${fc}">${idx + 1}. ${esc(name)}</div><span class="text-xs font-extrabold text-slate-900 shrink-0 tabular-nums">${rp(v.omset)} · ${v.qty} pcs</span></div>`;
+            }).join("")
+          : `<p class="text-sm text-slate-500 py-6 text-center">Belum ada transaksi pada bulan ini.</p>`;
+      }
+    }
+
     function renderOwnerBooks() {
       if (!isAdmin) return;
       const month = document.getElementById("bookMonth").value;
@@ -5180,6 +5514,7 @@
         : `<li class="text-slate-500">Belum ada pembelian stok untuk bulan ini.</li>`;
       renderCashClosing();
       renderCharts();
+      renderAllReportsView();
     }
 
     function cashSnapshot(form) {
@@ -5844,6 +6179,7 @@
       sales: { btn: "tabBtnSales", panel: "viewKasir" },
       inventory: { btn: "tabBtnInventory", panel: "viewInventory" },
       books: { btn: "tabBtnBooks", panel: "viewBooks" },
+      reports: { btn: "tabBtnAllReports", panel: "viewAllReports" },
       backup: { btn: "tabBtnBackup", panel: "viewBackup" },
       catalog: { btn: "tabBtnCatalog", panel: "viewCatalog" }
     };
@@ -5853,7 +6189,7 @@
         document.getElementById(cfg.btn).setAttribute("aria-current", key === target ? "page" : "false");
       }
       const panel = WORKSPACES[target].panel;
-      for (const p of ["viewCatalog", "viewKasir", "viewInventory", "viewBooks", "viewBackup"]) {
+      for (const p of ["viewCatalog", "viewKasir", "viewInventory", "viewBooks", "viewAllReports", "viewBackup"]) {
         document.getElementById(p).classList.toggle("hidden", p !== panel);
       }
       document.getElementById("cashierWorkspace").hidden = target !== "kasir";
@@ -5866,6 +6202,7 @@
         renderOwnerBooks();
         requestAnimationFrame(() => Object.values(charts).forEach(c => c.resize()));
       }
+      if (target === "reports") renderAllReportsView();
       if (target === "inventory") { renderInventory(); requestAnimationFrame(() => Object.values(charts).forEach(c => c.resize())); }
     }
     function openDialog(id) {
@@ -6883,6 +7220,8 @@
       }
 
       document.getElementById("bookMonth").addEventListener("change", renderOwnerBooks);
+      document.getElementById("allReportsMonth")?.addEventListener("change", renderAllReportsView);
+      document.getElementById("btnAllReportsPrint")?.addEventListener("click", () => printMode("report"));
       document.getElementById("expenseMonth").addEventListener("change", renderOwnerBooks);
       document.getElementById("cashClosingForm").addEventListener("input", renderCashClosing);
       document.getElementById("expenseForm").addEventListener("submit", async e => {
