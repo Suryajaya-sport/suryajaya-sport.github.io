@@ -1016,7 +1016,7 @@
             <label class="block text-[11px] font-bold text-slate-600 mb-1">Harga jual (Rp)</label>
             <input type="number" min="0" step="1" inputmode="numeric" class="item-price-input w-full px-2.5 py-2 border border-slate-300 rounded-xl bg-white font-extrabold !text-sm" placeholder="0" value="${esc(prefill?.price ?? "")}">
           </div>
-          <div>
+          <div class="sjs-owner-only-stat">
             <label class="block text-[11px] font-bold text-slate-600 mb-1">Modal (ops.)</label>
             <input type="number" min="0" step="1" inputmode="numeric" class="item-cost-input w-full px-2.5 py-2 border border-slate-300 rounded-xl ${prefill?.id ? "bg-slate-100 text-slate-500 cursor-not-allowed" : "bg-white"} font-bold !text-sm" placeholder="0" value="${esc(prefill?.cost ?? "")}" ${prefill?.id ? "readonly title=\"HPP terkunci dari data stok\"" : ""}>
           </div>
@@ -1036,7 +1036,13 @@
         <div class="flex flex-wrap justify-between items-center gap-2 pt-2 border-t border-slate-200/80 text-[11px]">
           <div class="flex flex-wrap items-center gap-1.5 min-w-0">
             <span class="item-mode-badge font-bold ${prefill?.id ? "text-emerald-700" : "text-slate-500"}">${prefill?.id ? `Stok: ${Number(prefill.stock || 0)}` : "Di luar stok"}</span>
-            <input type="text" class="item-note-input w-40 px-2 py-0.5 rounded-lg border border-slate-200 bg-white text-[11px] font-semibold text-slate-700" placeholder="Varian/satuan/catatan..." maxlength="80">
+            <select class="item-unit-select px-1.5 py-0.5 rounded-lg border border-slate-200 bg-white text-[11px] font-extrabold text-slate-700" aria-label="Satuan">
+              <option value="Pcs">Pcs</option>
+              <option value="Slop">Slop</option>
+              <option value="Lusin">Lusin</option>
+              <option value="Set">Set</option>
+            </select>
+            <input type="text" class="item-note-input w-36 px-2 py-0.5 rounded-lg border border-slate-200 bg-white text-[11px] font-semibold text-slate-700" placeholder="Varian / 24 lbs / garansi" maxlength="80">
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
             <span class="font-semibold text-slate-500">Subtotal:</span>
@@ -1304,7 +1310,7 @@
       const recent = [];
       for (const tx of transactions.slice().sort((a, b) => String(b.createdAt || b.date || "").localeCompare(String(a.createdAt || a.date || "")))) {
         const c = String(tx.customer || "").trim();
-        if (c && c !== "Pelanggan Umum" && !seen.has(c.toLowerCase())) {
+        if (c && !/^(pelanggan\s+umum|umum)$/i.test(c) && !seen.has(c.toLowerCase())) {
           seen.add(c.toLowerCase());
           recent.push(c);
           if (recent.length >= 6) break;
@@ -1514,9 +1520,13 @@
         if (!inv && !typedName) { showToast("Isi nama barang atau pilih dari daftar stok."); row.querySelector(".item-name-input").focus(); return; }
         if (!Number.isSafeInteger(qty) || qty < 1) return showToast("Jumlah minimal 1 pcs.");
         if (!Number.isSafeInteger(price) || price < 0) return showToast("Isi harga jual dalam Rupiah.");
+        const itemUnit = String(row.querySelector(".item-unit-select")?.value || "Pcs");
         const itemNote = String(row.querySelector(".item-note-input")?.value || "").trim().slice(0, 80);
         const displayItemName = inv ? formatItemLabel(inv) : typedName.slice(0, 160);
-        const finalItemName = itemNote ? `${displayItemName} (${itemNote})` : displayItemName;
+        const metaTags = [];
+        if (itemUnit && itemUnit !== "Pcs") metaTags.push(itemUnit);
+        if (itemNote) metaTags.push(itemNote);
+        const finalItemName = metaTags.length ? `${displayItemName} (${metaTags.join(" · ")})` : displayItemName;
         if (inv) {
           itemsToSave.push({ inventoryId: invId, name: finalItemName, qty, price, cost: Number(inv.cost || 0), imageUrl: inv.imageUrl || "" });
         } else {
@@ -1620,7 +1630,15 @@
         <div class="rc-center rc-sub" style="margin-top:8px">Katalog &amp; stok terbaru: suryajaya-sport.github.io</div>
       </div>`;
     }
+    let lastPreviewedReceiptTx = null;
+    function formatWhatsAppReceiptText(tx) {
+      const lines = (tx.items || []).map(it => `• ${cleanDisplayItemName(it.name)} (${it.qty}x) = ${rp(it.subtotal ?? it.price * it.qty)}`).join("\n");
+      const discLine = Number(tx.discount || 0) > 0 ? `\nDiskon: −${rp(tx.discount)}` : "";
+      const noteLine = tx.note ? `\nCatatan: ${tx.note}` : "";
+      return `*STRUK ${shopName.toUpperCase()}*\nNota: ${receiptNumber(tx)}\nTanggal: ${tx.date}\n${lines}${discLine}\n----------------\n*Total: ${rp(tx.totalOmset)}* (${paymentMethodLabel(tx.paymentMethod || "Cash")})${noteLine}\nTerima kasih telah berbelanja di ${shopName}!`;
+    }
     function showReceiptPreview(tx) {
+      lastPreviewedReceiptTx = tx;
       document.getElementById("receiptPreviewBody").innerHTML = buildReceiptHtml(tx);
       document.getElementById("receiptPreviewModal").classList.remove("hidden");
     }
@@ -5166,7 +5184,7 @@
         const rep = e.target.closest("[data-pos-reprint]");
         if (rep) {
           const tx = transactions.find(t => t.id === rep.dataset.posReprint);
-          if (tx) openReceiptModal(tx);
+          if (tx) showReceiptPreview(tx);
           return;
         }
         const wa = e.target.closest("[data-pos-wa-rcpt]");
@@ -5276,6 +5294,32 @@
       document.getElementById("btnSaveAndPrintTx").addEventListener("click", () => saveSale(true));
       document.getElementById("btnCloseReceiptModal").addEventListener("click", () => document.getElementById("receiptPreviewModal").classList.add("hidden"));
       document.getElementById("btnTriggerPrintReceipt").addEventListener("click", printReceiptNow);
+      document.getElementById("btnSendReceiptWa")?.addEventListener("click", () => {
+        if (!lastPreviewedReceiptTx) return showToast("Belum ada nota yang dibuka.");
+        window.open(`https://wa.me/?text=${encodeURIComponent(formatWhatsAppReceiptText(lastPreviewedReceiptTx))}`, "_blank", "noopener");
+      });
+      const staffBtn = document.getElementById("btnToggleStaffPrivacy");
+      const applyStaffPrivacy = enabled => {
+        document.body.classList.toggle("sjs-staff-privacy", enabled);
+        if (staffBtn) {
+          staffBtn.setAttribute("aria-pressed", String(enabled));
+          staffBtn.innerHTML = enabled
+            ? '<i class="fa-regular fa-eye" aria-hidden="true"></i> <span>Mode Pemilik</span>'
+            : '<i class="fa-regular fa-eye-slash" aria-hidden="true"></i> <span>Sembunyi Omzet</span>';
+        }
+      };
+      applyStaffPrivacy(localStorage.getItem("sjs-staff-privacy") === "1");
+      staffBtn?.addEventListener("click", () => {
+        const next = !document.body.classList.contains("sjs-staff-privacy");
+        localStorage.setItem("sjs-staff-privacy", next ? "1" : "0");
+        applyStaffPrivacy(next);
+        showToast(next ? "Mode Pegawai Kasir aktif (Omzet & Modal disembunyikan)." : "Mode Pemilik aktif.");
+      });
+      document.getElementById("btnPosShortcutHelp")?.addEventListener("click", () => {
+        showToast("Pintasan Kasir: F2 = Scan QR · F8 = Tunai · F4 = Simpan · Enter = Tambah barang · Esc = Tutup saran");
+      });
+      window.addEventListener("offline", () => updateSyncStatus(false, "Offline — menunggu koneksi"));
+      window.addEventListener("online", () => updateSyncStatus(true, isAdmin ? "Cloud Online" : "Katalog publik"));
 
       document.getElementById("btnOpenScanner").addEventListener("click", () => {
         const list = document.getElementById("quickPickStockList");
