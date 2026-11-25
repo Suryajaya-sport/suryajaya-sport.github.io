@@ -669,8 +669,8 @@
     body.sjs-admin .shop-brand h1,
     body.sjs-admin .shop-brand p { color: #ffffff !important; }
     body.sjs-admin .shop-brand p { opacity: .82; }
-    body.sjs-admin .shop-links a { color: #0f2557 !important; }
-    body.sjs-admin .shop-links a:hover { color: #1d4ed8 !important; }
+    body.sjs-admin .shop-links { display: none !important; }
+    body.sjs-admin #adminPastelMenu { display: none !important; }
     body.sjs-admin.sjs-tablet-mode .tablet-toggle-btn {
       background: #facc15; color: #0f172a; border-color: #fde047;
       box-shadow: 0 3px 10px rgba(250, 204, 21, .35);
@@ -2314,10 +2314,10 @@
       </section>
 
       <section class="workspace-metrics" aria-label="Ringkasan stok">
-        <div class="bg-amber-50 p-4 rounded-2xl border-2 border-amber-300"><span class="text-xs font-extrabold uppercase text-amber-900">Stok menipis &amp; habis</span><p id="invLowStockCount" class="text-2xl font-extrabold text-amber-950 mt-1.5">0 Barang</p></div>
-        <div class="bg-white p-4 rounded-2xl border border-slate-200"><span class="text-xs font-extrabold uppercase text-emerald-900">Nilai modal stok</span><p id="invTotalAsset" class="text-2xl font-extrabold mt-1.5">Rp 0</p></div>
         <div class="bg-white p-4 rounded-2xl border border-slate-200"><span class="text-xs font-extrabold uppercase text-slate-500">Jenis barang (SKU)</span><p id="invTotalTypes" class="text-2xl font-extrabold mt-1.5">0 Aktif</p></div>
         <div class="bg-white p-4 rounded-2xl border border-slate-200"><span class="text-xs font-extrabold uppercase text-blue-900">Jumlah stok</span><p id="invTotalUnits" class="text-2xl font-extrabold mt-1.5">0 Pcs</p></div>
+        <div class="bg-white p-4 rounded-2xl border border-slate-200"><span class="text-xs font-extrabold uppercase text-emerald-900">Nilai modal stok</span><p id="invTotalAsset" class="text-2xl font-extrabold mt-1.5">Rp 0</p></div>
+        <div class="bg-amber-50 p-4 rounded-2xl border-2 border-amber-300"><span class="text-xs font-extrabold uppercase text-amber-900">Stok menipis &amp; habis</span><p id="invLowStockCount" class="text-2xl font-extrabold text-amber-950 mt-1.5">0 Barang</p></div>
       </section>
 
       <section id="inventoryCharts" class="grid grid-cols-1 lg:grid-cols-3 gap-4 no-print" aria-label="Dashboard operasional stok">
@@ -2380,19 +2380,48 @@
           <div id="listHighMarginLowWrap" class="w-full space-y-2"></div>
         </div>
 
-        <!-- BARIS 4 (PENUH): Barang Tidak Bergerak (Slow Moving) -->
+        <!-- BARIS 4 (PENUH): Tren Pergerakan Stok 14 Hari Terakhir -->
+        <div class="sjs-chart-card lg:col-span-3">
+          <div class="sjs-chart-head">
+            <div class="sjs-chart-title-wrap">
+              <span class="sjs-chart-badge-icon is-blue"><i class="fa-solid fa-arrows-up-down" aria-hidden="true"></i></span>
+              <div>
+                <h3 class="workspace-section-title">Tren Pergerakan Stok (14 Hari Terakhir)</h3>
+                <p class="sjs-chart-sub">Perbandingan unit masuk (restok) vs unit keluar (terjual) per hari</p>
+              </div>
+            </div>
+            <span id="badgeStockTrend14" class="sjs-chart-pill">14 Hari</span>
+          </div>
+          <div id="svgStockTrend14Wrap" class="w-full min-h-[190px] overflow-x-auto"></div>
+        </div>
+
+        <!-- BARIS 5: Blok Efisiensi Modal (Slow Moving 30 Hari & Barang Mati Total 90 Hari) -->
         <div class="sjs-chart-card lg:col-span-3">
           <div class="sjs-chart-head">
             <div class="sjs-chart-title-wrap">
               <span class="sjs-chart-badge-icon is-yellow"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i></span>
               <div>
                 <h3 class="workspace-section-title">Barang Tidak Bergerak (Slow Moving 30 Hari)</h3>
-                <p class="sjs-chart-sub">Stok masih ada (&ge;1 pcs) tanpa penjualan 30 hari terakhir &mdash; diurutkan dari modal tertanam terbesar</p>
+                <p class="sjs-chart-sub">Stok masih ada (&ge;1 pcs) tanpa penjualan 30 hari terakhir &mdash; masih berpeluang laku dengan promo</p>
               </div>
             </div>
             <span id="badgeSlowMovingCount" class="sjs-chart-pill">0 Barang</span>
           </div>
           <div id="listSlowMovingWrap" class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5"></div>
+        </div>
+
+        <div class="sjs-chart-card lg:col-span-3 border-rose-200 bg-rose-50/20">
+          <div class="sjs-chart-head">
+            <div class="sjs-chart-title-wrap">
+              <span class="sjs-chart-badge-icon" style="background:#ffe4e6;color:#be123c"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></span>
+              <div>
+                <h3 class="workspace-section-title text-rose-900">Barang Mati Total / Dead Stock (90 Hari)</h3>
+                <p id="deadStockSubtitle" class="sjs-chart-sub text-rose-700">Tidak terjual 90 hari terakhir &mdash; prioritas clearance / cuci gudang agar modal cair</p>
+              </div>
+            </div>
+            <span id="badgeDeadStockCount" class="sjs-chart-pill" style="background:#ffe4e6;color:#9f1239;border-color:#fda4af">0 Barang</span>
+          </div>
+          <div id="listDeadStockWrap" class="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2.5"></div>
         </div>
       </section>
 
@@ -2907,6 +2936,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261125-3"></script>
+  <script type="module" src="./admin.js?v=20261125-4"></script>
 </body>
 </html>

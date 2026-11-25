@@ -2652,9 +2652,9 @@
           <div class="flex flex-wrap items-center justify-between gap-2 pb-1">
             <span class="text-xs font-bold text-slate-500">Diurutkan dari kategori yang paling butuh perhatian restok</span>
             <div class="flex items-center gap-3 text-[11px] font-bold text-slate-600">
-              <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#1d4ed8]"></span>Aman (&ge;5)</span>
-              <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#eab308]"></span>Menipis (1–4)</span>
-              <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#e11d48]"></span>Habis (0)</span>
+              <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#1d4ed8]"></span>Aman (stok &ge;5)</span>
+              <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#eab308]"></span>Menipis (stok 1–4)</span>
+              <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#e11d48]"></span>Habis (stok 0)</span>
             </div>
           </div>
           ${sortedCats.map(([k, v]) => {
@@ -2667,10 +2667,10 @@
                 <span class="uikit-row-label">${esc(k)} <span class="text-slate-400 font-semibold">· Modal ${shortRpTick(v.cost)}</span></span>
                 <span class="text-xs font-extrabold text-slate-800 tabular-nums shrink-0">${v.ok} aman · <span class="text-amber-700">${v.low} menipis</span> · <span class="text-rose-700">${v.out} habis</span></span>
               </div>
-              <div class="w-full h-3 rounded-full bg-slate-200 overflow-hidden flex">
-                ${wOk > 0 ? `<div style="width:${wOk.toFixed(1)}%;background:#1d4ed8" title="${v.ok} aman"></div>` : ""}
-                ${wLow > 0 ? `<div style="width:${wLow.toFixed(1)}%;background:#eab308" title="${v.low} menipis"></div>` : ""}
-                ${wOut > 0 ? `<div style="width:${wOut.toFixed(1)}%;background:#e11d48" title="${v.out} habis"></div>` : ""}
+              <div class="w-full h-3.5 rounded-full bg-slate-200 overflow-hidden flex gap-px">
+                ${v.ok > 0 ? `<div style="flex:${v.ok} 0 0%;min-width:6px;background:#1d4ed8" title="${v.ok} aman (${Math.round(wOk)}%)"></div>` : ""}
+                ${v.low > 0 ? `<div style="flex:${v.low} 0 0%;min-width:6px;background:#eab308" title="${v.low} menipis (${Math.round(wLow)}%)"></div>` : ""}
+                ${v.out > 0 ? `<div style="flex:${v.out} 0 0%;min-width:6px;background:#e11d48" title="${v.out} habis (${Math.round(wOut)}%)"></div>` : ""}
               </div>
             </div>`;
           }).join("")}`;
@@ -2682,7 +2682,7 @@
         healthWrap.innerHTML = buildSvgDonut([
           { label: "Stok Aman (≥5)", value: okCount, color: "#1d4ed8", display: `${okCount} item` },
           { label: "Menipis (1–4)", value: lowCount, color: "#facc15", display: `${lowCount} item` },
-          { label: "Habis (0)", value: outCount, color: "#e11d48", display: `${outCount} item` }
+          { label: "Habis (stok 0)", value: outCount, color: "#e11d48", display: `${outCount} item` }
         ], "AMAN", `${okPct}%`);
       }
 
@@ -2772,41 +2772,141 @@
         }
       }
 
-      // Baris 4: Barang Tidak Bergerak (Slow Moving 30 Hari)
+      // Baris 4: Tren Pergerakan Stok (14 Hari Terakhir: Masuk Restok vs Keluar Terjual)
+      const trend14Wrap = document.getElementById("svgStockTrend14Wrap");
+      const trend14Badge = document.getElementById("badgeStockTrend14");
+      if (trend14Wrap) {
+        const today = todayStr();
+        const days14 = Array.from({ length: 14 }, (_, idx) => shiftDate(today, idx - 13));
+        const inMap = new Map(), outMap = new Map();
+        for (const p of purchases) {
+          if (p.date) inMap.set(p.date, (inMap.get(p.date) || 0) + Number(p.qty || 0));
+        }
+        for (const tx of transactions) {
+          if (tx.date) {
+            const qtySum = (tx.items || []).reduce((s, it) => s + Number(it.qty || 0), 0);
+            outMap.set(tx.date, (outMap.get(tx.date) || 0) + qtySum);
+          }
+        }
+        let totIn = 0, totOut = 0;
+        const pts14 = days14.map(d => {
+          const vin = inMap.get(d) || 0;
+          const vout = outMap.get(d) || 0;
+          totIn += vin; totOut += vout;
+          return { d, lbl: d.slice(8, 10) + "/" + d.slice(5, 7), vin, vout };
+        });
+        if (trend14Badge) trend14Badge.textContent = `+${totIn} masuk · −${totOut} keluar`;
+        const mx14 = Math.max(1, ...pts14.map(p => Math.max(p.vin, p.vout)));
+        const W = 720, H = 185, padL = 34, padR = 12, padT = 20, padB = 34;
+        const plotW = W - padL - padR, plotH = H - padT - padB;
+        const colW = plotW / pts14.length;
+        const barW = Math.min(14, (colW - 10) / 2);
+        const barsSvg = pts14.map((p, i) => {
+          const cx = padL + i * colW + colW / 2;
+          const hIn = p.vin > 0 ? Math.max(4, (p.vin / mx14) * plotH) : 0;
+          const hOut = p.vout > 0 ? Math.max(4, (p.vout / mx14) * plotH) : 0;
+          const yIn = padT + plotH - hIn;
+          const yOut = padT + plotH - hOut;
+          return `
+            ${hIn > 0 ? `<rect x="${(cx - barW - 1.5).toFixed(1)}" y="${yIn.toFixed(1)}" width="${barW.toFixed(1)}" height="${hIn.toFixed(1)}" rx="3" fill="#1d4ed8"><title>${esc(p.d)} Masuk: ${p.vin} pcs</title></rect>` : ""}
+            ${hOut > 0 ? `<rect x="${(cx + 1.5).toFixed(1)}" y="${yOut.toFixed(1)}" width="${barW.toFixed(1)}" height="${hOut.toFixed(1)}" rx="3" fill="#eab308"><title>${esc(p.d)} Keluar: ${p.vout} pcs</title></rect>` : ""}
+            <text x="${cx.toFixed(1)}" y="${H - 12}" text-anchor="middle" fill="#64748b" font-size="9.5" font-weight="700">${esc(p.lbl)}</text>`;
+        }).join("");
+        trend14Wrap.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2 pb-1 text-xs font-bold text-slate-600">
+            <span>Total 14 hari: <strong class="text-blue-800">+${totIn} pcs masuk</strong> · <strong class="text-amber-700">${totOut} pcs terjual</strong></span>
+            <div class="flex items-center gap-3 text-[11px]">
+              <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-[#1d4ed8]"></span>Masuk (Restok)</span>
+              <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm bg-[#eab308]"></span>Keluar (Terjual)</span>
+            </div>
+          </div>
+          <svg viewBox="0 0 ${W} ${H}" class="w-full min-w-[560px] h-44">
+            <line x1="${padL}" y1="${padT + plotH}" x2="${W - padR}" y2="${padT + plotH}" stroke="#cbd5e1" stroke-width="1"/>
+            <line x1="${padL}" y1="${padT}" x2="${W - padR}" y2="${padT}" stroke="#e2e8f0" stroke-dasharray="3 3"/>
+            <text x="${padL - 5}" y="${padT + 4}" text-anchor="end" fill="#94a3b8" font-size="9" font-weight="700">${mx14}</text>
+            <text x="${padL - 5}" y="${padT + plotH + 3}" text-anchor="end" fill="#94a3b8" font-size="9" font-weight="700">0</text>
+            ${barsSvg}
+          </svg>`;
+      }
+
+      // Baris 5: Slow Moving (30 Hari) & Barang Mati Total / Dead Stock (90 Hari)
       const slowBadge = document.getElementById("badgeSlowMovingCount");
       const slowWrap = document.getElementById("listSlowMovingWrap");
-      if (slowWrap) {
+      const deadBadge = document.getElementById("badgeDeadStockCount");
+      const deadWrap = document.getElementById("listDeadStockWrap");
+      const deadSub = document.getElementById("deadStockSubtitle");
+      if (slowWrap || deadWrap) {
         const since30Slow = shiftDate(todayStr(), -29);
-        const movedIds = new Set();
-        const movedNames = new Set();
+        const since90Dead = shiftDate(todayStr(), -89);
+        const moved30Ids = new Set(), moved30Names = new Set();
+        const moved90Ids = new Set(), moved90Names = new Set();
+        let earliestTxDate = "";
         for (const tx of transactions) {
-          if (tx.date >= since30Slow) {
+          if (tx.date && (!earliestTxDate || tx.date < earliestTxDate)) earliestTxDate = tx.date;
+          if (tx.date >= since90Dead) {
             for (const it of (tx.items || [])) {
-              if (it.productId) movedIds.add(it.productId);
-              if (it.name) movedNames.add(String(it.name).trim());
+              if (it.productId) moved90Ids.add(it.productId);
+              if (it.name) moved90Names.add(String(it.name).trim());
+              if (tx.date >= since30Slow) {
+                if (it.productId) moved30Ids.add(it.productId);
+                if (it.name) moved30Names.add(String(it.name).trim());
+              }
             }
           }
         }
         const slowItems = active
-          .filter(it => Number(it.stock || 0) >= 1 && !movedIds.has(it.id) && !movedNames.has(String(it.name || "").trim()))
+          .filter(it => Number(it.stock || 0) >= 1 && !moved30Ids.has(it.id) && !moved30Names.has(String(it.name || "").trim()))
           .map(it => ({ item: it, st: Number(it.stock || 0), stuckCost: Number(it.stock || 0) * Number(it.cost || 0) }))
           .sort((a, b) => b.stuckCost - a.stuckCost || b.st - a.st);
+        const deadItems = active
+          .filter(it => Number(it.stock || 0) >= 1 && !moved90Ids.has(it.id) && !moved90Names.has(String(it.name || "").trim()))
+          .map(it => ({ item: it, st: Number(it.stock || 0), stuckCost: Number(it.stock || 0) * Number(it.cost || 0) }))
+          .sort((a, b) => b.stuckCost - a.stuckCost || b.st - a.st);
+        const deadTotalCost = deadItems.reduce((s, x) => s + x.stuckCost, 0);
+
         if (slowBadge) slowBadge.textContent = `${slowItems.length} Barang`;
-        const topSlow = slowItems.slice(0, 8);
-        if (!topSlow.length) {
-          slowWrap.innerHTML = `<p class="col-span-full text-sm font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-4 text-center">Semua barang aktif bergerak dalam 30 hari terakhir.</p>`;
-        } else {
-          slowWrap.innerHTML = topSlow.map(({ item: it, st, stuckCost }) => `
-            <div class="uikit-row !py-2.5 !px-3">
-              <div class="uikit-row-head">
-                <span class="uikit-row-label" title="${esc(it.name)}">${esc(it.name)}</span>
-                <span class="text-xs font-extrabold text-amber-800 shrink-0 tabular-nums">${st} pcs</span>
-              </div>
-              <div class="flex items-center justify-between gap-2 text-[11px] font-semibold text-slate-500 mt-0.5">
-                <span>Modal tertanam: <strong class="text-slate-800">${esc(shortRpTick(stuckCost))}</strong></span>
-                ${isAdmin ? `<button type="button" data-share-wa="${esc(it.id)}" class="text-emerald-700 hover:underline font-extrabold">Promo WA</button>` : ""}
-              </div>
-            </div>`).join("");
+        if (slowWrap) {
+          const topSlow = slowItems.slice(0, 8);
+          if (!topSlow.length) {
+            slowWrap.innerHTML = `<p class="col-span-full text-sm font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-4 text-center">Semua barang aktif bergerak dalam 30 hari terakhir.</p>`;
+          } else {
+            slowWrap.innerHTML = topSlow.map(({ item: it, st, stuckCost }) => `
+              <div class="uikit-row !py-2.5 !px-3 border-amber-200 bg-amber-50/40">
+                <div class="uikit-row-head">
+                  <span class="uikit-row-label" title="${esc(it.name)}">${esc(it.name)}</span>
+                  <span class="text-xs font-extrabold text-amber-800 shrink-0 tabular-nums">${st} pcs</span>
+                </div>
+                <div class="flex items-center justify-between gap-2 text-[11px] font-semibold text-slate-600 mt-0.5">
+                  <span>Modal tertanam: <strong class="text-slate-900">${esc(shortRpTick(stuckCost))}</strong></span>
+                  ${isAdmin ? `<button type="button" data-share-wa="${esc(it.id)}" class="text-emerald-700 hover:underline font-extrabold">Promo WA</button>` : ""}
+                </div>
+              </div>`).join("");
+          }
+        }
+
+        if (deadBadge) deadBadge.textContent = `${deadItems.length} Barang · Modal ${shortRpTick(deadTotalCost)}`;
+        if (deadSub) {
+          deadSub.textContent = earliestTxDate && earliestTxDate > since90Dead
+            ? `Belum pernah terjual sejak data tercatat (${earliestTxDate}) — kandidat clearance / cuci gudang`
+            : "Tidak terjual 90 hari terakhir — prioritas clearance / cuci gudang agar modal cair";
+        }
+        if (deadWrap) {
+          const topDead = deadItems.slice(0, 8);
+          if (!topDead.length) {
+            deadWrap.innerHTML = `<p class="col-span-full text-sm font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-4 text-center">Tidak ada barang mati total dalam 90 hari terakhir.</p>`;
+          } else {
+            deadWrap.innerHTML = topDead.map(({ item: it, st, stuckCost }) => `
+              <div class="rounded-2xl border border-rose-200 bg-rose-50/80 p-3 flex flex-col justify-between gap-1.5">
+                <div class="flex items-start justify-between gap-2">
+                  <span class="text-xs font-extrabold text-rose-950 leading-snug line-clamp-2" title="${esc(it.name)}">${esc(it.name)}</span>
+                  <span class="px-2 py-0.5 rounded-full bg-rose-600 text-white text-[10px] font-extrabold shrink-0 tabular-nums">${st} pcs</span>
+                </div>
+                <div class="flex items-center justify-between gap-2 text-[11px] font-bold text-rose-800">
+                  <span>Modal mati: ${esc(shortRpTick(stuckCost))}</span>
+                  ${isAdmin ? `<button type="button" data-share-wa="${esc(it.id)}" class="px-2 py-0.5 rounded-lg bg-white border border-rose-300 text-rose-800 hover:bg-rose-100 font-extrabold">Clearance WA</button>` : ""}
+                </div>
+              </div>`).join("");
+          }
         }
       }
     }
