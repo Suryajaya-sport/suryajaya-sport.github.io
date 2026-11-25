@@ -206,17 +206,14 @@
       renderNotFound("Silakan buka katalog utama untuk melihat semua barang kami.");
     } else {
       try {
-        const [appM, fsM] = await Promise.all([
-          import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"),
-          import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js")
-        ]);
-        const app = appM.getApps().length ? appM.getApps()[0] : appM.initializeApp(EMBEDDED_FIREBASE_CONFIG);
-        const db = fsM.getFirestore(app);
-        const snap = await fsM.getDoc(fsM.doc(db, "publicCatalog", productId));
-        if (!snap.exists()) {
+        const decodeV = v => !v || typeof v !== "object" ? "" : "stringValue" in v ? v.stringValue : "integerValue" in v ? Number(v.integerValue) : "doubleValue" in v ? Number(v.doubleValue) : "booleanValue" in v ? Boolean(v.booleanValue) : "";
+        const res = await fetch(`https://firestore.googleapis.com/v1/projects/${EMBEDDED_FIREBASE_CONFIG.projectId}/databases/(default)/documents/publicCatalog/${encodeURIComponent(productId)}`);
+        if (!res.ok) {
           renderNotFound();
         } else {
-          const item = { ...snap.data(), id: snap.id };
+          const docJson = await res.json();
+          const item = { id: productId };
+          for (const [k, v] of Object.entries(docJson.fields || {})) item[k] = decodeV(v);
           const imgUrl = safeHttpsUrl(item.imageUrl);
           const stockNum = Number(item.stock || 0);
           const out = stockNum <= 0;

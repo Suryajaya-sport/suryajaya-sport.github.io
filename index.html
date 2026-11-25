@@ -60,10 +60,17 @@
     "hasMap": "https://www.google.com/maps/search/?api=1&query=Surya+Jaya+Sport&query_place_id=ChIJPwiXPaT1DTIR4E2dU8PQWpI"
   }
   </script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preload" as="image" href="hero-surya-jaya-sport.webp" fetchpriority="high">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
+  <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" media="print" onload="this.media='all'">
+  <noscript>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
+  </noscript>
   <style>
     :root { --sjs-navy: #0b1220; --sjs-header-h: 74px; }
     *, ::before, ::after { border-width: 0; border-style: solid; border-color: #e2e8f0; }
@@ -417,10 +424,10 @@
     .catalog-card-photo-wrap { position: relative; cursor: pointer; background: #fff; border-bottom: 1px solid #f1f5f9; }
     .catalog-card-photo { aspect-ratio: 4 / 3; width: 100%; }
     .catalog-card-badge { position: absolute; top: .65rem; right: .65rem; z-index: 2; padding: .24rem .62rem; border-radius: 9999px; font-size: .7rem; font-weight: 800; background: rgba(15,23,42,.82); color: #fff; }
-    .catalog-card-badge.is-limited { background: #d97706; color: #fff; }
+    .catalog-card-badge.is-limited { background: #b45309; color: #fff; }
     .catalog-card-body { padding: 1.1rem; display: flex; flex-direction: column; flex: 1; gap: .5rem; }
     .catalog-card-meta { font-family: ui-monospace, monospace; font-size: .72rem; font-weight: 700; color: #2563eb; background: #eff6ff; width: fit-content; padding: .15rem .5rem; border-radius: .45rem; }
-    .catalog-card-description { font-size: .8125rem; color: #64748b; }
+    .catalog-card-description { font-size: .8125rem; color: #475569; }
     .senar-service-note { display: inline-flex; align-items: center; gap: .35rem; margin-top: .2rem; padding: .28rem .55rem; border-radius: .6rem; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e3a8a; font-size: .74rem; font-weight: 700; line-height: 1.3; }
     .senar-service-note i { color: #eab308; flex-shrink: 0; }
     .catalog-card-facts { margin-top: auto; padding-top: .7rem; border-top: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; }
@@ -755,12 +762,44 @@
     const CART_KEY = "sjs-public-cart-v1";
     const SENAR_SERVICE_NOTE = "Harga tercantum sudah termasuk jasa pasang senar.";
 
-    const [appM, fsM] = await Promise.all([
-      import("https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"),
-      import("https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js")
-    ]);
-    const app = appM.getApps().length ? appM.getApps()[0] : appM.initializeApp(EMBEDDED_FIREBASE_CONFIG);
-    const db = fsM.getFirestore(app);
+    function decodeFsVal(v) {
+      if (!v || typeof v !== "object") return "";
+      if ("stringValue" in v) return v.stringValue;
+      if ("integerValue" in v) return Number(v.integerValue);
+      if ("doubleValue" in v) return Number(v.doubleValue);
+      if ("booleanValue" in v) return Boolean(v.booleanValue);
+      if ("nullValue" in v) return null;
+      if ("arrayValue" in v) return (v.arrayValue.values || []).map(decodeFsVal);
+      if ("mapValue" in v) {
+        const out = {};
+        for (const [k, val] of Object.entries(v.mapValue.fields || {})) out[k] = decodeFsVal(val);
+        return out;
+      }
+      return "";
+    }
+    function decodeFsDoc(docObj) {
+      const id = String(docObj.name || "").split("/").pop() || "";
+      const data = {};
+      for (const [k, val] of Object.entries(docObj.fields || {})) data[k] = decodeFsVal(val);
+      return { ...data, id };
+    }
+    async function fetchPublicCatalogRest() {
+      const docs = [];
+      let pageToken = "";
+      const base = `https://firestore.googleapis.com/v1/projects/${EMBEDDED_FIREBASE_CONFIG.projectId}/databases/(default)/documents/publicCatalog?pageSize=300`;
+      for (let page = 0; page < 5; page++) {
+        const url = pageToken ? `${base}&pageToken=${encodeURIComponent(pageToken)}` : base;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const json = await res.json();
+        if (Array.isArray(json.documents)) {
+          for (const d of json.documents) docs.push(decodeFsDoc(d));
+        }
+        if (!json.nextPageToken) break;
+        pageToken = json.nextPageToken;
+      }
+      return docs;
+    }
 
     let publicCatalog = [];
     let catalogLoadState = "loading";
@@ -791,9 +830,9 @@
         return "";
       }
     }
-    function thumbnailUrl(url, width = 560) {
+    function thumbnailUrl(url, width = 360) {
       if (!url || !url.includes("/image/upload/")) return url;
-      return url.replace("/image/upload/", `/image/upload/c_fill,w_${width},q_auto,f_auto/`);
+      return url.replace("/image/upload/", `/image/upload/c_limit,w_${width},q_auto:eco,f_auto/`);
     }
     const MUSIC_RE = /\b(gitar|guitar|ukulele|bass|capo|plektrum|musik|akustik|acoustic|klasik|classic|elektrik|electric|biola|violin|drum|stik\s*drum|cajon|jimbe|harmonika|tama|sonor|zildjian|yamaha\s*f|pyramid|d'?addario|orphee|ernie\s*ball|elixir|fender|nilon|nylon|kawat)\b/i;
     const BALL_ITEM_RE = /\b(futsal|bola|sepak|basket|voli|volley|football|soccer|molten|spalding|mikasa|nassau)\b/i;
@@ -832,10 +871,10 @@
       if (category === "sport") return !music && !badminton && !ball && !chess;
       return false;
     }
-    function productImageMarkup(item, extraClass = "", width = 560, eager = false) {
+    function productImageMarkup(item, extraClass = "", width = 360, eager = false) {
       const url = safeHttpsUrl(item?.imageUrl);
       if (url) {
-        return `<div class="${extraClass} relative overflow-hidden bg-white"><img src="${esc(thumbnailUrl(url, width))}" alt="${esc(item?.name ? `${item.name} - Surya Jaya Sport Berau` : "Foto produk Surya Jaya Sport Berau")}" loading="${eager ? "eager" : "lazy"}" class="h-full w-full object-contain bg-white"></div>`;
+        return `<div class="${extraClass} relative overflow-hidden bg-white"><img src="${esc(thumbnailUrl(url, width))}" width="${width}" height="${Math.round(width * 0.75)}" alt="${esc(item?.name ? `${item.name} - Surya Jaya Sport Berau` : "Foto produk Surya Jaya Sport Berau")}" loading="${eager ? "eager" : "lazy"}" decoding="async" class="h-full w-full object-contain bg-white"></div>`;
       }
       const shortName = esc(String(item?.name || "Surya Jaya Sport").slice(0, 34));
       return `<div class="${extraClass} relative overflow-hidden flex flex-col items-center justify-center p-3 text-center text-white" style="background:linear-gradient(135deg,#0b2566 0%,#1d5fd6 62%,#38bdf8 100%)">
@@ -988,7 +1027,7 @@
         <article class="catalog-card ${outOfStock ? "opacity-85" : ""}">
           <div class="catalog-card-photo-wrap" data-view-product="${esc(item.id)}" role="button" tabindex="0" aria-label="Lihat detail ${esc(item.name)}">
             <span class="catalog-card-badge ${outOfStock ? "!bg-rose-600" : limited ? "is-limited" : ""}">${outOfStock ? "Habis" : limited ? "Stok terbatas" : "Tersedia"}</span>
-            ${productImageMarkup(item, "catalog-card-photo", 560, index < 2)}
+            ${productImageMarkup(item, "catalog-card-photo", 360, index < 2)}
           </div>
           <div class="catalog-card-body">
             <p class="catalog-card-meta">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
@@ -1091,8 +1130,8 @@
 
     let deepLinkOpened = false;
     const requestedProductId = new URLSearchParams(location.search).get("id");
-    fsM.onSnapshot(fsM.collection(db, "publicCatalog"), snap => {
-      publicCatalog = snap.docs.map(d => ({ ...d.data(), id: d.id }));
+    try {
+      publicCatalog = await fetchPublicCatalogRest();
       catalogLoadState = "ready";
       renderProductCatalog();
       updateCartSummary();
@@ -1100,10 +1139,10 @@
         deepLinkOpened = true;
         openProductDetail(requestedProductId);
       }
-    }, () => {
+    } catch {
       catalogLoadState = "error";
       renderProductCatalog();
-    });
+    }
   </script>
 </body>
 </html>
