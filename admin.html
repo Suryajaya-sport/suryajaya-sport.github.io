@@ -959,21 +959,21 @@
       width: 0%;
     }
     .sjs-chart-card.is-dark {
-      background: radial-gradient(circle at 90% 10%, rgba(56, 189, 248, .22), transparent 45%), linear-gradient(135deg, #071433 0%, #0f2557 58%, #163782 100%);
-      border: 1.5px solid #2563eb;
-      color: #ffffff;
-      box-shadow: 0 14px 32px rgba(7, 20, 51, .28);
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      color: #0f172a;
+      box-shadow: 0 8px 24px -10px rgba(15, 37, 87, .08);
     }
     .sjs-chart-card.is-dark:hover {
-      border-color: #facc15;
-      box-shadow: 0 18px 36px rgba(15, 37, 87, .36);
+      border-color: #bfdbfe;
+      box-shadow: 0 12px 28px -10px rgba(29, 78, 216, .14);
     }
-    .sjs-chart-card.is-dark .workspace-section-title { color: #ffffff !important; }
-    .sjs-chart-card.is-dark .sjs-chart-sub { color: #bfdbfe !important; }
+    .sjs-chart-card.is-dark .workspace-section-title { color: #0f2557 !important; }
+    .sjs-chart-card.is-dark .sjs-chart-sub { color: #64748b !important; }
     .sjs-chart-card.is-dark .sjs-chart-pill {
-      background: rgba(250, 204, 21, .16);
-      border-color: rgba(250, 204, 21, .55);
-      color: #fde047;
+      background: #eff6ff;
+      border-color: #bfdbfe;
+      color: #1d4ed8;
     }
     .pos-mini-chart-details {
       background: linear-gradient(135deg, #071433 0%, #0f2557 65%, #1d4ed8 100%);
@@ -1096,25 +1096,66 @@
 
     /* === BENTO REPORT GAYA FIGMA (GAUGE, PASTEL KPI, RING CALLOUT, PILL BARS) === */
     .bento-pastel-card {
-      background: linear-gradient(135deg, #e0e7ff 0%, #eff6ff 48%, #fef3c7 100%);
-      border: 1.5px solid #bfdbfe;
-      border-radius: 1.6rem;
-      padding: 1.35rem;
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 1.45rem;
+      padding: 1.25rem 1.35rem;
       position: relative;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      min-height: 190px;
-      box-shadow: 0 14px 32px -12px rgba(15, 37, 87, .12);
+      min-height: 175px;
+      box-shadow: 0 8px 24px -10px rgba(15, 37, 87, .07);
+    }
+    .uikit-row {
+      background: #f8fafc;
+      border: 1px solid #eef2f7;
+      border-radius: .95rem;
+      padding: .62rem .85rem;
+      display: flex;
+      flex-direction: column;
+      gap: .42rem;
+    }
+    .uikit-row-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .5rem;
+      font-size: .78rem;
+    }
+    .uikit-row-label {
+      font-weight: 700;
+      color: #334155;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .uikit-row-val {
+      font-weight: 800;
+      color: #0f2557;
+      font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
+    }
+    .uikit-bar-track {
+      width: 100%;
+      height: 6px;
+      border-radius: 9999px;
+      background: #e2e8f0;
+      overflow: hidden;
+    }
+    .uikit-bar-fill {
+      height: 100%;
+      border-radius: 9999px;
+      transition: width .3s ease;
     }
     .bento-pill-track {
       display: flex; align-items: center; justify-content: space-between; gap: .6rem;
-      background: #f1f5f9; border-radius: 9999px; padding: .24rem .75rem .24rem .24rem;
+      background: #f8fafc; border: 1px solid #eef2f7; border-radius: .95rem; padding: .45rem .75rem;
     }
     .bento-pill-fill {
-      border-radius: 9999px; padding: .34rem .8rem; color: #ffffff;
-      font-size: .74rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-      min-width: 72px; transition: width .35s ease;
+      border-radius: 9999px; padding: .22rem .65rem; color: #ffffff;
+      font-size: .72rem; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      min-width: 64px; transition: width .35s ease;
     }
     .bento-trending-chip {
       display: inline-flex; align-items: center; gap: .45rem;
@@ -2217,10 +2258,8 @@
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div><h2 class="font-bold">Katalog Publik</h2><p id="inventoryCatalogStatus" class="text-sm text-slate-600" aria-live="polite"></p></div>
           <div class="flex flex-wrap gap-2">
-            <button id="openPosterBatch" type="button" class="shop-button shop-button-accent"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Seragamkan poster</button>
             <button id="btnBatchPrintQr" type="button" class="shop-button shop-button-secondary" disabled><i class="fa-solid fa-qrcode" aria-hidden="true"></i> Cetak QR (<span id="batchQrCount">0</span>)</button>
             <button id="openReorderList" type="button" class="shop-button shop-button-secondary">Daftar belanja stok</button>
-            <button id="btnFillEmptySeoDesc" type="button" class="shop-button shop-button-secondary"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Lengkapi deskripsi SEO</button>
             <button id="publishCatalog" type="button" class="shop-button shop-button-secondary">Terbitkan barang aktif</button>
           </div>
         </div>
@@ -3578,7 +3617,7 @@
 
       const sizeVal = document.getElementById("invSize").value.trim();
       const colorVal = document.getElementById("invColor").value.trim();
-      const autoDesc = description || buildAutoProductDescription({ name, size: sizeVal, color: colorVal, description: "" });
+      const autoDesc = description;
 
       const itemId = editId || doc(collection(db, ...paths("inventory"))).id;
       const oldItem = inventory.find(i => i.id === itemId);
@@ -3648,7 +3687,7 @@
       const spec = [item?.size, item?.color].map(v => String(v || "").trim()).filter(Boolean).join(", ");
       const catInfo = detectProductCategoryLabel({ name, description: "" });
       if (isSenarBadminton({ name, description: "" })) {
-        return `${name}${spec ? ` (${spec})` : ""} tersedia di Surya Jaya Sport Tanjung Redeb, Berau. Harga sudah termasuk jasa pasang senar.`.slice(0, 400);
+        return `${name}${spec ? ` (${spec})` : ""} senar badminton tersedia di Surya Jaya Sport Jl. Ahmad Yani 37, Tanjung Redeb, Berau.`.slice(0, 400);
       }
       return `${name}${spec ? ` (${spec})` : ""} kategori ${catInfo.label} tersedia di Surya Jaya Sport Jl. Ahmad Yani 37, Tanjung Redeb, Berau.`.slice(0, 400);
     }
@@ -4219,17 +4258,20 @@
 
     // ==================== RENDER: KATALOG PUBLIK ====================
     const MUSIC_RE = /\b(gitar|guitar|ukulele|bass|capo|plektrum|musik|akustik|acoustic|klasik|classic|elektrik|electric|biola|violin|drum|stik\s*drum|cajon|jimbe|harmonika|tama|sonor|zildjian|yamaha\s*f|pyramid|d'?addario|orphee|ernie\s*ball|elixir|fender|nilon|nylon|kawat)\b/i;
-    const BADMINTON_BRAND_RE = /\b(badminton|bulutangkis|raket|shuttlecock|kok|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|power\s*max|tectonic|bg\s*\d+|nbg\s*\d+|exbolt|nanogy|aerobite|aerosonic|ultimax|vbs\s*\d+)\b/i;
-    const NOT_STRING_ITEM_RE = /\b(raket|racket|sepatu|baju|jersey|celana|tas|grip|kok|shuttlecock|kaos|net|celana|piala|taping)\b/i;
+    const BALL_ITEM_RE = /\b(futsal|bola|sepak|basket|voli|volley|football|soccer|molten|spalding|mikasa|nassau)\b/i;
+    const BADMINTON_STRING_MODEL_RE = /\b(bg\s*\d{1,2}m?(?!\d)|nbg\s*\d{2,3}(?!\d)|exbolt|nanogy|aerobite|aerosonic|ultimax|tectonic\s*65|vbs\s*\d{2,3}(?!\d))\b/i;
+    const BADMINTON_BRAND_RE = /\b(badminton|bulutangkis|raket|shuttlecock|kok|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|power\s*max|tectonic|bg\s*\d{1,2}m?(?!\d)|nbg\s*\d{2,3}(?!\d)|exbolt|nanogy|aerobite|aerosonic|ultimax|vbs\s*\d{2,3}(?!\d))\b/i;
+    const NOT_STRING_ITEM_RE = /\b(raket|racket|sepatu|baju|jersey|celana|tas|grip|kok|shuttlecock|kaos|net|piala|taping|bola|basket|futsal|voli|volley|sepak|molten|spalding|mikasa|catur|chess|pingpong|tenis|senapan|peluru|mimis|sepatu\s*roda|skate|deker|sarung\s*tangan|pompa|matras|dumbbell|barbel|skipping)\b/i;
 
     function isSenarBadminton(item) {
       const name = String(item?.name || "");
       const txt = [item?.name, item?.category, item?.description].filter(Boolean).join(" ");
       if (MUSIC_RE.test(txt)) return false;
+      if (BALL_ITEM_RE.test(txt)) return false;
       if (NOT_STRING_ITEM_RE.test(name)) return false;
       const hasSenarWord = /\bsenar\b/i.test(name);
       const isBadmintonCue = BADMINTON_BRAND_RE.test(txt);
-      const isModelOnly = /\b(bg\s*\d+|nbg\s*\d+|exbolt|nanogy|aerobite|aerosonic|ultimax|tectonic\s*65|vbs\s*\d+)\b/i.test(name);
+      const isModelOnly = BADMINTON_STRING_MODEL_RE.test(name);
       return (hasSenarWord && isBadmintonCue) || isModelOnly;
     }
 
@@ -4237,9 +4279,9 @@
       if (category === "all") return true;
       const name = String(item?.name || "");
       const isPingpong = /\b(pingpong|tenis\s*meja)\b/i.test(name);
-      const badminton = !isPingpong && !MUSIC_RE.test(name) && (isSenarBadminton(item) || /\b(badminton|bulutangkis|raket|shuttlecock|kok|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|power\s*max|tectonic|bg\s*\d+|nbg\s*\d+|exbolt|nanogy)\b/i.test(name));
-      const music = MUSIC_RE.test(name) || (!badminton && /\bsenar\b/i.test(name));
-      const ball = !music && /\b(futsal|bola|sepak|basket|voli|volley|football|soccer)\b/i.test(name);
+      const ball = !MUSIC_RE.test(name) && BALL_ITEM_RE.test(name);
+      const badminton = !isPingpong && !ball && !MUSIC_RE.test(name) && (isSenarBadminton(item) || /\b(badminton|bulutangkis|raket|shuttlecock|kok|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|power\s*max|tectonic|bg\s*\d{1,2}m?(?!\d)|nbg\s*\d{2,3}(?!\d)|exbolt|nanogy)\b/i.test(name));
+      const music = MUSIC_RE.test(name) || (!badminton && !ball && /\bsenar\b/i.test(name));
       const chess = /\b(catur|chess)\b/i.test(name);
       if (category === "music") return music;
       if (category === "badminton") return badminton;
@@ -4865,121 +4907,135 @@
       return "Rp " + Math.round(n);
     }
 
+    function buildUiKitProgressRows(rows, maxVal) {
+      const mx = Math.max(1, Number(maxVal) || 1);
+      return `<div class="space-y-2">` + rows.map(r => {
+        const pct = Math.max(r.val > 0 ? 6 : 0, Math.min(100, Math.round((r.val / mx) * 100)));
+        return `<div class="uikit-row">
+          <div class="uikit-row-head">
+            <span class="uikit-row-label">${esc(r.label)}</span>
+            <span class="uikit-row-val">${esc(r.display || rp(r.val))}</span>
+          </div>
+          <div class="uikit-bar-track"><div class="uikit-bar-fill" style="width:${pct}%; background:${r.color}"></div></div>
+        </div>`;
+      }).join("") + `</div>`;
+    }
+
+    function buildUiKitSpectrumSvg(color1 = "#1d4ed8", color2 = "#facc15") {
+      const heights = [18, 28, 22, 36, 44, 30, 40, 26, 48, 34, 24, 38, 20, 32];
+      const bars = heights.map((h, i) => {
+        const x = i * 8 + 2;
+        const y = 50 - h;
+        const fill = i === 8 ? color2 : (i % 3 === 0 ? "#93c5fd" : color1);
+        return `<rect x="${x}" y="${y}" width="4.5" height="${h}" rx="2.25" fill="${fill}"/>`;
+      }).join("");
+      return `<svg viewBox="0 0 116 52" class="w-28 h-12 shrink-0" aria-hidden="true">${bars}</svg>`;
+    }
+
     function buildSvgDonut(segments, centerTop, centerMain) {
       const total = segments.reduce((s, seg) => s + Math.max(0, Number(seg.value) || 0), 0);
-      const cx = 105, cy = 92, r = 56;
+      const cx = 92, cy = 84, r = 56;
       const circ = 2 * Math.PI * r;
       let offset = 0;
-      let midAcc = 0;
-      const callouts = [];
-      const trackRing = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#f1f5f9" stroke-width="20"/>`;
+      const trackRing = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#f1f5f9" stroke-width="11"/>`;
+      const innerDash = `<circle cx="${cx}" cy="${cy}" r="${r - 13}" fill="none" stroke="#e2e8f0" stroke-width="1.2" stroke-dasharray="2.5 3.5"/>`;
       const arcs = total > 0
         ? segments.filter(s => s.value > 0).map(seg => {
             const frac = seg.value / total;
-            const len = Math.max(0, frac * circ - 2.5);
-            const midAngle = (-Math.PI / 2) + ((midAcc + frac / 2) * 2 * Math.PI);
+            const len = Math.max(1, frac * circ - 4);
             const pct = Math.round(frac * 100);
-            if (pct >= 6) {
-              const px = cx + Math.cos(midAngle) * (r + 22);
-              const py = cy + Math.sin(midAngle) * (r + 22);
-              callouts.push(`<g>
-                <rect x="${(px - 17).toFixed(1)}" y="${(py - 9.5).toFixed(1)}" width="34" height="19" rx="9.5" fill="${seg.color}" stroke="#ffffff" stroke-width="1.5"/>
-                <text x="${px.toFixed(1)}" y="${(py + 3.5).toFixed(1)}" text-anchor="middle" fill="#ffffff" font-size="9.5" font-weight="900">${pct}%</text>
-              </g>`);
-            }
-            midAcc += frac;
-            const el = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${seg.color}" stroke-width="20" stroke-linecap="round" stroke-dasharray="${len.toFixed(2)} ${circ.toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}"><title>${esc(seg.label)}: ${esc(seg.display || seg.value)} (${pct}%)</title></circle>`;
+            const el = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${seg.color}" stroke-width="11" stroke-linecap="round" stroke-dasharray="${len.toFixed(2)} ${circ.toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}"><title>${esc(seg.label)}: ${esc(seg.display || seg.value)} (${pct}%)</title></circle>`;
             offset += frac * circ;
             return el;
           }).join("")
         : "";
 
-      const svg = `<svg viewBox="0 0 210 184" class="w-48 h-44 mx-auto shrink-0" role="img" aria-label="${esc(centerTop)} ${esc(centerMain)}">
-        ${trackRing}
+      const svg = `<svg viewBox="0 0 184 168" class="w-40 h-36 mx-auto shrink-0" role="img" aria-label="${esc(centerTop)} ${esc(centerMain)}">
+        ${trackRing}${innerDash}
         <g transform="rotate(-90 ${cx} ${cy})">${arcs}</g>
-        ${callouts.join("")}
-        <text x="${cx}" y="${cy - 7}" text-anchor="middle" fill="#64748b" font-size="9.5" font-weight="800">${esc(centerTop)}</text>
-        <text x="${cx}" y="${cy + 13}" text-anchor="middle" fill="#0f2557" font-size="16" font-weight="900">${esc(centerMain)}</text>
+        <text x="${cx}" y="${cy - 6}" text-anchor="middle" fill="#94a3b8" font-size="9" font-weight="800" letter-spacing="0.06em">${esc(centerTop)}</text>
+        <text x="${cx}" y="${cy + 14}" text-anchor="middle" fill="#0f2557" font-size="16" font-weight="900">${esc(centerMain)}</text>
       </svg>`;
 
-      const rows = segments.map(seg => {
+      const rows = `<div class="w-full space-y-2 pt-1">` + segments.map(seg => {
         const pct = total > 0 ? Math.round((seg.value / total) * 100) : 0;
-        return `<div class="flex items-center justify-between gap-2 text-xs py-1.5 border-b border-slate-100 last:border-0">
-          <span class="flex items-center gap-2 font-bold text-slate-700"><span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:${seg.color}"></span>${esc(seg.label)}</span>
-          <span class="font-extrabold text-slate-900 tabular-nums">${esc(seg.display || seg.value)} <span class="text-slate-400 font-bold">(${pct}%)</span></span>
+        return `<div class="uikit-row !py-1.5 !px-2.5">
+          <div class="uikit-row-head">
+            <span class="flex items-center gap-1.5 font-bold text-slate-700"><span class="w-2 h-2 rounded-full shrink-0" style="background:${seg.color}"></span>${esc(seg.label)}</span>
+            <span class="font-extrabold text-slate-900 tabular-nums">${esc(seg.display || seg.value)} <span class="text-slate-400 font-bold">(${pct}%)</span></span>
+          </div>
+          <div class="uikit-bar-track !h-1.5"><div class="uikit-bar-fill" style="width:${pct}%; background:${seg.color}"></div></div>
         </div>`;
-      }).join("");
+      }).join("") + `</div>`;
 
-      return `${svg}<div class="w-full">${rows}</div>`;
+      return `${svg}${rows}`;
     }
 
     function buildKledoSpeedometerSvg(pct) {
       const p = Math.max(0, Math.min(100, Number(pct) || 0));
-      const cx = 130, cy = 115, r = 84;
-      const segs = [
-        { a0: 180, a1: 214, c: "#f1f5f9" },
-        { a0: 217, a1: 251, c: "#bfdbfe" },
-        { a0: 254, a1: 288, c: "#3b82f6" },
-        { a0: 291, a1: 325, c: "#facc15" },
-        { a0: 328, a1: 360, c: "#16a34a" }
-      ];
-      const arcPath = (a0, a1) => {
-        const rad = a => (a * Math.PI) / 180;
-        const x1 = cx + r * Math.cos(rad(a0)), y1 = cy + r * Math.sin(rad(a0));
-        const x2 = cx + r * Math.cos(rad(a1)), y2 = cy + r * Math.sin(rad(a1));
-        return `M ${x1.toFixed(1)} ${y1.toFixed(1)} A ${r} ${r} 0 0 1 ${x2.toFixed(1)} ${y2.toFixed(1)}`;
-      };
-      const needleAng = (180 + (p / 100) * 180) * Math.PI / 180;
-      const nx = cx + (r - 12) * Math.cos(needleAng);
-      const ny = cy + (r - 12) * Math.sin(needleAng);
-      return `<svg viewBox="0 0 260 142" class="w-full max-w-[260px]">
-        ${segs.map(s => `<path d="${arcPath(s.a0, s.a1)}" fill="none" stroke="${s.c}" stroke-width="20" stroke-linecap="round"/>`).join("")}
-        <line x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="#0f2557" stroke-width="4.5" stroke-linecap="round"/>
-        <circle cx="${cx}" cy="${cy}" r="8" fill="#0f2557" stroke="#ffffff" stroke-width="2"/>
-        <text x="${cx}" y="${cy + 22}" text-anchor="middle" fill="#0f2557" font-size="16" font-weight="900">${p}% Laba</text>
+      const cx = 110, cy = 104, rIn = 64, rOut = 80;
+      const totalTicks = 34;
+      const startDeg = 140;
+      const sweepDeg = 260;
+      const activeTicks = Math.round((p / 100) * totalTicks);
+      const ticks = [];
+      for (let i = 0; i < totalTicks; i++) {
+        const deg = startDeg + (i / (totalTicks - 1)) * sweepDeg;
+        const rad = (deg * Math.PI) / 180;
+        const x1 = cx + rIn * Math.cos(rad), y1 = cy + rIn * Math.sin(rad);
+        const x2 = cx + rOut * Math.cos(rad), y2 = cy + rOut * Math.sin(rad);
+        const active = i < activeTicks;
+        const color = active ? (i > totalTicks * 0.78 ? "#eab308" : "#1d4ed8") : "#e2e8f0";
+        ticks.push(`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${color}" stroke-width="4.2" stroke-linecap="round"/>`);
+      }
+      return `<svg viewBox="0 0 220 182" class="w-48 h-40 mx-auto">
+        ${ticks.join("")}
+        <text x="${cx}" y="${cy - 14}" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="700">Rasio Laba</text>
+        <text x="${cx}" y="${cy + 16}" text-anchor="middle" fill="#0f2557" font-size="30" font-weight="900">${p}%</text>
+        <circle cx="${cx}" cy="${cy + 48}" r="14" fill="#1d4ed8"/>
+        <text x="${cx}" y="${cy + 52}" text-anchor="middle" fill="#facc15" font-size="11" font-weight="900">%</text>
       </svg>`;
     }
 
     function buildSemiGaugeSvg(primaryPct, secondaryPct, primaryLabel, secondaryLabel) {
-      const cx = 160, cy = 132, r = 98;
-      const arcLen = Math.PI * r;
+      const cx = 140, cy = 108, r = 74;
       const p1 = Math.max(0, Math.min(100, Number(primaryPct) || 0));
-      const dash1 = (p1 / 100) * arcLen;
-      const ticks = [0, 25, 50, 75, 100].map(val => {
-        const ang = Math.PI + (val / 100) * Math.PI;
-        const tx = cx + Math.cos(ang) * (r + 18);
-        const ty = cy + Math.sin(ang) * (r + 18);
-        return `<text x="${tx.toFixed(1)}" y="${(ty + 3).toFixed(1)}" text-anchor="middle" fill="#64748b" font-size="9.5" font-weight="700">${val}%</text>`;
-      }).join("");
-
-      return `<svg viewBox="0 0 320 156" class="w-full max-w-[340px] mx-auto">
-        <defs>
-          <linearGradient id="bentoGaugeGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stop-color="#1d4ed8"/>
-            <stop offset="65%" stop-color="#38bdf8"/>
-            <stop offset="100%" stop-color="#facc15"/>
-          </linearGradient>
-        </defs>
-        <path d="M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}" fill="none" stroke="#f1f5f9" stroke-width="14" stroke-linecap="round"/>
-        <path d="M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}" fill="none" stroke="url(#bentoGaugeGrad)" stroke-width="14" stroke-linecap="round" stroke-dasharray="${dash1.toFixed(1)} ${arcLen.toFixed(1)}"/>
-        ${ticks}
-        <text x="${cx - 42}" y="${cy - 22}" text-anchor="middle" fill="#0f2557" font-size="28" font-weight="900">${p1}%</text>
-        <text x="${cx - 42}" y="${cy - 4}" text-anchor="middle" fill="#1d4ed8" font-size="10.5" font-weight="800">● ${esc(primaryLabel)}</text>
-        <text x="${cx + 46}" y="${cy - 22}" text-anchor="middle" fill="#475569" font-size="24" font-weight="800">${Math.max(0, Math.min(100, Number(secondaryPct) || 0))}%</text>
-        <text x="${cx + 46}" y="${cy - 4}" text-anchor="middle" fill="#64748b" font-size="10.5" font-weight="700">● ${esc(secondaryLabel)}</text>
+      const p2 = Math.max(0, Math.min(100, Number(secondaryPct) || 0));
+      const startDeg = 165, sweepDeg = 210;
+      const polar = deg => {
+        const rad = (deg * Math.PI) / 180;
+        return [cx + r * Math.cos(rad), cy + r * Math.sin(rad)];
+      };
+      const arcD = (a0, a1) => {
+        const [x1, y1] = polar(a0);
+        const [x2, y2] = polar(a1);
+        const large = (a1 - a0) > 180 ? 1 : 0;
+        return `M ${x1.toFixed(1)} ${y1.toFixed(1)} A ${r} ${r} 0 ${large} 1 ${x2.toFixed(1)} ${y2.toFixed(1)}`;
+      };
+      const activeEnd = startDeg + Math.max(2, (p1 / 100) * sweepDeg);
+      const [kx, ky] = polar(activeEnd);
+      return `<svg viewBox="0 0 280 168" class="w-full max-w-[270px] mx-auto">
+        <circle cx="${cx}" cy="${cy}" r="${r - 14}" fill="none" stroke="#e2e8f0" stroke-width="1.2" stroke-dasharray="3 4"/>
+        <path d="${arcD(startDeg, startDeg + sweepDeg)}" fill="none" stroke="#f1f5f9" stroke-width="9" stroke-linecap="round"/>
+        <path d="${arcD(startDeg, activeEnd)}" fill="none" stroke="#1d4ed8" stroke-width="9" stroke-linecap="round"/>
+        <circle cx="${kx.toFixed(1)}" cy="${ky.toFixed(1)}" r="7.5" fill="#ffffff" stroke="#1d4ed8" stroke-width="3.5"/>
+        <text x="${cx}" y="${cy - 10}" text-anchor="middle" fill="#94a3b8" font-size="9.5" font-weight="700">${esc(primaryLabel)}</text>
+        <text x="${cx}" y="${cy + 16}" text-anchor="middle" fill="#0f2557" font-size="28" font-weight="900">${p1}%</text>
+        <text x="${cx - 64}" y="${cy + 50}" text-anchor="middle" fill="#1d4ed8" font-size="10" font-weight="800">● ${esc(primaryLabel)} ${p1}%</text>
+        <text x="${cx + 64}" y="${cy + 50}" text-anchor="middle" fill="#64748b" font-size="10" font-weight="700">● ${esc(secondaryLabel)} ${p2}%</text>
       </svg>`;
     }
 
     function buildSvgBarPairChart(items, dark = false) {
-      if (!items.length) return `<p class="text-sm text-center py-10 ${dark ? "text-blue-200" : "text-slate-500"}">Belum ada data pada periode ini.</p>`;
+      if (!items.length) return `<p class="text-sm text-center py-10 text-slate-500">Belum ada data pada periode ini.</p>`;
       const maxVal = Math.max(100000, ...items.map(i => Math.max(i.v1 || 0, i.v2 || 0)));
       const W = Math.max(580, items.length * 36);
       const H = 224;
-      const padL = 50, padR = 16, padT = 32, padB = 30;
+      const padL = 50, padR = 16, padT = 34, padB = 30;
       const plotW = W - padL - padR;
       const plotH = H - padT - padB;
       const step = plotW / items.length;
-      const barW = Math.max(6, Math.min(13, step * 0.34));
+      const barW = Math.max(6, Math.min(12, step * 0.34));
       const trackW = barW * 2 + 6;
 
       let peakIdx = -1, peakVal = 0;
@@ -4987,14 +5043,11 @@
         if ((it.v1 || 0) > peakVal) { peakVal = it.v1 || 0; peakIdx = idx; }
       });
 
-      const gridColor = dark ? "rgba(148,163,184,0.22)" : "#e2e8f0";
-      const trackColor = dark ? "rgba(255,255,255,0.08)" : "#f1f5f9";
-      const txtColor = dark ? "#cbd5e1" : "#64748b";
       const grids = [0, 0.25, 0.5, 0.75, 1].map(f => {
         const y = (padT + plotH * (1 - f)).toFixed(1);
         const lbl = shortRpTick(maxVal * f);
-        return `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="${gridColor}" stroke-dasharray="3 3"/>
-                <text x="${padL - 6}" y="${Number(y) + 3.5}" text-anchor="end" fill="${txtColor}" font-size="9.5" font-weight="700">${esc(lbl)}</text>`;
+        return `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#f1f5f9" stroke-width="1"/>
+                <text x="${padL - 6}" y="${Number(y) + 3.5}" text-anchor="end" fill="#94a3b8" font-size="9.5" font-weight="700">${esc(lbl)}</text>`;
       }).join("");
 
       const bars = items.map((it, idx) => {
@@ -5005,16 +5058,17 @@
         const y1 = padT + plotH - h1;
         const y2 = padT + plotH - h2;
         const tip = `${it.label}: Omzet ${rp(it.v1)} · Laba ${rp(it.v2)}`;
-        const omzetColor = isPeak ? (dark ? "#60a5fa" : "#1d4ed8") : (dark ? "#38bdf8" : "#3b82f6");
+        const omzetColor = isPeak ? "#1d4ed8" : "#93c5fd";
+        const labaColor = isPeak ? "#eab308" : "#fde047";
         const peakPill = isPeak
-          ? `<g><rect x="${Math.max(padL, Math.min(W - padR - 58, cx - 29)).toFixed(1)}" y="${Math.max(4, y1 - 24).toFixed(1)}" width="58" height="18" rx="9" fill="#0f2557"/><text x="${Math.max(padL + 29, Math.min(W - padR - 29, cx)).toFixed(1)}" y="${Math.max(16, y1 - 12).toFixed(1)}" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="800">${esc(shortRpTick(it.v1))}</text></g>`
+          ? `<g><rect x="${Math.max(padL, Math.min(W - padR - 62, cx - 31)).toFixed(1)}" y="${Math.max(4, y1 - 24).toFixed(1)}" width="62" height="19" rx="6" fill="#1d4ed8"/><text x="${Math.max(padL + 31, Math.min(W - padR - 31, cx)).toFixed(1)}" y="${Math.max(16.5, y1 - 11.5).toFixed(1)}" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="800">${esc(shortRpTick(it.v1))}</text></g>`
           : "";
         return `<g>
           <title>${esc(tip)}</title>
-          <rect x="${(cx - trackW / 2).toFixed(1)}" y="${padT}" width="${trackW.toFixed(1)}" height="${plotH}" rx="${Math.min(7, trackW / 2).toFixed(1)}" fill="${trackColor}"/>
+          <rect x="${(cx - trackW / 2).toFixed(1)}" y="${padT}" width="${trackW.toFixed(1)}" height="${plotH}" rx="${Math.min(7, trackW / 2).toFixed(1)}" fill="#f1f5f9"/>
           <rect x="${(cx - barW - 1.5).toFixed(1)}" y="${y1.toFixed(1)}" width="${barW.toFixed(1)}" height="${h1.toFixed(1)}" rx="${(barW / 2).toFixed(1)}" fill="${omzetColor}"/>
-          <rect x="${(cx + 1.5).toFixed(1)}" y="${y2.toFixed(1)}" width="${barW.toFixed(1)}" height="${h2.toFixed(1)}" rx="${(barW / 2).toFixed(1)}" fill="#facc15"/>
-          <text x="${cx.toFixed(1)}" y="${H - 10}" text-anchor="middle" fill="${isPeak ? (dark ? "#facc15" : "#0f2557") : txtColor}" font-size="9.5" font-weight="${isPeak ? "900" : "700"}">${esc(it.label)}</text>
+          <rect x="${(cx + 1.5).toFixed(1)}" y="${y2.toFixed(1)}" width="${barW.toFixed(1)}" height="${h2.toFixed(1)}" rx="${(barW / 2).toFixed(1)}" fill="${labaColor}"/>
+          <text x="${cx.toFixed(1)}" y="${H - 10}" text-anchor="middle" fill="${isPeak ? "#0f2557" : "#94a3b8"}" font-size="9.5" font-weight="${isPeak ? "900" : "700"}">${esc(it.label)}</text>
           ${peakPill}
         </g>`;
       }).join("");
@@ -5025,7 +5079,7 @@
     function buildSvgAreaTrend(points) {
       if (!points.length) return "";
       const maxVal = Math.max(100000, ...points.map(p => p.value));
-      const W = 580, H = 228, padL = 54, padR = 26, padT = 34, padB = 32;
+      const W = 580, H = 228, padL = 54, padR = 26, padT = 36, padB = 32;
       const plotW = W - padL - padR;
       const plotH = H - padT - padB;
       let peakIdx = 0;
@@ -5035,7 +5089,6 @@
         if (p.value >= points[peakIdx].value) peakIdx = i;
         return { x, y, ...p };
       });
-      // Smooth cubic curve
       let linePath = `M${coords[0].x.toFixed(1)},${coords[0].y.toFixed(1)}`;
       for (let i = 0; i < coords.length - 1; i++) {
         const c0 = coords[i], c1 = coords[i + 1];
@@ -5046,37 +5099,43 @@
 
       const grids = [0, 0.5, 1].map(f => {
         const y = (padT + plotH * (1 - f)).toFixed(1);
-        return `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#e2e8f0" stroke-dasharray="3 3"/>
-                <text x="${padL - 8}" y="${Number(y) + 4}" text-anchor="end" fill="#64748b" font-size="10" font-weight="700">${esc(shortRpTick(maxVal * f))}</text>`;
+        return `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#f1f5f9" stroke-width="1"/>
+                <text x="${padL - 8}" y="${Number(y) + 4}" text-anchor="end" fill="#94a3b8" font-size="10" font-weight="700">${esc(shortRpTick(maxVal * f))}</text>`;
       }).join("");
 
       const peak = coords[peakIdx];
-      const peakGuide = `<line x1="${peak.x.toFixed(1)}" y1="${peak.y.toFixed(1)}" x2="${peak.x.toFixed(1)}" y2="${(padT + plotH).toFixed(1)}" stroke="#bfdbfe" stroke-width="2" stroke-dasharray="3 3"/>`;
+      const peakBar = peak.value > 0
+        ? `<rect x="${(peak.x - 8).toFixed(1)}" y="${peak.y.toFixed(1)}" width="16" height="${Math.max(0, padT + plotH - peak.y).toFixed(1)}" rx="8" fill="url(#sjsPeakBarGrad)"/>`
+        : "";
 
       const dots = coords.map((c, idx) => {
         const isPeak = idx === peakIdx && c.value > 0;
         const lblPill = isPeak
-          ? `<rect x="${(c.x - 32).toFixed(1)}" y="${Math.max(4, c.y - 28).toFixed(1)}" width="64" height="19" rx="9.5" fill="#1d4ed8"/><text x="${c.x.toFixed(1)}" y="${Math.max(16.5, c.y - 15.5).toFixed(1)}" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="800">${esc(shortRpTick(c.value))}</text>`
-          : `<text x="${c.x.toFixed(1)}" y="${(c.y - 11).toFixed(1)}" text-anchor="middle" fill="#475569" font-size="10" font-weight="700">${esc(shortRpTick(c.value))}</text>`;
+          ? `<rect x="${(c.x - 34).toFixed(1)}" y="${Math.max(4, c.y - 29).toFixed(1)}" width="68" height="20" rx="6" fill="#1d4ed8"/><text x="${c.x.toFixed(1)}" y="${Math.max(17, c.y - 16).toFixed(1)}" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="800">${esc(shortRpTick(c.value))}</text>`
+          : `<text x="${c.x.toFixed(1)}" y="${(c.y - 11).toFixed(1)}" text-anchor="middle" fill="#64748b" font-size="9.5" font-weight="700">${esc(shortRpTick(c.value))}</text>`;
         return `<g>
           <title>${esc(c.label)}: ${esc(rp(c.value))}</title>
-          <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="${isPeak ? "6" : "4.5"}" fill="${isPeak ? "#0f2557" : "#1d4ed8"}" stroke="#ffffff" stroke-width="2"/>
+          <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="${isPeak ? "6" : "4"}" fill="#ffffff" stroke="${isPeak ? "#1d4ed8" : "#60a5fa"}" stroke-width="${isPeak ? "3" : "2"}"/>
           ${lblPill}
-          <text x="${c.x.toFixed(1)}" y="${H - 10}" text-anchor="middle" fill="${isPeak ? "#0f2557" : "#64748b"}" font-size="10.5" font-weight="${isPeak ? "900" : "700"}">${esc(c.label)}</text>
+          <text x="${c.x.toFixed(1)}" y="${H - 10}" text-anchor="middle" fill="${isPeak ? "#0f2557" : "#94a3b8"}" font-size="10.5" font-weight="${isPeak ? "900" : "700"}">${esc(c.label)}</text>
         </g>`;
       }).join("");
 
       return `<svg viewBox="0 0 ${W} ${H}" class="w-full h-56">
         <defs>
           <linearGradient id="sjsAreaGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#1d4ed8" stop-opacity="0.28"/>
-            <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0.02"/>
+            <stop offset="0%" stop-color="#1d4ed8" stop-opacity="0.22"/>
+            <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0.01"/>
+          </linearGradient>
+          <linearGradient id="sjsPeakBarGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#1d4ed8" stop-opacity="0.32"/>
+            <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0.03"/>
           </linearGradient>
         </defs>
         ${grids}
-        ${peakGuide}
         <path d="${areaPath}" fill="url(#sjsAreaGrad)"/>
-        <path d="${linePath}" fill="none" stroke="#1d4ed8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        ${peakBar}
+        <path d="${linePath}" fill="none" stroke="#1d4ed8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
         ${dots}
       </svg>`;
     }
@@ -5173,15 +5232,7 @@
           { label: "Bayar Tunai", val: pay.Cash, color: "#0ea5e9" },
           { label: "QRIS & Transfer", val: pay.QRIS + pay.Transfer + pay.Kartu, color: "#eab308" }
         ];
-        gaugeWrap.innerHTML = buildSemiGaugeSvg(sProfPct, sCostPct, "Laba Kotor", "Modal Barang") +
-          `<div class="space-y-2">` +
-          pillRows.map(r => {
-            const w = Math.max(r.val > 0 ? 22 : 18, Math.round((r.val / maxBar) * 76));
-            return `<div class="bento-pill-track">
-              <div class="bento-pill-fill" style="width:${w}%; background:${r.color}">${esc(r.label)}</div>
-              <span class="text-xs font-extrabold text-slate-900 shrink-0 tabular-nums">${rp(r.val)}</span>
-            </div>`;
-          }).join("") + `</div>`;
+        gaugeWrap.innerHTML = buildSemiGaugeSvg(sProfPct, sCostPct, "Laba Kotor", "Modal Barang") + buildUiKitProgressRows(pillRows, maxBar);
       }
 
       // 2. Bento Pastel Hero Card in Penjualan
@@ -5200,12 +5251,7 @@
               <span class="block text-xs font-extrabold text-slate-700">${rows.length} Nota · ${totalPcs} Pcs</span>
               <span class="block text-[11px] font-bold text-blue-900">Laba: ${rp(totalLabaRows)}</span>
             </div>
-            <div class="flex items-end gap-1.5 h-12" aria-hidden="true">
-              <span class="w-3 rounded-t-md bg-blue-400/70" style="height:40%"></span>
-              <span class="w-3 rounded-t-md bg-blue-600/80" style="height:70%"></span>
-              <span class="w-3 rounded-t-md bg-indigo-700" style="height:100%"></span>
-              <span class="w-3 rounded-t-md bg-amber-400" style="height:65%"></span>
-            </div>
+            ${buildUiKitSpectrumSvg()}
           </div>`;
       }
 
@@ -5245,14 +5291,12 @@
           const chips = top5.slice(0, 3).map(([n, v]) =>
             `<span class="bento-trending-chip"><span class="truncate max-w-[160px]">${esc(n)}</span><span class="bento-trending-badge">${v.qty}x</span></span>`
           ).join("");
-          const bars = top5.map(([name, v], idx) => {
-            const pct = Math.max(24, Math.round((v.omset / maxTop) * 76));
-            const fillColor = idx === 0 ? "#0f2557" : idx === 1 ? "#1d4ed8" : idx === 2 ? "#3b82f6" : "#eab308";
-            return `<div class="bento-pill-track">
-              <div class="bento-pill-fill" style="width:${pct}%; background:${fillColor}">${idx + 1}. ${esc(name)}</div>
-              <span class="text-xs font-extrabold text-slate-900 shrink-0 tabular-nums">${rp(v.omset)} · ${v.qty} pcs</span>
-            </div>`;
-          }).join("");
+          const bars = buildUiKitProgressRows(top5.map(([name, v], idx) => ({
+            label: `${idx + 1}. ${name}`,
+            val: v.omset,
+            display: `${rp(v.omset)} · ${v.qty} pcs`,
+            color: idx === 0 ? "#0f2557" : idx === 1 ? "#1d4ed8" : idx === 2 ? "#3b82f6" : "#eab308"
+          })), maxTop);
           topWrap.innerHTML = `<div class="flex flex-wrap gap-2 pb-1">${chips}</div>${bars}`;
         }
       }
@@ -5286,14 +5330,10 @@
       if (catWrap) {
         const maxCat = Math.max(1, ...Object.values(catsSell));
         const colors = ["#0f2557", "#1d4ed8", "#3b82f6", "#0ea5e9", "#eab308"];
-        const bars = Object.entries(catsSell).map(([k, v], idx) => {
-          const w = Math.max(v > 0 ? 22 : 18, Math.round((v / maxCat) * 76));
-          return `<div class="bento-pill-track">
-            <div class="bento-pill-fill" style="width:${w}%; background:${colors[idx % colors.length]}">${esc(k)}</div>
-            <span class="text-xs font-extrabold text-slate-900 shrink-0 tabular-nums">${rp(v)}</span>
-          </div>`;
-        }).join("");
-        catWrap.innerHTML = buildSemiGaugeSvg(okPct, attnPct, "Stok Aman", "Perlu Restok") + `<div class="space-y-2">${bars}</div>`;
+        catWrap.innerHTML = buildSemiGaugeSvg(okPct, attnPct, "Stok Aman", "Perlu Restok") + buildUiKitProgressRows(
+          Object.entries(catsSell).map(([k, v], idx) => ({ label: k, val: v, color: colors[idx % colors.length] })),
+          maxCat
+        );
       }
 
       const assetCard = document.getElementById("bentoStockAssetCard");
@@ -5311,12 +5351,7 @@
               <span class="block text-xs font-extrabold text-slate-700">${active.length} Jenis · ${totalUnits} Pcs</span>
               <span class="block text-[11px] font-bold text-blue-900">Potensi Jual: ${rp(totalPotensi)}</span>
             </div>
-            <div class="flex items-end gap-1.5 h-12" aria-hidden="true">
-              <span class="w-3 rounded-t-md bg-blue-400/70" style="height:55%"></span>
-              <span class="w-3 rounded-t-md bg-blue-600/80" style="height:85%"></span>
-              <span class="w-3 rounded-t-md bg-indigo-700" style="height:100%"></span>
-              <span class="w-3 rounded-t-md bg-amber-400" style="height:70%"></span>
-            </div>
+            ${buildUiKitSpectrumSvg()}
           </div>`;
       }
 
@@ -5366,15 +5401,7 @@
           { label: "Belanja Stok", val: beliBulanIni, color: "#eab308" },
           { label: "Pengeluaran Toko", val: spending, color: "#e11d48" }
         ];
-        gaugeWrap.innerHTML = buildSemiGaugeSvg(labaPct, modalPct, "Laba Penjualan", "Modal Barang") +
-          `<div class="space-y-2 pt-1">` +
-          rows.map(r => {
-            const w = Math.max(r.val > 0 ? 22 : 18, Math.round((r.val / maxBar) * 76));
-            return `<div class="bento-pill-track">
-              <div class="bento-pill-fill" style="width:${w}%; background:${r.color}">${esc(r.label)}</div>
-              <span class="text-xs font-extrabold text-slate-900 shrink-0 tabular-nums">${rp(r.val)}</span>
-            </div>`;
-          }).join("") + `</div>`;
+        gaugeWrap.innerHTML = buildSemiGaugeSvg(labaPct, modalPct, "Laba Penjualan", "Modal Barang") + buildUiKitProgressRows(rows, maxBar);
       }
 
       // 2. Bento Pastel Hero KPI Card (Omzet Bulan Ini + Mini 4-Bar Chart)
@@ -5393,12 +5420,7 @@
               <span class="block text-xs font-extrabold text-slate-700">${monthSales.length} Transaksi</span>
               <span class="block text-[11px] font-bold text-blue-900">Laba: ${rp(gross)}</span>
             </div>
-            <div class="flex items-end gap-1.5 h-12" aria-hidden="true">
-              <span class="w-3 rounded-t-md bg-blue-400/70" style="height:45%"></span>
-              <span class="w-3 rounded-t-md bg-blue-600/80" style="height:75%"></span>
-              <span class="w-3 rounded-t-md bg-indigo-700" style="height:100%"></span>
-              <span class="w-3 rounded-t-md bg-amber-400" style="height:62%"></span>
-            </div>
+            ${buildUiKitSpectrumSvg()}
           </div>`;
       }
 
@@ -5514,11 +5536,7 @@
           { label: "Belanja Stok", val: beliBulanIni, color: "#eab308" },
           { label: "Pengeluaran Toko", val: spending, color: "#e11d48" }
         ];
-        gw.innerHTML = buildSemiGaugeSvg(labaPct, modalPct, "Laba Penjualan", "Modal Barang") +
-          `<div class="space-y-2">` + rows.map(r => {
-            const w = Math.max(r.val > 0 ? 22 : 18, Math.round((r.val / maxBar) * 76));
-            return `<div class="bento-pill-track"><div class="bento-pill-fill" style="width:${w}%; background:${r.color}">${esc(r.label)}</div><span class="text-xs font-extrabold text-slate-900 shrink-0 tabular-nums">${rp(r.val)}</span></div>`;
-          }).join("") + `</div>`;
+        gw.innerHTML = buildSemiGaugeSvg(labaPct, modalPct, "Laba Penjualan", "Modal Barang") + buildUiKitProgressRows(rows, maxBar);
       }
 
       const pc = document.getElementById("repPastelOmzetCard");
@@ -5530,7 +5548,7 @@
           </div>
           <div class="flex items-end justify-between gap-3 pt-4">
             <div><span class="block text-xs font-extrabold text-slate-700">${monthSales.length} Transaksi</span><span class="block text-[11px] font-bold text-blue-900">Laba: ${rp(gross)}</span></div>
-            <div class="flex items-end gap-1.5 h-12" aria-hidden="true"><span class="w-3 rounded-t-md bg-blue-400/70" style="height:45%"></span><span class="w-3 rounded-t-md bg-blue-600/80" style="height:75%"></span><span class="w-3 rounded-t-md bg-indigo-700" style="height:100%"></span><span class="w-3 rounded-t-md bg-amber-400" style="height:62%"></span></div>
+            ${buildUiKitSpectrumSvg()}
           </div>`;
       }
       const spP = document.getElementById("repSpeedoPctPill");
@@ -5596,11 +5614,10 @@
       if (scW) {
         const maxCat = Math.max(1, ...Object.values(catsSell));
         const colors = ["#0f2557", "#1d4ed8", "#3b82f6", "#0ea5e9", "#eab308"];
-        scW.innerHTML = buildSemiGaugeSvg(okPct, 100 - okPct, "Stok Aman", "Perlu Restok") +
-          `<div class="space-y-2">` + Object.entries(catsSell).map(([k, v], idx) => {
-            const w = Math.max(v > 0 ? 22 : 18, Math.round((v / maxCat) * 76));
-            return `<div class="bento-pill-track"><div class="bento-pill-fill" style="width:${w}%; background:${colors[idx % colors.length]}">${esc(k)}</div><span class="text-xs font-extrabold text-slate-900 shrink-0 tabular-nums">${rp(v)}</span></div>`;
-          }).join("") + `</div>`;
+        scW.innerHTML = buildSemiGaugeSvg(okPct, 100 - okPct, "Stok Aman", "Perlu Restok") + buildUiKitProgressRows(
+          Object.entries(catsSell).map(([k, v], idx) => ({ label: k, val: v, color: colors[idx % colors.length] })),
+          maxCat
+        );
       }
       const sdW = document.getElementById("repStockDonutWrap");
       if (sdW) {
@@ -5628,11 +5645,12 @@
         const maxTop = top6[0]?.[1]?.omset || 1;
         tpW.innerHTML = top6.length
           ? `<div class="flex flex-wrap gap-2 pb-1">` + top6.slice(0, 3).map(([n, v]) => `<span class="bento-trending-chip"><span class="truncate max-w-[160px]">${esc(n)}</span><span class="bento-trending-badge">${v.qty}x</span></span>`).join("") + `</div>` +
-            top6.map(([name, v], idx) => {
-              const w = Math.max(24, Math.round((v.omset / maxTop) * 76));
-              const fc = idx === 0 ? "#0f2557" : idx === 1 ? "#1d4ed8" : idx === 2 ? "#3b82f6" : "#eab308";
-              return `<div class="bento-pill-track"><div class="bento-pill-fill" style="width:${w}%; background:${fc}">${idx + 1}. ${esc(name)}</div><span class="text-xs font-extrabold text-slate-900 shrink-0 tabular-nums">${rp(v.omset)} · ${v.qty} pcs</span></div>`;
-            }).join("")
+            buildUiKitProgressRows(top6.map(([name, v], idx) => ({
+              label: `${idx + 1}. ${name}`,
+              val: v.omset,
+              display: `${rp(v.omset)} · ${v.qty} pcs`,
+              color: idx === 0 ? "#0f2557" : idx === 1 ? "#1d4ed8" : idx === 2 ? "#3b82f6" : "#eab308"
+            })), maxTop)
           : `<p class="text-sm text-slate-500 py-6 text-center">Belum ada transaksi pada bulan ini.</p>`;
       }
     }
@@ -6942,7 +6960,7 @@
         const n = document.querySelectorAll("#posterBatchList input[type=checkbox]:checked").length;
         document.getElementById("posterBatchCount").textContent = n + " dipilih";
       }
-      document.getElementById("openPosterBatch").addEventListener("click", () => {
+      document.getElementById("openPosterBatch")?.addEventListener("click", () => {
         if (!isAdmin) return;
         const listEl = document.getElementById("posterBatchList");
         const items = activeInventory().slice().sort((a, b) => Number(Boolean(productImageUrl(a))) - Number(Boolean(productImageUrl(b))) || String(a.name || "").localeCompare(String(b.name || ""), "id"));
@@ -7740,11 +7758,7 @@
             const data = d.data();
             const ref = doc(db, "publicCatalog", d.id);
             if (!data.archivedAt) {
-              const desc = String(data.description || "").trim() || buildAutoProductDescription(data);
-              if (!String(data.description || "").trim()) {
-                tx.set(doc(db, ...paths("inventory", d.id)), { description: desc }, { merge: true });
-              }
-              tx.set(ref, publicProductData({ ...data, id: d.id, description: desc }));
+              tx.set(ref, publicProductData({ ...data, id: d.id }));
             } else if (pubIds.has(d.id)) {
               tx.delete(ref);
             }
