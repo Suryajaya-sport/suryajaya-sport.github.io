@@ -1824,10 +1824,10 @@
     }
 
     function renderInventory() {
-      updatePosLiveStats();
-      renderInventoryCharts();
-      renderBackupVolumeChart();
-      updateInventorySortUI();
+      try { updatePosLiveStats(); } catch (e) { console.error("updatePosLiveStats", e); }
+      try { renderInventoryCharts(); } catch (e) { console.error("renderInventoryCharts", e); }
+      try { renderBackupVolumeChart(); } catch (e) { console.error("renderBackupVolumeChart", e); }
+      try { updateInventorySortUI(); } catch (e) { console.error("updateInventorySortUI", e); }
       const q = document.getElementById("invSearchInput").value.trim().toLocaleLowerCase("id");
       const missingOnly = document.getElementById("invMissingPhotoOnly").checked;
       const catFilter = document.getElementById("inventoryCategoryFilter")?.value || "all";
@@ -2691,9 +2691,30 @@
       if (prioBadge) prioBadge.textContent = `${urgentItems.length} Barang`;
       const prioWrap = document.getElementById("tableStockPriorityWrap");
       if (prioWrap) {
+        const since30 = shiftDate(todayStr(), -29);
+        const sold30Map = new Map();
+        for (const tx of transactions) {
+          if (tx.date >= since30) {
+            for (const it of (tx.items || [])) {
+              const k = it.productId || it.name;
+              if (k) sold30Map.set(k, (sold30Map.get(k) || 0) + Number(it.qty || 0));
+              if (it.name) sold30Map.set(it.name, (sold30Map.get(it.name) || 0) + Number(it.qty || 0));
+            }
+          }
+        }
         const top10Urgent = urgentItems
           .slice()
-          .sort((a, b) => Number(a.stock || 0) - Number(b.stock || 0) || String(a.name || "").localeCompare(String(b.name || ""), "id"))
+          .sort((a, b) => {
+            const stDiff = Number(a.stock || 0) - Number(b.stock || 0);
+            if (stDiff !== 0) return stDiff;
+            const soldA = sold30Map.get(a.id) || sold30Map.get(a.name) || 0;
+            const soldB = sold30Map.get(b.id) || sold30Map.get(b.name) || 0;
+            if (soldB !== soldA) return soldB - soldA;
+            const profA = Math.max(0, Number(a.price || 0) - Number(a.cost || 0));
+            const profB = Math.max(0, Number(b.price || 0) - Number(b.cost || 0));
+            if (profB !== profA) return profB - profA;
+            return String(a.name || "").localeCompare(String(b.name || ""), "id");
+          })
           .slice(0, 10);
         if (!top10Urgent.length) {
           prioWrap.innerHTML = `<p class="text-sm font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-2xl px-4 py-6 text-center">Semua barang aktif stoknya aman (&ge; ${LOW_STOCK_LIMIT} pcs).</p>`;
@@ -2745,9 +2766,47 @@
                 <span class="${st <= 0 ? "text-rose-700" : "text-amber-700"}">${st === 0 ? "Stok Habis" : `Sisa ${st} pcs`}</span>
                 ${isAdmin ? `<button type="button" data-quick-in="${esc(it.id)}" class="text-emerald-800 hover:underline font-extrabold">+ Restok</button>` : ""}
               </div>
-              <div class="uikit-bar-track !h-1.5"><div class="uikit-bar-fill" style="width:${pct}%; background:${st <= 0 ? "#e11d48" : "#1d4ed8"}"></div></div>
+              <div class="uikit-bar-track !h-1.5"><div class="uikit-bar-fill" style="width:${pct}%; background:${st <= 0 ? "#e11d48" : "#eab308"}"></div></div>
             </div>`;
           }).join("");
+        }
+      }
+
+      // Baris 4: Barang Tidak Bergerak (Slow Moving 30 Hari)
+      const slowBadge = document.getElementById("badgeSlowMovingCount");
+      const slowWrap = document.getElementById("listSlowMovingWrap");
+      if (slowWrap) {
+        const since30Slow = shiftDate(todayStr(), -29);
+        const movedIds = new Set();
+        const movedNames = new Set();
+        for (const tx of transactions) {
+          if (tx.date >= since30Slow) {
+            for (const it of (tx.items || [])) {
+              if (it.productId) movedIds.add(it.productId);
+              if (it.name) movedNames.add(String(it.name).trim());
+            }
+          }
+        }
+        const slowItems = active
+          .filter(it => Number(it.stock || 0) >= 1 && !movedIds.has(it.id) && !movedNames.has(String(it.name || "").trim()))
+          .map(it => ({ item: it, st: Number(it.stock || 0), stuckCost: Number(it.stock || 0) * Number(it.cost || 0) }))
+          .sort((a, b) => b.stuckCost - a.stuckCost || b.st - a.st);
+        if (slowBadge) slowBadge.textContent = `${slowItems.length} Barang`;
+        const topSlow = slowItems.slice(0, 8);
+        if (!topSlow.length) {
+          slowWrap.innerHTML = `<p class="col-span-full text-sm font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-4 text-center">Semua barang aktif bergerak dalam 30 hari terakhir.</p>`;
+        } else {
+          slowWrap.innerHTML = topSlow.map(({ item: it, st, stuckCost }) => `
+            <div class="uikit-row !py-2.5 !px-3">
+              <div class="uikit-row-head">
+                <span class="uikit-row-label" title="${esc(it.name)}">${esc(it.name)}</span>
+                <span class="text-xs font-extrabold text-amber-800 shrink-0 tabular-nums">${st} pcs</span>
+              </div>
+              <div class="flex items-center justify-between gap-2 text-[11px] font-semibold text-slate-500 mt-0.5">
+                <span>Modal tertanam: <strong class="text-slate-800">${esc(shortRpTick(stuckCost))}</strong></span>
+                ${isAdmin ? `<button type="button" data-share-wa="${esc(it.id)}" class="text-emerald-700 hover:underline font-extrabold">Promo WA</button>` : ""}
+              </div>
+            </div>`).join("");
         }
       }
     }
@@ -2930,13 +2989,17 @@
           trendBox.innerHTML = `<p class="text-sm text-slate-500 py-8 text-center">Belum ada penjualan pada bulan ini.</p>`;
         } else {
           trendBox.innerHTML = `<table class="w-full text-left border-collapse text-xs">
-            <thead><tr class="border-b border-slate-200 text-[10px] font-extrabold uppercase text-slate-500"><th class="py-2 pr-1">Produk</th><th class="py-2 px-1 text-right">Omzet</th><th class="py-2 pl-1 text-right">Laba</th></tr></thead>
-            <tbody class="divide-y divide-slate-100">${topProfitable.map(([n, v], i) => `
-              <tr>
-                <td class="py-2 pr-1 font-bold text-slate-800 max-w-[145px] truncate" title="${esc(n)}">${i + 1}. ${esc(n)}</td>
+            <thead><tr class="border-b border-slate-200 text-[10px] font-extrabold uppercase text-slate-500"><th class="py-2 pr-1">Produk</th><th class="py-2 px-1 text-right">Omzet</th><th class="py-2 px-1 text-right">Laba</th><th class="py-2 pl-1 text-right">Margin</th></tr></thead>
+            <tbody class="divide-y divide-slate-100">${topProfitable.map(([n, v], i) => {
+              const mPct = v.omset > 0 ? Math.round((v.profit / v.omset) * 100) : 0;
+              const mCls = mPct >= 25 ? "text-emerald-700" : mPct >= 10 ? "text-blue-700" : "text-amber-700";
+              return `<tr>
+                <td class="py-2 pr-1 font-bold text-slate-800 max-w-[125px] truncate" title="${esc(n)}">${i + 1}. ${esc(n)}</td>
                 <td class="py-2 px-1 text-right text-slate-500 tabular-nums whitespace-nowrap">${esc(shortRpTick(v.omset))}</td>
-                <td class="py-2 pl-1 text-right font-extrabold text-emerald-700 tabular-nums whitespace-nowrap">${esc(shortRpTick(v.profit))}</td>
-              </tr>`).join("")}
+                <td class="py-2 px-1 text-right font-extrabold text-emerald-700 tabular-nums whitespace-nowrap">${esc(shortRpTick(v.profit))}</td>
+                <td class="py-2 pl-1 text-right font-extrabold ${mCls} tabular-nums whitespace-nowrap">${mPct}%</td>
+              </tr>`;
+            }).join("")}
             </tbody>
           </table>`;
         }
@@ -3174,6 +3237,27 @@
         { l: "Modal Terjual (HPP)", v: cost, cls: "border border-slate-200 bg-slate-50", lblCls: "text-slate-500", valCls: "text-slate-800" },
         { l: "Pengeluaran Toko", v: spending, cls: "border border-amber-200 bg-amber-50", lblCls: "text-amber-900", valCls: "text-amber-950" }
       ].map(c => `<div class="rounded-2xl ${c.cls} p-3.5"><dt class="text-xs font-extrabold ${c.lblCls}">${c.l}</dt><dd class="text-lg font-extrabold mt-1 tabular-nums ${c.valCls}">${rp(c.v)}</dd></div>`).join("");
+      const healthEl = document.getElementById("booksHealthBadge");
+      if (healthEl) {
+        const grossPct = revenue > 0 ? Math.round((gross / revenue) * 100) : 0;
+        const netPct = revenue > 0 ? Math.round((profit / revenue) * 100) : 0;
+        let statusDot = "⚪", statusLabel = "Belum Ada Penjualan", badgeCls = "bg-slate-100 text-slate-700 border-slate-300";
+        if (revenue > 0) {
+          if (profit < 0 || netPct < 0) { statusDot = "🔴"; statusLabel = "Rugi"; badgeCls = "bg-rose-100 text-rose-800 border-rose-300"; }
+          else if (netPct > 20) { statusDot = "🟢"; statusLabel = "Sangat Sehat"; badgeCls = "bg-emerald-100 text-emerald-800 border-emerald-300"; }
+          else if (netPct >= 10) { statusDot = "🟡"; statusLabel = "Cukup Sehat"; badgeCls = "bg-amber-100 text-amber-800 border-amber-300"; }
+          else { statusDot = "🟠"; statusLabel = "Perlu Perhatian"; badgeCls = "bg-orange-100 text-orange-800 border-orange-300"; }
+        }
+        const zeroExpNote = revenue > 0 && spending === 0
+          ? `<span class="text-[11px] font-semibold text-slate-500">Biaya operasional (listrik, gaji, sewa) masih Rp 0 &mdash; catat di Uang Keluar agar laba bersih akurat.</span>`
+          : "";
+        healthEl.innerHTML = `<div class="flex flex-wrap items-center gap-2">
+          <span class="font-extrabold text-slate-700">Kesehatan Bisnis:</span>
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border font-extrabold ${badgeCls}">${statusDot} ${statusLabel}</span>
+          <span class="text-slate-600 font-bold">Margin Kotor: <strong class="text-slate-900">${grossPct}%</strong></span>
+          <span class="text-slate-600 font-bold">Margin Bersih: <strong class="${netPct < 0 ? "text-rose-700" : "text-emerald-700"}">${netPct}%</strong></span>
+        </div>${zeroExpNote}`;
+      }
 
       const em = document.getElementById("expenseMonth").value;
       const exp = books.expenses.filter(e => em && String(e.date || "").startsWith(em + "-"))
@@ -3226,7 +3310,8 @@
         const cashIn = monthSales.filter(t => (t.paymentMethod || "Cash") === "Cash").reduce((s, t) => s + Number(t.totalOmset || 0), 0);
         const nonCashIn = revenue - cashIn;
         const monthRestockTotal = purchases.filter(p => String(p.date || "").startsWith(month + "-")).reduce((s, p) => s + Number(p.totalCost || 0), 0);
-        const netCashFlow = revenue - spending - monthRestockTotal;
+        const surplusBeforeDeposit = revenue - spending - monthRestockTotal;
+        const netCashFlow = surplusBeforeDeposit - bankDepositTotal;
         const sortedClosings = (books.cashClosings || []).slice().sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
         const monthClosings = sortedClosings.filter(c => String(c.date || "").startsWith(month + "-"));
         const latestClosing = monthClosings[0] || sortedClosings[0] || null;
@@ -3240,7 +3325,7 @@
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
             <div class="rounded-xl bg-white border border-blue-100 p-3"><span class="text-[11px] font-bold text-slate-500">Kas Masuk Tunai</span><strong class="block text-base font-extrabold text-slate-900 mt-0.5 tabular-nums">${rp(cashIn)}</strong><span class="text-[10px] font-semibold text-slate-500">Non-tunai: ${rp(nonCashIn)}</span></div>
             <div class="rounded-xl bg-white border border-blue-100 p-3"><span class="text-[11px] font-bold text-slate-500">Total Uang Keluar</span><strong class="block text-base font-extrabold text-rose-700 mt-0.5 tabular-nums">${rp(spending + monthRestockTotal)}</strong><span class="text-[10px] font-semibold text-slate-500">Biaya ${shortRpTick(spending)} + Restok ${shortRpTick(monthRestockTotal)}</span></div>
-            <div class="rounded-xl bg-white border border-blue-100 p-3"><span class="text-[11px] font-bold text-slate-500">Arus Kas Bersih Bulan Ini</span><strong class="block text-base font-extrabold ${netCashFlow < 0 ? "text-rose-700" : "text-emerald-700"} mt-0.5 tabular-nums">${rp(netCashFlow)}</strong><span class="text-[10px] font-semibold text-slate-500">Omzet &minus; Biaya &minus; Restok</span></div>
+            <div class="rounded-xl bg-white border border-blue-100 p-3"><span class="text-[11px] font-bold text-slate-500">Arus Kas Bersih Bulan Ini</span><strong class="block text-base font-extrabold ${netCashFlow < 0 ? "text-rose-700" : "text-emerald-700"} mt-0.5 tabular-nums">${rp(netCashFlow)}</strong><span class="text-[10px] font-semibold text-slate-500">${bankDepositTotal > 0 ? `Setelah setor/prive ${shortRpTick(bankDepositTotal)} (surplus sblm setor ${shortRpTick(surplusBeforeDeposit)})` : "Omzet &minus; Biaya &minus; Restok"}</span></div>
             <div class="rounded-xl bg-white border border-emerald-200 p-3"><span class="text-[11px] font-bold text-emerald-800">Saldo Akhir Kas Fisik</span><strong class="block text-base font-extrabold text-emerald-900 mt-0.5 tabular-nums">${rp(closingVal)}</strong><span class="text-[10px] font-semibold text-slate-500">${esc(closingInfo)}</span></div>
           </div>`;
       }
