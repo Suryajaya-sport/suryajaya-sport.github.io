@@ -40,11 +40,13 @@
     "paymentAccepted": "Cash, QRIS, Credit Card, Bank Transfer",
     "currenciesAccepted": "IDR",
     "areaServed": ["Tanjung Redeb", "Berau", "Kalimantan Timur"],
+    "foundingDate": "1984",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "Jl. Ahmad Yani 37",
       "addressLocality": "Tanjung Redeb",
       "addressRegion": "Kalimantan Timur",
+      "postalCode": "77352",
       "addressCountry": "ID"
     },
     "openingHoursSpecification": [
@@ -55,7 +57,12 @@
         "closes": "21:00"
       }
     ],
-    "hasMap": "https://www.google.com/maps/search/?api=1&query=Surya+Jaya+Sport+Jl.+Ahmad+Yani+37+Tanjung+Redeb+Berau"
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.4",
+      "reviewCount": 40
+    },
+    "hasMap": "https://www.google.com/maps/search/?api=1&query=Surya+Jaya+Sport&query_place_id=ChIJPwiXPaT1DTIR4E2dU8PQWpI"
   }
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -217,7 +224,9 @@
     .z-50 { z-index:50; }
     *, *::before, *::after { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; color: #0f172a; max-width: 100%; }
+    html { overflow-x: clip; max-width: 100%; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; color: #0f172a; max-width: 100%; overflow-x: clip; }
+    .shop-main > * { min-width: 0; }
     input, select, textarea { font-size: 16px !important; max-width: 100%; }
     [hidden] { display: none !important; }
 
@@ -790,33 +799,40 @@
       if (!url || !url.includes("/image/upload/")) return url;
       return url.replace("/image/upload/", `/image/upload/c_fill,w_${width},q_auto,f_auto/`);
     }
-    function matchesCatalogCategory(item, category) {
-      if (category === "all") return true;
-      const name = item.name || "";
-      const badminton = /\b(badminton|raket|shuttlecock|kok|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|bg\s*\d+|exbolt|nanogy)\b/i.test(name);
-      const music = /\b(gitar|ukulele|bass|capo|plektrum|musik|pyramid)\b/i.test(name) || (!badminton && /\bsenar\b/i.test(name));
-      if (category === "music") return music;
-      if (category === "badminton") return !music && badminton;
-      if (category === "ball") return !music && /\b(futsal|bola|sepak|basket|voli|volley|football|soccer)\b/i.test(name);
-      if (category === "chess") return /\b(catur|chess)\b/i.test(name);
-      if (category === "sport") return !music && !badminton && !/\b(futsal|bola|sepak|basket|voli|volley|football|soccer|catur|chess)\b/i.test(name);
-      return false;
-    }
+    const MUSIC_RE = /\b(gitar|guitar|ukulele|bass|capo|plektrum|musik|akustik|acoustic|klasik|classic|elektrik|electric|biola|violin|drum|stik\s*drum|cajon|jimbe|harmonika|tama|sonor|zildjian|yamaha\s*f|pyramid|d'?addario|orphee|ernie\s*ball|elixir|fender|nilon|nylon|kawat)\b/i;
+    const BADMINTON_BRAND_RE = /\b(badminton|bulutangkis|raket|shuttlecock|kok|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|power\s*max|tectonic|bg\s*\d+|nbg\s*\d+|exbolt|nanogy|aerobite|aerosonic|ultimax|vbs\s*\d+)\b/i;
+    const NOT_STRING_ITEM_RE = /\b(raket|racket|sepatu|baju|jersey|celana|tas|grip|kok|shuttlecock|kaos|net|celana|piala|taping)\b/i;
+
     function isSenarBadminton(item) {
       const name = String(item?.name || "");
       const txt = [item?.name, item?.category, item?.description].filter(Boolean).join(" ");
-      if (/\b(gitar|guitar|ukulele|bass|akustik|acoustic|klasik|classic|elektrik|electric|biola|violin|musik|pyramid|d'?addario|orphee|ernie\s*ball|elixir|fender)\b/i.test(txt)) {
-        return false;
-      }
-      const hasSenarWord = /\bsenar\b/i.test(name) || /\bsenar\s+(badminton|bulutangkis|raket)\b/i.test(txt);
-      const isBadmintonCue = /\b(badminton|bulutangkis|raket|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|bg\s*\d+|nbg\s*\d+|exbolt|nanogy|aerobite|aerosonic|ultimax|vbs\s*\d+)\b/i.test(txt);
-      const isKnownBadmintonStringName = !/\b(raket|sepatu|baju|celana|tas|grip|kok|shuttlecock|kaos)\b/i.test(name) && /\b(bg\s*65|bg\s*66|bg\s*80|nbg\s*98|nbg\s*99|exbolt|aerobite|aerosonic|nanogy)\b/i.test(name);
-      return (hasSenarWord && isBadmintonCue) || isKnownBadmintonStringName;
+      if (MUSIC_RE.test(txt)) return false;
+      if (NOT_STRING_ITEM_RE.test(name)) return false;
+      const hasSenarWord = /\bsenar\b/i.test(name);
+      const isBadmintonCue = BADMINTON_BRAND_RE.test(txt);
+      const isModelOnly = /\b(bg\s*\d+|nbg\s*\d+|exbolt|nanogy|aerobite|aerosonic|ultimax|tectonic\s*65|vbs\s*\d+)\b/i.test(name);
+      return (hasSenarWord && isBadmintonCue) || isModelOnly;
+    }
+
+    function matchesCatalogCategory(item, category) {
+      if (category === "all") return true;
+      const name = String(item?.name || "");
+      const isPingpong = /\b(pingpong|tenis\s*meja)\b/i.test(name);
+      const badminton = !isPingpong && !MUSIC_RE.test(name) && (isSenarBadminton(item) || /\b(badminton|bulutangkis|raket|shuttlecock|kok|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|power\s*max|tectonic|bg\s*\d+|nbg\s*\d+|exbolt|nanogy)\b/i.test(name));
+      const music = MUSIC_RE.test(name) || (!badminton && /\bsenar\b/i.test(name));
+      const ball = !music && /\b(futsal|bola|sepak|basket|voli|volley|football|soccer)\b/i.test(name);
+      const chess = /\b(catur|chess)\b/i.test(name);
+      if (category === "music") return music;
+      if (category === "badminton") return badminton;
+      if (category === "ball") return ball;
+      if (category === "chess") return chess;
+      if (category === "sport") return !music && !badminton && !ball && !chess;
+      return false;
     }
     function productImageMarkup(item, extraClass = "", width = 560, eager = false) {
       const url = safeHttpsUrl(item?.imageUrl);
       if (url) {
-        return `<div class="${extraClass} relative overflow-hidden bg-white"><img src="${esc(thumbnailUrl(url, width))}" alt="${esc(item?.name || "Foto produk")}" loading="${eager ? "eager" : "lazy"}" class="h-full w-full object-contain bg-white"></div>`;
+        return `<div class="${extraClass} relative overflow-hidden bg-white"><img src="${esc(thumbnailUrl(url, width))}" alt="${esc(item?.name ? `${item.name} - Surya Jaya Sport Berau` : "Foto produk Surya Jaya Sport Berau")}" loading="${eager ? "eager" : "lazy"}" class="h-full w-full object-contain bg-white"></div>`;
       }
       const shortName = esc(String(item?.name || "Surya Jaya Sport").slice(0, 34));
       return `<div class="${extraClass} relative overflow-hidden flex flex-col items-center justify-center p-3 text-center text-white" style="background:linear-gradient(135deg,#0b2566 0%,#1d5fd6 62%,#38bdf8 100%)">
@@ -902,11 +918,30 @@
         <div class="grid grid-cols-2 gap-2 pt-2">
           <button type="button" data-detail-add="${esc(item.id)}" ${Number(item.stock || 0) <= 0 ? "disabled" : ""} class="shop-button shop-button-primary"><i class="fa-solid ${Number(item.stock || 0) <= 0 ? "fa-ban" : "fa-plus"}" aria-hidden="true"></i> ${Number(item.stock || 0) <= 0 ? "Stok Habis" : "Keranjang"}</button>
           <a href="${CATALOG_WA}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener noreferrer" class="shop-button shop-button-secondary"><i class="fa-brands fa-whatsapp text-emerald-600" aria-hidden="true"></i> Tanya WA</a>
+          <button type="button" data-copy-link="${esc(item.id)}" class="shop-button shop-button-secondary col-span-2"><i class="fa-solid fa-link text-blue-700" aria-hidden="true"></i> Salin Link Produk</button>
         </div>`;
       const dlg = document.getElementById("catalogProductModal");
       dlg.querySelector("[data-detail-add]").addEventListener("click", () => {
         addToCatalogCart(item.id);
         dlg.close();
+      });
+      const copyBtn = dlg.querySelector("[data-copy-link]");
+      copyBtn?.addEventListener("click", async () => {
+        const shareUrl = `https://suryajaya-sport.github.io/produk/?id=${encodeURIComponent(item.id)}`;
+        try {
+          await navigator.clipboard.writeText(shareUrl);
+        } catch {
+          const inp = document.createElement("input");
+          inp.value = shareUrl;
+          document.body.appendChild(inp);
+          inp.select();
+          document.execCommand("copy");
+          inp.remove();
+        }
+        copyBtn.innerHTML = `<i class="fa-solid fa-check text-emerald-600" aria-hidden="true"></i> Link Tersalin!`;
+        setTimeout(() => {
+          copyBtn.innerHTML = `<i class="fa-solid fa-link text-blue-700" aria-hidden="true"></i> Salin Link Produk`;
+        }, 2000);
       });
       if (!dlg.open) dlg.showModal();
     }
@@ -968,6 +1003,29 @@
           </div>
         </article>`;
       }).join("");
+      updateCatalogSchema(catalog);
+    }
+
+    function updateCatalogSchema(items) {
+      if (!Array.isArray(items) || !items.length) return;
+      let ld = document.getElementById("catalogSchema");
+      if (!ld) {
+        ld = document.createElement("script");
+        ld.id = "catalogSchema";
+        ld.type = "application/ld+json";
+        document.head.appendChild(ld);
+      }
+      ld.textContent = JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        name: "Katalog Produk Surya Jaya Sport Berau",
+        itemListElement: items.slice(0, 50).map((it, i) => ({
+          "@type": "ListItem",
+          position: i + 1,
+          url: `https://suryajaya-sport.github.io/produk/?id=${encodeURIComponent(it.id)}`,
+          name: it.name
+        }))
+      });
     }
 
     const syncHeaderHeight = () => {

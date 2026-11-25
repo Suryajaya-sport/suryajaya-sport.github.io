@@ -6,7 +6,12 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Detail Produk | Surya Jaya Sport Berau</title>
   <meta name="description" content="Cek foto, harga, dan stok produk Surya Jaya Sport Jl. Ahmad Yani 37, Tanjung Redeb, Berau.">
-  <meta name="robots" content="noindex">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://suryajaya-sport.github.io/produk/">
+  <meta property="og:type" content="product">
+  <meta property="og:title" content="Detail Produk | Surya Jaya Sport Berau">
+  <meta property="og:description" content="Cek foto, harga, dan stok produk Surya Jaya Sport Jl. Ahmad Yani 37, Tanjung Redeb, Berau.">
+  <meta property="og:image" content="https://suryajaya-sport.github.io/og-surya-jaya-sport.jpg">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -145,13 +150,35 @@
     function safeHttpsUrl(url) {
       try { const u = new URL(String(url || "").trim()); return u.protocol === "https:" ? u.href : ""; } catch { return ""; }
     }
+    const MUSIC_RE = /\b(gitar|guitar|ukulele|bass|capo|plektrum|musik|akustik|acoustic|klasik|classic|elektrik|electric|biola|violin|drum|stik\s*drum|cajon|jimbe|harmonika|tama|sonor|zildjian|yamaha\s*f|pyramid|d'?addario|orphee|ernie\s*ball|elixir|fender|nilon|nylon|kawat)\b/i;
+    const BADMINTON_BRAND_RE = /\b(badminton|bulutangkis|raket|shuttlecock|kok|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|power\s*max|tectonic|bg\s*\d+|nbg\s*\d+|exbolt|nanogy|aerobite|aerosonic|ultimax|vbs\s*\d+)\b/i;
+    const NOT_STRING_ITEM_RE = /\b(raket|racket|sepatu|baju|jersey|celana|tas|grip|kok|shuttlecock|kaos|net|celana|piala|taping)\b/i;
+
     function isSenarBadminton(item) {
       const name = String(item?.name || "");
       const txt = [item?.name, item?.category, item?.description].filter(Boolean).join(" ");
-      if (/\b(gitar|guitar|ukulele|bass|akustik|acoustic|klasik|classic|elektrik|electric|biola|violin|musik|pyramid|d'?addario|orphee|ernie\s*ball|elixir|fender)\b/i.test(txt)) return false;
-      const hasSenarWord = /\bsenar\b/i.test(name) || /\bsenar\s+(badminton|bulutangkis|raket)\b/i.test(txt);
-      const isBadmintonCue = /\b(badminton|bulutangkis|raket|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|bg\s*\d+|nbg\s*\d+|exbolt|nanogy|aerobite|aerosonic|ultimax|vbs\s*\d+)\b/i.test(txt);
-      return hasSenarWord && isBadmintonCue;
+      if (MUSIC_RE.test(txt)) return false;
+      if (NOT_STRING_ITEM_RE.test(name)) return false;
+      const hasSenarWord = /\bsenar\b/i.test(name);
+      const isBadmintonCue = BADMINTON_BRAND_RE.test(txt);
+      const isModelOnly = /\b(bg\s*\d+|nbg\s*\d+|exbolt|nanogy|aerobite|aerosonic|ultimax|tectonic\s*65|vbs\s*\d+)\b/i.test(name);
+      return (hasSenarWord && isBadmintonCue) || isModelOnly;
+    }
+
+    function matchesCatalogCategory(item, category) {
+      if (category === "all") return true;
+      const name = String(item?.name || "");
+      const isPingpong = /\b(pingpong|tenis\s*meja)\b/i.test(name);
+      const badminton = !isPingpong && !MUSIC_RE.test(name) && (isSenarBadminton(item) || /\b(badminton|bulutangkis|raket|shuttlecock|kok|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|power\s*max|tectonic|bg\s*\d+|nbg\s*\d+|exbolt|nanogy)\b/i.test(name));
+      const music = MUSIC_RE.test(name) || (!badminton && /\bsenar\b/i.test(name));
+      const ball = !music && /\b(futsal|bola|sepak|basket|voli|volley|football|soccer)\b/i.test(name);
+      const chess = /\b(catur|chess)\b/i.test(name);
+      if (category === "music") return music;
+      if (category === "badminton") return badminton;
+      if (category === "ball") return ball;
+      if (category === "chess") return chess;
+      if (category === "sport") return !music && !badminton && !ball && !chess;
+      return false;
     }
 
     const box = document.getElementById("productBox");
@@ -183,11 +210,48 @@
           renderNotFound();
         } else {
           const item = { ...snap.data(), id: snap.id };
-          document.title = `${item.name} | Surya Jaya Sport Berau`;
           const imgUrl = safeHttpsUrl(item.imageUrl);
           const stockNum = Number(item.stock || 0);
           const out = stockNum <= 0;
           const meta = [item.code, item.size, item.color].filter(Boolean).join(" · ");
+          const seoTitle = `${item.name} — Surya Jaya Sport Berau`;
+          const seoDesc = item.description
+            ? `${item.description} Harga ${rp(item.price)} di Surya Jaya Sport Jl. Ahmad Yani 37, Tanjung Redeb, Berau.`
+            : `${item.name}${meta ? ` (${meta})` : ""} harga ${rp(item.price)} (${out ? "Stok habis" : `Stok tersedia ${stockNum} pcs`}) di Surya Jaya Sport Jl. Ahmad Yani 37, Tanjung Redeb, Berau.`;
+          document.title = seoTitle;
+          const setMeta = (sel, attr, val) => { const el = document.querySelector(sel); if (el && val) el.setAttribute(attr, val); };
+          setMeta('meta[name="description"]', "content", seoDesc);
+          setMeta('meta[property="og:title"]', "content", seoTitle);
+          setMeta('meta[property="og:description"]', "content", seoDesc);
+          if (imgUrl) setMeta('meta[property="og:image"]', "content", imgUrl);
+          setMeta('link[rel="canonical"]', "href", window.location.href);
+          let ld = document.getElementById("productSchema");
+          if (!ld) {
+            ld = document.createElement("script");
+            ld.id = "productSchema";
+            ld.type = "application/ld+json";
+            document.head.appendChild(ld);
+          }
+          ld.textContent = JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: item.name,
+            sku: item.code || item.id,
+            description: seoDesc,
+            ...(imgUrl ? { image: imgUrl } : {}),
+            offers: {
+              "@type": "Offer",
+              url: window.location.href,
+              priceCurrency: "IDR",
+              price: Math.max(0, Number(item.price || 0)),
+              availability: out ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+              seller: {
+                "@type": "SportingGoodsStore",
+                name: "Surya Jaya Sport",
+                telephone: "+62-823-200-33333"
+              }
+            }
+          });
           const showSenar = isSenarBadminton(item) && !/jasa\s+pasang\s+senar/i.test(String(item.description || ""));
           const waText = out
             ? `Halo Surya Jaya Sport, apakah stok ${item.name}${item.code ? ` (${item.code})` : ""} akan tersedia lagi?`
@@ -196,7 +260,7 @@
           box.innerHTML = `
             <div class="photo-box">
               ${imgUrl
-                ? `<img src="${esc(imgUrl)}" alt="${esc(item.name)}">`
+                ? `<img src="${esc(imgUrl)}" alt="${esc(item.name)} — Surya Jaya Sport Tanjung Redeb Berau">`
                 : `<div style="text-align:center; padding:2rem; color:#1e3a8a; font-weight:800;">${esc(item.name)}</div>`}
             </div>
             <div class="body">
@@ -210,9 +274,25 @@
               </div>
               <div class="actions">
                 <a href="${CATALOG_WA}?text=${encodeURIComponent(waText)}" target="_blank" rel="noopener noreferrer" class="btn btn-wa">Tanya / Pesan WA</a>
-                <a href="/" class="btn btn-cat">Lihat Katalog Lain</a>
+                <button type="button" id="btnCopyProductLink" class="btn btn-cat">Salin Link</button>
+                <a href="/" class="btn btn-cat">Katalog Lain</a>
               </div>
             </div>`;
+          const copyBtn = document.getElementById("btnCopyProductLink");
+          copyBtn?.addEventListener("click", async () => {
+            try {
+              await navigator.clipboard.writeText(window.location.href);
+            } catch {
+              const inp = document.createElement("input");
+              inp.value = window.location.href;
+              document.body.appendChild(inp);
+              inp.select();
+              document.execCommand("copy");
+              inp.remove();
+            }
+            copyBtn.textContent = "Link Tersalin!";
+            setTimeout(() => { copyBtn.textContent = "Salin Link"; }, 2000);
+          });
         }
       } catch (err) {
         renderNotFound("Gagal memuat data produk. Silakan hubungi WhatsApp 0823-200-33333.");

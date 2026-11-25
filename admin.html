@@ -51,7 +51,9 @@
     :root { --sjs-navy: #0b1220; }
     *, *::before, *::after { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
-    body { max-width: 100%; }
+    html, body { overflow-x: clip; max-width: 100%; }
+    .shop-main > *, .pos-split > *, .kledo-overview-grid > *, .bento-grid > * { min-width: 0; }
+    img, svg { max-width: 100%; }
     body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; color: #0f172a; }
     input, select, textarea { font-size: 16px !important; max-width: 100%; }
     [hidden] { display: none !important; }
@@ -475,7 +477,7 @@
     .pos-card-price { margin-top: auto; padding-top: .3rem; font-size: .88rem; font-weight: 800; color: #047857; font-variant-numeric: tabular-nums; }
     .pos-cart-sticky {
       position: sticky;
-      top: calc(var(--sjs-header-h, 74px) + 5rem);
+      top: calc(var(--sjs-header-h, 74px) + var(--sjs-pastel-h, 114px) + 12px);
     }
     @media (max-width: 1080px) {
       .pos-cart-sticky { position: static; }
@@ -758,7 +760,9 @@
     }
 
     @media (max-width: 767px) {
-      body.sjs-admin .shop-main { padding-bottom: 6.2rem !important; }
+      body.sjs-admin .shop-main { padding-bottom: 6.5rem !important; }
+      body.sjs-admin #sjsAiFab { bottom: 88px; right: 14px; }
+      body.sjs-admin #sjsAiBox { bottom: 152px; right: 12px; max-height: calc(100dvh - 170px); }
       body.sjs-admin #mainNavigation:not([hidden]) {
         position: fixed !important;
         top: auto !important;
@@ -1126,11 +1130,21 @@
 
     /* === MENU PINTASAN PASTEL (GAYA JURNAL/KLEDO) === */
     .sjs-pastel-menu-card {
-      background: #ffffff;
+      position: sticky;
+      top: calc(var(--sjs-header-h, 74px) + 6px);
+      z-index: 31;
+      background: rgba(255, 255, 255, .97);
+      backdrop-filter: blur(8px);
       border: 1.5px solid #dbeafe;
       border-radius: 1.65rem;
-      padding: 1rem 1.15rem;
-      box-shadow: 0 12px 30px -12px rgba(15, 37, 87, .10);
+      padding: .85rem 1.15rem;
+      box-shadow: 0 12px 30px -12px rgba(15, 37, 87, .14);
+    }
+    @media (max-width: 1024px) {
+      .sjs-pastel-menu-card { position: static; }
+    }
+    #viewKasir, #salesHistoryWorkspace, #viewInventory, #viewBooks, #viewAllReports, #viewBackup, #viewCatalog, #restockCard, #expensesCard, #closingCard {
+      scroll-margin-top: calc(var(--sjs-header-h, 74px) + var(--sjs-pastel-h, 114px) + 16px);
     }
     .sjs-pastel-grid {
       display: grid;
@@ -1194,6 +1208,14 @@
       font-size: 1.48rem; font-weight: 900; color: #0f172a; font-variant-numeric: tabular-nums; line-height: 1.15;
     }
     .kledo-card-sub { font-size: .78rem; font-weight: 600; color: #64748b; }
+    .inv-sort-btn {
+      display: inline-flex; align-items: center; gap: .35rem;
+      font-size: .75rem; font-weight: 800; text-transform: uppercase;
+      color: #475569; background: transparent; border: 0; padding: .15rem .25rem;
+      border-radius: .45rem; cursor: pointer; user-select: none; transition: color .15s, background-color .15s;
+    }
+    .inv-sort-btn:hover { color: #1d4ed8; background: #eff6ff; }
+    .inv-sort-btn.is-active { color: #1d4ed8; background: #dbeafe; }
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -1768,6 +1790,7 @@
           <h3 class="workspace-section-title">Cadangan manual</h3>
           <button id="backUpBooks" type="button" class="shop-button shop-button-primary"><i class="fa-solid fa-download" aria-hidden="true"></i> Unduh cadangan data</button>
           <p class="text-sm text-slate-600">Simpan salinan stok, penjualan, pembukuan, dan katalog dalam satu file JSON.</p>
+          <p id="manualBackupReminder" class="text-xs font-bold px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-slate-700" aria-live="polite"></p>
         </div>
         <div class="bg-white rounded-3xl border border-slate-200 p-5 space-y-3">
           <div class="flex items-center justify-between gap-2">
@@ -1908,6 +1931,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mt-2.5">
                       <label class="text-xs font-bold text-slate-700">Tanggal <input type="date" id="inputDate" class="mt-1 w-full rounded-xl border border-slate-300 bg-white p-2"></label>
                       <label class="text-xs font-bold text-slate-700">Pembeli (opsional) <input type="text" id="inputCustomer" maxlength="500" placeholder="Pelanggan umum" class="mt-1 w-full rounded-xl border border-slate-300 bg-white p-2"></label>
+                      <label class="text-xs font-bold text-slate-700 sm:col-span-2">Catatan Nota (opsional) <input type="text" id="inputSaleNote" maxlength="160" placeholder="Mis. Tarikan 27 lbs / DP Rp 50.000" class="mt-1 w-full rounded-xl border border-slate-300 bg-white p-2"></label>
                     </div>
                   </details>
                 </div>
@@ -1954,6 +1978,10 @@
                 <p id="salePaymentHint" class="text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">Pilih cara bayar untuk menyimpan penjualan.</p>
 
                 <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3.5 space-y-3">
+                  <label class="flex items-center justify-between gap-2 text-xs font-bold text-slate-700 pb-2 border-b border-slate-200">
+                    <span>Diskon Nota (Rp)</span>
+                    <input type="number" id="inputSaleDiscount" min="0" step="500" value="0" inputmode="numeric" class="w-36 rounded-xl border border-slate-300 bg-white px-2.5 py-1.5 text-right font-extrabold tabular-nums">
+                  </label>
                   <div class="flex items-center justify-between gap-2">
                     <div>
                       <span class="block text-[11px] font-extrabold uppercase tracking-wider text-slate-500">Total Bayar</span>
@@ -2190,7 +2218,9 @@
           <div><h2 class="font-bold">Katalog Publik</h2><p id="inventoryCatalogStatus" class="text-sm text-slate-600" aria-live="polite"></p></div>
           <div class="flex flex-wrap gap-2">
             <button id="openPosterBatch" type="button" class="shop-button shop-button-accent"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Seragamkan poster</button>
+            <button id="btnBatchPrintQr" type="button" class="shop-button shop-button-secondary" disabled><i class="fa-solid fa-qrcode" aria-hidden="true"></i> Cetak QR (<span id="batchQrCount">0</span>)</button>
             <button id="openReorderList" type="button" class="shop-button shop-button-secondary">Daftar belanja stok</button>
+            <button id="btnFillEmptySeoDesc" type="button" class="shop-button shop-button-secondary"><i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i> Lengkapi deskripsi SEO</button>
             <button id="publishCatalog" type="button" class="shop-button shop-button-secondary">Terbitkan barang aktif</button>
           </div>
         </div>
@@ -2478,19 +2508,34 @@
             <select id="inventoryFollowUp" aria-label="Filter daftar stok" class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm font-bold">
               <option value="all">Barang aktif</option><option value="low">Stok menipis</option><option value="out">Stok habis</option><option value="unpublished">Belum terbit</option><option value="no-price">Harga kosong</option><option value="archived">Arsip barang</option>
             </select>
+            <select id="inventorySortSelect" aria-label="Urutkan daftar stok" class="min-h-11 rounded-xl border border-slate-200 px-3 text-sm font-bold">
+              <option value="default">Urutan default</option>
+              <option value="name-asc">Produk (A → Z)</option>
+              <option value="name-desc">Produk (Z → A)</option>
+              <option value="category-asc">Kategori (A → Z)</option>
+              <option value="category-desc">Kategori (Z → A)</option>
+              <option value="cost-asc">Harga Beli (Termurah)</option>
+              <option value="cost-desc">Harga Beli (Termahal)</option>
+              <option value="price-asc">Harga Jual (Termurah)</option>
+              <option value="price-desc">Harga Jual (Termahal)</option>
+              <option value="stock-asc">Stok (Tersedikit)</option>
+              <option value="stock-desc">Stok (Terbanyak)</option>
+              <option value="profit-asc">Untung (Terkecil)</option>
+              <option value="profit-desc">Untung (Terbesar)</option>
+            </select>
           </div>
         </div>
         <div id="inventoryMobileList" class="xl:hidden grid grid-cols-1 lg:grid-cols-2 gap-3.5 p-3.5 bg-slate-50/70"></div>
         <div class="hidden xl:block overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
-              <tr class="bg-slate-50 border-b border-slate-200 text-xs font-extrabold uppercase text-slate-600">
-                <th class="py-3.5 px-3">Produk</th>
-                <th class="py-3.5 px-3">Kategori</th>
-                <th class="py-3.5 px-3 text-right">Harga Beli</th>
-                <th class="py-3.5 px-3 text-right">Harga Jual</th>
-                <th class="py-3.5 px-3 text-center">Stok <span class="font-normal normal-case text-slate-400">(klik riwayat)</span></th>
-                <th class="py-3.5 px-3 text-right">Untung</th>
+              <tr id="inventoryTableHeadRow" class="bg-slate-50 border-b border-slate-200 text-xs font-extrabold uppercase text-slate-600">
+                <th class="py-3.5 px-3"><button type="button" data-inv-sort="name" class="inv-sort-btn">Produk <i class="fa-solid fa-sort text-[11px] opacity-40" data-sort-icon aria-hidden="true"></i></button></th>
+                <th class="py-3.5 px-3"><button type="button" data-inv-sort="category" class="inv-sort-btn">Kategori <i class="fa-solid fa-sort text-[11px] opacity-40" data-sort-icon aria-hidden="true"></i></button></th>
+                <th class="py-3.5 px-3 text-right"><button type="button" data-inv-sort="cost" class="inv-sort-btn ml-auto">Harga Beli <i class="fa-solid fa-sort text-[11px] opacity-40" data-sort-icon aria-hidden="true"></i></button></th>
+                <th class="py-3.5 px-3 text-right"><button type="button" data-inv-sort="price" class="inv-sort-btn ml-auto">Harga Jual <i class="fa-solid fa-sort text-[11px] opacity-40" data-sort-icon aria-hidden="true"></i></button></th>
+                <th class="py-3.5 px-3 text-center"><button type="button" data-inv-sort="stock" class="inv-sort-btn mx-auto">Stok <span class="font-normal normal-case text-slate-400">(klik riwayat)</span> <i class="fa-solid fa-sort text-[11px] opacity-40" data-sort-icon aria-hidden="true"></i></button></th>
+                <th class="py-3.5 px-3 text-right"><button type="button" data-inv-sort="profit" class="inv-sort-btn ml-auto">Untung <i class="fa-solid fa-sort text-[11px] opacity-40" data-sort-icon aria-hidden="true"></i></button></th>
                 <th class="py-3.5 px-3 text-center">Aksi Cepat</th>
               </tr>
             </thead>
@@ -3531,13 +3576,17 @@
       if (inventory.some(i => i.id !== editId && String(i.code || "").trim().toLowerCase() === code.toLowerCase())) return showToast("Kode barang sudah dipakai barang lain.");
       if (description.length > 400) return showToast("Deskripsi maksimal 400 karakter.");
 
+      const sizeVal = document.getElementById("invSize").value.trim();
+      const colorVal = document.getElementById("invColor").value.trim();
+      const autoDesc = description || buildAutoProductDescription({ name, size: sizeVal, color: colorVal, description: "" });
+
       const itemId = editId || doc(collection(db, ...paths("inventory"))).id;
       const oldItem = inventory.find(i => i.id === itemId);
       const itemData = {
         code, name,
-        size: document.getElementById("invSize").value.trim(),
-        color: document.getElementById("invColor").value.trim(),
-        stock, cost, price, description,
+        size: sizeVal,
+        color: colorVal,
+        stock, cost, price, description: autoDesc,
         imageUrl: oldItem?.imageUrl || "",
         imagePath: oldItem?.imagePath || "",
         updatedAt: new Date().toISOString()
@@ -3592,6 +3641,16 @@
         console.error(err);
         showToast("Gagal menyimpan: " + (err.message || "kesalahan tidak diketahui"));
       }
+    }
+
+    function buildAutoProductDescription(item) {
+      const name = String(item?.name || "").trim();
+      const spec = [item?.size, item?.color].map(v => String(v || "").trim()).filter(Boolean).join(", ");
+      const catInfo = detectProductCategoryLabel({ name, description: "" });
+      if (isSenarBadminton({ name, description: "" })) {
+        return `${name}${spec ? ` (${spec})` : ""} tersedia di Surya Jaya Sport Tanjung Redeb, Berau. Harga sudah termasuk jasa pasang senar.`.slice(0, 400);
+      }
+      return `${name}${spec ? ` (${spec})` : ""} kategori ${catInfo.label} tersedia di Surya Jaya Sport Jl. Ahmad Yani 37, Tanjung Redeb, Berau.`.slice(0, 400);
     }
 
     function publicProductData(item) {
@@ -3687,9 +3746,11 @@
             const cost = item.inventoryId ? stockById.get(item.inventoryId).cost : Number(item.cost || 0);
             return { ...item, cost, subtotal: item.price * item.qty };
           });
-          const totalOmset = items.reduce((s, i) => s + i.subtotal, 0);
+          const grossOmset = items.reduce((s, i) => s + i.subtotal, 0);
+          const discount = Math.min(grossOmset, Math.max(0, Math.round(Number(txData.discount || 0))));
+          const totalOmset = grossOmset - discount;
           const totalModal = items.reduce((s, i) => s + i.cost * i.qty, 0);
-          const record = { ...txData, createdBy, items, totalOmset, totalModal, totalProfit: totalOmset - totalModal,
+          const record = { ...txData, createdBy, items, ...(discount > 0 ? { discount } : {}), totalOmset, totalModal, totalProfit: totalOmset - totalModal,
             ...(replacementFor ? { replacesSaleId: replacementFor } : {}) };
           tx.set(transactionRef, record);
           if (originalRef) tx.update(originalRef, { replacementSaleId: transactionRef.id });
@@ -3857,9 +3918,13 @@
         profit += (price - cost) * qty;
         row.querySelector(".item-subtotal").textContent = rp(price * qty);
       }
-      currentSaleTotalAmount = total;
-      document.getElementById("previewTotalOmset").textContent = rp(total);
-      document.getElementById("previewTotalProfit").textContent = rp(profit);
+      const rawDisc = Math.max(0, Math.round(Number(document.getElementById("inputSaleDiscount")?.value) || 0));
+      const discount = Math.min(total, rawDisc);
+      const netTotal = Math.max(0, total - discount);
+      const netProfit = profit - discount;
+      currentSaleTotalAmount = netTotal;
+      document.getElementById("previewTotalOmset").textContent = rp(netTotal);
+      document.getElementById("previewTotalProfit").textContent = rp(netProfit);
       updateCashCalcUI();
     }
 
@@ -3935,6 +4000,8 @@
     function resetSaleDraft() {
       document.getElementById("replacementSaleNotice").hidden = true;
       document.getElementById("inputCustomer").value = "";
+      if (document.getElementById("inputSaleNote")) document.getElementById("inputSaleNote").value = "";
+      if (document.getElementById("inputSaleDiscount")) document.getElementById("inputSaleDiscount").value = "0";
       document.getElementById("inputDate").value = todayStr();
       document.getElementById("saleItemsContainer").replaceChildren();
       cashReceivedAmount = 0;
@@ -3970,9 +4037,14 @@
       if (!itemsToSave.length) return showToast("Tambahkan minimal 1 barang.");
 
       const txDate = document.getElementById("inputDate").value || todayStr();
+      const grossTotal = itemsToSave.reduce((s, i) => s + Number(i.price || 0) * Number(i.qty || 0), 0);
+      const saleDiscount = Math.min(grossTotal, Math.max(0, Math.round(Number(document.getElementById("inputSaleDiscount")?.value) || 0)));
+      const saleNote = String(document.getElementById("inputSaleNote")?.value || "").trim().slice(0, 160);
       const txData = {
         date: txDate,
         customer: document.getElementById("inputCustomer").value.trim() || "Pelanggan Umum",
+        ...(saleNote ? { note: saleNote } : {}),
+        ...(saleDiscount > 0 ? { discount: saleDiscount } : {}),
         paymentMethod: selectedPaymentMethod,
         items: itemsToSave,
         createdAt: new Date().toISOString()
@@ -4023,12 +4095,14 @@
           <div class="rc-line"><span>Tanggal</span><span>${esc(tx.date)}${timeStr ? " · " + esc(timeStr) : ""}</span></div>
           <div class="rc-line"><span>Pembeli</span><span>${esc(tx.customer || "Pelanggan Umum")}</span></div>
           <div class="rc-line"><span>Pembayaran</span><strong>${esc(paymentMethodLabel(tx.paymentMethod || "Cash"))}</strong></div>
+          ${tx.note ? `<div class="rc-line"><span>Catatan</span><span>${esc(tx.note)}</span></div>` : ""}
         </div>
         ${tx.cancelledAt ? '<div class="rc-center rc-void">*** NOTA DIBATALKAN ***</div>' : ""}
         <hr class="rc-hr">
         ${items}
         <div class="rc-total-box">
           <div class="rc-line" style="font-size:11px;margin-bottom:3px"><span>Total Item</span><span>${totalPcs} pcs</span></div>
+          ${Number(tx.discount || 0) > 0 ? `<div class="rc-line" style="font-size:11px;margin-bottom:3px"><span>Diskon</span><span>-${rp(tx.discount)}</span></div>` : ""}
           <div class="rc-line rc-total"><span>TOTAL BAYAR</span><span>${rp(tx.totalOmset)}</span></div>
         </div>
         <div class="rc-center rc-thanks">Terima kasih telah berbelanja di ${esc(shopName)}!</div>
@@ -4502,9 +4576,55 @@
       openDialog("stockCardDialog");
     }
 
+    let inventorySort = { key: "", dir: "asc" };
+    const selectedQrIds = new Set();
+    function updateBatchQrCount() {
+      const cnt = selectedQrIds.size;
+      const span = document.getElementById("batchQrCount");
+      const btn = document.getElementById("btnBatchPrintQr");
+      if (span) span.textContent = String(cnt);
+      if (btn) btn.disabled = cnt === 0;
+    }
+
+    function updateInventorySortUI() {
+      document.querySelectorAll("#inventoryTableHeadRow [data-inv-sort]").forEach(btn => {
+        const active = btn.dataset.invSort === inventorySort.key;
+        btn.classList.toggle("is-active", active);
+        const icon = btn.querySelector("[data-sort-icon]");
+        if (icon) {
+          icon.className = active
+            ? (inventorySort.dir === "asc" ? "fa-solid fa-sort-up text-[11px]" : "fa-solid fa-sort-down text-[11px]")
+            : "fa-solid fa-sort text-[11px] opacity-40";
+        }
+      });
+      const sel = document.getElementById("inventorySortSelect");
+      if (sel) sel.value = inventorySort.key ? `${inventorySort.key}-${inventorySort.dir}` : "default";
+    }
+
+    function compareInventoryItems(a, b, key, dir) {
+      let cmp = 0;
+      if (key === "name") {
+        cmp = String(a.name || "").localeCompare(String(b.name || ""), "id", { sensitivity: "base", numeric: true });
+      } else if (key === "category") {
+        cmp = detectProductCategoryLabel(a).label.localeCompare(detectProductCategoryLabel(b).label, "id", { sensitivity: "base" });
+      } else if (key === "cost") {
+        cmp = Number(a.cost || 0) - Number(b.cost || 0);
+      } else if (key === "price") {
+        cmp = Number(a.price || 0) - Number(b.price || 0);
+      } else if (key === "stock") {
+        cmp = Number(a.stock || 0) - Number(b.stock || 0);
+      } else if (key === "profit") {
+        cmp = (Number(a.price || 0) - Number(a.cost || 0)) - (Number(b.price || 0) - Number(b.cost || 0));
+      }
+      if (dir === "desc") cmp = -cmp;
+      if (cmp !== 0) return cmp;
+      return String(a.name || "").localeCompare(String(b.name || ""), "id", { sensitivity: "base", numeric: true });
+    }
+
     function renderInventory() {
       updatePosLiveStats();
       renderInventoryCharts();
+      updateInventorySortUI();
       const q = document.getElementById("invSearchInput").value.trim().toLocaleLowerCase("id");
       const missingOnly = document.getElementById("invMissingPhotoOnly").checked;
       const catFilter = document.getElementById("inventoryCategoryFilter")?.value || "all";
@@ -4522,6 +4642,9 @@
           && (follow !== "unpublished" || !published.has(item.id))
           && (follow !== "no-price" || !(Number(item.price) > 0));
       });
+      if (inventorySort.key) {
+        filtered.sort((a, b) => compareInventoryItems(a, b, inventorySort.key, inventorySort.dir));
+      }
 
       document.getElementById("inventoryCatalogStatus").textContent =
         `${published.size} barang terbit · ${activeInventory().filter(i => !published.has(i.id)).length} belum terbit`;
@@ -4564,6 +4687,7 @@
           <button type="button" data-quick-in="${id}" title="Barang masuk (+)" class="px-2 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 font-extrabold text-xs">+ Masuk</button>
           <button type="button" data-quick-out="${id}" title="Barang keluar (-)" class="px-2 py-1.5 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-900 font-extrabold text-xs">− Keluar</button>` : "";
         const editBtns = isAdmin ? `
+          <button type="button" data-share-wa="${id}" title="Salin teks promo WA" class="w-8 h-8 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-800 inline-flex items-center justify-center"><i class="fa-brands fa-whatsapp text-xs"></i></button>
           <button type="button" data-edit-item="${id}" title="Ubah produk" class="w-8 h-8 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-800 inline-flex items-center justify-center"><i class="fa-solid fa-pen-to-square text-xs"></i></button>
           <button type="button" data-qr-item="${id}" title="Stiker QR" class="w-8 h-8 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-950 inline-flex items-center justify-center"><i class="fa-solid fa-qrcode text-xs"></i></button>
           ${item.archivedAt
@@ -4575,6 +4699,7 @@
         row.innerHTML = `
           <td class="py-3 px-3">
             <div class="flex items-center gap-2.5">
+              <input type="checkbox" data-qr-select="${id}" ${selectedQrIds.has(item.id) ? "checked" : ""} aria-label="Pilih ${esc(item.name)} untuk cetak QR" class="h-4 w-4 rounded border-slate-300 shrink-0 cursor-pointer">
               ${productImageMarkup(item, "w-12 h-12 rounded-xl border border-slate-200 shrink-0", 140)}
               <div class="min-w-0">
                 <p class="font-extrabold text-slate-900 leading-snug">${esc(item.name)}</p>
@@ -4598,6 +4723,7 @@
         card.className = "workspace-record";
         card.innerHTML = `
           <div class="flex items-center gap-3">
+            <input type="checkbox" data-qr-select="${id}" ${selectedQrIds.has(item.id) ? "checked" : ""} aria-label="Pilih ${esc(item.name)} untuk cetak QR" class="h-4 w-4 rounded border-slate-300 shrink-0 cursor-pointer">
             ${productImageMarkup(item, "w-14 h-14 rounded-2xl border border-slate-200 shrink-0", 140)}
             <div class="min-w-0 flex-1">
               <p class="font-extrabold break-words leading-snug">${esc(item.name)}</p>
@@ -4746,13 +4872,14 @@
       let offset = 0;
       let midAcc = 0;
       const callouts = [];
+      const trackRing = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#f1f5f9" stroke-width="20"/>`;
       const arcs = total > 0
         ? segments.filter(s => s.value > 0).map(seg => {
             const frac = seg.value / total;
-            const len = frac * circ;
+            const len = Math.max(0, frac * circ - 2.5);
             const midAngle = (-Math.PI / 2) + ((midAcc + frac / 2) * 2 * Math.PI);
             const pct = Math.round(frac * 100);
-            if (pct >= 5) {
+            if (pct >= 6) {
               const px = cx + Math.cos(midAngle) * (r + 22);
               const py = cy + Math.sin(midAngle) * (r + 22);
               callouts.push(`<g>
@@ -4761,13 +4888,14 @@
               </g>`);
             }
             midAcc += frac;
-            const el = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${seg.color}" stroke-width="22" stroke-dasharray="${len.toFixed(2)} ${circ.toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}"><title>${esc(seg.label)}: ${esc(seg.display || seg.value)} (${pct}%)</title></circle>`;
-            offset += len;
+            const el = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${seg.color}" stroke-width="20" stroke-linecap="round" stroke-dasharray="${len.toFixed(2)} ${circ.toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}"><title>${esc(seg.label)}: ${esc(seg.display || seg.value)} (${pct}%)</title></circle>`;
+            offset += frac * circ;
             return el;
           }).join("")
-        : `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#e2e8f0" stroke-width="22"/>`;
+        : "";
 
       const svg = `<svg viewBox="0 0 210 184" class="w-48 h-44 mx-auto shrink-0" role="img" aria-label="${esc(centerTop)} ${esc(centerMain)}">
+        ${trackRing}
         <g transform="rotate(-90 ${cx} ${cy})">${arcs}</g>
         ${callouts.join("")}
         <text x="${cx}" y="${cy - 7}" text-anchor="middle" fill="#64748b" font-size="9.5" font-weight="800">${esc(centerTop)}</text>
@@ -4776,7 +4904,7 @@
 
       const rows = segments.map(seg => {
         const pct = total > 0 ? Math.round((seg.value / total) * 100) : 0;
-        return `<div class="flex items-center justify-between gap-2 text-xs py-1 border-b border-slate-100 last:border-0">
+        return `<div class="flex items-center justify-between gap-2 text-xs py-1.5 border-b border-slate-100 last:border-0">
           <span class="flex items-center gap-2 font-bold text-slate-700"><span class="w-2.5 h-2.5 rounded-full shrink-0" style="background:${seg.color}"></span>${esc(seg.label)}</span>
           <span class="font-extrabold text-slate-900 tabular-nums">${esc(seg.display || seg.value)} <span class="text-slate-400 font-bold">(${pct}%)</span></span>
         </div>`;
@@ -4789,11 +4917,11 @@
       const p = Math.max(0, Math.min(100, Number(pct) || 0));
       const cx = 130, cy = 115, r = 84;
       const segs = [
-        { a0: 180, a1: 216, c: "#e2e8f0" },
-        { a0: 218, a1: 252, c: "#93c5fd" },
+        { a0: 180, a1: 214, c: "#f1f5f9" },
+        { a0: 217, a1: 251, c: "#bfdbfe" },
         { a0: 254, a1: 288, c: "#3b82f6" },
-        { a0: 290, a1: 324, c: "#facc15" },
-        { a0: 326, a1: 360, c: "#16a34a" }
+        { a0: 291, a1: 325, c: "#facc15" },
+        { a0: 328, a1: 360, c: "#16a34a" }
       ];
       const arcPath = (a0, a1) => {
         const rad = a => (a * Math.PI) / 180;
@@ -4805,9 +4933,9 @@
       const nx = cx + (r - 12) * Math.cos(needleAng);
       const ny = cy + (r - 12) * Math.sin(needleAng);
       return `<svg viewBox="0 0 260 142" class="w-full max-w-[260px]">
-        ${segs.map(s => `<path d="${arcPath(s.a0, s.a1)}" fill="none" stroke="${s.c}" stroke-width="24"/>`).join("")}
-        <line x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="#0f2557" stroke-width="5" stroke-linecap="round"/>
-        <circle cx="${cx}" cy="${cy}" r="8" fill="#0f2557"/>
+        ${segs.map(s => `<path d="${arcPath(s.a0, s.a1)}" fill="none" stroke="${s.c}" stroke-width="20" stroke-linecap="round"/>`).join("")}
+        <line x1="${cx}" y1="${cy}" x2="${nx.toFixed(1)}" y2="${ny.toFixed(1)}" stroke="#0f2557" stroke-width="4.5" stroke-linecap="round"/>
+        <circle cx="${cx}" cy="${cy}" r="8" fill="#0f2557" stroke="#ffffff" stroke-width="2"/>
         <text x="${cx}" y="${cy + 22}" text-anchor="middle" fill="#0f2557" font-size="16" font-weight="900">${p}% Laba</text>
       </svg>`;
     }
@@ -4832,7 +4960,7 @@
             <stop offset="100%" stop-color="#facc15"/>
           </linearGradient>
         </defs>
-        <path d="M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}" fill="none" stroke="#e2e8f0" stroke-width="14" stroke-linecap="round"/>
+        <path d="M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}" fill="none" stroke="#f1f5f9" stroke-width="14" stroke-linecap="round"/>
         <path d="M ${cx - r} ${cy} A ${r} ${r} 0 0 1 ${cx + r} ${cy}" fill="none" stroke="url(#bentoGaugeGrad)" stroke-width="14" stroke-linecap="round" stroke-dasharray="${dash1.toFixed(1)} ${arcLen.toFixed(1)}"/>
         ${ticks}
         <text x="${cx - 42}" y="${cy - 22}" text-anchor="middle" fill="#0f2557" font-size="28" font-weight="900">${p1}%</text>
@@ -4845,15 +4973,22 @@
     function buildSvgBarPairChart(items, dark = false) {
       if (!items.length) return `<p class="text-sm text-center py-10 ${dark ? "text-blue-200" : "text-slate-500"}">Belum ada data pada periode ini.</p>`;
       const maxVal = Math.max(100000, ...items.map(i => Math.max(i.v1 || 0, i.v2 || 0)));
-      const W = Math.max(560, items.length * 36);
-      const H = 205;
-      const padL = 48, padR = 14, padT = 20, padB = 30;
+      const W = Math.max(580, items.length * 36);
+      const H = 224;
+      const padL = 50, padR = 16, padT = 32, padB = 30;
       const plotW = W - padL - padR;
       const plotH = H - padT - padB;
       const step = plotW / items.length;
-      const barW = Math.max(6, Math.min(18, step * 0.34));
+      const barW = Math.max(6, Math.min(13, step * 0.34));
+      const trackW = barW * 2 + 6;
+
+      let peakIdx = -1, peakVal = 0;
+      items.forEach((it, idx) => {
+        if ((it.v1 || 0) > peakVal) { peakVal = it.v1 || 0; peakIdx = idx; }
+      });
 
       const gridColor = dark ? "rgba(148,163,184,0.22)" : "#e2e8f0";
+      const trackColor = dark ? "rgba(255,255,255,0.08)" : "#f1f5f9";
       const txtColor = dark ? "#cbd5e1" : "#64748b";
       const grids = [0, 0.25, 0.5, 0.75, 1].map(f => {
         const y = (padT + plotH * (1 - f)).toFixed(1);
@@ -4864,34 +4999,49 @@
 
       const bars = items.map((it, idx) => {
         const cx = padL + idx * step + step / 2;
-        const h1 = Math.max(0, (it.v1 / maxVal) * plotH);
-        const h2 = Math.max(0, (it.v2 / maxVal) * plotH);
+        const isPeak = idx === peakIdx && peakVal > 0;
+        const h1 = Math.max(it.v1 > 0 ? 4 : 0, (it.v1 / maxVal) * plotH);
+        const h2 = Math.max(it.v2 > 0 ? 4 : 0, (it.v2 / maxVal) * plotH);
         const y1 = padT + plotH - h1;
         const y2 = padT + plotH - h2;
         const tip = `${it.label}: Omzet ${rp(it.v1)} · Laba ${rp(it.v2)}`;
+        const omzetColor = isPeak ? (dark ? "#60a5fa" : "#1d4ed8") : (dark ? "#38bdf8" : "#3b82f6");
+        const peakPill = isPeak
+          ? `<g><rect x="${Math.max(padL, Math.min(W - padR - 58, cx - 29)).toFixed(1)}" y="${Math.max(4, y1 - 24).toFixed(1)}" width="58" height="18" rx="9" fill="#0f2557"/><text x="${Math.max(padL + 29, Math.min(W - padR - 29, cx)).toFixed(1)}" y="${Math.max(16, y1 - 12).toFixed(1)}" text-anchor="middle" fill="#ffffff" font-size="9" font-weight="800">${esc(shortRpTick(it.v1))}</text></g>`
+          : "";
         return `<g>
           <title>${esc(tip)}</title>
-          <rect x="${(cx - barW - 1).toFixed(1)}" y="${y1.toFixed(1)}" width="${barW.toFixed(1)}" height="${h1.toFixed(1)}" rx="4" fill="${dark ? "#38bdf8" : "#2563eb"}"/>
-          <rect x="${(cx + 1).toFixed(1)}" y="${y2.toFixed(1)}" width="${barW.toFixed(1)}" height="${h2.toFixed(1)}" rx="4" fill="#facc15"/>
-          <text x="${cx.toFixed(1)}" y="${H - 10}" text-anchor="middle" fill="${txtColor}" font-size="9.5" font-weight="700">${esc(it.label)}</text>
+          <rect x="${(cx - trackW / 2).toFixed(1)}" y="${padT}" width="${trackW.toFixed(1)}" height="${plotH}" rx="${Math.min(7, trackW / 2).toFixed(1)}" fill="${trackColor}"/>
+          <rect x="${(cx - barW - 1.5).toFixed(1)}" y="${y1.toFixed(1)}" width="${barW.toFixed(1)}" height="${h1.toFixed(1)}" rx="${(barW / 2).toFixed(1)}" fill="${omzetColor}"/>
+          <rect x="${(cx + 1.5).toFixed(1)}" y="${y2.toFixed(1)}" width="${barW.toFixed(1)}" height="${h2.toFixed(1)}" rx="${(barW / 2).toFixed(1)}" fill="#facc15"/>
+          <text x="${cx.toFixed(1)}" y="${H - 10}" text-anchor="middle" fill="${isPeak ? (dark ? "#facc15" : "#0f2557") : txtColor}" font-size="9.5" font-weight="${isPeak ? "900" : "700"}">${esc(it.label)}</text>
+          ${peakPill}
         </g>`;
       }).join("");
 
-      return `<svg viewBox="0 0 ${W} ${H}" class="w-full min-w-[460px] h-52" preserveAspectRatio="none">${grids}${bars}</svg>`;
+      return `<svg viewBox="0 0 ${W} ${H}" class="w-full min-w-[460px] h-56" preserveAspectRatio="none">${grids}${bars}</svg>`;
     }
 
     function buildSvgAreaTrend(points) {
       if (!points.length) return "";
       const maxVal = Math.max(100000, ...points.map(p => p.value));
-      const W = 580, H = 220, padL = 52, padR = 24, padT = 28, padB = 32;
+      const W = 580, H = 228, padL = 54, padR = 26, padT = 34, padB = 32;
       const plotW = W - padL - padR;
       const plotH = H - padT - padB;
+      let peakIdx = 0;
       const coords = points.map((p, i) => {
         const x = padL + (points.length === 1 ? plotW / 2 : (i / (points.length - 1)) * plotW);
         const y = padT + plotH - (Math.max(0, p.value) / maxVal) * plotH;
+        if (p.value >= points[peakIdx].value) peakIdx = i;
         return { x, y, ...p };
       });
-      const linePath = coords.map((c, i) => `${i === 0 ? "M" : "L"}${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(" ");
+      // Smooth cubic curve
+      let linePath = `M${coords[0].x.toFixed(1)},${coords[0].y.toFixed(1)}`;
+      for (let i = 0; i < coords.length - 1; i++) {
+        const c0 = coords[i], c1 = coords[i + 1];
+        const mx = ((c0.x + c1.x) / 2).toFixed(1);
+        linePath += ` C${mx},${c0.y.toFixed(1)} ${mx},${c1.y.toFixed(1)} ${c1.x.toFixed(1)},${c1.y.toFixed(1)}`;
+      }
       const areaPath = `${linePath} L${coords[coords.length - 1].x.toFixed(1)},${(padT + plotH).toFixed(1)} L${coords[0].x.toFixed(1)},${(padT + plotH).toFixed(1)} Z`;
 
       const grids = [0, 0.5, 1].map(f => {
@@ -4900,23 +5050,33 @@
                 <text x="${padL - 8}" y="${Number(y) + 4}" text-anchor="end" fill="#64748b" font-size="10" font-weight="700">${esc(shortRpTick(maxVal * f))}</text>`;
       }).join("");
 
-      const dots = coords.map(c => `<g>
-        <title>${esc(c.label)}: ${esc(rp(c.value))}</title>
-        <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="5.5" fill="#1d4ed8" stroke="#ffffff" stroke-width="2"/>
-        <text x="${c.x.toFixed(1)}" y="${(c.y - 11).toFixed(1)}" text-anchor="middle" fill="#0f2557" font-size="10.5" font-weight="800">${esc(shortRpTick(c.value))}</text>
-        <text x="${c.x.toFixed(1)}" y="${H - 10}" text-anchor="middle" fill="#64748b" font-size="10.5" font-weight="700">${esc(c.label)}</text>
-      </g>`).join("");
+      const peak = coords[peakIdx];
+      const peakGuide = `<line x1="${peak.x.toFixed(1)}" y1="${peak.y.toFixed(1)}" x2="${peak.x.toFixed(1)}" y2="${(padT + plotH).toFixed(1)}" stroke="#bfdbfe" stroke-width="2" stroke-dasharray="3 3"/>`;
+
+      const dots = coords.map((c, idx) => {
+        const isPeak = idx === peakIdx && c.value > 0;
+        const lblPill = isPeak
+          ? `<rect x="${(c.x - 32).toFixed(1)}" y="${Math.max(4, c.y - 28).toFixed(1)}" width="64" height="19" rx="9.5" fill="#1d4ed8"/><text x="${c.x.toFixed(1)}" y="${Math.max(16.5, c.y - 15.5).toFixed(1)}" text-anchor="middle" fill="#ffffff" font-size="10" font-weight="800">${esc(shortRpTick(c.value))}</text>`
+          : `<text x="${c.x.toFixed(1)}" y="${(c.y - 11).toFixed(1)}" text-anchor="middle" fill="#475569" font-size="10" font-weight="700">${esc(shortRpTick(c.value))}</text>`;
+        return `<g>
+          <title>${esc(c.label)}: ${esc(rp(c.value))}</title>
+          <circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="${isPeak ? "6" : "4.5"}" fill="${isPeak ? "#0f2557" : "#1d4ed8"}" stroke="#ffffff" stroke-width="2"/>
+          ${lblPill}
+          <text x="${c.x.toFixed(1)}" y="${H - 10}" text-anchor="middle" fill="${isPeak ? "#0f2557" : "#64748b"}" font-size="10.5" font-weight="${isPeak ? "900" : "700"}">${esc(c.label)}</text>
+        </g>`;
+      }).join("");
 
       return `<svg viewBox="0 0 ${W} ${H}" class="w-full h-56">
         <defs>
           <linearGradient id="sjsAreaGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.45"/>
-            <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.02"/>
+            <stop offset="0%" stop-color="#1d4ed8" stop-opacity="0.28"/>
+            <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0.02"/>
           </linearGradient>
         </defs>
         ${grids}
+        ${peakGuide}
         <path d="${areaPath}" fill="url(#sjsAreaGrad)"/>
-        <path d="${linePath}" fill="none" stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="${linePath}" fill="none" stroke="#1d4ed8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
         ${dots}
       </svg>`;
     }
@@ -5845,6 +6005,45 @@
       ctx.arcTo(x, y, x + w, y, r);
       ctx.closePath();
     }
+    function renderQrToCanvas(canvas, item) {
+      const prevCanvas = document.getElementById("niimbotPreviewCanvas");
+      if (canvas === prevCanvas) return renderQrLabel(item);
+      const ctx = canvas.getContext("2d");
+      canvas.width = 591; canvas.height = 354;
+      const prev = document.getElementById("niimbotPreviewCanvas");
+      renderQrLabel(item);
+      if (prev) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(prev, 0, 0);
+      }
+    }
+
+    async function printBatchQrStickers() {
+      const items = activeInventory().filter(i => selectedQrIds.has(i.id));
+      if (!items.length) return showToast("Pilih minimal 1 barang terlebih dahulu.");
+      const prevActive = activeQrProduct;
+      const imgs = [];
+      const tempCanvas = document.createElement("canvas");
+      tempCanvas.width = 591; tempCanvas.height = 354;
+      for (const item of items) {
+        renderQrLabel(item);
+        const srcCanvas = document.getElementById("niimbotPreviewCanvas");
+        if (!srcCanvas) continue;
+        const img = document.createElement("img");
+        img.alt = item.name || "";
+        img.src = srcCanvas.toDataURL("image/png");
+        img.style.cssText = "display:block;width:100%;max-width:100mm;height:auto;margin:0 auto 10px;page-break-inside:avoid;";
+        try { await img.decode(); } catch {}
+        imgs.push(img);
+      }
+      if (prevActive) renderQrLabel(prevActive);
+      const sheet = document.getElementById("stickerPrintSheet");
+      sheet.replaceChildren(...imgs);
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+      document.body.dataset.print = "sticker";
+      window.print();
+    }
+
     function renderQrLabel(item) {
       const canvas = document.getElementById("niimbotPreviewCanvas");
       if (!canvas) return;
@@ -6139,7 +6338,18 @@
     // ==================== STATUS LOGIN ====================
     function applyAuthState() {
       document.body.classList.toggle("sjs-admin", isAdmin);
-      requestAnimationFrame(() => { const h = document.querySelector(".shop-header"); if (h) document.documentElement.style.setProperty("--sjs-header-h", h.offsetHeight + "px"); });
+      const syncStickyOffsets = () => {
+        const h = document.querySelector(".shop-header");
+        if (h) document.documentElement.style.setProperty("--sjs-header-h", h.offsetHeight + "px");
+        const pm = document.getElementById("adminPastelMenu");
+        const pmH = (pm && !pm.hidden && window.innerWidth > 1024) ? pm.offsetHeight : 0;
+        document.documentElement.style.setProperty("--sjs-pastel-h", pmH + "px");
+      };
+      requestAnimationFrame(syncStickyOffsets);
+      if (!window.__sjsStickyResizeBound) {
+        window.__sjsStickyResizeBound = true;
+        window.addEventListener("resize", syncStickyOffsets);
+      }
       document.getElementById("adminModeText").textContent = isAdmin ? "Admin Aktif" : "Login Pemilik";
       document.getElementById("adminModeIcon").className = isAdmin ? "fa-solid fa-unlock-keyhole" : "fa-solid fa-lock";
       document.getElementById("mainNavigation").hidden = !isAdmin;
@@ -6501,6 +6711,8 @@
         }
       });
       document.getElementById("inputDate").addEventListener("change", updateSaleDateSummary);
+      document.getElementById("inputSaleDiscount")?.addEventListener("input", calculateSaleTotals);
+      document.getElementById("btnBatchPrintQr")?.addEventListener("click", printBatchQrStickers);
       for (const b of document.querySelectorAll(".pay-option-btn")) b.addEventListener("click", () => selectSalePayment(b.dataset.pay));
       document.getElementById("btnSaveTx").addEventListener("click", () => saveSale(false));
       document.getElementById("btnSaveAndPrintTx").addEventListener("click", () => saveSale(true));
@@ -6808,6 +7020,26 @@
         if (qout) return openStockOutFor(qout.dataset.quickOut);
         const ed = e.target.closest("[data-edit-item]");
         if (ed) return editInventoryItem(ed.dataset.editItem);
+        const qsel = e.target.closest("[data-qr-select]");
+        if (qsel) {
+          if (qsel.checked) selectedQrIds.add(qsel.dataset.qrSelect);
+          else selectedQrIds.delete(qsel.dataset.qrSelect);
+          updateBatchQrCount();
+          return;
+        }
+        const swa = e.target.closest("[data-share-wa]");
+        if (swa) {
+          const item = inventory.find(i => i.id === swa.dataset.shareWa);
+          if (!item) return;
+          const spec = [item.size, item.color].filter(Boolean).join(", ");
+          const senarLine = isSenarBadminton(item) ? "\nSudah termasuk jasa pasang senar!" : "";
+          const promoText = `*${item.name}*${spec ? ` (${spec})` : ""}\nHarga: ${rp(item.price)}${senarLine}\nCek foto & stok: https://suryajaya-sport.github.io/produk/?id=${encodeURIComponent(item.id)}\n\nSurya Jaya Sport — Jl. Ahmad Yani 37, Tanjung Redeb, Berau\nWA: 0823-200-33333`;
+          try { await navigator.clipboard.writeText(promoText); } catch {
+            const ta = document.createElement("textarea");
+            ta.value = promoText; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove();
+          }
+          return showToast(`Teks promo WA "${item.name}" disalin!`);
+        }
         const qr = e.target.closest("[data-qr-item]");
         if (qr) return openProductQrModal(qr.dataset.qrItem);
         const a = e.target.closest("[data-archive-item]");
@@ -6835,6 +7067,27 @@
       document.getElementById("invSearchInput").addEventListener("input", renderInventory);
       document.getElementById("invMissingPhotoOnly").addEventListener("change", renderInventory);
       document.getElementById("inventoryFollowUp").addEventListener("change", renderInventory);
+      document.getElementById("inventorySortSelect")?.addEventListener("change", e => {
+        const val = e.target.value;
+        if (!val || val === "default") {
+          inventorySort = { key: "", dir: "asc" };
+        } else {
+          const [key, dir] = val.split("-");
+          inventorySort = { key, dir: dir === "desc" ? "desc" : "asc" };
+        }
+        renderInventory();
+      });
+      document.getElementById("inventoryTableHeadRow")?.addEventListener("click", e => {
+        const btn = e.target.closest("[data-inv-sort]");
+        if (!btn) return;
+        const key = btn.dataset.invSort;
+        if (inventorySort.key === key) {
+          inventorySort.dir = inventorySort.dir === "asc" ? "desc" : "asc";
+        } else {
+          inventorySort = { key, dir: "asc" };
+        }
+        renderInventory();
+      });
 
       document.getElementById("bookDatePicker").addEventListener("change", e => { selectedDateStr = e.target.value || todayStr(); currentViewMode = "day"; renderTransactions(); });
       document.getElementById("btnPrevDate").addEventListener("click", () => { selectedDateStr = shiftDate(selectedDateStr, -1); document.getElementById("bookDatePicker").value = selectedDateStr; currentViewMode = "day"; renderTransactions(); });
@@ -7276,6 +7529,39 @@
 
       const AUTO_BACKUP_ENABLED_KEY = "sjs-auto-backup-enabled";
       const AUTO_BACKUP_LAST_KEY = "sjs-auto-backup-last";
+      const MANUAL_BACKUP_LAST_KEY = "sjs-manual-backup-last";
+      function renderManualBackupReminder() {
+        const el = document.getElementById("manualBackupReminder");
+        const tabBtn = document.getElementById("tabBtnBackup");
+        const lastIso = localStorage.getItem(MANUAL_BACKUP_LAST_KEY) || localStorage.getItem(AUTO_BACKUP_LAST_KEY) || "";
+        const parsed = lastIso ? new Date(lastIso) : null;
+        const valid = parsed && !Number.isNaN(parsed.getTime());
+        const daysAgo = valid ? Math.floor((Date.now() - parsed.getTime()) / 86400000) : 999;
+        const overdue = !valid || daysAgo >= 7;
+        if (el) {
+          el.className = overdue
+            ? "text-xs font-bold px-3 py-2 rounded-xl border border-amber-300 bg-amber-50 text-amber-900"
+            : "text-xs font-bold px-3 py-2 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-900";
+          el.textContent = valid
+            ? (overdue
+              ? `Pengingat: Cadangan terakhir ${daysAgo} hari lalu (${parsed.toLocaleDateString("id-ID")}). Sebaiknya unduh cadangan baru.`
+              : `Aman: Cadangan terakhir ${parsed.toLocaleDateString("id-ID")} (${daysAgo === 0 ? "hari ini" : `${daysAgo} hari lalu`}).`)
+            : "Pengingat: Belum ada cadangan JSON di perangkat ini. Disarankan unduh minimal seminggu sekali.";
+        }
+        if (tabBtn) {
+          let dot = tabBtn.querySelector("[data-backup-due]");
+          if (overdue && !dot) {
+            dot = document.createElement("span");
+            dot.dataset.backupDue = "1";
+            dot.title = "Waktunya unduh cadangan data";
+            dot.className = "ml-auto px-1.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-extrabold";
+            dot.textContent = "!";
+            tabBtn.appendChild(dot);
+          } else if (!overdue && dot) {
+            dot.remove();
+          }
+        }
+      }
       const WEEKDAY_NAMES_ID = { Mon: "senin", Tue: "selasa", Wed: "rabu", Thu: "kamis", Fri: "jumat", Sat: "sabtu" };
       let backupDirHandle = null;
       let autoBackupRunning = false;
@@ -7423,6 +7709,26 @@
         a.href = URL.createObjectURL(new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" }));
         a.download = `cadangan-sjs-${todayStr()}.json`;
         a.click();
+        localStorage.setItem(MANUAL_BACKUP_LAST_KEY, new Date().toISOString());
+        renderManualBackupReminder();
+        showToast("Cadangan data JSON berhasil diunduh.");
+      });
+      renderManualBackupReminder();
+      document.getElementById("btnFillEmptySeoDesc")?.addEventListener("click", async () => {
+        if (!isAdmin) return;
+        const targets = activeInventory().filter(i => !String(i.description || "").trim());
+        if (!targets.length) return showToast("Semua barang aktif sudah memiliki deskripsi.");
+        if (!(await sjsConfirm(`Lengkapi deskripsi SEO otomatis untuk ${targets.length} barang yang masih kosong?`, "Lengkapi Deskripsi SEO"))) return;
+        const pubSnap = await getDocsFromServer(collection(db, "publicCatalog"));
+        const pubIds = new Set(pubSnap.docs.map(d => d.id));
+        await runTransaction(db, async tx => {
+          for (const item of targets) {
+            const desc = buildAutoProductDescription(item);
+            tx.set(doc(db, ...paths("inventory", item.id)), { description: desc, updatedAt: new Date().toISOString() }, { merge: true });
+            if (pubIds.has(item.id)) tx.set(doc(db, "publicCatalog", item.id), publicProductData({ ...item, description: desc }));
+          }
+        });
+        showToast(`${targets.length} barang berhasil dilengkapi deskripsi SEO.`);
       });
       document.getElementById("publishCatalog").addEventListener("click", async () => {
         if (!isAdmin || !(await sjsConfirm("Terbitkan barang aktif ke katalog publik?", "Terbitkan Katalog"))) return;
@@ -7433,18 +7739,63 @@
           for (const d of snap.docs) {
             const data = d.data();
             const ref = doc(db, "publicCatalog", d.id);
-            if (!data.archivedAt) tx.set(ref, publicProductData({ ...data, id: d.id }));
-            else if (pubIds.has(d.id)) tx.delete(ref);
+            if (!data.archivedAt) {
+              const desc = String(data.description || "").trim() || buildAutoProductDescription(data);
+              if (!String(data.description || "").trim()) {
+                tx.set(doc(db, ...paths("inventory", d.id)), { description: desc }, { merge: true });
+              }
+              tx.set(ref, publicProductData({ ...data, id: d.id, description: desc }));
+            } else if (pubIds.has(d.id)) {
+              tx.delete(ref);
+            }
           }
         });
-        showToast("Katalog publik diperbarui.");
+        showToast("Katalog publik & deskripsi SEO diperbarui.");
       });
       document.getElementById("openReorderList").addEventListener("click", () => {
-        const low = activeInventory().filter(i => Number(i.stock || 0) < LOW_STOCK_LIMIT);
-        document.getElementById("inventoryToolTitle").textContent = "Daftar belanja stok";
-        document.getElementById("inventoryToolContent").innerHTML = low.length
-          ? low.map(i => `<p class="py-2 border-b border-slate-100 text-sm">${esc(i.name)} (${esc(i.code)}) — sisa ${Number(i.stock || 0)} pcs</p>`).join("")
-          : `<p class="py-4 text-sm text-slate-600">Tidak ada barang dengan stok menipis.</p>`;
+        const low = activeInventory().filter(i => Number(i.stock || 0) < LOW_STOCK_LIMIT).sort((a, b) => Number(a.stock || 0) - Number(b.stock || 0));
+        document.getElementById("inventoryToolTitle").textContent = `Daftar belanja stok (${low.length} item)`;
+        const content = document.getElementById("inventoryToolContent");
+        if (!low.length) {
+          content.innerHTML = `<p class="py-4 text-sm text-slate-600">Tidak ada barang dengan stok menipis.</p>`;
+        } else {
+          const estTotal = low.reduce((s, i) => s + Math.max(1, LOW_STOCK_LIMIT - Number(i.stock || 0)) * Number(i.cost || 0), 0);
+          const rowsHtml = low.map((i, idx) => {
+            const sisa = Number(i.stock || 0);
+            const need = Math.max(1, LOW_STOCK_LIMIT - sisa);
+            return `<div class="py-2.5 border-b border-slate-100 flex items-center justify-between gap-3 text-sm">
+              <div><strong>${idx + 1}. ${esc(i.name)}</strong> <span class="text-xs font-mono text-blue-700">${esc(i.code || "-")}</span><br><span class="text-xs text-slate-500">Modal terakhir: ${rp(i.cost || 0)} · Saran kulak: ${need} pcs</span></div>
+              <span class="px-2.5 py-1 rounded-full text-xs font-extrabold ${sisa <= 0 ? "bg-rose-100 text-rose-800" : "bg-amber-100 text-amber-900"}">Sisa ${sisa} pcs</span>
+            </div>`;
+          }).join("");
+          content.innerHTML = `
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-2 border-b border-slate-200">
+              <p class="text-xs font-bold text-slate-600">Est. modal kulakan min: <strong class="text-slate-900">${rp(estTotal)}</strong></p>
+              <div class="flex flex-wrap gap-2">
+                <button type="button" id="btnCopyReorderWa" class="shop-button shop-button-emerald !min-h-9 !py-1.5 !px-3 !text-xs"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Salin Pesan WA</button>
+                <button type="button" id="btnPrintReorder" class="shop-button shop-button-primary !min-h-9 !py-1.5 !px-3 !text-xs"><i class="fa-solid fa-print" aria-hidden="true"></i> Cetak Daftar</button>
+              </div>
+            </div>
+            <div class="max-h-96 overflow-y-auto">${rowsHtml}</div>`;
+          content.querySelector("#btnCopyReorderWa")?.addEventListener("click", async () => {
+            const msg = `Halo, daftar belanja stok Surya Jaya Sport Berau (${todayStr()}):\n` +
+              low.map((i, idx) => `${idx + 1}. ${i.name}${i.code ? ` (${i.code})` : ""} — sisa ${Number(i.stock || 0)} pcs`).join("\n");
+            try { await navigator.clipboard.writeText(msg); } catch {
+              const ta = document.createElement("textarea"); ta.value = msg; document.body.appendChild(ta); ta.select(); document.execCommand("copy"); ta.remove();
+            }
+            showToast("Daftar belanja WA disalin!");
+          });
+          content.querySelector("#btnPrintReorder")?.addEventListener("click", () => {
+            const tblRows = low.map((i, idx) => {
+              const sisa = Number(i.stock || 0);
+              const need = Math.max(1, LOW_STOCK_LIMIT - sisa);
+              return `<tr><td class="r">${idx + 1}</td><td>${esc(i.name)}</td><td class="mono">${esc(i.code || "-")}</td><td class="r">${sisa} pcs</td><td class="r">${need} pcs</td><td class="r">${rp(i.cost || 0)}</td></tr>`;
+            }).join("");
+            const rptHtml = `<div class="rpt-head"><div><h1>${esc(shopName)}</h1><p class="rpt-sub">Daftar Belanja Stok Menipis (&lt; ${LOW_STOCK_LIMIT} pcs) · Jl. Ahmad Yani 37, Berau</p></div><div class="rpt-meta"><div><strong>Tanggal:</strong> ${esc(todayStr())}</div><div><strong>Total Item:</strong> ${low.length} Barang</div></div></div><table><thead><tr><th class="r">No</th><th>Nama Barang</th><th>Kode</th><th class="r">Sisa</th><th class="r">Saran Kulak</th><th class="r">Modal/Pcs</th></tr></thead><tbody>${tblRows}</tbody></table>`;
+            document.getElementById("inventoryToolDialog").close();
+            printMode("report", rptHtml);
+          });
+        }
         document.getElementById("inventoryToolDialog").showModal();
       });
     }
