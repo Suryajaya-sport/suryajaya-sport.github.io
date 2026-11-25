@@ -1018,7 +1018,7 @@
           </div>
           <div>
             <label class="block text-[11px] font-bold text-slate-600 mb-1">Modal (ops.)</label>
-            <input type="number" min="0" step="1" inputmode="numeric" class="item-cost-input w-full px-2.5 py-2 border border-slate-300 rounded-xl bg-white font-bold !text-sm" placeholder="0" value="${esc(prefill?.cost ?? "")}">
+            <input type="number" min="0" step="1" inputmode="numeric" class="item-cost-input w-full px-2.5 py-2 border border-slate-300 rounded-xl ${prefill?.id ? "bg-slate-100 text-slate-500 cursor-not-allowed" : "bg-white"} font-bold !text-sm" placeholder="0" value="${esc(prefill?.cost ?? "")}" ${prefill?.id ? "readonly title=\"HPP terkunci dari data stok\"" : ""}>
           </div>
           <div>
             <label class="block text-[11px] font-bold text-slate-600 mb-1">Jumlah</label>
@@ -1059,6 +1059,10 @@
             preview.className = "sale-entry-thumbnail shrink-0 w-10 h-10";
             preview.innerHTML = productImageMarkup(match, "h-10 w-10 rounded-lg border border-slate-200", 120, true);
           }
+          costInput.readOnly = true;
+          costInput.classList.add("bg-slate-100", "text-slate-500", "cursor-not-allowed");
+          costInput.classList.remove("bg-white");
+          costInput.title = "HPP terkunci dari data stok";
           modeBadge.textContent = "Dari stok";
           modeBadge.className = "item-mode-badge font-bold text-emerald-700";
         } else {
@@ -1067,8 +1071,12 @@
             preview.innerHTML = "";
             preview.className = "sale-entry-thumbnail shrink-0 hidden";
           }
+          costInput.readOnly = false;
+          costInput.classList.remove("bg-slate-100", "text-slate-500", "cursor-not-allowed");
+          costInput.classList.add("bg-white");
+          costInput.title = "";
           modeBadge.textContent = "Di luar stok";
-          modeBadge.className = "item-mode-badge font-bold text-slate-500";
+          modeBadge.className = "item-mode-badge font-bold text-amber-700";
         }
         calculateSaleTotals();
       };
@@ -1106,8 +1114,10 @@
         profit += (price - cost) * qty;
         row.querySelector(".item-subtotal").textContent = rp(price * qty);
       }
-      const rawDisc = Math.max(0, Math.round(Number(document.getElementById("inputSaleDiscount")?.value) || 0));
-      const discount = Math.min(total, rawDisc);
+      const discType = document.getElementById("inputSaleDiscountType")?.value || "rp";
+      const rawDisc = Math.max(0, Number(document.getElementById("inputSaleDiscount")?.value) || 0);
+      const calcDisc = discType === "pct" ? Math.round(total * Math.min(100, rawDisc) / 100) : Math.round(rawDisc);
+      const discount = Math.min(total, calcDisc);
       const netTotal = Math.max(0, total - discount);
       const netProfit = profit - discount;
       currentSaleTotalAmount = netTotal;
@@ -1145,29 +1155,54 @@
       }
     }
 
+    function renderPosQuickFavorites() {
+      const bar = document.getElementById("posQuickFavBar");
+      const wrap = document.getElementById("posQuickFavWrap");
+      if (!bar || !wrap) return;
+      const active = activeInventory().filter(i => Number(i.stock || 0) > 0);
+      if (!active.length) { wrap.hidden = true; return; }
+      wrap.hidden = false;
+      const freq = new Map();
+      for (const tx of transactions) {
+        for (const it of (tx.items || [])) {
+          if (it.inventoryId) freq.set(it.inventoryId, (freq.get(it.inventoryId) || 0) + Number(it.qty || 1));
+        }
+      }
+      const ranked = active.slice().sort((a, b) => (freq.get(b.id) || 0) - (freq.get(a.id) || 0) || Number(b.stock || 0) - Number(a.stock || 0)).slice(0, 7);
+      bar.innerHTML = ranked.map(it => {
+        const shortName = String(it.name || "").length > 22 ? String(it.name).slice(0, 21) + "…" : String(it.name || "");
+        return `<button type="button" data-quick-fav-id="${esc(it.id)}" title="${esc(it.name)} · ${rp(it.price)} (stok ${Number(it.stock || 0)})" class="px-2.5 py-1 rounded-full bg-white hover:bg-blue-50 border border-amber-300 hover:border-blue-400 text-xs font-extrabold text-slate-800 inline-flex items-center gap-1 transition"><span>+ ${esc(shortName)}</span><span class="text-[10px] text-emerald-700">${esc(shortRpTick(it.price).replace("Rp ", ""))}</span></button>`;
+      }).join("");
+    }
+
     function updatePosLiveStats() {
       const omEl = document.getElementById("posStatOmsetToday");
       if (!omEl) return;
       const today = todayStr();
       const todaySales = transactions.filter(t => t.date === today);
       const omset = todaySales.reduce((s, t) => s + Number(t.totalOmset || 0), 0);
-      const profit = todaySales.reduce((s, t) => s + Number(t.totalProfit || 0), 0);
       const pcs = todaySales.reduce((s, t) => s + (Array.isArray(t.items) ? t.items.reduce((a, it) => a + Number(it.qty || 0), 0) : 0), 0);
-      const lowCount = activeInventory().filter(i => Number(i.stock || 0) <= 3).length;
+      const avgNota = todaySales.length > 0 ? Math.round(omset / todaySales.length) : 0;
+      const lowItems = activeInventory().filter(i => Number(i.stock || 0) < LOW_STOCK_LIMIT)
+        .sort((a, b) => Number(a.stock || 0) - Number(b.stock || 0));
       omEl.textContent = rp(omset);
       const txEl = document.getElementById("posStatTxToday");
       const pcsEl = document.getElementById("posStatPcsToday");
-      const prEl = document.getElementById("posStatProfitToday");
+      const avgEl = document.getElementById("posStatAvgToday");
+      const avgSub = document.getElementById("posStatAvgSub");
       const lwEl = document.getElementById("posStatLowStock");
+      const lwNames = document.getElementById("posStatLowStockNames");
       if (txEl) txEl.textContent = todaySales.length + " Nota";
       if (pcsEl) pcsEl.textContent = pcs + " pcs terjual";
-      if (prEl) prEl.textContent = rp(profit);
-      const marginPct = omset > 0 ? Math.max(0, Math.min(100, Math.round((profit / omset) * 100))) : 0;
-      const mgEl = document.getElementById("posStatMarginToday");
-      const mgBar = document.getElementById("posStatMarginBar");
-      if (mgEl) mgEl.textContent = `Margin ${marginPct}%`;
-      if (mgBar) mgBar.style.width = marginPct + "%";
-      if (lwEl) lwEl.textContent = lowCount + " Barang";
+      if (avgEl) avgEl.textContent = rp(avgNota);
+      if (avgSub) avgSub.textContent = `${todaySales.length} transaksi · ${pcs} barang`;
+      if (lwEl) lwEl.textContent = lowItems.length + " Barang";
+      if (lwNames) {
+        const preview = lowItems.slice(0, 3).map(i => String(i.name || "").split(" ").slice(0, 2).join(" ")).join(", ");
+        lwNames.textContent = lowItems.length ? `${preview}${lowItems.length > 3 ? "…" : ""}` : "Semua stok aman";
+        lwNames.title = lowItems.map(i => `${i.name} (${Number(i.stock || 0)} pcs)`).join(" · ");
+      }
+      renderPosQuickFavorites();
     }
 
     function selectSalePayment(method) {
@@ -1180,6 +1215,10 @@
         b.setAttribute("aria-pressed", String(b.dataset.pay === selectedPaymentMethod));
       }
       document.getElementById("salePaymentHint").hidden = ok;
+      const topBadge = document.getElementById("salePaymentTopBadge");
+      if (topBadge) topBadge.hidden = ok;
+      const payBox = document.getElementById("posPaySectionBox");
+      if (payBox) payBox.classList.toggle("border-amber-300", !ok);
       document.getElementById("btnSaveTx").disabled = !ok || saleFormSaving;
       document.getElementById("btnSaveAndPrintTx").disabled = !ok || saleFormSaving;
       updateCashCalcUI();
@@ -1190,6 +1229,7 @@
       document.getElementById("inputCustomer").value = "";
       if (document.getElementById("inputSaleNote")) document.getElementById("inputSaleNote").value = "";
       if (document.getElementById("inputSaleDiscount")) document.getElementById("inputSaleDiscount").value = "0";
+      if (document.getElementById("inputSaleDiscountType")) document.getElementById("inputSaleDiscountType").value = "rp";
       document.getElementById("inputDate").value = todayStr();
       document.getElementById("saleItemsContainer").replaceChildren();
       cashReceivedAmount = 0;
@@ -1219,14 +1259,16 @@
         if (inv) {
           itemsToSave.push({ inventoryId: invId, name: formatItemLabel(inv), qty, price, cost: Number(inv.cost || 0), imageUrl: inv.imageUrl || "" });
         } else {
-          itemsToSave.push({ inventoryId: "", name: typedName.slice(0, 160), qty, price, cost: manualCost, imageUrl: "" });
+          itemsToSave.push({ inventoryId: "", isCustom: true, name: typedName.slice(0, 160), qty, price, cost: manualCost, imageUrl: "" });
         }
       }
       if (!itemsToSave.length) return showToast("Tambahkan minimal 1 barang.");
 
       const txDate = document.getElementById("inputDate").value || todayStr();
       const grossTotal = itemsToSave.reduce((s, i) => s + Number(i.price || 0) * Number(i.qty || 0), 0);
-      const saleDiscount = Math.min(grossTotal, Math.max(0, Math.round(Number(document.getElementById("inputSaleDiscount")?.value) || 0)));
+      const saleDiscType = document.getElementById("inputSaleDiscountType")?.value || "rp";
+      const rawSaleDisc = Math.max(0, Number(document.getElementById("inputSaleDiscount")?.value) || 0);
+      const saleDiscount = Math.min(grossTotal, saleDiscType === "pct" ? Math.round(grossTotal * Math.min(100, rawSaleDisc) / 100) : Math.round(rawSaleDisc));
       const saleNote = String(document.getElementById("inputSaleNote")?.value || "").trim().slice(0, 160);
       const txData = {
         date: txDate,
@@ -2027,7 +2069,7 @@
               <div class="text-xs font-bold text-slate-700 mt-1">${esc(tx.date)}${timeStr ? ` <span class="text-slate-400 font-semibold">· ${esc(timeStr)}</span>` : ""}</div>
               ${custBadge}
             </td>` : ""}
-            <td class="py-3 px-3 font-bold text-slate-900">${esc(cleanDisplayItemName(it.name))} <span class="inline-block ml-1 px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-xs font-extrabold">${Number(it.qty || 0)}×</span></td>
+            <td class="py-3 px-3 font-bold text-slate-900">${esc(cleanDisplayItemName(it.name))} <span class="inline-block ml-1 px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 text-xs font-extrabold">${Number(it.qty || 0)}×</span>${(it.isCustom || !it.inventoryId) ? `<span class="inline-block ml-1 px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 text-[10px] font-extrabold">Luar Stok</span>` : ""}</td>
             <td class="py-3 px-3 text-right tabular-nums text-slate-600">${rp(it.price)}</td>
             <td class="py-3 px-3 text-right font-extrabold text-slate-900 tabular-nums">${rp(it.subtotal ?? it.price * it.qty)}</td>
             ${idx === 0 ? `<td${rs} class="py-3 px-3 text-center align-middle"><span class="inline-block px-2.5 py-1 rounded-full text-xs font-extrabold ${pmClass}">${pm}</span></td>
@@ -4765,6 +4807,33 @@
       });
       document.getElementById("inputDate").addEventListener("change", updateSaleDateSummary);
       document.getElementById("inputSaleDiscount")?.addEventListener("input", calculateSaleTotals);
+      document.getElementById("inputSaleDiscountType")?.addEventListener("change", calculateSaleTotals);
+      document.getElementById("posQuickFavBar")?.addEventListener("click", e => {
+        const btn = e.target.closest("[data-quick-fav-id]");
+        if (!btn) return;
+        const item = activeInventory().find(i => i.id === btn.dataset.quickFavId);
+        if (!item) return;
+        if (typeof addInventoryItemToSale === "function") addInventoryItemToSale(item);
+        else { addSaleItemRow(item); calculateSaleTotals(); }
+        showToast(`${item.name} masuk keranjang.`);
+      });
+      document.addEventListener("keydown", e => {
+        if (!isAdmin || activeWorkspace !== "kasir") return;
+        if (document.querySelector("dialog[open]")) return;
+        if (e.key === "F2") {
+          e.preventDefault();
+          document.getElementById("btnOpenScanner")?.click();
+        } else if (e.key === "F8") {
+          e.preventDefault();
+          selectSalePayment("Cash");
+          showToast("Cara bayar: Tunai (F8)");
+        } else if (e.key === "F4") {
+          e.preventDefault();
+          const saveBtn = document.getElementById("btnSaveTx");
+          if (saveBtn && !saveBtn.disabled) saveSale(false);
+          else showToast("Pilih cara bayar dulu (tekan F8 untuk Tunai).");
+        }
+      });
       document.getElementById("btnBatchPrintQr")?.addEventListener("click", printBatchQrStickers);
       document.getElementById("btnPreviewBatchQr")?.addEventListener("click", () => {
         const firstId = selectedQrQty.keys().next().value;
