@@ -1141,10 +1141,10 @@
             const st = Number(inv.stock || 0);
             if (qty > st) {
               badge.textContent = `⚠ Melebihi stok (tersisa ${st})`;
-              badge.className = "item-mode-badge font-extrabold text-rose-700";
+              badge.className = "item-mode-badge font-extrabold text-white bg-rose-700 px-2 py-0.5 rounded-full";
             } else if (st < LOW_STOCK_LIMIT) {
-              badge.textContent = `Stok: ${st} ⚠`;
-              badge.className = "item-mode-badge font-extrabold text-amber-700";
+              badge.textContent = `⚠ Stok ${st}`;
+              badge.className = "item-mode-badge font-extrabold text-white bg-rose-600 px-2 py-0.5 rounded-full";
             } else {
               badge.textContent = `Stok: ${st}`;
               badge.className = "item-mode-badge font-bold text-emerald-700";
@@ -5182,10 +5182,10 @@
         const matched = transactions.filter(t => String(t.customer || "").trim().toLowerCase() === val);
         const bonTx = matched.filter(t => t.paymentMethod === "Bon");
         const badges = [];
-        if (matched.length >= 2) badges.push(`<span class="px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">⭐ MEMBER (${matched.length}x)</span>`);
+        if (matched.length >= 2) badges.push(`<span class="px-2 py-0.5 rounded-full bg-blue-900 text-white font-extrabold">MEMBER (${matched.length}x)</span>`);
         if (bonTx.length > 0) {
           const bonTot = bonTx.reduce((s, t) => s + Number(t.totalOmset || 0), 0);
-          badges.push(`<span class="px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300">🔴 BON ${esc(shortRpTick(bonTot))}</span>`);
+          badges.push(`<span class="px-2 py-0.5 rounded-full bg-rose-700 text-white font-extrabold">BON ${esc(shortRpTick(bonTot))}</span>`);
         }
         wrap.innerHTML = badges.join("");
       };
@@ -5299,6 +5299,9 @@
         if (e.key === "F2") {
           e.preventDefault();
           document.getElementById("btnOpenScanner")?.click();
+        } else if (e.key === "F3") {
+          e.preventDefault();
+          holdCurrentSale();
         } else if (e.key === "F8") {
           e.preventDefault();
           selectSalePayment("Cash");
@@ -5343,7 +5346,7 @@
         showToast(next ? "Mode Pegawai Kasir aktif (Omzet & Modal disembunyikan)." : "Mode Pemilik aktif.");
       });
       document.getElementById("btnPosShortcutHelp")?.addEventListener("click", () => {
-        showToast("Pintasan Kasir: F2 = Scan QR · F8 = Tunai · F4 = Simpan · Enter = Tambah barang · Esc = Tutup saran");
+        showToast("Pintasan Kasir: F2 = Scan QR · F3 = Tahan nota · F8 = Tunai · F4 = Simpan · Enter = Tambah barang · Esc = Tutup saran");
       });
       window.addEventListener("offline", () => updateSyncStatus(false, "Offline — menunggu koneksi"));
       window.addEventListener("online", () => updateSyncStatus(true, isAdmin ? "Cloud Online" : "Katalog publik"));
