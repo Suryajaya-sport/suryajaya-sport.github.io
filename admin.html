@@ -4259,20 +4259,24 @@
     // ==================== RENDER: KATALOG PUBLIK ====================
     const MUSIC_RE = /\b(gitar|guitar|ukulele|bass|capo|plektrum|musik|akustik|acoustic|klasik|classic|elektrik|electric|biola|violin|drum|stik\s*drum|cajon|jimbe|harmonika|tama|sonor|zildjian|yamaha\s*f|pyramid|d'?addario|orphee|ernie\s*ball|elixir|fender|nilon|nylon|kawat)\b/i;
     const BALL_ITEM_RE = /\b(futsal|bola|sepak|basket|voli|volley|football|soccer|molten|spalding|mikasa|nassau)\b/i;
-    const BADMINTON_STRING_MODEL_RE = /\b(bg\s*\d{1,2}m?(?!\d)|nbg\s*\d{2,3}(?!\d)|exbolt|nanogy|aerobite|aerosonic|ultimax|tectonic\s*65|vbs\s*\d{2,3}(?!\d))\b/i;
-    const BADMINTON_BRAND_RE = /\b(badminton|bulutangkis|raket|shuttlecock|kok|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|power\s*max|tectonic|bg\s*\d{1,2}m?(?!\d)|nbg\s*\d{2,3}(?!\d)|exbolt|nanogy|aerobite|aerosonic|ultimax|vbs\s*\d{2,3}(?!\d))\b/i;
+    const BADMINTON_STRING_MODEL_RE = /\b(bg\s*\d{1,2}m?(?!\d)|nbg\s*\d{2,3}(?!\d)|exbolt|nanogy|aerobite|aerosonic|ultimax|tectonic\s*65|vbs\s*\d{2,3}(?!\d)|no\.?\s*[157]\s*boost?)\b/i;
+    const BADMINTON_BRAND_RE = /\b(badminton|bulutangkis|raket|shuttlecock|kok|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|power\s*max|tectonic|flypower|mizuno|astec|hart|ebox|eagle|prochamps|pro\s*ace|ashaway|gosen|rs\b|reinforce|kawasaki|fleet|babolat|bg\s*\d{1,2}m?(?!\d)|nbg\s*\d{2,3}(?!\d)|exbolt|nanogy|aerobite|aerosonic|ultimax|vbs\s*\d{2,3}(?!\d))\b/i;
     const NOT_STRING_ITEM_RE = /\b(raket|racket|sepatu|baju|jersey|celana|tas|grip|kok|shuttlecock|kaos|net|piala|taping|bola|basket|futsal|voli|volley|sepak|molten|spalding|mikasa|catur|chess|pingpong|tenis|senapan|peluru|mimis|sepatu\s*roda|skate|deker|sarung\s*tangan|pompa|matras|dumbbell|barbel|skipping)\b/i;
 
     function isSenarBadminton(item) {
-      const name = String(item?.name || "");
+      const name = String(item?.name || "").trim();
       const txt = [item?.name, item?.category, item?.description].filter(Boolean).join(" ");
       if (MUSIC_RE.test(txt)) return false;
       if (BALL_ITEM_RE.test(txt)) return false;
+      if (/\bsenar\s+(raket|badminton|bulutangkis)\b/i.test(name)) return true;
       if (NOT_STRING_ITEM_RE.test(name)) return false;
       const hasSenarWord = /\bsenar\b/i.test(name);
-      const isBadmintonCue = BADMINTON_BRAND_RE.test(txt);
       const isModelOnly = BADMINTON_STRING_MODEL_RE.test(name);
-      return (hasSenarWord && isBadmintonCue) || isModelOnly;
+      if (isModelOnly) return true;
+      if (hasSenarWord) {
+        return BADMINTON_BRAND_RE.test(txt) || /^senar\b/i.test(name);
+      }
+      return false;
     }
 
     function matchesCatalogCategory(item, category) {
@@ -4280,7 +4284,7 @@
       const name = String(item?.name || "");
       const isPingpong = /\b(pingpong|tenis\s*meja)\b/i.test(name);
       const ball = !MUSIC_RE.test(name) && BALL_ITEM_RE.test(name);
-      const badminton = !isPingpong && !ball && !MUSIC_RE.test(name) && (isSenarBadminton(item) || /\b(badminton|bulutangkis|raket|shuttlecock|kok|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|power\s*max|tectonic|bg\s*\d{1,2}m?(?!\d)|nbg\s*\d{2,3}(?!\d)|exbolt|nanogy)\b/i.test(name));
+      const badminton = !isPingpong && !ball && !MUSIC_RE.test(name) && (isSenarBadminton(item) || /\b(badminton|bulutangkis|raket|shuttlecock|kok|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|power\s*max|tectonic|flypower|mizuno|astec|hart|ebox|prochamps|ashaway|gosen|bg\s*\d{1,2}m?(?!\d)|nbg\s*\d{2,3}(?!\d)|exbolt|nanogy)\b/i.test(name));
       const music = MUSIC_RE.test(name) || (!badminton && !ball && /\bsenar\b/i.test(name));
       const chess = /\b(catur|chess)\b/i.test(name);
       if (category === "music") return music;
@@ -4340,7 +4344,7 @@
             <p class="catalog-card-meta">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
             <h3 class="font-extrabold cursor-pointer hover:text-blue-700" data-view-product="${esc(item.id)}">${esc(item.name)}</h3>
             ${item.description ? `<p class="catalog-card-description line-clamp-2">${esc(item.description)}</p>` : ""}
-            ${isSenarItem(item) && !/jasa\s+pasang\s+senar/i.test(String(item.description || "")) ? `<p class="senar-service-note"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>${SENAR_SERVICE_NOTE}</span></p>` : ""}
+            ${isSenarItem(item) ? `<p class="senar-service-note"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>${SENAR_SERVICE_NOTE}</span></p>` : ""}
             <div class="catalog-card-facts">
               <p class="catalog-card-price text-slate-900">${rp(item.price)}</p>
               <span class="catalog-stock">Stok ${stockNum} pcs</span>
@@ -4694,11 +4698,11 @@
       document.getElementById("inventoryResultCount").textContent = `${filtered.length} dari ${listed.length} barang`;
 
       let units = 0, asset = 0, low = 0;
-      for (const item of inventory) {
-        const stock = Number(item.stock || 0);
+      for (const item of activeInventory()) {
+        const stock = Math.max(0, Number(item.stock || 0));
         units += stock;
         asset += stock * Number(item.cost || 0);
-        if (!item.archivedAt && stock < LOW_STOCK_LIMIT) low++;
+        if (stock < LOW_STOCK_LIMIT) low++;
       }
       document.getElementById("navStockBadge").textContent = activeInventory().length;
       document.getElementById("invTotalTypes").textContent = activeInventory().length + " Aktif";
@@ -7235,7 +7239,7 @@
           ${productImageMarkup(item, "w-full aspect-[4/3] rounded-2xl border border-slate-200", 720, true)}
           <p class="text-xs font-mono font-bold text-blue-700">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
           ${item.description ? `<p class="text-sm text-slate-600 leading-relaxed">${esc(item.description)}</p>` : ""}
-          ${isSenarItem(item) && !/jasa\s+pasang\s+senar/i.test(String(item.description || "")) ? `<p class="senar-service-note !text-xs !py-2 !px-3"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>${SENAR_SERVICE_NOTE}</span></p>` : ""}
+          ${isSenarItem(item) ? `<p class="senar-service-note !text-xs !py-2 !px-3"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>${SENAR_SERVICE_NOTE}</span></p>` : ""}
           <div class="flex items-center justify-between pt-2 border-t border-slate-100">
             <p class="text-2xl font-extrabold text-slate-900">${rp(item.price)}</p>
             <span class="catalog-stock">Stok ${Number(item.stock || 0)} pcs</span>
