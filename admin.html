@@ -1335,12 +1335,6 @@
           <p class="text-[11px] font-semibold text-slate-500 hidden sm:block">Jl. Ahmad Yani 37, Tanjung Redeb, Berau • 0823-200-33333</p>
         </div>
       </div>
-      <nav class="shop-links" aria-label="Navigasi toko">
-        <a href="#kategori-unggulan">Kategori</a>
-        <a href="#publicProductCatalog">Katalog</a>
-        <a href="#cara-pesan">Cara pesan</a>
-        <a href="#lokasi-toko">Lokasi toko</a>
-      </nav>
       <div class="shop-header-actions">
         <button type="button" id="btnToggleTabletMode" class="hidden tablet-toggle-btn" aria-pressed="false" title="Aktifkan ikon & tombol besar ramah sentuh">
           <i class="fa-solid fa-tablet-screen-button" aria-hidden="true"></i>
@@ -1365,13 +1359,12 @@
 
     <nav id="mainNavigation" hidden class="no-print" aria-label="Navigasi pemilik">
       <p class="workspace-nav-title">Ruang kerja</p>
-      <button type="button" id="tabBtnKasir" data-workspace="kasir" aria-controls="cashierWorkspace"><i class="fa-solid fa-cash-register" aria-hidden="true"></i><span>Kasir</span></button>
+      <button type="button" id="tabBtnKasir" data-workspace="kasir" aria-controls="cashierWorkspace" aria-current="page"><i class="fa-solid fa-cash-register" aria-hidden="true"></i><span>Kasir</span></button>
       <button type="button" id="tabBtnSales" data-workspace="sales" aria-controls="salesHistoryWorkspace"><i class="fa-solid fa-chart-column" aria-hidden="true"></i><span>Penjualan</span></button>
       <button type="button" id="tabBtnInventory" data-workspace="inventory" aria-controls="viewInventory"><i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i><span>Stok &amp; QR</span><span id="navStockBadge">0</span></button>
       <button type="button" id="tabBtnBooks" data-workspace="books" aria-controls="viewBooks"><i class="fa-solid fa-book" aria-hidden="true"></i><span>Pembukuan</span></button>
       <button type="button" id="tabBtnAllReports" data-workspace="reports" aria-controls="viewAllReports"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i><span>Semua Laporan</span></button>
       <button type="button" id="tabBtnBackup" data-workspace="backup" aria-controls="viewBackup"><i class="fa-solid fa-database" aria-hidden="true"></i><span>Cadangan data</span></button>
-      <button type="button" id="tabBtnCatalog" data-workspace="catalog" aria-controls="viewCatalog" aria-current="page"><i class="fa-solid fa-store" aria-hidden="true"></i><span>Mode Pelanggan</span></button>
     </nav>
 
     <section id="adminPastelMenu" hidden class="sjs-pastel-menu-card no-print" aria-label="Menu cepat admin">
@@ -1539,181 +1532,6 @@
         </div>
       </div>
     </section>
-
-    <!-- KATALOG PUBLIK -->
-    <section id="viewCatalog" class="flex flex-col gap-7">
-      <div class="shop-hero">
-        <div class="shop-hero-content">
-          <p class="shop-eyebrow"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Tanjung Redeb, Berau · Stok Real-Time</p>
-          <h2 id="catalogPageTitle" tabindex="-1">Perlengkapan Olahraga<br><span class="shop-hero-accent">&amp; Alat Musik</span></h2>
-          <p class="text-[15px] text-slate-200 leading-relaxed">Temukan perlengkapan badminton, futsal, bola, catur, hingga aksesori gitar dengan harga jelas dan stok langsung dari toko kami di Berau.</p>
-          <div class="hero-trust-row">
-            <span class="hero-trust-pill"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Harga &amp; stok terkini</span>
-            <span class="hero-trust-pill"><i class="fa-solid fa-bolt" aria-hidden="true"></i> Pesan cepat lewat WA</span>
-            <span class="hero-trust-pill"><i class="fa-solid fa-qrcode" aria-hidden="true"></i> Terima Tunai, QRIS, Kartu &amp; Transfer</span>
-          </div>
-          <div class="shop-hero-actions pt-1">
-            <a class="shop-button shop-button-accent" href="#publicProductCatalog">Jelajahi katalog <i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a>
-            <a class="shop-button shop-button-outline" href="#cara-pesan"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> Cara pesan</a>
-            <a class="shop-button shop-button-outline" href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp text-emerald-300" aria-hidden="true"></i> Chat WhatsApp</a>
-          </div>
-        </div>
-        <div class="hero-feature-grid" aria-label="Pilih kategori cepat">
-          <button type="button" class="hero-feature-card" data-quick-cat="badminton">
-            <i class="fa-solid fa-feather-pointed" aria-hidden="true"></i>
-            <strong>Badminton</strong>
-            <span>Raket, kok, senar &amp; grip</span>
-          </button>
-          <button type="button" class="hero-feature-card" data-quick-cat="ball">
-            <i class="fa-solid fa-futbol" aria-hidden="true"></i>
-            <strong>Futsal &amp; Bola</strong>
-            <span>Sepatu, bola &amp; pelindung</span>
-          </button>
-          <button type="button" class="hero-feature-card" data-quick-cat="chess">
-            <i class="fa-solid fa-chess-knight" aria-hidden="true"></i>
-            <strong>Catur</strong>
-            <span>Papan &amp; bidak standar</span>
-          </button>
-          <button type="button" class="hero-feature-card" data-quick-cat="music">
-            <i class="fa-solid fa-guitar" aria-hidden="true"></i>
-            <strong>Musik &amp; Gitar</strong>
-            <span>Senar, capo &amp; aksesori</span>
-          </button>
-        </div>
-      </div>
-
-      <section id="kategori-unggulan" class="flex flex-col gap-3" aria-label="Menu kategori cepat">
-        <div class="catalog-heading">
-          <h2>Pilih kategori</h2>
-          <span class="text-xs font-bold text-slate-500">Klik kategori untuk langsung menyaring produk</span>
-        </div>
-        <div class="quick-cat-grid" id="quickCatGrid">
-          <button type="button" class="quick-cat-btn is-active" data-quick-cat="all">
-            <span class="quick-cat-icon"><i class="fa-solid fa-border-all" aria-hidden="true"></i></span>
-            <div><strong>Semua Produk</strong><span>Lihat seluruh stok</span></div>
-          </button>
-          <button type="button" class="quick-cat-btn" data-quick-cat="badminton">
-            <span class="quick-cat-icon"><i class="fa-solid fa-feather-pointed" aria-hidden="true"></i></span>
-            <div><strong>Badminton</strong><span>Raket &amp; kok</span></div>
-          </button>
-          <button type="button" class="quick-cat-btn" data-quick-cat="ball">
-            <span class="quick-cat-icon"><i class="fa-solid fa-futbol" aria-hidden="true"></i></span>
-            <div><strong>Futsal &amp; Bola</strong><span>Bola &amp; sepatu</span></div>
-          </button>
-          <button type="button" class="quick-cat-btn" data-quick-cat="chess">
-            <span class="quick-cat-icon"><i class="fa-solid fa-chess" aria-hidden="true"></i></span>
-            <div><strong>Catur</strong><span>Papan &amp; set catur</span></div>
-          </button>
-          <button type="button" class="quick-cat-btn" data-quick-cat="music">
-            <span class="quick-cat-icon"><i class="fa-solid fa-music" aria-hidden="true"></i></span>
-            <div><strong>Musik</strong><span>Gitar &amp; aksesori</span></div>
-          </button>
-          <button type="button" class="quick-cat-btn" data-quick-cat="sport">
-            <span class="quick-cat-icon"><i class="fa-solid fa-dumbbell" aria-hidden="true"></i></span>
-            <div><strong>Olahraga Lainnya</strong><span>Perlengkapan umum</span></div>
-          </button>
-        </div>
-      </section>
-
-      <section id="publicProductCatalog" class="flex flex-col gap-5" aria-labelledby="productCatalogTitle">
-        <div class="catalog-heading">
-          <h2 id="productCatalogTitle">Katalog produk</h2>
-          <button type="button" id="openCatalogCart" class="shop-button shop-button-primary" aria-haspopup="dialog">
-            <i class="fa-solid fa-basket-shopping" aria-hidden="true"></i> Keranjang <span id="catalogCartCount" class="ml-1 px-2 py-0.5 rounded-full bg-white/20 text-xs font-extrabold" aria-live="polite">0</span>
-          </button>
-        </div>
-        <div class="catalog-toolbar">
-          <form id="catalogSearchForm" role="search" autocomplete="off" class="catalog-search-form">
-            <label for="catalogSearch" class="sr-only">Cari produk katalog</label>
-            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-            <input type="search" id="catalogSearch" placeholder="Cari nama produk, merek, ukuran, atau kode (mis. senar, raket, SJS-001)..." autocomplete="off" spellcheck="false">
-            <button type="button" id="btnClearCatalogSearch" class="hidden" aria-label="Hapus pencarian"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
-          </form>
-          <div class="catalog-filter-row">
-            <fieldset id="catalogCategory" class="catalog-categories">
-              <legend class="sr-only">Kategori produk</legend>
-              <label><input class="sr-only" type="radio" name="catalogCategory" value="all" checked><span>Semua</span></label>
-              <label><input class="sr-only" type="radio" name="catalogCategory" value="sport"><span>Olahraga Lainnya</span></label>
-              <label><input class="sr-only" type="radio" name="catalogCategory" value="badminton"><span>Badminton</span></label>
-              <label><input class="sr-only" type="radio" name="catalogCategory" value="ball"><span>Futsal &amp; bola</span></label>
-              <label><input class="sr-only" type="radio" name="catalogCategory" value="chess"><span>Catur</span></label>
-              <label><input class="sr-only" type="radio" name="catalogCategory" value="music"><span>Musik</span></label>
-            </fieldset>
-            <div class="flex items-center gap-2.5 ml-auto">
-              <label for="catalogSort" class="sr-only">Urutkan produk</label>
-              <select id="catalogSort" class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700">
-                <option value="default">Urutan default</option>
-                <option value="price-asc">Harga terendah</option>
-                <option value="price-desc">Harga tertinggi</option>
-                <option value="name-asc">Nama A–Z</option>
-              </select>
-              <span id="catalogResultCount" aria-live="polite"></span>
-            </div>
-          </div>
-        </div>
-        <div id="productCatalogGrid" class="catalog-grid"><p class="catalog-empty" role="status">Katalog sedang dimuat…</p></div>
-      </section>
-
-      <section id="cara-pesan" class="flex flex-col gap-4" aria-labelledby="howToOrderTitle">
-        <div class="catalog-heading">
-          <h2 id="howToOrderTitle">Cara pesan mudah</h2>
-          <span class="text-xs font-bold text-slate-500">Tanpa perlu buat akun, langsung terhubung ke WhatsApp toko</span>
-        </div>
-        <div class="howto-grid">
-          <article class="howto-card">
-            <span class="howto-step">1</span>
-            <h3>Pilih produk di katalog</h3>
-            <p>Gunakan kotak pencarian atau menu kategori di atas untuk mengecek harga dan sisa stok barang yang tersedia.</p>
-          </article>
-          <article class="howto-card">
-            <span class="howto-step">2</span>
-            <h3>Masukkan ke keranjang</h3>
-            <p>Klik <strong>+ Keranjang</strong> untuk memilih beberapa barang sekaligus, atau klik <strong>Tanya stok</strong> untuk langsung menanyakan 1 produk.</p>
-          </article>
-          <article class="howto-card">
-            <span class="howto-step">3</span>
-            <h3>Konfirmasi &amp; ambil di toko</h3>
-            <p>Buka tombol <strong>Keranjang</strong> lalu klik <strong>Kirim daftar ke WhatsApp</strong>. Setelah kami konfirmasi, Anda bisa langsung ambil dan bayar di toko.</p>
-          </article>
-        </div>
-      </section>
-
-      <section id="lokasi-toko" class="shop-location">
-        <div class="space-y-1.5">
-          <h2 id="shopLocationTitle">Kunjungi toko kami</h2>
-          <address>
-            <strong>Jl. Ahmad Yani 37, Tanjung Redeb, Berau</strong><br>
-            Telp / WhatsApp: <a href="tel:+6282320033333" class="font-bold text-blue-700 underline">0823-200-33333</a>
-          </address>
-          <p class="text-xs font-semibold text-slate-500">Pembayaran di toko: Tunai · QRIS · Kartu · Transfer Bank</p>
-        </div>
-        <div class="flex flex-wrap gap-2.5">
-          <a class="shop-button shop-button-primary" href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Chat WhatsApp</a>
-          <a class="shop-button shop-button-accent" href="https://www.google.com/maps/search/?api=1&amp;query=Surya+Jaya+Sport+Jl.+Ahmad+Yani+37+Berau" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Petunjuk arah</a>
-        </div>
-      </section>
-    </section>
-
-    <dialog id="catalogProductModal" class="m-auto max-h-[88dvh] w-11/12 max-w-lg rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl">
-      <div class="mb-3 flex items-center justify-between gap-3">
-        <h2 id="catalogDetailTitle" class="text-lg font-extrabold leading-snug"></h2>
-        <form method="dialog"><button class="min-h-10 rounded-xl bg-slate-100 px-3.5 text-sm font-bold">Tutup</button></form>
-      </div>
-      <div id="catalogDetailBody" class="space-y-3"></div>
-    </dialog>
-
-    <dialog id="catalogCart" class="m-auto max-h-[85dvh] w-11/12 max-w-xl rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl">
-      <div class="mb-3 flex items-center justify-between gap-3">
-        <h2 class="text-lg font-extrabold">Keranjang WhatsApp</h2>
-        <form method="dialog"><button class="min-h-11 rounded-xl bg-slate-100 px-3.5 text-sm font-bold">Tutup</button></form>
-      </div>
-      <div id="catalogCartLines" class="space-y-3"></div>
-      <div class="mt-4 border-t border-slate-200 pt-3">
-        <p id="catalogCartTotal" class="font-extrabold" aria-live="polite"></p>
-        <p class="mt-1 text-sm text-slate-600">Harga dan stok dikonfirmasi oleh toko.</p>
-        <a id="catalogCartWhatsApp" target="_blank" rel="noopener noreferrer" class="shop-button shop-button-primary mt-3 hidden"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Kirim daftar ke WhatsApp</a>
-      </div>
-    </dialog>
 
     <dialog id="inventoryToolDialog" class="m-auto max-h-[85dvh] w-11/12 max-w-xl rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl">
       <div class="mb-3 flex items-center justify-between gap-3"><h2 id="inventoryToolTitle" class="text-lg font-extrabold"></h2><form method="dialog"><button class="min-h-11 rounded-xl bg-slate-100 px-3.5 text-sm font-bold">Tutup</button></form></div>
@@ -1977,8 +1795,8 @@
     </section>
 
     <!-- KASIR & RIWAYAT -->
-    <div id="viewKasir" class="hidden">
-      <section id="cashierWorkspace" class="workspace-pane" hidden>
+    <div id="viewKasir">
+      <section id="cashierWorkspace" class="workspace-pane">
         <header class="workspace-heading no-print">
           <h2 id="cashierTitle" tabindex="-1">Kasir</h2>
           <span class="text-xs font-bold text-slate-500">Pilih barang di kiri, selesaikan transaksi di kanan</span>
@@ -2989,10 +2807,6 @@
     <span id="toastMessage"></span>
   </div>
 
-  <a id="publicWaFab" class="no-print" href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer" aria-label="Chat WhatsApp Surya Jaya Sport">
-    <i class="fa-brands fa-whatsapp text-lg" aria-hidden="true"></i><span>Chat WhatsApp</span>
-  </a>
-
   <!-- ASISTEN TOKO (LOKAL) -->
   <div id="sjsAiFab" class="no-print hidden">
     <button type="button" id="sjsAiToggleBtn" aria-label="Buka Asisten Toko" aria-expanded="false" aria-controls="sjsAiBox">
@@ -3034,6 +2848,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261126-16"></script>
+  <script type="module" src="./admin.js?v=20261126-17"></script>
 </body>
 </html>

@@ -1658,111 +1658,11 @@
       return base ? `${base} · ${SENAR_SERVICE_NOTE}` : SENAR_SERVICE_NOTE;
     }
 
-    function renderProductCatalog() {
-      const grid = document.getElementById("productCatalogGrid");
-      const search = document.getElementById("catalogSearch");
-      const q = search.value.trim().toLocaleLowerCase("id");
-      document.getElementById("btnClearCatalogSearch").classList.toggle("hidden", !search.value);
-      const category = document.querySelector("#catalogCategory input:checked")?.value || "all";
-      if (catalogLoadState !== "ready") {
-        grid.innerHTML = `<p class="catalog-empty" role="status">${catalogLoadState === "error" ? "Katalog gagal dimuat. Muat ulang halaman." : "Katalog sedang dimuat…"}</p>`;
-        return;
-      }
-      for (const btn of document.querySelectorAll("#quickCatGrid .quick-cat-btn")) {
-        btn.classList.toggle("is-active", btn.dataset.quickCat === category);
-      }
-      const sortMode = document.getElementById("catalogSort")?.value || "default";
-      const items = publicCatalog.filter(item => Number(item.stock) > 0);
-      const filtered = items.filter(item => {
-        const hay = [item.name, item.code, item.size, item.color, item.description].filter(Boolean).join(" ").toLocaleLowerCase("id");
-        return (!q || hay.includes(q)) && matchesCatalogCategory(item, category);
-      });
-      if (sortMode === "price-asc") filtered.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
-      else if (sortMode === "price-desc") filtered.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
-      else if (sortMode === "name-asc") filtered.sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "id"));
-      document.getElementById("catalogResultCount").textContent = `${filtered.length} produk`;
-      if (!filtered.length) {
-        grid.innerHTML = `<p class="catalog-empty" role="status">Produk tidak ditemukan. Coba kata kunci lain atau pilih kategori "Semua".</p>`;
-        return;
-      }
-      grid.innerHTML = filtered.map((item, index) => {
-        const stockNum = Number(item.stock || 0);
-        const limited = stockNum < LOW_STOCK_LIMIT;
-        const msg = `Halo Surya Jaya Sport, saya ingin bertanya tentang ${item.name}${item.code ? ` (${item.code})` : ""} dengan harga ${rp(item.price)}. Apakah stoknya tersedia?`;
-        return `
-        <article class="catalog-card">
-          <div class="catalog-card-photo-wrap" data-view-product="${esc(item.id)}" role="button" tabindex="0" aria-label="Lihat detail ${esc(item.name)}">
-            <span class="catalog-card-badge ${limited ? "is-limited" : ""}">${limited ? "Stok terbatas" : "Tersedia"}</span>
-            ${productImageMarkup(item, "catalog-card-photo", 560, index < 2)}
-          </div>
-          <div class="catalog-card-body">
-            <p class="catalog-card-meta">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
-            <h3 class="font-extrabold cursor-pointer hover:text-blue-700" data-view-product="${esc(item.id)}">${esc(item.name)}</h3>
-            ${item.description ? `<p class="catalog-card-description line-clamp-2">${esc(item.description)}</p>` : ""}
-            ${isSenarItem(item) ? `<p class="senar-service-note"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>${SENAR_SERVICE_NOTE}</span></p>` : ""}
-            <div class="catalog-card-facts">
-              <p class="catalog-card-price text-slate-900">${rp(item.price)}</p>
-              <span class="catalog-stock">Stok ${stockNum} pcs</span>
-            </div>
-            <div class="catalog-card-actions">
-              <button type="button" data-add-cart="${esc(item.id)}" class="shop-button shop-button-primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Keranjang</button>
-              <a href="${CATALOG_WA}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener noreferrer" class="shop-button shop-button-secondary"><i class="fa-brands fa-whatsapp text-emerald-600" aria-hidden="true"></i> Tanya stok</a>
-            </div>
-          </div>
-        </article>`;
-      }).join("");
-    }
-
-    // ==================== KERANJANG KATALOG ====================
-    function saveCart() {
-      try { sessionStorage.setItem(CART_KEY, JSON.stringify([...catalogCart])); } catch {}
-    }
-    function restoreCart() {
-      try {
-        const saved = JSON.parse(sessionStorage.getItem(CART_KEY) || "[]");
-        for (const [id, line] of saved) {
-          if (typeof id === "string" && Number.isSafeInteger(line?.qty)) {
-            catalogCart.set(id, { qty: Math.min(99, Math.max(1, line.qty)), note: String(line.note || "").slice(0, 100) });
-          }
-        }
-      } catch {}
-    }
-    function cartProducts() {
-      const byId = new Map(publicCatalog.map(p => [p.id, p]));
-      return [...catalogCart].map(([id, line]) => ({ id, line, item: byId.get(id) }));
-    }
-    function updateCartSummary() {
-      const lines = cartProducts();
-      document.getElementById("catalogCartCount").textContent = lines.length;
-      const total = lines.reduce((s, { item, line }) => s + (Number(item?.price) || 0) * line.qty, 0);
-      document.getElementById("catalogCartTotal").textContent = lines.length ? `Perkiraan total: ${rp(total)}` : "";
-      const link = document.getElementById("catalogCartWhatsApp");
-      const canSend = lines.length > 0 && lines.every(({ item, line }) => item && Number(item.stock) > 0 && line.qty > 0);
-      link.classList.toggle("hidden", !canSend);
-      if (!canSend) { link.removeAttribute("href"); return; }
-      const text = ["Halo Surya Jaya Sport, saya mau cek stok:",
-        ...lines.map(({ item, line }, i) => `${i + 1}. ${item.name}${item.code ? ` (${item.code})` : ""} × ${line.qty}${line.note ? ` — ${line.note}` : ""}`),
-        `Perkiraan total: ${rp(total)}. Apakah stoknya tersedia?`].join("\n");
-      link.href = CATALOG_WA + "?" + new URLSearchParams({ text });
-    }
-    function renderCart() {
-      const lines = cartProducts();
-      document.getElementById("catalogCartLines").innerHTML = lines.length
-        ? lines.map(({ id, line, item }) => `
-          <div class="rounded-2xl border border-slate-200 p-3.5" data-cart-line="${esc(id)}">
-            <div class="flex items-start justify-between gap-2">
-              <div><p class="font-bold">${esc(item?.name || "Barang tidak tersedia")}</p>
-              <p class="text-sm text-slate-600">${esc(item?.code || "")} ${item ? "· " + rp(item.price) : ""}</p></div>
-              <button type="button" data-remove-cart="${esc(id)}" class="px-2.5 py-1.5 rounded-lg text-sm font-bold text-rose-700 hover:bg-rose-50">Hapus</button>
-            </div>
-            <div class="mt-2.5 grid grid-cols-[5.5rem_minmax(0,1fr)] gap-2">
-              <label class="text-xs font-bold text-slate-600">Jumlah<input data-cart-qty type="number" min="1" max="99" value="${line.qty}" class="mt-1 w-full rounded-xl border border-slate-300 p-2 font-bold"></label>
-              <label class="text-xs font-bold text-slate-600">Varian / catatan<input data-cart-note maxlength="100" value="${esc(line.note)}" class="mt-1 w-full rounded-xl border border-slate-300 p-2"></label>
-            </div>
-          </div>`).join("")
-        : `<p class="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">Keranjang masih kosong.</p>`;
-      updateCartSummary();
-    }
+    function renderProductCatalog() {}
+    function saveCart() {}
+    function restoreCart() {}
+    function updateCartSummary() {}
+    function renderCart() {}
 
     // ==================== RENDER: STOK ====================
     let activePosCat = "all";
@@ -4651,7 +4551,9 @@
           if (el) el.innerHTML = "";
         }
         for (const d of document.querySelectorAll("dialog[open]")) d.close();
-        switchWorkspace("catalog");
+        switchWorkspace("kasir");
+      } else {
+        switchWorkspace("kasir");
       }
       renderProductCatalog();
       renderInventory();
@@ -4667,17 +4569,16 @@
       inventory: { btn: "tabBtnInventory", panel: "viewInventory" },
       books: { btn: "tabBtnBooks", panel: "viewBooks" },
       reports: { btn: "tabBtnAllReports", panel: "viewAllReports" },
-      backup: { btn: "tabBtnBackup", panel: "viewBackup" },
-      catalog: { btn: "tabBtnCatalog", panel: "viewCatalog" }
+      backup: { btn: "tabBtnBackup", panel: "viewBackup" }
     };
     function switchWorkspace(name) {
-      const target = isAdmin ? (WORKSPACES[name] ? name : "kasir") : "catalog";
+      const target = isAdmin ? (WORKSPACES[name] ? name : "kasir") : "kasir";
       for (const [key, cfg] of Object.entries(WORKSPACES)) {
-        document.getElementById(cfg.btn).setAttribute("aria-current", key === target ? "page" : "false");
+        document.getElementById(cfg.btn)?.setAttribute("aria-current", key === target ? "page" : "false");
       }
       const panel = WORKSPACES[target].panel;
-      for (const p of ["viewCatalog", "viewKasir", "viewInventory", "viewBooks", "viewAllReports", "viewBackup"]) {
-        document.getElementById(p).classList.toggle("hidden", p !== panel);
+      for (const p of ["viewKasir", "viewInventory", "viewBooks", "viewAllReports", "viewBackup"]) {
+        document.getElementById(p)?.classList.toggle("hidden", p !== panel);
       }
       document.getElementById("cashierWorkspace").hidden = target !== "kasir";
       document.getElementById("salesHistoryWorkspace").hidden = target !== "sales";
@@ -4872,7 +4773,7 @@
           const targetEl = href && document.querySelector(href);
           if (!targetEl) return;
           e.preventDefault();
-          switchWorkspace("catalog");
+          switchWorkspace("kasir");
           history.replaceState(null, "", href);
           requestAnimationFrame(() => targetEl.scrollIntoView({ behavior: "smooth", block: "start" }));
         });
@@ -5562,82 +5463,6 @@
       document.getElementById("syncStatusBadge").addEventListener("click", () => document.getElementById("cloudConfigModal").classList.remove("hidden"));
       document.getElementById("btnCloseCloudModal").addEventListener("click", () => document.getElementById("cloudConfigModal").classList.add("hidden"));
 
-      document.getElementById("catalogSearch").addEventListener("input", renderProductCatalog);
-      document.getElementById("catalogSearchForm").addEventListener("submit", e => e.preventDefault());
-      document.getElementById("btnClearCatalogSearch").addEventListener("click", () => {
-        document.getElementById("catalogSearch").value = "";
-        renderProductCatalog();
-      });
-      document.getElementById("catalogCategory").addEventListener("change", renderProductCatalog);
-      function addToCatalogCart(id) {
-        const item = publicCatalog.find(p => p.id === id);
-        if (!item || Number(item.stock) <= 0) return;
-        const line = catalogCart.get(item.id) || { qty: 0, note: "" };
-        line.qty = Math.min(99, line.qty + 1);
-        catalogCart.set(item.id, line);
-        saveCart();
-        updateCartSummary();
-        showToast(`${item.name} ditambahkan ke keranjang.`);
-      }
-      function openProductDetail(id) {
-        const item = publicCatalog.find(p => p.id === id);
-        if (!item) return;
-        const msg = `Halo Surya Jaya Sport, saya ingin bertanya tentang ${item.name}${item.code ? ` (${item.code})` : ""} dengan harga ${rp(item.price)}. Apakah stoknya tersedia?`;
-        document.getElementById("catalogDetailTitle").textContent = item.name || "Detail produk";
-        document.getElementById("catalogDetailBody").innerHTML = `
-          ${productImageMarkup(item, "w-full aspect-[4/3] rounded-2xl border border-slate-200", 720, true)}
-          <p class="text-xs font-mono font-bold text-blue-700">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
-          ${item.description ? `<p class="text-sm text-slate-600 leading-relaxed">${esc(item.description)}</p>` : ""}
-          ${isSenarItem(item) ? `<p class="senar-service-note !text-xs !py-2 !px-3"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>${SENAR_SERVICE_NOTE}</span></p>` : ""}
-          <div class="flex items-center justify-between pt-2 border-t border-slate-100">
-            <p class="text-2xl font-extrabold text-slate-900">${rp(item.price)}</p>
-            <span class="catalog-stock">Stok ${Number(item.stock || 0)} pcs</span>
-          </div>
-          <div class="grid grid-cols-2 gap-2 pt-2">
-            <button type="button" data-detail-add="${esc(item.id)}" class="shop-button shop-button-primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Keranjang</button>
-            <a href="${CATALOG_WA}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener noreferrer" class="shop-button shop-button-secondary"><i class="fa-brands fa-whatsapp text-emerald-600" aria-hidden="true"></i> Tanya WA</a>
-          </div>`;
-        const dlg = document.getElementById("catalogProductModal");
-        dlg.querySelector("[data-detail-add]").addEventListener("click", () => {
-          addToCatalogCart(item.id);
-          dlg.close();
-        });
-        dlg.showModal();
-      }
-      document.getElementById("catalogSort")?.addEventListener("change", renderProductCatalog);
-      for (const btn of document.querySelectorAll("[data-quick-cat]")) {
-        btn.addEventListener("click", () => {
-          const val = btn.dataset.quickCat;
-          const radio = document.querySelector(`#catalogCategory input[value="${val}"]`);
-          if (radio) radio.checked = true;
-          renderProductCatalog();
-          document.getElementById("publicProductCatalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
-        });
-      }
-      document.getElementById("productCatalogGrid").addEventListener("click", e => {
-        const btn = e.target.closest("[data-add-cart]");
-        if (btn) return addToCatalogCart(btn.dataset.addCart);
-        const view = e.target.closest("[data-view-product]");
-        if (view) return openProductDetail(view.dataset.viewProduct);
-      });
-      document.getElementById("openCatalogCart").addEventListener("click", () => { renderCart(); document.getElementById("catalogCart").showModal(); });
-      document.getElementById("catalogCartLines").addEventListener("click", e => {
-        const btn = e.target.closest("[data-remove-cart]");
-        if (!btn) return;
-        catalogCart.delete(btn.dataset.removeCart);
-        saveCart();
-        renderCart();
-      });
-      document.getElementById("catalogCartLines").addEventListener("input", e => {
-        const row = e.target.closest("[data-cart-line]");
-        const line = row && catalogCart.get(row.dataset.cartLine);
-        if (!line) return;
-        if (e.target.matches("[data-cart-qty]")) line.qty = e.target.validity.valid ? Number(e.target.value) : 0;
-        if (e.target.matches("[data-cart-note]")) line.note = e.target.value;
-        saveCart();
-        updateCartSummary();
-      });
-
       function closeAssistantPanel() {
         const panel = document.getElementById("sjsAiActionPanel");
         if (!panel) return;
@@ -6297,7 +6122,7 @@
       if (isAdmin) startAdminListeners();
       else {
         stopAdminListeners();
-        updateSyncStatus(true, "Katalog publik");
+        updateSyncStatus(false, "Belum login");
       }
       applyAuthState();
     });
