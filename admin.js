@@ -46,7 +46,7 @@
     let geminiApiKey = "";
     let selectedDateStr = todayStr();
     let currentViewMode = "day";
-    let selectedPaymentMethod = "";
+    let selectedPaymentMethod = "Cash";
     let saleFormSaving = false;
     let saleSaveInProgress = false;
     let deleteTargetId = null;
@@ -1311,7 +1311,7 @@
       }
       const ranked = active.slice().sort((a, b) => (freq.get(b.id) || 0) - (freq.get(a.id) || 0) || Number(b.stock || 0) - Number(a.stock || 0)).slice(0, 7);
       bar.innerHTML = ranked.slice(0, 6).map(it => {
-        const shortName = String(it.name || "").length > 18 ? String(it.name).slice(0, 17) + "…" : String(it.name || "");
+        const shortName = cleanDisplayItemName(it.name || "");
         const catKey = detectProductCategoryLabel(it).key;
         const icon = catKey === "badminton" ? "🏸" : catKey === "ball" ? "⚽" : catKey === "chess" ? "♟️" : catKey === "music" ? "🎸" : "🏅";
         const priceStr = "Rp" + Number(it.price || 0).toLocaleString("id-ID");
@@ -1565,7 +1565,7 @@
       if (document.getElementById("inputSaleNote")) document.getElementById("inputSaleNote").value = h.note || "";
       if (document.getElementById("inputSaleDiscountType")) document.getElementById("inputSaleDiscountType").value = h.discountType || "rp";
       if (document.getElementById("inputSaleDiscount")) document.getElementById("inputSaleDiscount").value = h.discount || "0";
-      selectSalePayment(h.paymentMethod || "");
+      selectSalePayment(h.paymentMethod || "Cash");
       calculateSaleTotals();
       renderHeldSalesBar();
       showToast("Transaksi Hold dilanjutkan.");
@@ -1584,7 +1584,7 @@
       if (pad) pad.hidden = true;
       const padBtn = document.getElementById("btnToggleCashNumpad");
       if (padBtn) padBtn.setAttribute("aria-expanded", "false");
-      selectSalePayment("");
+      selectSalePayment("Cash");
       updateSaleDateSummary();
       calculateSaleTotals();
     }

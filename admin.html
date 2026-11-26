@@ -957,13 +957,14 @@
 
     @media (min-width: 768px) {
       body.sjs-admin .shop-main {
-        max-width: none !important;
-        padding-left: 86px !important;
-        padding-right: 1.25rem !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        padding-left: 90px !important;
+        padding-right: 1.35rem !important;
         padding-top: .85rem !important;
       }
       body.sjs-admin.sjs-tablet-mode .shop-main {
-        padding-left: 92px !important;
+        padding-left: 128px !important;
       }
       body.sjs-admin #mainNavigation:not([hidden]) {
         position: fixed !important;
@@ -1949,6 +1950,16 @@
       letter-spacing: -.025em !important;
     }
 
+
+    /* === FIX 5 POIN: NO CLIPPING, FULL FAVORIT NAME, CLEAN RECEIVED INPUT === */
+    html, body { max-width: 100%; overflow-x: clip; }
+    body.sjs-admin .shop-main { overflow-x: clip; }
+    body.sjs-admin .pos-split { max-width: 100%; box-sizing: border-box; }
+    .pos-fav-pro-card { max-width: 210px; }
+    .pos-fav-pro-name { white-space: normal !important; word-break: break-word; line-height: 1.25; }
+    .pos-received-frame { cursor: text; }
+    .pos-received-frame input::placeholder { color: #0F172A; opacity: 1; }
+
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -2630,7 +2641,7 @@
           <!-- BAR STATUS TIPIS (OPSIONAL / HEMAT RUANG) -->
           <div id="posLiveStatsStrip" class="flex flex-wrap items-center justify-between gap-2 py-0.5 text-xs" aria-label="Ringkasan hari ini">
             <div class="flex flex-wrap items-center gap-2">
-              <span class="sjs-owner-only-stat pos-hdr-badge pos-hdr-omzet">💰 <strong id="posStatOmsetToday" class="tabular-nums">Rp 0</strong></span>
+              <span class="sjs-owner-only-stat pos-hdr-badge pos-hdr-omzet">💰 Omzet <strong id="posStatOmsetToday" class="tabular-nums">Rp 0</strong></span>
               <span class="pos-hdr-badge pos-hdr-nota">🧾 <strong id="posStatTxToday">0 Nota</strong><span id="posStatPcsToday" class="hidden">0 pcs</span></span>
               <span class="hidden"><strong id="posStatAvgToday">Rp 0</strong><span id="posStatAvgSub"></span></span>
               <button type="button" id="btnPosStatLowStock" class="pos-hdr-badge pos-hdr-warn">
@@ -2756,14 +2767,15 @@
                 <strong id="previewTotalOmsetRight" class="block text-3xl sm:text-4xl font-black text-white tabular-nums mt-0.5 leading-tight">Rp 0</strong>
               </div>
 
-              <!-- 2. UANG DITERIMA -->
-              <div class="pos-received-frame !py-2">
+              <!-- 2. UANG DITERIMA (SATU INPUT BERSIH, TANPA DOBEL) -->
+              <div class="pos-received-frame !py-2.5">
                 <span class="pos-received-legend">Uang Diterima</span>
-                <div class="flex items-center justify-center gap-2">
-                  <strong id="posCashReceivedText" class="text-2xl font-black text-slate-950 tabular-nums">Rp 0</strong>
+                <div class="flex items-center justify-center gap-1.5">
+                  <span class="text-xl font-bold text-slate-400 select-none">Rp</span>
+                  <input type="text" id="posCashReceivedInput" inputmode="numeric" autocomplete="off" placeholder="0" aria-label="Uang diterima" class="w-44 bg-transparent border-0 focus:outline-none focus:ring-0 text-2xl sm:text-3xl font-extrabold text-center text-slate-950 tabular-nums p-0">
                   <span id="posCashFeedbackPill" class="hidden px-2 py-0.5 rounded-full bg-amber-200 text-amber-950 text-[10px] font-extrabold"></span>
                 </div>
-                <input type="text" id="posCashReceivedInput" inputmode="numeric" autocomplete="off" placeholder="atau ketik nominal..." aria-label="Ketik uang diterima" class="mt-1 w-44 mx-auto block rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-extrabold text-center text-slate-700 tabular-nums">
+                <strong id="posCashReceivedText" class="hidden">Rp 0</strong>
               </div>
 
               <!-- 3. KEMBALIAN (HIJAU / MERAH SAAT KURANG) -->
@@ -2775,7 +2787,7 @@
               <!-- 3. SEGMENTED CONTROL CARA BAYAR (4 UTAMA + SPLIT/BON) -->
               <div id="posPaySectionBox" class="space-y-2">
                 <div class="pos-exact-seg" role="group" aria-label="Cara bayar utama">
-                  <button type="button" data-pay="Cash" aria-pressed="false" class="pay-option-btn">TUNAI</button>
+                  <button type="button" data-pay="Cash" aria-pressed="true" class="pay-option-btn">TUNAI</button>
                   <button type="button" data-pay="QRIS" aria-pressed="false" class="pay-option-btn">QRIS</button>
                   <button type="button" data-pay="Kartu" aria-pressed="false" class="pay-option-btn">KARTU</button>
                   <button type="button" data-pay="Transfer" aria-pressed="false" class="pay-option-btn">TRANSFER</button>
@@ -2784,7 +2796,7 @@
                   <div class="flex items-center gap-1.5">
                     <button type="button" data-pay="Split" aria-pressed="false" class="pay-option-btn px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 font-bold text-slate-600">Split</button>
                     <button type="button" data-pay="Bon" aria-pressed="false" class="pay-option-btn px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 font-bold text-slate-600">Bon</button>
-                    <span id="salePaymentTopBadge" class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-extrabold">Pilih bayar</span>
+                    <span id="salePaymentTopBadge" class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 text-[10px] font-extrabold">Tunai</span>
                   </div>
                   <button type="button" id="btnShowQrisPay" class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 text-slate-700 font-extrabold inline-flex items-center gap-1"><i class="fa-solid fa-qrcode text-red-600" aria-hidden="true"></i> QRIS</button>
                 </div>
@@ -3689,6 +3701,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261126-05"></script>
+  <script type="module" src="./admin.js?v=20261126-06"></script>
 </body>
 </html>
