@@ -1011,14 +1011,11 @@
           <input type="text" id="${key}" list="inventoryDatalist" autocomplete="off" class="item-name-input min-w-0 flex-1 px-3 py-2 border border-slate-300 rounded-xl bg-white font-bold !text-sm" placeholder="Pilih stok atau ketik nama barang..." value="${esc(prefillLabel)}">
           <button type="button" class="btn-remove-row w-9 h-9 shrink-0 rounded-xl text-rose-700 hover:bg-rose-100 inline-flex items-center justify-center" title="Hapus baris" aria-label="Hapus baris"><i class="fa-solid fa-trash text-xs" aria-hidden="true"></i></button>
         </div>
-        <div class="grid grid-cols-3 gap-2 items-end">
+        <div class="grid grid-cols-2 gap-2 items-end">
           <div>
             <label class="block text-[11px] font-bold text-slate-600 mb-1">Harga jual (Rp)</label>
             <input type="number" min="0" step="1" inputmode="numeric" class="item-price-input w-full px-2.5 py-2 border border-slate-300 rounded-xl bg-white font-extrabold !text-sm" placeholder="0" value="${esc(prefill?.price ?? "")}">
-          </div>
-          <div class="sjs-owner-only-stat">
-            <label class="block text-[11px] font-bold text-slate-600 mb-1">Modal (ops.)</label>
-            <input type="number" min="0" step="1" inputmode="numeric" class="item-cost-input w-full px-2.5 py-2 border border-slate-300 rounded-xl ${prefill?.id ? "bg-slate-100 text-slate-500 cursor-not-allowed" : "bg-white"} font-bold !text-sm" placeholder="0" value="${esc(prefill?.cost ?? "")}" ${prefill?.id ? "readonly title=\"HPP terkunci dari data stok\"" : ""}>
+            <input type="hidden" class="item-cost-input" value="${esc(prefill?.cost ?? 0)}">
           </div>
           <div>
             <label class="block text-[11px] font-bold text-slate-600 mb-1">Jumlah</label>
@@ -1081,10 +1078,7 @@
             preview.className = "sale-entry-thumbnail shrink-0 w-10 h-10";
             preview.innerHTML = productImageMarkup(match, "h-10 w-10 rounded-lg border border-slate-200", 120, true);
           }
-          costInput.readOnly = true;
-          costInput.classList.add("bg-slate-100", "text-slate-500", "cursor-not-allowed");
-          costInput.classList.remove("bg-white");
-          costInput.title = "HPP terkunci dari data stok";
+          costInput.value = match.cost || 0;
           modeBadge.textContent = "Dari stok";
           modeBadge.className = "item-mode-badge font-bold text-emerald-700";
         } else {
@@ -1093,10 +1087,7 @@
             preview.innerHTML = "";
             preview.className = "sale-entry-thumbnail shrink-0 hidden";
           }
-          costInput.readOnly = false;
-          costInput.classList.remove("bg-slate-100", "text-slate-500", "cursor-not-allowed");
-          costInput.classList.add("bg-white");
-          costInput.title = "";
+          costInput.value = costInput.value || 0;
           modeBadge.textContent = "Di luar stok";
           modeBadge.className = "item-mode-badge font-bold text-amber-700";
         }
@@ -1295,6 +1286,45 @@
         return `<button type="button" data-quick-fav-id="${esc(it.id)}" title="${esc(it.name)} · ${rp(it.price)} (stok ${Number(it.stock || 0)})" class="pos-fav-card">
           <span class="text-xs font-extrabold text-slate-900 leading-tight">${icon} ${esc(shortName)}</span>
           <span class="text-[11px] font-extrabold text-emerald-700 tabular-nums">${esc(shortRpTick(it.price).replace("Rp ", ""))}</span>
+        </button>`;
+      }).join("");
+      renderPosQuickAccess();
+    }
+
+    let activeQuickAccessCat = "all";
+    function renderPosQuickAccess() {
+      const listEl = document.getElementById("posQuickAccessList");
+      const cntEl = document.getElementById("posQuickAccessCount");
+      if (!listEl) return;
+      const freq = new Map();
+      for (const tx of transactions) {
+        for (const it of (tx.items || [])) {
+          if (it.inventoryId) freq.set(it.inventoryId, (freq.get(it.inventoryId) || 0) + Number(it.qty || 1));
+        }
+      }
+      const items = activeInventory()
+        .filter(it => activeQuickAccessCat === "all" || matchesCatalogCategory(it, activeQuickAccessCat))
+        .sort((a, b) => (Number(b.stock || 0) > 0) - (Number(a.stock || 0) > 0) || (freq.get(b.id) || 0) - (freq.get(a.id) || 0) || String(a.name || "").localeCompare(String(b.name || ""), "id"));
+      if (cntEl) cntEl.textContent = `${items.length} item`;
+      if (!items.length) {
+        listEl.innerHTML = `<p class="text-xs text-slate-400 py-6 text-center">Belum ada barang di kategori ini.</p>`;
+        return;
+      }
+      listEl.innerHTML = items.map(it => {
+        const st = Number(it.stock || 0);
+        const catKey = detectProductCategoryLabel(it).key;
+        const icon = catKey === "badminton" ? "🏸" : catKey === "ball" ? "⚽" : catKey === "chess" ? "♟️" : catKey === "music" ? "🎸" : "🏅";
+        const stDot = st <= 0 ? "🔴 Habis" : st < 5 ? `🔴 Stok ${st}` : st <= 10 ? `🟡 Stok ${st}` : `🟢 Stok ${st}`;
+        const stCls = st <= 0 ? "text-rose-700" : st < 5 ? "text-rose-700" : st <= 10 ? "text-amber-700" : "text-emerald-700";
+        return `<button type="button" data-qa-pick="${esc(it.id)}" class="pos-qa-tile ${st <= 0 ? "opacity-55" : ""}" title="${esc(it.name)} · ${rp(it.price)}">
+          <div class="flex items-start justify-between gap-1.5 w-full">
+            <span class="text-xs font-extrabold text-slate-900 leading-snug line-clamp-2">${icon} ${esc(it.name)}</span>
+            <span class="text-xs font-extrabold text-blue-900 tabular-nums shrink-0">${esc(shortRpTick(it.price).replace("Rp ", ""))}</span>
+          </div>
+          <div class="flex items-center justify-between gap-1.5 w-full text-[10px] font-bold">
+            <span class="${stCls}">${stDot}</span>
+            <span class="font-mono text-slate-400">${esc(it.code || "")}</span>
+          </div>
         </button>`;
       }).join("");
     }
@@ -5324,6 +5354,23 @@
       document.getElementById("inputDate").addEventListener("change", updateSaleDateSummary);
       document.getElementById("inputSaleDiscount")?.addEventListener("input", calculateSaleTotals);
       document.getElementById("inputSaleDiscountType")?.addEventListener("change", calculateSaleTotals);
+      document.getElementById("posQuickAccessCats")?.addEventListener("click", e => {
+        const btn = e.target.closest("[data-qa-cat]");
+        if (!btn) return;
+        activeQuickAccessCat = btn.dataset.qaCat || "all";
+        document.querySelectorAll("#posQuickAccessCats .pos-qa-cat").forEach(b => b.classList.toggle("is-active", b === btn));
+        renderPosQuickAccess();
+      });
+      document.getElementById("posQuickAccessList")?.addEventListener("click", e => {
+        const btn = e.target.closest("[data-qa-pick]");
+        if (!btn) return;
+        const it = activeInventory().find(i => i.id === btn.dataset.qaPick);
+        if (!it) return;
+        const st = Number(it.stock || 0);
+        if (st <= 0) return showToast(`❌ Barang habis: ${it.name} (stok 0 pcs)`);
+        handleScannedCode(it.id, false);
+        if (st < 5) showToast(`⚠ Stok tersisa ${st} pcs: ${it.name}`);
+      });
       document.getElementById("posQuickFavBar")?.addEventListener("click", e => {
         const btn = e.target.closest("[data-quick-fav-id]");
         if (!btn) return;

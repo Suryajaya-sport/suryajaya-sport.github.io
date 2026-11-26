@@ -412,11 +412,41 @@
     /* Clean SaaS Split-Screen POS (Shopify Admin / Square POS style) */
     .pos-split {
       display: grid;
-      grid-template-columns: minmax(0, 68fr) minmax(340px, 32fr);
-      gap: 1rem;
+      grid-template-columns: minmax(210px, 23fr) minmax(0, 45fr) minmax(320px, 32fr);
+      gap: .9rem;
       align-items: start;
       padding-bottom: 4.5rem;
     }
+    @media (max-width: 1180px) {
+      .pos-split { grid-template-columns: minmax(0, 1fr) minmax(320px, 380px); }
+      .pos-quick-access-col { grid-column: 1 / -1; }
+      #posQuickAccessList { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); max-height: 220px; }
+    }
+    .pos-qa-tile {
+      width: 100%;
+      text-align: left;
+      padding: .55rem .7rem;
+      border-radius: 14px;
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      gap: .2rem;
+      transition: all .13s ease;
+      cursor: pointer;
+    }
+    .pos-qa-tile:hover { border-color: #2563eb; background: #eff6ff; transform: translateY(-1px); }
+    .pos-qa-cat {
+      padding: .25rem .6rem;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 800;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #475569;
+      cursor: pointer;
+    }
+    .pos-qa-cat.is-active { background: #facc15; border-color: #eab308; color: #0f172a; }
     .pos-cash-pill { min-height: 46px !important; font-size: .85rem !important; font-weight: 800 !important; padding: .5rem .75rem !important; }
     @media (max-width: 840px) {
       .pos-split { grid-template-columns: 1fr; }
@@ -2107,7 +2137,26 @@
 
           <datalist id="inventoryDatalist"></datalist>
           <div class="pos-split">
-            <!-- KOLOM KIRI (70%): SCAN, CARI, FAVORIT, KERANJANG, AKSI & RIWAYAT HARI INI -->
+            <!-- KOLOM 1 KIRI (23%): AKSES CEPAT OLAHRAGA (TEKS RINGKAS TANPA FOTO BERAT) -->
+            <aside class="pos-quick-access-col bg-white rounded-2xl border border-slate-200 shadow-sm p-3 space-y-2.5 min-w-0">
+              <div class="flex items-center justify-between gap-1.5">
+                <h3 class="text-xs font-extrabold uppercase tracking-wider text-blue-950"><i class="fa-solid fa-bolt text-amber-500 mr-1" aria-hidden="true"></i>Akses Cepat</h3>
+                <span id="posQuickAccessCount" class="text-[10px] font-extrabold text-slate-400">0 item</span>
+              </div>
+              <div id="posQuickAccessCats" class="flex flex-wrap gap-1" role="tablist" aria-label="Kategori akses cepat">
+                <button type="button" class="pos-qa-cat is-active" data-qa-cat="all">Semua</button>
+                <button type="button" class="pos-qa-cat" data-qa-cat="badminton">Badminton</button>
+                <button type="button" class="pos-qa-cat" data-qa-cat="ball">Bola</button>
+                <button type="button" class="pos-qa-cat" data-qa-cat="chess">Catur</button>
+                <button type="button" class="pos-qa-cat" data-qa-cat="music">Musik</button>
+                <button type="button" class="pos-qa-cat" data-qa-cat="sport">Lainnya</button>
+              </div>
+              <div id="posQuickAccessList" class="space-y-1.5 max-h-[68vh] overflow-y-auto pr-0.5">
+                <p class="text-xs text-slate-400 py-6 text-center">Memuat barang...</p>
+              </div>
+            </aside>
+
+            <!-- KOLOM 2 TENGAH (45%): SCAN, CARI, KERANJANG, AKSI & RIWAYAT HARI INI -->
             <div class="space-y-3 min-w-0">
               <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-3">
                 <div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
@@ -2268,16 +2317,17 @@
                     <button type="button" class="pos-num-btn !min-h-10" data-numpad="7">7</button>
                     <button type="button" class="pos-num-btn !min-h-10" data-numpad="8">8</button>
                     <button type="button" class="pos-num-btn !min-h-10" data-numpad="9">9</button>
-                    <button type="button" class="pos-num-btn !min-h-10 text-blue-900" data-numpad="BS" title="Hapus 1 digit">←</button>
+                    <button type="button" class="pos-num-btn !min-h-10 text-blue-900" data-numpad="BS" title="Koreksi 1 digit">←</button>
                     <button type="button" class="pos-num-btn !min-h-10" data-numpad="4">4</button>
                     <button type="button" class="pos-num-btn !min-h-10" data-numpad="5">5</button>
                     <button type="button" class="pos-num-btn !min-h-10" data-numpad="6">6</button>
-                    <button type="button" class="pos-num-btn is-clear !min-h-10" data-numpad="C">C</button>
+                    <button type="button" class="pos-num-btn is-clear !min-h-10" data-numpad="C" title="Bersihkan nominal">C</button>
                     <button type="button" class="pos-num-btn !min-h-10" data-numpad="1">1</button>
                     <button type="button" class="pos-num-btn !min-h-10" data-numpad="2">2</button>
                     <button type="button" class="pos-num-btn !min-h-10" data-numpad="3">3</button>
+                    <button type="button" class="pos-num-btn !min-h-10" data-numpad="00">00</button>
+                    <button type="button" class="pos-num-btn !min-h-10" data-numpad="0">0</button>
                     <button type="button" class="pos-num-btn !min-h-10" data-numpad="000">000</button>
-                    <button type="button" class="pos-num-btn col-span-2 !min-h-10" data-numpad="0">0</button>
                     <button type="button" class="pos-cash-pill col-span-2 !min-h-10 !py-1 !text-xs" data-cash-clear="1">Reset</button>
                   </div>
                 </div>
@@ -3150,6 +3200,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261125-22"></script>
+  <script type="module" src="./admin.js?v=20261125-23"></script>
 </body>
 </html>
