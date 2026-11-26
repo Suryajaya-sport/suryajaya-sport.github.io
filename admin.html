@@ -2367,6 +2367,30 @@
       min-height: 52px !important;
     }
 
+
+    /* === MODAL TAMBAH BARANG LEBAR 2 KOLOM (MUAT 1 LAYAR TANPA SCROLL DI DESKTOP/LAPTOP) === */
+    #invEntryCard {
+      width: min(96vw, 1160px) !important;
+      max-width: 1160px !important;
+      max-height: 94vh !important;
+    }
+    .inv-modal-2col {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .inv-modal-2col {
+        grid-template-columns: 1fr;
+      }
+    }
+    #invEntryCard input[type="text"],
+    #invEntryCard input[type="number"],
+    #invEntryCard textarea {
+      font-size: 13.5px !important;
+    }
+
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -3704,7 +3728,7 @@
           <form method="dialog"><button class="workspace-dialog-close" type="submit">Tutup</button></form>
         </div>
         <p class="workspace-dialog-status" data-dialog-status role="status"></p>
-        <div class="p-4 sm:p-5 bg-slate-50/80 space-y-4">
+        <div class="p-3.5 sm:p-4 bg-slate-50/80">
           <input type="hidden" id="editInvId" value="">
           <datalist id="invSizeOptions">
             <option value="24 lbs"></option><option value="27 lbs"></option><option value="30 lbs"></option>
@@ -3719,8 +3743,10 @@
             <option value="Oranye"></option><option value="Ungu"></option><option value="Emas"></option>
           </datalist>
 
+          <div class="inv-modal-2col">
+            <div class="space-y-3 min-w-0">
           <!-- SECTION 1: INFORMASI BARANG -->
-          <section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+          <section class="rounded-2xl border border-slate-200 bg-white p-3.5 shadow-2xs space-y-2.5">
             <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-2 pb-2 border-b border-slate-100">
               <span class="w-5 h-5 rounded-md bg-slate-900 text-white inline-flex items-center justify-center text-[10px]">1</span>
               <span>Informasi Barang</span>
@@ -3754,18 +3780,18 @@
           </section>
 
           <!-- SECTION 2: MEDIA -->
-          <section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-2xs space-y-3">
+          <section class="rounded-2xl border border-slate-200 bg-white p-3.5 shadow-2xs space-y-2.5">
             <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-2 pb-2 border-b border-slate-100">
               <span class="w-5 h-5 rounded-md bg-slate-900 text-white inline-flex items-center justify-center text-[10px]">2</span>
               <span>Media (Opsional)</span>
             </h3>
             <input type="file" id="invImageFile" accept="image/jpeg,image/png,image/webp" class="block w-full text-sm">
             <div id="invImagePreviewWrap" class="rounded-xl bg-slate-50 border border-slate-200 p-2.5 flex items-center gap-3">
-              <div id="invImagePreviewEmpty" class="w-24 h-24 rounded-xl border border-dashed border-slate-300 bg-white flex flex-col items-center justify-center text-center text-[10px] font-semibold text-slate-400 px-2 shrink-0">
+              <div id="invImagePreviewEmpty" class="w-16 h-16 rounded-xl border border-dashed border-slate-300 bg-white flex flex-col items-center justify-center text-center text-[10px] font-semibold text-slate-400 px-2 shrink-0">
                 <i class="fa-regular fa-image text-lg mb-1" aria-hidden="true"></i>
                 <span>Pratinjau foto</span>
               </div>
-              <img id="invImagePreview" alt="Pratinjau foto produk" class="hidden w-24 h-24 object-contain bg-white rounded-xl border border-slate-200 shadow-sm shrink-0">
+              <img id="invImagePreview" alt="Pratinjau foto produk" class="hidden w-16 h-16 object-contain bg-white rounded-xl border border-slate-200 shadow-sm shrink-0">
               <div class="min-w-0 space-y-1">
                 <span id="invImagePreviewLabel" class="block text-xs font-bold text-slate-700">Belum ada foto dipilih</span>
                 <p class="text-[11px] text-slate-500">Foto yang dipilih langsung tampil di kotak pratinjau sebelum disimpan.</p>
@@ -3773,8 +3799,10 @@
             </div>
           </section>
 
+            </div>
+            <div class="space-y-3 min-w-0">
           <!-- SECTION 3: INVENTORI & HARGA -->
-          <section class="rounded-2xl border border-slate-200 bg-white p-4 shadow-2xs space-y-3.5">
+          <section class="rounded-2xl border border-slate-200 bg-white p-3.5 shadow-2xs space-y-2.5">
             <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-2 pb-2 border-b border-slate-100">
               <span class="w-5 h-5 rounded-md bg-slate-900 text-white inline-flex items-center justify-center text-[10px]">3</span>
               <span>Inventori &amp; Harga</span>
@@ -3811,7 +3839,7 @@
           </section>
 
           <!-- SECTION 4: VARIAN TAMBAHAN -->
-          <section id="invVariantsSection" class="rounded-2xl border border-slate-200 bg-white p-4 shadow-2xs space-y-3">
+          <section id="invVariantsSection" class="rounded-2xl border border-slate-200 bg-white p-3.5 shadow-2xs space-y-2.5">
             <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-100">
               <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-2">
                 <span class="w-5 h-5 rounded-md bg-slate-900 text-white inline-flex items-center justify-center text-[10px]">4</span>
@@ -3821,10 +3849,12 @@
             </div>
             <p class="text-[11px] text-slate-500">Stok awal di atas berlaku khusus untuk barang utama. Tiap varian di bawah punya stok &amp; kode QR otomatis sendiri (mis. <strong>SJS-001-A</strong>) tanpa membagi stok utama.</p>
             <div id="invVariantsList" class="space-y-2.5"></div>
-            <div class="pt-1">
+            <div class="pt-0.5">
               <button type="button" id="btnAddInvVariant" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition">+ Tambah Varian</button>
             </div>
           </section>
+            </div>
+          </div>
         </div>
         <div id="invEntryFooter" class="sticky bottom-0 z-10 bg-white border-t border-slate-200 px-5 py-3 flex flex-wrap items-center justify-end gap-3">
           <button type="button" id="btnCancelInvEdit" class="hidden shop-button shop-button-secondary">Batal ubah</button>
