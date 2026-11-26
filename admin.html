@@ -2090,249 +2090,34 @@
       box-shadow: 0 0 0 3px rgba(220, 38, 38, .15) !important;
     }
 
-
-    /* === TOMBOL SIMPAN TANPA CETAK: AKSI SEKUNDER ABU TUA RINGAN === */
-    body.sjs-admin #btnSaveTx {
-      background: #F8FAFC !important;
-      border: 1px solid #CBD5E1 !important;
-      color: #334155 !important;
-      font-weight: 700 !important;
-      transition: background-color .14s ease, border-color .14s ease, color .14s ease !important;
-    }
-    body.sjs-admin #btnSaveTx:hover:not(:disabled) {
-      background: #F1F5F9 !important;
-      border-color: #94A3B8 !important;
-      color: #0F172A !important;
-    }
-    body.sjs-admin #btnSaveTx:disabled {
-      background: #F8FAFC !important;
-      border-color: #E2E8F0 !important;
-      color: #64748B !important;
-      opacity: .8 !important;
-    }
-
-
-    /* === FIX BUG #1 & #2: ANTI TERPOTONG VERTIKAL & HORIZONTAL + CHIPS 1 BARIS + OUTLINE NAVY + KEMBALIAN NETRAL === */
-    /* Bug #1: Pastikan container keranjang memanjang natural tanpa memotong footer panel edit */
-    #saleItemsContainer {
-      max-height: none !important;
-      overflow: visible !important;
-    }
-    /* Bug #2: Kunci lebar seluruh container agar tidak pernah lebih lebar dari viewport atau tergeser */
-    html, body {
-      width: 100% !important;
-      max-width: 100% !important;
-      overflow-x: clip !important;
-      margin: 0 !important;
-    }
-    body.sjs-admin .shop-main {
-      width: 100% !important;
-      max-width: 100% !important;
-      min-width: 0 !important;
-      margin: 0 !important;
-      box-sizing: border-box !important;
-      overflow-x: clip !important;
-    }
-    @media (min-width: 768px) {
-      body.sjs-admin .shop-main {
-        padding-left: 92px !important;
-        padding-right: 24px !important;
-      }
-      body.sjs-admin.sjs-tablet-mode .shop-main {
-        padding-left: 132px !important;
-        padding-right: 24px !important;
-      }
-    }
-    @media (max-width: 767px) {
-      body.sjs-admin .shop-main {
-        padding-left: 16px !important;
-        padding-right: 16px !important;
-      }
-    }
-    #viewKasir, #cashierWorkspace, #salesEntryCard, #posLiveStatsStrip,
-    body.sjs-admin .pos-split, body.sjs-admin .pos-split > *, body.sjs-admin .pos-cart-sticky {
-      min-width: 0 !important;
-      max-width: 100% !important;
-      box-sizing: border-box !important;
-    }
-    body.sjs-admin .pos-split {
-      grid-template-columns: minmax(0, 1.38fr) minmax(300px, 1fr) !important;
-    }
-    @media (max-width: 960px) {
-      body.sjs-admin .pos-split {
-        grid-template-columns: 1fr !important;
-      }
-    }
-    /* Hal kecil #2: Chip 1 baris fleksibel (wrap rapi jika layar sempit) */
-    .f-chips-wrap {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-    .f-chips-wrap .pos-svc-chip {
-      flex: 0 0 auto;
-      white-space: nowrap;
-    }
-    /* Hal kecil #3: Tombol Simpan tanpa cetak - outline navy tegas saat aktif, tetap jelas saat nonaktif */
-    body.sjs-admin #btnSaveTx {
-      background: #FFFFFF !important;
-      border: 1.5px solid #142850 !important;
-      color: #142850 !important;
-      font-weight: 700 !important;
-      border-radius: 12px !important;
-    }
-    body.sjs-admin #btnSaveTx:hover:not(:disabled) {
-      background: #142850 !important;
-      border-color: #142850 !important;
-      color: #FFFFFF !important;
-    }
-    body.sjs-admin #btnSaveTx:disabled {
-      background: #F8FAFC !important;
-      border: 1.5px solid #CBD5E1 !important;
-      color: #475569 !important;
-      opacity: 1 !important;
-      cursor: not-allowed !important;
-    }
-    /* Hal kecil #4: Kotak Kembalian netral abu muda saat keranjang kosong / belum ada pembayaran */
-    body.sjs-admin #posCashChangeBox.is-idle {
-      background: #F8FAFC !important;
-      border: 1.5px solid #E2E8F0 !important;
-      border-radius: 14px !important;
-      padding: .85rem 1rem !important;
-      text-align: center !important;
-      box-shadow: none !important;
-    }
-    body.sjs-admin #posCashChangeBox.is-idle span {
-      display: block !important;
-      color: #64748B !important;
-      font-size: 11.5px !important;
-      font-weight: 700 !important;
-      letter-spacing: .08em !important;
-      margin-bottom: 4px !important;
-    }
-    body.sjs-admin #posCashChangeBox.is-idle strong {
-      display: block !important;
-      color: #334155 !important;
-      font-size: 2rem !important;
-      font-weight: 800 !important;
-      line-height: 1.1 !important;
-    }
-
-
-    /* === KEMBALIAN RINGKAS SAAT KOSONG (1 BARIS), BESAR SAAT ADA PEMBAYARAN === */
-    body.sjs-admin #posCashChangeBox.is-idle {
-      display: flex !important;
-      align-items: center !important;
-      justify-content: space-between !important;
-      padding: 8px 14px !important;
-      border-radius: 12px !important;
-    }
-    body.sjs-admin #posCashChangeBox.is-idle span {
-      margin: 0 !important;
-      font-size: 11px !important;
-    }
-    body.sjs-admin #posCashChangeBox.is-idle strong {
-      margin: 0 !important;
-      font-size: 15px !important;
-      font-weight: 700 !important;
-    }
-    body.sjs-admin #btnAddItemRow {
-      border: 1.5px solid #142850 !important;
-      color: #142850 !important;
-    }
-    body.sjs-admin #btnAddItemRow:hover {
-      background: #142850 !important;
-      color: #FFFFFF !important;
-    }
-
-
-    /* === FINAL 1366x768 FIT: STICKY SAVE, 44PX NUMPAD, ALIGNED TOPS, UNIFORM PCS FONT, EXPANDING KEMBALIAN === */
-    body.sjs-admin .pos-split {
-      align-items: start !important;
-    }
-    body.sjs-admin .pos-cart-sticky {
-      margin-top: 0 !important;
-      align-self: start !important;
-      padding: 14px !important;
-      gap: 8px !important;
-      max-height: calc(100vh - var(--sjs-header-h, 74px) - 18px) !important;
-      overflow-y: auto !important;
-    }
-    body.sjs-admin .pos-cart-sticky.space-y-3 > :not([hidden]) ~ :not([hidden]) {
-      margin-top: 0 !important;
-    }
-    body.sjs-admin #posTotalPayHeroBox {
-      padding: 10px 14px !important;
-    }
-    body.sjs-admin #posSaveActionsSticky {
-      position: sticky;
-      bottom: -14px;
-      background: #FFFFFF;
-      padding: 8px 0 6px;
-      margin-top: auto !important;
-      border-top: 1px solid #F1F5F9;
-      z-index: 6;
-    }
-    /* Numpad lebih ringkas (44px) agar muat nyaman di 1366x768 */
-    body.sjs-admin .pos-exact-numpad {
-      gap: 6px !important;
-    }
-    body.sjs-admin .pos-exact-numpad .pos-num-btn,
-    body.sjs-admin .pos-exact-numpad .pos-cash-pill {
-      min-height: 44px !important;
-      font-size: 1.05rem !important;
-    }
-    body.sjs-admin .pos-exact-numpad .pos-cash-pill {
-      font-size: 12px !important;
-    }
-    /* Kembalian membesar & hijau tegas saat ada pembayaran/kembalian (>0) */
-    body.sjs-admin #posCashChangeBox.is-change,
-    body.sjs-admin #posCashChangeBox.is-short {
-      display: block !important;
-      text-align: center !important;
-      padding: 10px 14px !important;
-    }
-    body.sjs-admin #posCashChangeBox.is-change strong {
-      font-size: 2.15rem !important;
-      color: #15803D !important;
-    }
-    /* Samakan ukuran font dropdown Satuan (Pcs) & input Catatan di panel edit */
-    .item-edit-drawer select.item-unit-select,
-    .item-edit-drawer input.item-note-input {
-      font-size: 13.5px !important;
-    }
+    /* === PERBAIKAN: kolom nama merah, tombol sekunder, ikon printer nonaktif === */
     .item-name-input.invalid {
       border-color: #DC2626 !important;
-      background: #FEF2F2 !important;
       box-shadow: 0 0 0 3px rgba(220, 38, 38, .15) !important;
     }
-
-
-    /* === SPACING SERAGAM PANEL KANAN + MARGIN ATAS UANG DITERIMA + STICKY SAVE CLEAN === */
-    body.sjs-admin .pos-cart-sticky {
-      gap: 12px !important;
+    body.sjs-admin #btnSaveTx:not(:disabled):not(.is-disabled) {
+      background: #FFFFFF !important;
+      color: #142850 !important;
+      border: 1.5px solid #142850 !important;
+      font-weight: 700 !important;
+      opacity: 1 !important;
     }
-    body.sjs-admin #posCashOnlyWrap {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 2px;
-    }
-    body.sjs-admin #posCashOnlyWrap[hidden] {
-      display: none !important;
-    }
-    body.sjs-admin .pos-received-frame {
-      margin-top: 10px !important;
-    }
-    body.sjs-admin #posSaveActionsSticky {
-      bottom: 0 !important;
-      padding: 10px 0 4px !important;
-    }
+    body.sjs-admin #btnSaveTx:hover:not(:disabled) { background: #F1F5F9 !important; }
+    body.sjs-admin #btnSaveTx:disabled,
     body.sjs-admin #btnSaveTx.is-disabled {
       background: #F8FAFC !important;
+      color: #94A3B8 !important;
       border: 1.5px solid #CBD5E1 !important;
-      color: #475569 !important;
       opacity: 1 !important;
+      box-shadow: none !important;
+      cursor: not-allowed !important;
+    }
+    body.sjs-admin #btnSaveAndPrintTx:disabled i,
+    body.sjs-admin #btnSaveAndPrintTx:disabled svg,
+    body.sjs-admin #btnSaveAndPrintTx.is-disabled i,
+    body.sjs-admin #btnSaveAndPrintTx.is-disabled svg {
+      color: #E2E8F0 !important;
+      fill: #E2E8F0 !important;
     }
 
   </style>
@@ -2999,6 +2784,11 @@
     <!-- KASIR & RIWAYAT -->
     <div id="viewKasir" class="hidden">
       <section id="cashierWorkspace" class="workspace-pane" hidden>
+        <header class="workspace-heading no-print">
+          <h2 id="cashierTitle" tabindex="-1">Kasir</h2>
+          <span class="text-xs font-bold text-slate-500">Pilih barang di kiri, selesaikan transaksi di kanan</span>
+        </header>
+
         <section id="readOnlyBannerKasir" class="bg-amber-50 border border-amber-300 rounded-3xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 no-print">
           <div>
             <p class="text-base font-extrabold text-slate-900">Masuk untuk Mencatat Penjualan</p>
@@ -3007,11 +2797,10 @@
           <button type="button" id="btnUnlockKasir" class="shop-button shop-button-primary"><i class="fa-solid fa-key" aria-hidden="true"></i> Masuk sebagai Pemilik</button>
         </section>
 
-        <section id="salesEntryCard" class="hidden no-print space-y-2.5">
-          <!-- BAR HEADER TUNGGAL RINGKAS (JUDUL KASIR + BADGE OMZET + SHORTCUT & AKSI) -->
-          <div id="posLiveStatsStrip" class="flex flex-wrap items-center justify-between gap-2 bg-white rounded-2xl border border-slate-200 shadow-2xs px-3.5 py-2 text-xs" aria-label="Ringkasan hari ini">
+        <section id="salesEntryCard" class="hidden no-print space-y-3">
+          <!-- BAR STATUS TIPIS (OPSIONAL / HEMAT RUANG) -->
+          <div id="posLiveStatsStrip" class="flex flex-wrap items-center justify-between gap-2 py-0.5 text-xs" aria-label="Ringkasan hari ini">
             <div class="flex flex-wrap items-center gap-2">
-              <h2 id="cashierTitle" tabindex="-1" class="text-lg font-black uppercase tracking-tight text-slate-900 pr-2 border-r border-slate-200">Kasir</h2>
               <span class="sjs-owner-only-stat pos-hdr-badge pos-hdr-omzet" title="Omzet hari ini">💰 <strong id="posStatOmsetToday" class="tabular-nums">Rp0</strong></span>
               <span class="pos-hdr-badge pos-hdr-nota">🧾 <strong id="posStatTxToday">0 Nota</strong><span id="posStatPcsToday" class="hidden">0 pcs</span></span>
               <span class="hidden"><strong id="posStatAvgToday">Rp 0</strong><span id="posStatAvgSub"></span></span>
@@ -3020,10 +2809,10 @@
                 <span id="posStatLowStockNames" class="hidden"></span>
               </button>
             </div>
-            <div class="flex flex-wrap items-center gap-1.5">
-              <button type="button" id="btnToggleStaffPrivacy" aria-pressed="false" class="min-h-[32px] px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-amber-50 border border-slate-200 text-xs font-bold text-slate-700"><i class="fa-regular fa-eye-slash mr-1" aria-hidden="true"></i><span>Sembunyi Omzet</span></button>
-              <button type="button" id="btnPosQuickClosing" class="min-h-[32px] px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 border border-slate-200 text-xs font-bold text-slate-800"><i class="fa-solid fa-vault text-slate-700 mr-1" aria-hidden="true"></i>Tutup Kas</button>
-              <button type="button" id="btnPosShortcutHelp" class="hidden xl:inline-flex items-center gap-1 min-h-[32px] px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-[11.5px] font-semibold text-slate-600">F2 Scan · F3 Hold · Enter Cetak · F4 Simpan</button>
+            <div class="flex items-center gap-1.5">
+              <button type="button" id="btnToggleStaffPrivacy" aria-pressed="false" class="px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-amber-50 border border-slate-200 text-[10px] font-extrabold text-slate-600"><i class="fa-regular fa-eye-slash mr-1" aria-hidden="true"></i><span>Sembunyi Omzet</span></button>
+              <button type="button" id="btnPosQuickClosing" class="px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-blue-50 border border-slate-200 text-[10px] font-extrabold text-slate-700"><i class="fa-solid fa-vault text-blue-700 mr-1" aria-hidden="true"></i>Tutup Kas</button>
+              <button type="button" id="btnPosShortcutHelp" class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-blue-50 border border-blue-200 text-[10px] font-extrabold text-blue-900">F2 Scan · F3 Hold · F8 Tunai · Enter Cetak · F4 Simpan</button>
             </div>
           </div>
 
@@ -3031,15 +2820,14 @@
           <div class="pos-split">
             <!-- KOLOM KIRI (58%): SCAN QR + SEARCH + FAVORIT CEPAT + KARTU KERANJANG BELANJA + TOTAL + TANGGUHKAN / BARANG BEBAS -->
             <div class="space-y-3 min-w-0">
-              <!-- Baris Scan QR + Search Dominan + Barang Bebas -->
-              <div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
-                <button type="button" id="btnOpenScanner" class="shrink-0 px-3.5 inline-flex items-center gap-2 text-xs sm:text-sm font-bold"><i class="fa-solid fa-qrcode text-base" aria-hidden="true"></i><span>Scan QR (F2)</span></button>
-                <div class="relative flex-1 min-w-[180px]">
+              <!-- Baris Scan QR (20%) + Search Dominan (80%) -->
+              <div class="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
+                <button type="button" id="btnOpenScanner" class="shrink-0 px-4 inline-flex items-center gap-2 text-xs sm:text-sm font-bold"><i class="fa-solid fa-qrcode text-base" aria-hidden="true"></i><span>Scan QR (F2)</span></button>
+                <div class="relative flex-1 min-w-[220px]">
                   <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-lg pointer-events-none" aria-hidden="true"></i>
                   <input type="search" id="posInstantSearch" placeholder="Cari nama, kode barang, barcode..." autocomplete="off" class="pos-shopify-search w-full">
                   <div id="posInstantDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 z-30 bg-white border border-slate-200 rounded-2xl shadow-xl max-h-64 overflow-y-auto divide-y divide-slate-100"></div>
                 </div>
-                <button type="button" id="btnAddItemRow" class="shrink-0 min-h-[56px] px-3.5 rounded-2xl bg-white hover:bg-slate-50 border-1.5 border-slate-300 hover:border-slate-800 text-slate-900 font-bold text-xs sm:text-sm shadow-2xs transition">+ Barang Bebas</button>
               </div>
 
               <!-- Favorit Cepat (Pill Bersih 1 Baris) -->
@@ -3069,17 +2857,22 @@
                   <p class="text-xs font-semibold text-slate-500">Cari produk di atas, klik <strong>Favorit Cepat</strong>, atau tekan <strong>F2</strong> untuk Scan QR.</p>
                 </div>
 
-                <div id="saleItemsContainer" class="space-y-2.5 py-0.5"></div>
+                <div id="saleItemsContainer" class="space-y-2.5 max-h-[44vh] overflow-y-auto pr-0.5 py-0.5"></div>
 
-                <!-- RINGKASAN SUBTOTAL 1 BARIS + TOMBOL TANGGUHKAN RINGKAS -->
-                <div class="pt-2.5 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2">
-                  <div class="flex items-center gap-2.5">
-                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Total</span>
-                    <strong id="previewTotalOmset" class="text-base font-extrabold text-slate-900 tabular-nums">Rp 0</strong>
-                    <span id="previewSubtotalLine" class="text-[11px] font-medium text-slate-400 tabular-nums">Subtotal Rp 0</span>
+                <!-- TOTAL BESAR DI BAWAH DAFTAR KERANJANG (IDENTIK DESAIN) -->
+                <div class="pt-3 border-t-2 border-slate-900/80 flex items-baseline justify-between gap-2">
+                  <div>
+                    <span class="text-2xl font-black tracking-tight text-slate-950">TOTAL</span>
+                    <span id="previewSubtotalLine" class="block text-[11px] font-semibold text-slate-500 tabular-nums">Subtotal Rp 0</span>
                   </div>
-                  <button type="button" id="btnHoldSale" class="min-h-[36px] px-3 py-1.5 rounded-xl bg-white hover:bg-amber-50 border border-slate-300 hover:border-amber-400 text-slate-700 font-bold text-xs transition shrink-0"><span id="btnHoldSaleLabel">Tangguhkan (F3)</span></button>
+                  <strong id="previewTotalOmset" class="text-2xl sm:text-3xl font-black text-slate-950 tabular-nums">Rp 0</strong>
                   <div class="hidden"><span id="previewTotalProfit">Rp 0</span></div>
+                </div>
+
+                <!-- 2 TOMBOL LEBAR BERSIH: TANGGUHKAN (F3) & + BARANG BEBAS -->
+                <div class="grid grid-cols-2 gap-3 pt-1">
+                  <button type="button" id="btnHoldSale" class="min-h-[44px] py-2.5 px-3 rounded-xl bg-white hover:bg-amber-50 border border-slate-300 hover:border-amber-400 text-slate-900 font-bold text-sm transition"><span id="btnHoldSaleLabel">Tangguhkan (F3)</span></button>
+                  <button type="button" id="btnAddItemRow" class="min-h-[44px] py-2.5 px-3 rounded-xl bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 text-slate-900 font-bold text-sm transition">+ Barang Bebas</button>
                 </div>
 
                 <!-- Pelanggan, Diskon & Catatan (Rapi di Bawah, Tidak Mengganggu Tampilan Utama) -->
@@ -3134,7 +2927,23 @@
                 <strong id="previewTotalOmsetRight" class="block text-3xl sm:text-4xl font-black text-white tabular-nums mt-0.5 leading-tight">Rp 0</strong>
               </div>
 
-              <!-- 2. METODE BAYAR (4 UTAMA + SPLIT/BON/QRIS MIN 40PX) -->
+              <!-- 2. UANG DITERIMA (SATU INPUT RATA TENGAH "Rp 225.000") -->
+              <div class="pos-received-frame !py-2.5">
+                <span class="pos-received-legend">Uang Diterima</span>
+                <div class="flex items-center justify-center gap-1.5">
+                  <input type="text" id="posCashReceivedInput" inputmode="numeric" autocomplete="off" placeholder="Rp 0" aria-label="Uang diterima" class="w-full bg-transparent border-0 focus:outline-none focus:ring-0 text-2xl sm:text-3xl font-extrabold text-center text-slate-950 tabular-nums p-0">
+                  <span id="posCashFeedbackPill" class="hidden shrink-0 px-2 py-0.5 rounded-full bg-amber-200 text-amber-950 text-[10px] font-extrabold"></span>
+                </div>
+                <strong id="posCashReceivedText" class="hidden">Rp 0</strong>
+              </div>
+
+              <!-- 3. KEMBALIAN (HIJAU / MERAH SAAT KURANG) -->
+              <div id="posCashChangeBox" class="pos-cash-box is-change w-full">
+                <span id="posCashChangeLabel">✓ KEMBALIAN</span>
+                <strong id="posCashChangeText" class="tabular-nums">Rp 0</strong>
+              </div>
+
+              <!-- 3. SEGMENTED CONTROL CARA BAYAR (4 UTAMA + SPLIT/BON) -->
               <div id="posPaySectionBox" class="space-y-2">
                 <div class="pos-exact-seg" role="group" aria-label="Cara bayar utama">
                   <button type="button" data-pay="Cash" aria-pressed="true" class="pay-option-btn">TUNAI</button>
@@ -3142,73 +2951,54 @@
                   <button type="button" data-pay="Kartu" aria-pressed="false" class="pay-option-btn">KARTU</button>
                   <button type="button" data-pay="Transfer" aria-pressed="false" class="pay-option-btn">TRANSFER</button>
                 </div>
-                <div class="flex items-center justify-between gap-2 text-xs">
+                <div class="flex items-center justify-between gap-2 text-[11px]">
                   <div class="flex items-center gap-1.5">
-                    <button type="button" data-pay="Split" aria-pressed="false" class="pay-option-btn min-h-[40px] px-3.5 rounded-xl border border-slate-200 bg-slate-50 font-bold text-slate-700 text-xs">Split</button>
-                    <button type="button" data-pay="Bon" aria-pressed="false" class="pay-option-btn min-h-[40px] px-3.5 rounded-xl border border-slate-200 bg-slate-50 font-bold text-slate-700 text-xs">Bon</button>
-                    <span id="salePaymentTopBadge" class="hidden px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 text-[10px] font-extrabold">Tunai</span>
+                    <button type="button" data-pay="Split" aria-pressed="false" class="pay-option-btn px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 font-bold text-slate-600">Split</button>
+                    <button type="button" data-pay="Bon" aria-pressed="false" class="pay-option-btn px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 font-bold text-slate-600">Bon</button>
+                    <span id="salePaymentTopBadge" class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 text-[10px] font-extrabold">Tunai</span>
                   </div>
-                  <button type="button" id="btnShowQrisPay" class="min-h-[40px] px-3.5 rounded-xl bg-slate-100 hover:bg-blue-50 border border-slate-200 text-slate-800 font-bold text-xs inline-flex items-center gap-1.5"><i class="fa-solid fa-qrcode text-red-600 text-sm" aria-hidden="true"></i> Tampilkan QR</button>
+                  <button type="button" id="btnShowQrisPay" class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 text-slate-700 font-extrabold inline-flex items-center gap-1"><i class="fa-solid fa-qrcode text-red-600" aria-hidden="true"></i> QRIS</button>
                 </div>
                 <div id="posSplitBonPanel" class="hidden pt-1 grid grid-cols-2 gap-2 text-xs">
                   <label class="font-bold text-slate-700"><span id="posSplitPrimaryLbl">Bayar Tunai (Rp)</span>
-                    <input type="number" id="inputSplitCash" min="0" step="1000" value="0" inputmode="numeric" class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-2 py-1.5 font-extrabold tabular-nums">
+                    <input type="number" id="inputSplitCash" min="0" step="1000" value="0" inputmode="numeric" class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-2 py-1 font-extrabold tabular-nums">
                   </label>
-                  <div class="rounded-xl bg-slate-50 border border-slate-200 px-2.5 py-1.5 flex flex-col justify-center">
+                  <div class="rounded-xl bg-slate-50 border border-slate-200 px-2 py-1 flex flex-col justify-center">
                     <span id="posSplitRemainLbl" class="text-[10px] font-bold text-slate-500 uppercase">Sisa QRIS/Transfer</span>
                     <strong id="posSplitRemainVal" class="text-sm font-extrabold text-blue-900 tabular-nums">Rp 0</strong>
                   </div>
                 </div>
               </div>
 
-              <!-- 3. BLOK KHUSUS TUNAI (OTOMATIS DISEMBUNYIKAN SAAT QRIS/KARTU/TRANSFER/SPLIT/BON) -->
-              <div id="posCashOnlyWrap" class="space-y-2.5">
-                <!-- Uang Diterima -->
-                <div class="pos-received-frame !py-2">
-                  <span class="pos-received-legend">Uang Diterima</span>
-                  <div class="flex items-center justify-center gap-1.5">
-                    <input type="text" id="posCashReceivedInput" inputmode="numeric" autocomplete="off" placeholder="Rp 0" aria-label="Uang diterima" class="w-full bg-transparent border-0 focus:outline-none focus:ring-0 text-2xl sm:text-3xl font-extrabold text-center text-slate-950 tabular-nums p-0">
-                    <span id="posCashFeedbackPill" class="hidden shrink-0 px-2 py-0.5 rounded-full bg-amber-200 text-amber-950 text-[10px] font-extrabold"></span>
-                  </div>
-                  <strong id="posCashReceivedText" class="hidden">Rp 0</strong>
-                </div>
+              <!-- 4. NUMPAD BESAR 4x4 (7-8-9-Uang Pas / 4-5-6-+10rb / 1-2-3-+50rb / C-0-000-+100rb) -->
+              <div id="posCashCalcPanel" class="space-y-2" aria-label="Numpad tunai">
+                <div class="pos-exact-numpad">
+                  <button type="button" class="pos-num-btn" data-numpad="7">7</button>
+                  <button type="button" class="pos-num-btn" data-numpad="8">8</button>
+                  <button type="button" class="pos-num-btn" data-numpad="9">9</button>
+                  <button type="button" class="pos-cash-pill" data-cash-exact="1">Uang Pas</button>
 
-                <!-- Kembalian (Ringkas 1 baris saat kosong, membesar hijau/merah saat ada pembayaran) -->
-                <div id="posCashChangeBox" class="pos-cash-box is-idle w-full">
-                  <span id="posCashChangeLabel">KEMBALIAN</span>
-                  <strong id="posCashChangeText" class="tabular-nums">Rp 0</strong>
-                </div>
+                  <button type="button" class="pos-num-btn" data-numpad="4">4</button>
+                  <button type="button" class="pos-num-btn" data-numpad="5">5</button>
+                  <button type="button" class="pos-num-btn" data-numpad="6">6</button>
+                  <button type="button" class="pos-cash-pill" data-cash-add="10000">+10rb</button>
 
-                <!-- Numpad 4x4 -->
-                <div id="posCashCalcPanel" class="space-y-2" aria-label="Numpad tunai">
-                  <div class="pos-exact-numpad">
-                    <button type="button" class="pos-num-btn" data-numpad="7">7</button>
-                    <button type="button" class="pos-num-btn" data-numpad="8">8</button>
-                    <button type="button" class="pos-num-btn" data-numpad="9">9</button>
-                    <button type="button" class="pos-cash-pill" data-cash-exact="1">Uang Pas</button>
+                  <button type="button" class="pos-num-btn" data-numpad="1">1</button>
+                  <button type="button" class="pos-num-btn" data-numpad="2">2</button>
+                  <button type="button" class="pos-num-btn" data-numpad="3">3</button>
+                  <button type="button" class="pos-cash-pill" data-cash-add="50000">+50rb</button>
 
-                    <button type="button" class="pos-num-btn" data-numpad="4">4</button>
-                    <button type="button" class="pos-num-btn" data-numpad="5">5</button>
-                    <button type="button" class="pos-num-btn" data-numpad="6">6</button>
-                    <button type="button" class="pos-cash-pill" data-cash-add="10000">+10rb</button>
-
-                    <button type="button" class="pos-num-btn" data-numpad="1">1</button>
-                    <button type="button" class="pos-num-btn" data-numpad="2">2</button>
-                    <button type="button" class="pos-num-btn" data-numpad="3">3</button>
-                    <button type="button" class="pos-cash-pill" data-cash-add="50000">+50rb</button>
-
-                    <button type="button" class="pos-num-btn" data-numpad="C">C</button>
-                    <button type="button" class="pos-num-btn" data-numpad="0">0</button>
-                    <button type="button" class="pos-num-btn" data-numpad="000">000</button>
-                    <button type="button" class="pos-cash-pill" data-cash-add="100000">+100rb</button>
-                  </div>
+                  <button type="button" class="pos-num-btn" data-numpad="C">C</button>
+                  <button type="button" class="pos-num-btn" data-numpad="0">0</button>
+                  <button type="button" class="pos-num-btn" data-numpad="000">000</button>
+                  <button type="button" class="pos-cash-pill" data-cash-add="100000">+100rb</button>
                 </div>
               </div>
 
               <p id="salePaymentHint" class="text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-3 py-1.5 text-center">Tambahkan minimal 1 barang untuk menyimpan penjualan.</p>
 
-              <!-- 5. AKSI SIMPAN STICKY DI BAWAH PANEL KANAN (SELALU TERLIHAT DI 1366x768) -->
-              <div id="posSaveActionsSticky" class="space-y-1.5">
+              <!-- 5. TOMBOL UTAMA HIJAU PENUH: SIMPAN & CETAK (ENTER) + SIMPAN (F4) -->
+              <div class="space-y-1.5">
                 <button type="button" id="btnSaveAndPrintTx" class="shop-button shop-button-emerald !w-full !min-h-12 !text-sm !tracking-wide uppercase" disabled><i class="fa-solid fa-print" aria-hidden="true"></i> Simpan &amp; Cetak (Enter)</button>
                 <button type="button" id="btnSaveTx" class="w-full py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-bold text-slate-600 disabled:opacity-40" disabled>Simpan tanpa cetak (F4)</button>
               </div>
@@ -4070,6 +3860,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261126-19"></script>
+  <script type="module" src="./admin.js?v=20261126-12"></script>
 </body>
 </html>
