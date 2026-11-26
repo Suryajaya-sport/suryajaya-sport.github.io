@@ -998,6 +998,15 @@
       calculateSaleTotals();
     }
 
+    function parseIdrNum(val) {
+      const digits = String(val ?? "").replace(/[^\d]/g, "");
+      return digits ? Number(digits) : 0;
+    }
+    function fmtIdrInput(val) {
+      const n = parseIdrNum(val);
+      return n > 0 ? n.toLocaleString("id-ID") : "";
+    }
+
     function posCategoryEmoji(itemOrName) {
       const obj = typeof itemOrName === "string" ? { name: itemOrName } : (itemOrName || {});
       const catKey = detectProductCategoryLabel(obj).key;
@@ -1033,11 +1042,12 @@
             </div>
             <div class="flex items-center gap-2.5 shrink-0">
               <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide hidden sm:inline">Qty</span>
-              <div class="inline-flex items-center rounded-xl border border-slate-200 bg-slate-50 overflow-hidden">
-                <button type="button" class="btn-inline-minus w-9 h-9 hover:bg-slate-200 font-bold text-sm text-slate-700 transition" aria-label="Kurangi jumlah">−</button>
-                <span class="item-inline-qty px-2.5 text-xs font-bold text-slate-900 tabular-nums">1</span>
-                <button type="button" class="btn-inline-plus w-9 h-9 hover:bg-slate-200 font-bold text-sm text-slate-900 transition" aria-label="Tambah jumlah">+</button>
+              <div class="inline-flex items-center rounded-xl border border-slate-300 bg-white overflow-hidden shadow-2xs">
+                <button type="button" class="btn-inline-minus w-9 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Kurangi jumlah">−</button>
+                <span class="item-inline-qty px-2.5 text-xs font-bold text-slate-900 tabular-nums border-x border-slate-200 leading-9">1</span>
+                <button type="button" class="btn-inline-plus w-9 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Tambah jumlah">+</button>
               </div>
+              <input type="hidden" value="1" class="item-qty">
               <span class="item-subtotal font-extrabold text-base text-slate-950 tabular-nums min-w-[86px] text-right">${rp(prefill?.price || 0)}</span>
             </div>
           </div>
@@ -1045,45 +1055,40 @@
         <div class="item-edit-drawer rounded-xl bg-slate-50 border border-slate-200 p-3 space-y-2.5" ${isPrefilled ? "hidden" : ""}>
           <div class="flex items-center gap-2">
             <div class="sale-entry-thumbnail shrink-0 ${prefill?.id ? "w-9 h-9" : "hidden"}">${prefill?.id ? productImageMarkup(prefill, "h-9 w-9 rounded-lg border border-slate-200", 120, true) : ""}</div>
-            <input type="text" id="${key}" list="inventoryDatalist" autocomplete="off" class="item-name-input min-w-0 flex-1 px-2.5 py-1.5 border border-slate-300 rounded-xl bg-white font-bold !text-sm" placeholder="Pilih stok atau ketik nama barang..." value="${esc(prefillLabel)}">
+            <input type="text" id="${key}" list="inventoryDatalist" autocomplete="off" class="item-name-input min-w-0 flex-1 px-2.5 py-2 border border-slate-300 rounded-xl bg-white font-semibold !text-sm text-slate-900" placeholder="Pilih stok atau ketik nama barang..." value="${esc(prefillLabel)}">
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-end">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 items-start">
             <div>
               <label class="block text-[11px] font-bold text-slate-600 mb-1">Harga jual (Rp)</label>
-              <input type="number" min="0" step="1" inputmode="numeric" class="item-price-input w-full px-2.5 py-1.5 border border-slate-300 rounded-xl bg-white font-extrabold !text-sm" placeholder="0" value="${esc(prefill?.price ?? "")}">
+              <input type="text" inputmode="numeric" autocomplete="off" class="item-price-input w-full px-3 py-2 border border-slate-300 rounded-xl bg-white font-bold tabular-nums !text-sm text-slate-900" placeholder="0" value="${esc(fmtIdrInput(prefill?.price))}">
             </div>
             <div class="item-cost-wrap sjs-owner-only-stat" ${prefill?.id ? "hidden" : ""}>
               <label class="block text-[11px] font-bold text-slate-600 mb-1">Modal manual (ops.)</label>
-              <input type="number" min="0" step="1" inputmode="numeric" class="item-cost-input w-full px-2.5 py-1.5 border border-slate-300 rounded-xl bg-white font-bold !text-sm" placeholder="0" value="${esc(prefill?.cost ?? "")}">
-            </div>
-            <div>
-              <label class="block text-[11px] font-bold text-slate-600 mb-1">Jumlah</label>
-              <div class="flex items-center gap-1">
-                <button type="button" aria-label="Kurangi" class="btn-qty-minus w-7 h-8 shrink-0 rounded-lg bg-slate-200 hover:bg-slate-300 font-extrabold text-sm">−</button>
-                <input type="number" min="1" step="1" inputmode="numeric" value="1" class="item-qty min-w-0 flex-1 px-1 py-1 border border-slate-300 rounded-lg bg-white font-extrabold text-center !text-sm">
-                <button type="button" aria-label="Tambah" class="btn-qty-plus w-7 h-8 shrink-0 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-900 font-extrabold text-sm">+</button>
-                <button type="button" data-quick-qty="5" class="btn-quick-qty px-1.5 py-1 rounded-lg bg-blue-50 border border-blue-200 text-[10px] font-extrabold text-blue-900">+5</button>
-                <button type="button" data-quick-qty="10" class="btn-quick-qty px-1.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-[10px] font-extrabold text-amber-900">+10</button>
-              </div>
+              <input type="text" inputmode="numeric" autocomplete="off" class="item-cost-input w-full px-3 py-2 border border-slate-300 rounded-xl bg-white font-semibold tabular-nums !text-sm text-slate-900" placeholder="0" value="${esc(fmtIdrInput(prefill?.cost))}">
+              <p class="item-cost-warn hidden text-[11px] font-bold text-red-600 mt-1">⚠ Modal melebihi harga jual (rugi)</p>
             </div>
           </div>
-          <div class="flex flex-wrap items-center gap-1.5">
-            <select class="item-unit-select px-2 py-1 rounded-lg border border-slate-300 bg-white text-xs font-extrabold text-slate-700" aria-label="Satuan">
+          <div class="flex flex-wrap items-center gap-2">
+            <select class="item-unit-select px-2.5 py-1.5 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-800" aria-label="Satuan">
               <option value="Pcs">Pcs</option>
-              <option value="Slop">Slop</option>
-              <option value="Lusin">Lusin</option>
               <option value="Set">Set</option>
+              <option value="Pak">Pak</option>
+              <option value="Lusin">Lusin</option>
             </select>
-            <input type="text" class="item-note-input flex-1 min-w-[140px] px-2.5 py-1 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-700" placeholder="Catatan layanan / varian..." maxlength="80">
+            <input type="text" class="item-note-input flex-1 min-w-[140px] px-2.5 py-1.5 rounded-xl border border-slate-300 bg-white text-xs font-medium text-slate-800" placeholder="Catatan layanan / varian..." maxlength="80">
           </div>
-          <div class="flex flex-wrap items-center gap-1">
-            <button type="button" class="pos-svc-chip" data-svc-note="Pasang 24 lbs">🏸 24 lbs</button>
-            <button type="button" class="pos-svc-chip" data-svc-note="Pasang 27 lbs">🏸 27 lbs</button>
-            <button type="button" class="pos-svc-chip" data-svc-note="Pasang 30 lbs">🏸 30 lbs</button>
-            <button type="button" class="pos-svc-chip" data-svc-note="Kaliber 4.5mm">🎯 Kaliber</button>
-            <button type="button" class="pos-svc-chip" data-svc-note="Ukuran Bola 5">⚽ Uk. Bola</button>
-            <button type="button" class="pos-svc-chip" data-svc-note="Tulisan Piala">🏆 Piala</button>
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-0.5">
+            <div class="flex flex-wrap items-center gap-1.5">
+              <button type="button" class="pos-svc-chip" data-svc-note="Pasang 24 lbs">+ 24 lbs</button>
+              <button type="button" class="pos-svc-chip" data-svc-note="Pasang 27 lbs">+ 27 lbs</button>
+              <button type="button" class="pos-svc-chip" data-svc-note="Pasang 30 lbs">+ 30 lbs</button>
+              <button type="button" class="pos-svc-chip" data-svc-note="Kaliber 4.5mm">+ Kaliber 4.5mm</button>
+              <button type="button" class="pos-svc-chip" data-svc-note="Uk. Bola 5">+ Uk. Bola 5</button>
+              <button type="button" class="pos-svc-chip" data-svc-note="Tulisan Piala">+ Tulisan Piala</button>
+            </div>
+            <button type="button" class="btn-close-row-edit px-3 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-bold shrink-0">Selesai</button>
           </div>
+          <p class="item-free-stock-note text-[11px] text-slate-500" ${prefill?.id ? "hidden" : ""}>ℹ Barang bebas tidak mengurangi stok gudang (hanya tercatat di omzet &amp; laba).</p>
         </div>`;
       container.appendChild(row);
 
@@ -1103,10 +1108,12 @@
           if (row.dataset.invId !== match.id) {
             row.dataset.invId = match.id;
             nameInput.value = formatItemLabel(match);
-            priceInput.value = match.price;
-            costInput.value = match.cost || 0;
+            priceInput.value = fmtIdrInput(match.price);
+            costInput.value = fmtIdrInput(match.cost || 0);
           const costWrap = row.querySelector(".item-cost-wrap");
           if (costWrap) costWrap.hidden = true;
+          const freeNote = row.querySelector(".item-free-stock-note");
+          if (freeNote) freeNote.hidden = true;
             preview.className = "sale-entry-thumbnail shrink-0 w-9 h-9";
             preview.innerHTML = productImageMarkup(match, "h-9 w-9 rounded-lg border border-slate-200", 120, true);
           }
@@ -1119,18 +1126,26 @@
           costInput.value = costInput.value || "";
           const costWrap = row.querySelector(".item-cost-wrap");
           if (costWrap) costWrap.hidden = false;
+          const freeNote = row.querySelector(".item-free-stock-note");
+          if (freeNote) freeNote.hidden = false;
         }
+        calculateSaleTotals();
+      };
+      const formatNumField = (inp) => {
+        inp.value = fmtIdrInput(inp.value);
         calculateSaleTotals();
       };
       nameInput.addEventListener("input", handleSelect);
       nameInput.addEventListener("change", handleSelect);
-      costInput.addEventListener("input", calculateSaleTotals);
-      priceInput.addEventListener("input", calculateSaleTotals);
-      qtyInput.addEventListener("input", calculateSaleTotals);
+      costInput.addEventListener("input", () => formatNumField(costInput));
+      priceInput.addEventListener("input", () => formatNumField(priceInput));
       row.querySelector(".item-note-input")?.addEventListener("input", calculateSaleTotals);
       row.querySelector(".item-unit-select")?.addEventListener("change", calculateSaleTotals);
       row.querySelector(".btn-toggle-row-edit")?.addEventListener("click", () => {
         if (drawer) drawer.hidden = !drawer.hidden;
+      });
+      row.querySelector(".btn-close-row-edit")?.addEventListener("click", () => {
+        if (drawer) drawer.hidden = true;
       });
       row.querySelector(".btn-inline-minus")?.addEventListener("click", () => {
         qtyInput.value = Math.max(1, (parseInt(qtyInput.value, 10) || 1) - 1);
@@ -1139,21 +1154,6 @@
       row.querySelector(".btn-inline-plus")?.addEventListener("click", () => {
         qtyInput.value = (parseInt(qtyInput.value, 10) || 1) + 1;
         calculateSaleTotals();
-      });
-      row.querySelector(".btn-qty-minus").addEventListener("click", () => {
-        qtyInput.value = Math.max(1, (parseInt(qtyInput.value, 10) || 1) - 1);
-        calculateSaleTotals();
-      });
-      row.querySelector(".btn-qty-plus").addEventListener("click", () => {
-        qtyInput.value = (parseInt(qtyInput.value, 10) || 1) + 1;
-        calculateSaleTotals();
-      });
-      row.querySelectorAll(".btn-quick-qty").forEach(qb => {
-        qb.addEventListener("click", () => {
-          const addN = Number(qb.dataset.quickQty || 0);
-          qtyInput.value = Math.max(1, (parseInt(qtyInput.value, 10) || 0) + addN);
-          calculateSaleTotals();
-        });
       });
       row.querySelectorAll("[data-svc-note]").forEach(btn => {
         btn.addEventListener("click", () => {
@@ -1177,11 +1177,11 @@
       let total = 0, profit = 0, itemLines = 0, totalQty = 0;
       for (const row of document.querySelectorAll("#saleItemsContainer > div")) {
         const nm = (row.querySelector(".item-name-input")?.value || "").trim();
-        const price = parseFloat(row.querySelector(".item-price-input").value) || 0;
+        const price = parseIdrNum(row.querySelector(".item-price-input")?.value);
         const qtyInput = row.querySelector(".item-qty");
-        const qty = qtyInput.validity.valid ? Number(qtyInput.value) : 0;
+        const qty = Math.max(0, parseInt(qtyInput?.value, 10) || 0);
         const inv = activeInventory().find(i => i.id === row.dataset.invId);
-        const cost = inv ? Number(inv.cost || 0) : (parseFloat(row.querySelector(".item-cost-input")?.value) || 0);
+        const cost = inv ? Number(inv.cost || 0) : parseIdrNum(row.querySelector(".item-cost-input")?.value);
         if (nm && qty > 0) { itemLines++; totalQty += qty; }
         total += price * qty;
         profit += (price - cost) * qty;
@@ -1206,6 +1206,14 @@
           pInpLive.classList.toggle("border-rose-500", invalidPrice);
           pInpLive.classList.toggle("bg-rose-50", invalidPrice);
         }
+        const cInpLive = row.querySelector(".item-cost-input");
+        const cWarn = row.querySelector(".item-cost-warn");
+        const lossCost = !inv && cost > 0 && price > 0 && cost > price;
+        if (cInpLive) {
+          cInpLive.classList.toggle("border-red-500", lossCost);
+          cInpLive.classList.toggle("bg-red-50", lossCost);
+        }
+        if (cWarn) cWarn.classList.toggle("hidden", !lossCost);
         const badge = row.querySelector(".item-mode-badge");
         if (badge) {
           if (inv) {
@@ -1531,8 +1539,8 @@
       const items = rows.map(r => ({
         invId: r.dataset.invId || "",
         name: (r.querySelector(".item-name-input")?.value || "").trim(),
-        price: Number(r.querySelector(".item-price-input")?.value || 0),
-        cost: Number(r.querySelector(".item-cost-input")?.value || 0),
+        price: parseIdrNum(r.querySelector(".item-price-input")?.value),
+        cost: parseIdrNum(r.querySelector(".item-cost-input")?.value),
         qty: Math.max(1, Number(r.querySelector(".item-qty")?.value || 1))
       })).filter(it => it.name);
       if (!items.length) return showToast("Keranjang masih kosong, tidak ada yang bisa di-Hold.");
@@ -1560,8 +1568,8 @@
       for (const it of h.items) {
         const inv = it.invId ? activeInventory().find(i => i.id === it.invId) : null;
         const row = addSaleItemRow(inv || { name: it.name, price: it.price, cost: it.cost });
-        row.querySelector(".item-price-input").value = it.price;
-        if (!inv) row.querySelector(".item-cost-input").value = it.cost;
+        row.querySelector(".item-price-input").value = fmtIdrInput(it.price);
+        if (!inv) row.querySelector(".item-cost-input").value = fmtIdrInput(it.cost);
         row.querySelector(".item-qty").value = it.qty;
       }
       if (document.getElementById("inputCustomer")) document.getElementById("inputCustomer").value = h.customer || "";
@@ -1608,8 +1616,8 @@
         const inv = activeInventory().find(i => i.id === invId);
         const typedName = row.querySelector(".item-name-input").value.trim();
         const qty = Number(row.querySelector(".item-qty").value);
-        const price = Number(row.querySelector(".item-price-input").value);
-        const manualCost = Math.max(0, Math.round(Number(row.querySelector(".item-cost-input")?.value) || 0));
+        const price = parseIdrNum(row.querySelector(".item-price-input")?.value);
+        const manualCost = Math.max(0, Math.round(parseIdrNum(row.querySelector(".item-cost-input")?.value)));
         if (!inv && !typedName) { showToast("Isi nama barang atau pilih dari daftar stok."); row.querySelector(".item-name-input").focus(); return; }
         if (!Number.isSafeInteger(qty) || qty < 1) return showToast("Jumlah minimal 1 pcs.");
         const priceInp = row.querySelector(".item-price-input");
