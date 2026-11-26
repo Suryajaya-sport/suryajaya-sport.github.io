@@ -749,9 +749,10 @@
       const editId = document.getElementById("editInvId").value.trim();
       const name = document.getElementById("invName").value.trim();
       let code = document.getElementById("invCode").value.trim();
-      const stock = Number(document.getElementById("invStock").value);
-      const cost = parseFloat(document.getElementById("invCost").value) || 0;
-      const price = parseFloat(document.getElementById("invPrice").value) || 0;
+      const stockRaw = document.getElementById("invStock").value.trim();
+      const stock = stockRaw === "" ? 0 : Number(stockRaw);
+      const cost = parseIdrNum(document.getElementById("invCost").value);
+      const price = parseIdrNum(document.getElementById("invPrice").value);
       const description = document.getElementById("invDescription").value.trim();
       const imageFile = document.getElementById("invImageFile").files?.[0] || null;
 
@@ -794,7 +795,7 @@
             showToast(usePoster ? "Membuat poster katalog & mengunggah..." : "Mengompres dan mengunggah foto...");
           }
           const uploaded = usePoster
-            ? await uploadBlobToCloudinary(await renderProductPosterBlob(itemData, imageFile, { removeWhiteBg: document.getElementById('invRemoveWhiteBg')?.checked !== false, withTouch: document.getElementById('invPosterTouch')?.checked !== false, cropTopPct: (Number(document.getElementById('invCropTop')?.value) || 0) / 100, cropBottomPct: (Number(document.getElementById('invCropBottom')?.value) || 0) / 100 }), itemId)
+            ? await uploadBlobToCloudinary(await renderProductPosterBlob(itemData, imageFile, { removeWhiteBg: document.getElementById('invRemoveWhiteBg')?.checked !== false, withTouch: false, cropTopPct: (Number(document.getElementById('invCropTop')?.value) || 0) / 100, cropBottomPct: (Number(document.getElementById('invCropBottom')?.value) || 0) / 100 }), itemId)
             : await uploadProductImage(imageFile, itemId);
           itemData.imageUrl = uploaded.imageUrl;
           itemData.imagePath = uploaded.imagePath;
@@ -820,9 +821,49 @@
           tx.set(invRef, patch, { merge: true });
           if (published.exists()) tx.set(publicRef, publicProductData(patch));
         });
+        // Simpan varian tambahan (jika ada, khusus mode Tambah barang baru)
+        let savedVariants = 0;
+        if (!editId) {
+          const vRows = [...document.querySelectorAll("#invVariantsList .inv-variant-row")];
+          const usedCodes = new Set(inventory.map(i => String(i.code || "").trim().toLowerCase()));
+          usedCodes.add(code.toLowerCase());
+          const allocCode = () => {
+            let n = Math.max(
+              ...([...usedCodes].map(c => /^sjs-(\d+)$/i.exec(c)?.[1]).filter(Boolean).map(Number)),
+              0
+            ) + 1;
+            let cand = "SJS-" + String(n).padStart(3, "0");
+            while (usedCodes.has(cand.toLowerCase())) { n++; cand = "SJS-" + String(n).padStart(3, "0"); }
+            usedCodes.add(cand.toLowerCase());
+            return cand;
+          };
+          for (const vr of vRows) {
+            const vSize = vr.querySelector(".var-size")?.value.trim() || "";
+            const vColor = vr.querySelector(".var-color")?.value.trim() || "";
+            if (!vSize && !vColor) continue;
+            const vStock = Math.max(0, Math.trunc(Number(vr.querySelector(".var-stock")?.value) || 0));
+            const vPrice = parseIdrNum(vr.querySelector(".var-price")?.value) || price;
+            const vId = doc(collection(db, ...paths("inventory"))).id;
+            const vData = {
+              code: allocCode(),
+              name,
+              size: vSize,
+              color: vColor,
+              stock: vStock,
+              cost,
+              price: vPrice,
+              description: autoDesc,
+              imageUrl: itemData.imageUrl || "",
+              imagePath: itemData.imagePath || "",
+              updatedAt: new Date().toISOString()
+            };
+            await setDoc(doc(db, ...paths("inventory", vId)), vData, { merge: true });
+            savedVariants++;
+          }
+        }
         resetInvForm();
         document.getElementById("invEntryCard").close();
-        showToast("Barang berhasil disimpan.");
+        showToast(savedVariants > 0 ? `Barang & ${savedVariants} varian berhasil disimpan.` : "Barang berhasil disimpan.");
       } catch (err) {
         console.error(err);
         showToast("Gagal menyimpan: " + (err.message || "kesalahan tidak diketahui"));
@@ -856,6 +897,72 @@
       const nums = inventory.map(i => /^SJS-(\d+)$/i.exec(String(i.code || "").trim())?.[1]).filter(Boolean).map(Number);
       return "SJS-" + String((nums.length ? Math.max(...nums) : 0) + 1).padStart(3, "0");
     }
+    function updateInvQrPreview() {
+      const box = document.getElementById("invCodeQrPreview");
+      if (!box) return;
+      const code = document.getElementById("invCode")?.value.trim() || nextAutoCode();
+      try {
+        box.innerHTML = SjsQR.toSvg(code, 48, 1);
+        box.title = "Pratinjau QR: " + code;
+      } catch {
+        box.innerHTML = "";
+      }
+    }
+    function updateInvProfitPreview() {
+      const el = document.getElementById("invProfitPreview");
+      if (!el) return;
+      const cost = parseIdrNum(document.getElementById("invCost")?.value);
+      const price = parseIdrNum(document.getElementById("invPrice")?.value);
+      if (!(price > 0)) {
+        el.classList.add("hidden");
+        return;
+      }
+      el.classList.remove("hidden");
+      if (cost <= 0) {
+        el.className = "sm:col-span-12 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-600";
+        el.textContent = "Isi harga modal untuk melihat estimasi laba per unit & margin %.";
+        return;
+      }
+      const profit = price - cost;
+      const margin = (profit / price) * 100;
+      if (profit < 0) {
+        el.className = "sm:col-span-12 rounded-xl border border-red-300 bg-red-50 px-3.5 py-2 text-xs font-bold text-red-700";
+        el.textContent = `⚠ Rugi ${rp(Math.abs(profit))}/pcs (${margin.toFixed(1)}%) — Harga modal lebih besar dari harga jual.`;
+      } else {
+        el.className = "sm:col-span-12 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2 text-xs font-bold text-emerald-800";
+        el.textContent = `✓ Estimasi laba: ${rp(profit)}/pcs · Margin ${margin.toFixed(1)}%`;
+      }
+    }
+    function refreshInvOptionDatalists() {
+      const mergeList = (id, defaults, field) => {
+        const dl = document.getElementById(id);
+        if (!dl) return;
+        const set = new Set(defaults);
+        for (const it of inventory) {
+          const v = String(it[field] || "").trim();
+          if (v) set.add(v);
+        }
+        dl.innerHTML = [...set].map(v => `<option value="${esc(v)}"></option>`).join("");
+      };
+      mergeList("invSizeOptions", ["24 lbs","27 lbs","30 lbs","Size 4","Size 5","38","39","40","41","42","43","44","45","S","M","L","XL","XXL","Isi 6","Isi 12","Standar"], "size");
+      mergeList("invColorOptions", ["Hitam","Putih","Biru","Navy","Merah","Kuning","Hijau","Abu-abu","Oranye","Ungu","Emas"], "color");
+    }
+    function addInvVariantRow() {
+      const list = document.getElementById("invVariantsList");
+      if (!list) return;
+      const row = document.createElement("div");
+      row.className = "inv-variant-row grid grid-cols-12 gap-2 items-center bg-white p-2 rounded-xl border border-slate-200";
+      row.innerHTML = `
+        <input type="text" list="invSizeOptions" maxlength="40" placeholder="Ukuran" class="var-size col-span-4 px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold">
+        <input type="text" list="invColorOptions" maxlength="60" placeholder="Warna" class="var-color col-span-3 px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold">
+        <input type="number" min="0" step="1" inputmode="numeric" value="0" placeholder="Stok" class="var-stock col-span-2 px-2 py-1.5 border border-slate-300 rounded-lg text-xs font-bold text-center tabular-nums">
+        <input type="text" inputmode="numeric" autocomplete="off" placeholder="Harga (ops.)" class="var-price col-span-2 px-2 py-1.5 border border-slate-300 rounded-lg text-xs font-bold tabular-nums">
+        <button type="button" class="btn-rm-var col-span-1 h-8 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 font-bold" title="Hapus varian">×</button>
+      `;
+      row.querySelector(".var-price")?.addEventListener("input", e => { e.target.value = fmtIdrInput(e.target.value); });
+      row.querySelector(".btn-rm-var")?.addEventListener("click", () => row.remove());
+      list.appendChild(row);
+    }
     function resetInvForm() {
       ["editInvId", "invName", "invCode", "invSize", "invColor", "invStock", "invCost", "invPrice", "invDescription"]
         .forEach(id => document.getElementById(id).value = "");
@@ -866,6 +973,13 @@
       document.getElementById("btnCancelInvEdit").classList.add("hidden");
       document.getElementById("btnSaveInvText").textContent = "Simpan barang & buat QR";
       document.getElementById("inventoryEntryTitle").textContent = "Tambah barang";
+      const vSec = document.getElementById("invVariantsSection");
+      if (vSec) vSec.hidden = false;
+      const vList = document.getElementById("invVariantsList");
+      if (vList) vList.innerHTML = "";
+      refreshInvOptionDatalists();
+      updateInvQrPreview();
+      updateInvProfitPreview();
     }
     function editInventoryItem(id) {
       if (!isAdmin) return;
@@ -878,13 +992,17 @@
       document.getElementById("invSize").value = item.size || "";
       document.getElementById("invColor").value = item.color || "";
       document.getElementById("invStock").value = item.stock || 0;
-      document.getElementById("invCost").value = item.cost || 0;
-      document.getElementById("invPrice").value = item.price || 0;
+      document.getElementById("invCost").value = fmtIdrInput(item.cost || 0);
+      document.getElementById("invPrice").value = fmtIdrInput(item.price || 0);
       document.getElementById("invDescription").value = item.description || "";
       document.getElementById("btnCancelInvEdit").classList.remove("hidden");
       document.getElementById("btnSaveInvText").textContent = "Simpan perubahan";
       document.getElementById("inventoryEntryTitle").textContent = "Ubah barang";
       document.getElementById("btnWrapExistingPoster")?.classList.remove("hidden");
+      const vSec = document.getElementById("invVariantsSection");
+      if (vSec) vSec.hidden = true;
+      updateInvQrPreview();
+      updateInvProfitPreview();
       openDialog("invEntryCard");
     };
 
@@ -6007,7 +6125,7 @@
       function currentInvPosterOpts() {
         return {
           removeWhiteBg: document.getElementById("invRemoveWhiteBg")?.checked !== false,
-          withTouch: document.getElementById("invPosterTouch")?.checked !== false,
+          withTouch: false,
           cropTopPct: (Number(document.getElementById("invCropTop")?.value) || 0) / 100,
           cropBottomPct: (Number(document.getElementById("invCropBottom")?.value) || 0) / 100
         };
@@ -6026,7 +6144,7 @@
             code: document.getElementById("invCode").value.trim() || "SJS",
             size: document.getElementById("invSize").value.trim(),
             color: document.getElementById("invColor").value.trim(),
-            price: Number(document.getElementById("invPrice").value) || 0
+            price: parseIdrNum(document.getElementById("invPrice").value)
           };
           imgPrev.classList.add("hidden");
           canvasPrev.classList.remove("hidden");
@@ -6054,7 +6172,10 @@
       };
       document.getElementById("invAutoPoster").addEventListener("change", retriggerPreview);
       document.getElementById("invRemoveWhiteBg").addEventListener("change", retriggerPreview);
-      document.getElementById("invPosterTouch").addEventListener("change", retriggerPreview);
+      document.getElementById("invCode")?.addEventListener("input", updateInvQrPreview);
+      document.getElementById("invCost")?.addEventListener("input", e => { e.target.value = fmtIdrInput(e.target.value); updateInvProfitPreview(); });
+      document.getElementById("invPrice")?.addEventListener("input", e => { e.target.value = fmtIdrInput(e.target.value); updateInvProfitPreview(); });
+      document.getElementById("btnAddInvVariant")?.addEventListener("click", addInvVariantRow);
       document.getElementById("invCropTop").addEventListener("input", retriggerPreview);
       document.getElementById("invCropBottom").addEventListener("input", retriggerPreview);
       document.getElementById("btnSaveGeminiKey")?.addEventListener("click", async () => {
@@ -6083,7 +6204,7 @@
           name: document.getElementById("invName").value.trim() || item?.name || "Produk",
           code: document.getElementById("invCode").value.trim() || item?.code || "SJS",
           description: document.getElementById("invDescription").value.trim() || item?.description || "",
-          price: Number(document.getElementById("invPrice").value) || Number(item?.price || 0)
+          price: parseIdrNum(document.getElementById("invPrice").value) || Number(item?.price || 0)
         };
         const src = document.getElementById("invImageFile").files?.[0] || productImageUrl(item) || null;
         btn.disabled = true;
@@ -6116,7 +6237,7 @@
           code: document.getElementById("invCode").value.trim() || item?.code || "SJS",
           size: document.getElementById("invSize").value.trim(),
           color: document.getElementById("invColor").value.trim(),
-          price: Number(document.getElementById("invPrice").value) || Number(item?.price || 0)
+          price: parseIdrNum(document.getElementById("invPrice").value) || Number(item?.price || 0)
         };
         const f = document.getElementById("invImageFile").files?.[0] || productImageUrl(item) || null;
         const canvasPrev = document.getElementById("invPosterPreviewCanvas");

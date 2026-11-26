@@ -3706,12 +3706,30 @@
         <p class="workspace-dialog-status" data-dialog-status role="status"></p>
         <div class="p-5 space-y-4">
           <input type="hidden" id="editInvId" value="">
+          <datalist id="invSizeOptions">
+            <option value="24 lbs"></option><option value="27 lbs"></option><option value="30 lbs"></option>
+            <option value="Size 4"></option><option value="Size 5"></option>
+            <option value="38"></option><option value="39"></option><option value="40"></option><option value="41"></option><option value="42"></option><option value="43"></option><option value="44"></option><option value="45"></option>
+            <option value="S"></option><option value="M"></option><option value="L"></option><option value="XL"></option><option value="XXL"></option>
+            <option value="Isi 6"></option><option value="Isi 12"></option><option value="Standar"></option>
+          </datalist>
+          <datalist id="invColorOptions">
+            <option value="Hitam"></option><option value="Putih"></option><option value="Biru"></option><option value="Navy"></option>
+            <option value="Merah"></option><option value="Kuning"></option><option value="Hijau"></option><option value="Abu-abu"></option>
+            <option value="Oranye"></option><option value="Ungu"></option><option value="Emas"></option>
+          </datalist>
           <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
-            <div class="sm:col-span-4">
+            <div class="sm:col-span-5">
               <label for="invCode" class="block text-sm font-bold mb-1.5">Kode Barang / QR</label>
-              <input type="text" id="invCode" maxlength="80" placeholder="Otomatis (mis. SJS-001)" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl font-bold">
+              <div class="flex items-center gap-2.5">
+                <div class="flex-1 min-w-0">
+                  <input type="text" id="invCode" maxlength="80" placeholder="Otomatis (mis. SJS-001)" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl font-bold">
+                  <p class="text-[11px] text-slate-500 mt-1">Kode ini akan dipakai untuk QR label</p>
+                </div>
+                <div id="invCodeQrPreview" class="w-14 h-14 rounded-xl border border-slate-200 bg-white p-1 flex items-center justify-center shrink-0" title="Pratinjau QR label"></div>
+              </div>
             </div>
-            <div class="sm:col-span-8">
+            <div class="sm:col-span-7">
               <label for="invName" class="block text-sm font-bold mb-1.5">Nama Barang <span class="text-rose-600">*</span></label>
               <input type="text" id="invName" maxlength="160" placeholder="Contoh: Sepatu Futsal Ortuseight" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl font-bold">
             </div>
@@ -3719,48 +3737,71 @@
               <label for="invDescription" class="block text-sm font-bold mb-1.5">Deskripsi untuk pelanggan</label>
               <textarea id="invDescription" maxlength="400" rows="2" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5"></textarea>
             </div>
-            <div class="sm:col-span-12 bg-sky-50 border border-sky-200 rounded-2xl p-4 space-y-2.5">
+            <div class="sm:col-span-12 bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2.5">
               <div class="flex flex-wrap items-center justify-between gap-2">
-                <label for="invImageFile" class="text-sm font-extrabold text-sky-900"><i class="fa-solid fa-camera mr-1"></i> Foto Produk (opsional)</label>
-                <div class="flex flex-wrap gap-1.5">
-                  <button type="button" id="btnAiGeneratePoster" class="px-3 py-1 rounded-lg bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-extrabold text-xs shadow-sm"><i class="fa-solid fa-sparkles mr-1"></i>Buat Poster AI (Gemini)</button>
-                  <button type="button" id="btnWrapExistingPoster" class="hidden px-3 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i>Template Cepat</button>
-                </div>
+                <label for="invImageFile" class="text-sm font-extrabold text-slate-900"><i class="fa-solid fa-camera mr-1 text-slate-600"></i> Foto Produk (opsional)</label>
+                <button type="button" id="btnWrapExistingPoster" class="hidden px-3 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i>Template Cepat</button>
               </div>
               <input type="file" id="invImageFile" accept="image/jpeg,image/png,image/webp" class="block w-full text-sm">
-              <label class="flex items-center gap-2 text-xs font-bold text-sky-950 cursor-pointer">
+              <label class="flex items-center gap-2 text-xs font-bold text-slate-800 cursor-pointer">
                 <input type="checkbox" id="invAutoPoster" checked class="h-4 w-4">
                 <span>Otomatis bungkus dengan template poster katalog Surya Jaya Sport</span>
               </label>
               <label class="flex items-center gap-2 text-xs font-bold text-emerald-900 cursor-pointer">
                 <input type="checkbox" id="invRemoveWhiteBg" checked class="h-4 w-4">
-                <span>Hapus latar putih otomatis (objek melayang menyatu dengan latar biru)</span>
+                <span>Hapus latar putih otomatis (cek pratinjau di bawah sebelum simpan)</span>
               </label>
-              <label class="flex items-center gap-2 text-xs font-bold text-blue-900 cursor-pointer">
-                <input type="checkbox" id="invPosterTouch" checked class="h-4 w-4">
-                <span>Tambahkan sentuhan grafis (lampu stadion, zoom detail &amp; 3 lencana keunggulan)</span>
-              </label>
-              <div class="grid grid-cols-2 gap-3 pt-1">
-                <label class="text-[11px] font-bold text-slate-700">Potong logo/teks atas: <span id="invCropTopVal">0%</span>
-                  <input type="range" id="invCropTop" min="0" max="35" value="0" class="w-full accent-blue-700">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <label class="text-[11px] font-bold text-slate-700">Potong area atas (logo/teks): <span id="invCropTopVal">0%</span>
+                  <input type="range" id="invCropTop" min="0" max="35" value="0" class="w-full accent-slate-800">
                 </label>
-                <label class="text-[11px] font-bold text-slate-700">Potong teks bawah: <span id="invCropBottomVal">0%</span>
-                  <input type="range" id="invCropBottom" min="0" max="35" value="0" class="w-full accent-blue-700">
+                <label class="text-[11px] font-bold text-slate-700">Potong area bawah (teks): <span id="invCropBottomVal">0%</span>
+                  <input type="range" id="invCropBottom" min="0" max="35" value="0" class="w-full accent-slate-800">
                 </label>
               </div>
-              <p class="text-xs text-slate-600">Foto HP/polos otomatis dibingkai seragam 1:1 (800×800) persis template Voli Mikasa / Sepak Bola Anak.</p>
               <p id="canvasBlockWarn" class="hidden rounded-xl bg-amber-100 border border-amber-300 px-3 py-2 text-xs font-bold text-amber-950">Browser ini (Firefox) sedang memblokir ekspor kanvas sehingga poster/kompresi bisa menjadi putih. Izinkan <em>Extract canvas data</em> di ikon kiri bilah alamat Firefox, atau gunakan Chrome/Edge/Lenovo Pad. Foto asli tetap aman diunggah.</p>
-              <div id="invImagePreviewWrap" class="hidden mt-2 flex items-center gap-3">
+              <div id="invImagePreviewWrap" class="hidden mt-2 rounded-xl bg-white border border-slate-200 p-2.5 flex items-center gap-3">
                 <canvas id="invPosterPreviewCanvas" width="800" height="800" class="hidden w-28 h-28 bg-white rounded-xl border border-slate-200 shadow-sm shrink-0"></canvas>
-                <img id="invImagePreview" alt="Pratinjau foto produk" class="w-36 h-[108px] object-contain bg-white rounded-xl border border-slate-200 shadow-sm shrink-0">
-                <span id="invImagePreviewLabel" class="text-xs font-bold text-sky-900"></span>
+                <img id="invImagePreview" alt="Pratinjau foto produk" class="w-28 h-28 object-contain bg-white rounded-xl border border-slate-200 shadow-sm shrink-0">
+                <div class="min-w-0 space-y-1">
+                  <span id="invImagePreviewLabel" class="block text-xs font-bold text-slate-900"></span>
+                  <p id="invImagePreviewHint" class="text-[11px] text-slate-500">Geser slider potong atau centang opsi di atas untuk melihat hasil langsung sebelum disimpan.</p>
+                </div>
               </div>
             </div>
-            <div class="sm:col-span-6"><label for="invSize" class="block text-sm font-bold mb-1.5">Ukuran (jika ada)</label><input type="text" id="invSize" maxlength="40" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl"></div>
-            <div class="sm:col-span-6"><label for="invColor" class="block text-sm font-bold mb-1.5">Warna (jika ada)</label><input type="text" id="invColor" maxlength="60" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl"></div>
-            <div class="sm:col-span-4"><label for="invStock" class="block text-sm font-bold mb-1.5">Stok awal (Pcs) <span class="text-rose-600">*</span></label><input type="number" min="0" step="1" inputmode="numeric" id="invStock" placeholder="10" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl font-extrabold"></div>
-            <div class="sm:col-span-4"><label for="invCost" class="block text-sm font-bold mb-1.5">Harga modal (Rp)</label><input type="number" min="0" step="1" inputmode="numeric" id="invCost" placeholder="180000" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl font-bold"></div>
-            <div class="sm:col-span-4"><label for="invPrice" class="block text-sm font-bold mb-1.5">Harga jual (Rp) <span class="text-rose-600">*</span></label><input type="number" min="0" step="1" inputmode="numeric" id="invPrice" placeholder="235000" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl font-extrabold"></div>
+            <div class="sm:col-span-6">
+              <label for="invSize" class="block text-sm font-bold mb-1.5">Ukuran (jika ada)</label>
+              <input type="text" id="invSize" list="invSizeOptions" maxlength="40" placeholder="Pilih atau ketik (mis. 24 lbs, 41, L)" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl">
+            </div>
+            <div class="sm:col-span-6">
+              <label for="invColor" class="block text-sm font-bold mb-1.5">Warna (jika ada)</label>
+              <input type="text" id="invColor" list="invColorOptions" maxlength="60" placeholder="Pilih atau ketik (mis. Hitam, Biru)" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl">
+            </div>
+            <div class="sm:col-span-4">
+              <label for="invStock" class="block text-sm font-bold mb-1.5">Stok awal (Pcs) <span class="text-rose-600">*</span></label>
+              <input type="number" min="0" step="1" inputmode="numeric" id="invStock" placeholder="0" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl font-extrabold tabular-nums">
+              <p class="text-[11px] text-slate-500 mt-1">Isi 0 jika belum ada stok</p>
+            </div>
+            <div class="sm:col-span-4">
+              <label for="invCost" class="block text-sm font-bold mb-1.5">Harga modal (Rp)</label>
+              <input type="text" inputmode="numeric" autocomplete="off" id="invCost" placeholder="180.000" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl font-bold tabular-nums">
+              <p class="text-[11px] text-slate-500 mt-1">Hanya untuk pembukuan, tidak tampil ke pelanggan</p>
+            </div>
+            <div class="sm:col-span-4">
+              <label for="invPrice" class="block text-sm font-bold mb-1.5">Harga jual (Rp) <span class="text-rose-600">*</span></label>
+              <input type="text" inputmode="numeric" autocomplete="off" id="invPrice" placeholder="235.000" class="w-full px-3.5 py-2.5 border border-slate-300 rounded-xl font-extrabold tabular-nums">
+            </div>
+            <div id="invProfitPreview" class="sm:col-span-12 hidden rounded-xl border px-3.5 py-2 text-xs font-bold"></div>
+            <div id="invVariantsSection" class="sm:col-span-12 rounded-2xl border border-slate-200 bg-slate-50/70 p-3.5 space-y-2.5">
+              <div class="flex items-center justify-between gap-2">
+                <div>
+                  <span class="text-xs font-extrabold text-slate-800">Varian Tambahan (opsional)</span>
+                  <p class="text-[11px] text-slate-500">Tambah ukuran/warna lain sekaligus (otomatis dibuatkan kode QR &amp; stok masing-masing).</p>
+                </div>
+                <button type="button" id="btnAddInvVariant" class="shrink-0 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-xs font-bold text-slate-800">+ Tambah Varian</button>
+              </div>
+              <div id="invVariantsList" class="space-y-2"></div>
+            </div>
           </div>
           <div class="flex flex-wrap items-center justify-end gap-3 pt-3 border-t border-slate-100">
             <button type="button" id="btnCancelInvEdit" class="hidden shop-button shop-button-secondary">Batal ubah</button>
@@ -4102,6 +4143,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261126-20"></script>
+  <script type="module" src="./admin.js?v=20261126-21"></script>
 </body>
 </html>
