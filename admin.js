@@ -648,7 +648,7 @@
     }
 
     async function generateAiPosterBlob(itemMeta, sourceFileOrUrl = null) {
-      const apiKey = (geminiApiKey || document.getElementById("geminiApiKeyInput")?.value || "").trim();
+      const apiKey = String(geminiApiKey || "").trim();
       if (!apiKey) {
         throw new Error("Gemini API Key belum diatur. Buka 'Seragamkan poster' lalu simpan API Key Anda.");
       }
@@ -1243,9 +1243,7 @@
     function updateCashCalcUI() {
       const panel = document.getElementById("posCashCalcPanel");
       if (!panel) return;
-      const isCash = selectedPaymentMethod === "Cash";
-      panel.hidden = !isCash;
-      if (!isCash) return;
+      panel.hidden = false;
       const recEl = document.getElementById("posCashReceivedText");
       const chgEl = document.getElementById("posCashChangeText");
       const lblEl = document.getElementById("posCashChangeLabel");
@@ -3916,24 +3914,26 @@
       if (cashCard) {
         const monthSales = transactions.filter(t => String(t.date || "").startsWith(month + "-"));
         const cashIn = monthSales.filter(t => (t.paymentMethod || "Cash") === "Cash").reduce((s, t) => s + Number(t.totalOmset || 0), 0);
-        const nonCashIn = revenue - cashIn;
-        const monthRestockTotal = purchases.filter(p => String(p.date || "").startsWith(month + "-")).reduce((s, p) => s + Number(p.totalCost || 0), 0);
-        const surplusBeforeDeposit = revenue - spending - monthRestockTotal;
-        const netCashFlow = surplusBeforeDeposit - bankDepositTotal;
+        const nonCashIn = Math.max(0, revenue - cashIn);
+        const monthExpAll = books.expenses.filter(e => String(e.date || "").startsWith(month + "-"));
+        const cashExp = monthExpAll.filter(e => (e.method || "Cash") === "Cash" && !isNonExpenseTransfer(e)).reduce((s, e) => s + Number(e.amount || 0), 0);
+        const cashDeposits = monthExpAll.filter(e => (e.method || "Cash") === "Cash" && isNonExpenseTransfer(e)).reduce((s, e) => s + Number(e.amount || 0), 0);
+        const cashRestock = purchases.filter(p => String(p.date || "").startsWith(month + "-") && (p.method || p.paymentMethod || "Cash") === "Cash").reduce((s, p) => s + Number(p.totalCost || 0), 0);
+        const netPhysicalCash = cashIn - cashExp - cashRestock - cashDeposits;
         const sortedClosings = (books.cashClosings || []).slice().sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
         const monthClosings = sortedClosings.filter(c => String(c.date || "").startsWith(month + "-"));
         const latestClosing = monthClosings[0] || sortedClosings[0] || null;
-        const closingVal = latestClosing ? Number(latestClosing.actualCash || 0) : 0;
-        const closingInfo = (latestClosing ? `Tutup kas ${latestClosing.date}` : "Belum ada catatan tutup kas") + (bankDepositTotal > 0 ? ` · Setor Bank/ATM: ${rp(bankDepositTotal)}` : "");
+        const closingVal = latestClosing ? Number(latestClosing.counted ?? latestClosing.actualCash ?? 0) : 0;
+        const closingInfo = latestClosing ? `Tutup kas ${latestClosing.date}` : "Belum ada catatan tutup kas";
         cashCard.innerHTML = `
           <div class="flex flex-wrap items-center justify-between gap-2">
-            <h4 class="text-xs font-extrabold uppercase tracking-wider text-blue-950"><i class="fa-solid fa-vault text-blue-700 mr-1.5" aria-hidden="true"></i>Kas &amp; Saldo Akhir (${esc(month)})</h4>
-            <span class="text-[11px] font-bold text-slate-600">${esc(closingInfo)}</span>
+            <h4 class="text-xs font-extrabold uppercase tracking-wider text-blue-950"><i class="fa-solid fa-vault text-blue-700 mr-1.5" aria-hidden="true"></i>Kas Tunai Laci &amp; Saldo Non-Tunai (${esc(month)})</h4>
+            <span class="text-[11px] font-bold text-slate-600">${esc(closingInfo)}${cashDeposits > 0 ? ` · Setor Bank/ATM Tunai: ${rp(cashDeposits)}` : ""}</span>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
-            <div class="rounded-xl bg-white border border-blue-100 p-3"><span class="text-[11px] font-bold text-slate-500">Kas Masuk Tunai</span><strong class="block text-base font-extrabold text-slate-900 mt-0.5 tabular-nums">${rp(cashIn)}</strong><span class="text-[10px] font-semibold text-slate-500">Non-tunai: ${rp(nonCashIn)}</span></div>
-            <div class="rounded-xl bg-white border border-blue-100 p-3"><span class="text-[11px] font-bold text-slate-500">Total Uang Keluar</span><strong class="block text-base font-extrabold text-rose-700 mt-0.5 tabular-nums">${rp(spending + monthRestockTotal)}</strong><span class="text-[10px] font-semibold text-slate-500">Biaya ${shortRpTick(spending)} + Restok ${shortRpTick(monthRestockTotal)}</span></div>
-            <div class="rounded-xl bg-white border border-blue-100 p-3"><span class="text-[11px] font-bold text-slate-500">Arus Kas Bersih Bulan Ini</span><strong class="block text-base font-extrabold ${netCashFlow < 0 ? "text-rose-700" : "text-emerald-700"} mt-0.5 tabular-nums">${rp(netCashFlow)}</strong><span class="text-[10px] font-semibold text-slate-500">${bankDepositTotal > 0 ? `Setelah setor/prive ${shortRpTick(bankDepositTotal)} (surplus sblm setor ${shortRpTick(surplusBeforeDeposit)})` : "Omzet &minus; Biaya &minus; Restok"}</span></div>
+            <div class="rounded-xl bg-white border border-blue-100 p-3"><span class="text-[11px] font-bold text-slate-500">Kas Masuk Tunai</span><strong class="block text-base font-extrabold text-slate-900 mt-0.5 tabular-nums">${rp(cashIn)}</strong><span class="text-[10px] font-semibold text-slate-500">Keluar laci: ${shortRpTick(cashExp + cashRestock + cashDeposits)}</span></div>
+            <div class="rounded-xl bg-white border border-sky-200 p-3"><span class="text-[11px] font-bold text-sky-800">Saldo Non-Tunai (Rek/QRIS)</span><strong class="block text-base font-extrabold text-sky-900 mt-0.5 tabular-nums">${rp(nonCashIn)}</strong><span class="text-[10px] font-semibold text-slate-500">QRIS + Transfer + Kartu</span></div>
+            <div class="rounded-xl bg-white border border-blue-100 p-3"><span class="text-[11px] font-bold text-slate-500">Arus Kas Tunai Laci</span><strong class="block text-base font-extrabold ${netPhysicalCash < 0 ? "text-rose-700" : "text-emerald-700"} mt-0.5 tabular-nums">${rp(netPhysicalCash)}</strong><span class="text-[10px] font-semibold text-slate-500">Tunai &minus; Biaya(${shortRpTick(cashExp)}) &minus; Restok(${shortRpTick(cashRestock)}) &minus; Setor(${shortRpTick(cashDeposits)})</span></div>
             <div class="rounded-xl bg-white border border-emerald-200 p-3"><span class="text-[11px] font-bold text-emerald-800">Saldo Akhir Kas Fisik</span><strong class="block text-base font-extrabold text-emerald-900 mt-0.5 tabular-nums">${rp(closingVal)}</strong><span class="text-[10px] font-semibold text-slate-500">${esc(closingInfo)}</span></div>
           </div>`;
       }
@@ -4058,11 +4058,14 @@
     function cashSnapshot(form) {
       const fd = new FormData(form);
       const date = fd.get("date");
-      const sales = transactions.filter(r => r.date === date && r.paymentMethod === "Cash").reduce((s, r) => s + Number(r.totalOmset || 0), 0);
-      const expenses = books.expenses.filter(r => r.date === date && r.method === "Cash").reduce((s, r) => s + Number(r.amount || 0), 0);
-      const opening = Number(fd.get("opening")), cashIn = Number(fd.get("cashIn")), cashOut = Number(fd.get("cashOut")), counted = Number(fd.get("counted"));
-      const expected = opening + sales + cashIn - expenses - cashOut;
-      return { date, opening, sales, expenses, cashIn, cashOut, counted, expected, difference: counted - expected };
+      const sales = transactions.filter(r => r.date === date && (r.paymentMethod || "Cash") === "Cash").reduce((s, r) => s + Number(r.totalOmset || 0), 0);
+      const dayCashExpAll = books.expenses.filter(r => r.date === date && (r.method || "Cash") === "Cash");
+      const expenses = dayCashExpAll.filter(r => !isNonExpenseTransfer(r)).reduce((s, r) => s + Number(r.amount || 0), 0);
+      const transfers = dayCashExpAll.filter(r => isNonExpenseTransfer(r)).reduce((s, r) => s + Number(r.amount || 0), 0);
+      const cashPurchases = purchases.filter(p => p.date === date && (p.method || p.paymentMethod || "Cash") === "Cash").reduce((s, p) => s + Number(p.totalCost || 0), 0);
+      const opening = Number(fd.get("opening") || 0), cashIn = Number(fd.get("cashIn") || 0), cashOut = Number(fd.get("cashOut") || 0), counted = Number(fd.get("counted") || 0);
+      const expected = opening + sales + cashIn - expenses - cashPurchases - transfers - cashOut;
+      return { date, opening, sales, expenses, cashPurchases, transfers, cashIn, cashOut, counted, expected, difference: counted - expected };
     }
     function renderCashClosing() {
       const form = document.getElementById("cashClosingForm");
@@ -4701,8 +4704,6 @@
       }
       renderBookLockButton();
       if (isAdmin) renderOwnerBooks();
-      const keyInput = document.getElementById("geminiApiKeyInput");
-      if (keyInput && !keyInput.value) keyInput.value = geminiApiKey;
       const keyBadge = document.getElementById("geminiKeyStatus");
       if (keyBadge) keyBadge.textContent = geminiApiKey ? "API Key tersimpan (siap pakai)" : "Belum diatur";
     }
@@ -5111,7 +5112,8 @@
       document.getElementById("posCashReceivedInput")?.addEventListener("input", e => {
         const val = Math.max(0, Math.round(Number(e.target.value) || 0));
         cashReceivedAmount = Number.isSafeInteger(val) ? val : 0;
-        updateCashCalcUI();
+        if (!selectedPaymentMethod && cashReceivedAmount > 0) selectSalePayment("Cash");
+        else updateCashCalcUI();
       });
       document.getElementById("btnResetForm").addEventListener("click", resetSaleDraft);
       document.getElementById("btnHoldSale")?.addEventListener("click", holdCurrentSale);
@@ -5262,6 +5264,9 @@
         e.currentTarget.textContent = willOpen ? "Tutup Numpad" : "Buka Numpad";
       });
       document.getElementById("posCashCalcPanel")?.addEventListener("click", e => {
+        if (!selectedPaymentMethod && e.target.closest("[data-cash-exact], [data-cash-add], [data-numpad]")) {
+          selectSalePayment("Cash");
+        }
         const exactBtn = e.target.closest("[data-cash-exact]");
         if (exactBtn) {
           cashReceivedAmount = currentSaleTotalAmount;
@@ -5507,7 +5512,7 @@
       document.getElementById("invCropBottom").addEventListener("input", retriggerPreview);
       document.getElementById("btnSaveGeminiKey")?.addEventListener("click", async () => {
         if (!isAdmin) return;
-        const val = document.getElementById("geminiApiKeyInput").value.trim();
+        const val = String(document.getElementById("geminiApiKeyInput")?.value || "").trim();
         if (!val) return showToast("Tempel Gemini API Key terlebih dahulu.");
         geminiApiKey = val;
         const ok = await saveConfig({ geminiApiKey: val });
