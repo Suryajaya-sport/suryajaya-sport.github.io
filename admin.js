@@ -750,15 +750,24 @@
       const name = document.getElementById("invName").value.trim();
       let code = document.getElementById("invCode").value.trim();
       const stockRaw = document.getElementById("invStock").value.trim();
-      const stock = stockRaw === "" ? 0 : Number(stockRaw);
+      const stock = stockRaw === "" ? NaN : Number(stockRaw);
       const cost = parseIdrNum(document.getElementById("invCost").value);
       const price = parseIdrNum(document.getElementById("invPrice").value);
       const description = document.getElementById("invDescription").value.trim();
       const imageFile = document.getElementById("invImageFile").files?.[0] || null;
 
-      if (!name) return showToast("Nama barang wajib diisi.");
-      if (!Number.isSafeInteger(stock) || stock < 0) return showToast("Stok harus bilangan bulat, minimal 0.");
-      if (!(price > 0)) return showToast("Harga jual wajib diisi.");
+      const errName = !name;
+      const errStock = stockRaw === "" || !Number.isSafeInteger(stock) || stock < 0;
+      const errPrice = !(price > 0);
+      setInvFieldError("invName", "invErrName", errName);
+      setInvFieldError("invStock", "invErrStock", errStock);
+      setInvFieldError("invPrice", "invErrPrice", errPrice);
+      if (errName || errStock || errPrice) {
+        const firstId = errName ? "invName" : errStock ? "invStock" : "invPrice";
+        const el = document.getElementById(firstId);
+        if (el) { el.scrollIntoView({ behavior: "smooth", block: "center" }); el.focus(); }
+        return showToast("Lengkapi kolom wajib yang bertanda merah.");
+      }
       if (!code) code = nextAutoCode();
       if (inventory.some(i => i.id !== editId && String(i.code || "").trim().toLowerCase() === code.toLowerCase())) return showToast("Kode barang sudah dipakai barang lain.");
       if (description.length > 400) return showToast("Deskripsi maksimal 400 karakter.");
@@ -813,17 +822,16 @@
           const vRows = [...document.querySelectorAll("#invVariantsList .inv-variant-row")];
           const usedCodes = new Set(inventory.map(i => String(i.code || "").trim().toLowerCase()));
           usedCodes.add(code.toLowerCase());
-          const allocCode = () => {
-            let n = Math.max(
-              ...([...usedCodes].map(c => /^sjs-(\d+)$/i.exec(c)?.[1]).filter(Boolean).map(Number)),
-              0
-            ) + 1;
-            let cand = "SJS-" + String(n).padStart(3, "0");
-            while (usedCodes.has(cand.toLowerCase())) { n++; cand = "SJS-" + String(n).padStart(3, "0"); }
+          const allocCode = (idx) => {
+            const suffix = idx < 26 ? String.fromCharCode(65 + idx) : String(idx + 1);
+            let cand = `${code}-${suffix}`;
+            let seq = 2;
+            while (usedCodes.has(cand.toLowerCase())) { cand = `${code}-${suffix}${seq++}`; }
             usedCodes.add(cand.toLowerCase());
             return cand;
           };
-          for (const vr of vRows) {
+          for (let vi = 0; vi < vRows.length; vi++) {
+            const vr = vRows[vi];
             const vSize = vr.querySelector(".var-size")?.value.trim() || "";
             const vColor = vr.querySelector(".var-color")?.value.trim() || "";
             if (!vSize && !vColor) continue;
@@ -831,7 +839,7 @@
             const vPrice = parseIdrNum(vr.querySelector(".var-price")?.value) || price;
             const vId = doc(collection(db, ...paths("inventory"))).id;
             const vData = {
-              code: allocCode(),
+              code: allocCode(vi),
               name,
               size: vSize,
               color: vColor,
@@ -883,24 +891,16 @@
       const nums = inventory.map(i => /^SJS-(\d+)$/i.exec(String(i.code || "").trim())?.[1]).filter(Boolean).map(Number);
       return "SJS-" + String((nums.length ? Math.max(...nums) : 0) + 1).padStart(3, "0");
     }
-    function updateInvQrPreview() {
-      const box = document.getElementById("invCodeQrPreview");
-      const code = document.getElementById("invCode")?.value.trim() || nextAutoCode();
-      const hintEl = document.getElementById("invAutoCodeHint");
-      const txtEl = document.getElementById("invQrCodeText");
-      if (hintEl) hintEl.textContent = nextAutoCode();
-      if (txtEl) txtEl.textContent = code;
-      if (!box) return;
-      try {
-        box.innerHTML = SjsQR.toSvg(code, 60, 1);
-        box.title = "Pratinjau QR: " + code;
-      } catch {
-        box.innerHTML = "";
+    function setInvFieldError(inputId, errId, isErr) {
+      const inp = document.getElementById(inputId);
+      const err = document.getElementById(errId);
+      if (inp) {
+        inp.classList.toggle("border-red-500", isErr);
+        inp.classList.toggle("bg-red-50", isErr);
       }
+      if (err) err.classList.toggle("hidden", !isErr);
     }
-    function downloadInvQrPng() {
-      const code = document.getElementById("invCode")?.value.trim() || nextAutoCode();
-      const name = document.getElementById("invName")?.value.trim() || "Barang";
+    function downloadQrCodePng(code, labelName) {
       const c = document.createElement("canvas");
       c.width = 360; c.height = 420;
       const ctx = c.getContext("2d");
@@ -912,11 +912,43 @@
       ctx.font = "bold 24px ui-monospace, monospace";
       ctx.fillText(code, 180, 344);
       ctx.font = "600 18px sans-serif";
-      ctx.fillText(name.slice(0, 28), 180, 378);
+      ctx.fillText(String(labelName || "Barang").slice(0, 28), 180, 378);
       const a = document.createElement("a");
       a.href = c.toDataURL("image/png");
       a.download = `qr-${code}.png`;
       a.click();
+    }
+    function updateInvVariantCodes() {
+      const base = document.getElementById("invCode")?.value.trim() || nextAutoCode();
+      const rows = [...document.querySelectorAll("#invVariantsList .inv-variant-row")];
+      rows.forEach((row, idx) => {
+        const suffix = idx < 26 ? String.fromCharCode(65 + idx) : String(idx + 1);
+        const vCode = `${base}-${suffix}`;
+        row.dataset.varCode = vCode;
+        const badge = row.querySelector(".var-code-badge");
+        if (badge) badge.textContent = vCode;
+      });
+    }
+    function updateInvQrPreview() {
+      const box = document.getElementById("invCodeQrPreview");
+      const code = document.getElementById("invCode")?.value.trim() || nextAutoCode();
+      const hintEl = document.getElementById("invAutoCodeHint");
+      const txtEl = document.getElementById("invQrCodeText");
+      if (hintEl) hintEl.textContent = nextAutoCode();
+      if (txtEl) txtEl.textContent = code;
+      updateInvVariantCodes();
+      if (!box) return;
+      try {
+        box.innerHTML = SjsQR.toSvg(code, 60, 1);
+        box.title = "Pratinjau QR: " + code;
+      } catch {
+        box.innerHTML = "";
+      }
+    }
+    function downloadInvQrPng() {
+      const code = document.getElementById("invCode")?.value.trim() || nextAutoCode();
+      const name = document.getElementById("invName")?.value.trim() || "Barang";
+      downloadQrCodePng(code, name);
     }
     function updateInvProfitPreview() {
       const el = document.getElementById("invProfitPreview");
@@ -924,18 +956,18 @@
       const cost = parseIdrNum(document.getElementById("invCost")?.value);
       const price = parseIdrNum(document.getElementById("invPrice")?.value);
       if (!(price > 0) || cost <= 0) {
-        el.className = "sm:col-span-12 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-600";
+        el.className = "rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-600";
         el.textContent = price > 0 ? "Laba per unit: — (isi harga modal untuk menghitung laba & margin)" : "Laba per unit: — (isi harga modal & harga jual)";
         return;
       }
       const profit = price - cost;
-      const margin = (profit / price) * 100;
+      const pct = Math.round((profit / price) * 100);
       if (profit < 0) {
-        el.className = "sm:col-span-12 rounded-xl border border-red-300 bg-red-50 px-3.5 py-2 text-xs font-bold text-red-700";
-        el.textContent = `⚠ Rugi per unit: ${rp(Math.abs(profit))} (${margin.toFixed(1)}%) — Harga modal lebih besar dari harga jual.`;
+        el.className = "rounded-xl border border-red-300 bg-red-50 px-3.5 py-2 text-xs font-bold text-red-700";
+        el.textContent = `⚠ Harga jual lebih rendah dari modal (rugi ${rp(Math.abs(profit))}/unit)`;
       } else {
-        el.className = "sm:col-span-12 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2 text-xs font-bold text-emerald-800";
-        el.textContent = `✓ Laba per unit: ${rp(profit)} (${margin.toFixed(1)}%)`;
+        el.className = "rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2 text-xs font-bold text-emerald-800";
+        el.textContent = `✓ Laba per unit: ${rp(profit)} (${pct}%)`;
       }
     }
     function updateInvVariantSummary() {
@@ -968,18 +1000,37 @@
       const list = document.getElementById("invVariantsList");
       if (!list) return;
       const row = document.createElement("div");
-      row.className = "inv-variant-row grid grid-cols-12 gap-2 items-center bg-white p-2 rounded-xl border border-slate-200";
+      row.className = "inv-variant-row rounded-xl border border-slate-200 bg-slate-50/70 p-2.5 space-y-2";
       row.innerHTML = `
-        <input type="text" list="invSizeOptions" maxlength="40" placeholder="Ukuran" class="var-size col-span-4 px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold">
-        <input type="text" list="invColorOptions" maxlength="60" placeholder="Warna" class="var-color col-span-3 px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold">
-        <input type="number" min="0" step="1" inputmode="numeric" value="0" placeholder="Stok" class="var-stock col-span-2 px-2 py-1.5 border border-slate-300 rounded-lg text-xs font-bold text-center tabular-nums">
-        <input type="text" inputmode="numeric" autocomplete="off" placeholder="Harga (ops.)" class="var-price col-span-2 px-2 py-1.5 border border-slate-300 rounded-lg text-xs font-bold tabular-nums">
-        <button type="button" class="btn-rm-var col-span-1 h-8 rounded-lg bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 font-extrabold text-sm" title="Kurangi / hapus varian">−</button>
+        <div class="flex items-center justify-between gap-2">
+          <span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-700">
+            <i class="fa-solid fa-qrcode text-slate-500" aria-hidden="true"></i>
+            <span>QR:</span>
+            <strong class="var-code-badge px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-900 font-extrabold tabular-nums"></strong>
+          </span>
+          <div class="flex items-center gap-1.5">
+            <button type="button" class="btn-var-qr px-2 py-1 rounded-lg bg-white hover:bg-slate-100 border border-slate-300 text-[11px] font-bold text-slate-700"><i class="fa-solid fa-download mr-1" aria-hidden="true"></i>Unduh QR</button>
+            <button type="button" class="btn-rm-var px-2 py-1 rounded-lg bg-red-50 hover:bg-red-100 border border-red-200 text-[11px] font-bold text-red-600" title="Hapus varian">− Hapus</button>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-12 gap-2">
+          <input type="text" list="invSizeOptions" maxlength="40" placeholder="Ukuran" class="var-size sm:col-span-3 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-semibold">
+          <input type="text" list="invColorOptions" maxlength="60" placeholder="Warna" class="var-color sm:col-span-3 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-semibold">
+          <input type="number" min="0" step="1" inputmode="numeric" value="0" placeholder="Stok" class="var-stock sm:col-span-2 px-2 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-bold text-center tabular-nums">
+          <input type="text" inputmode="numeric" autocomplete="off" placeholder="Harga" class="var-price sm:col-span-4 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-bold tabular-nums">
+        </div>
       `;
       row.querySelector(".var-price")?.addEventListener("input", e => { e.target.value = fmtIdrInput(e.target.value); });
       row.querySelector(".var-stock")?.addEventListener("input", updateInvVariantSummary);
-      row.querySelector(".btn-rm-var")?.addEventListener("click", () => { row.remove(); updateInvVariantSummary(); });
+      row.querySelector(".btn-var-qr")?.addEventListener("click", () => {
+        const vCode = row.dataset.varCode || "SJS-VAR";
+        const baseName = document.getElementById("invName")?.value.trim() || "Barang";
+        const spec = [row.querySelector(".var-size")?.value.trim(), row.querySelector(".var-color")?.value.trim()].filter(Boolean).join(" ");
+        downloadQrCodePng(vCode, spec ? `${baseName} (${spec})` : baseName);
+      });
+      row.querySelector(".btn-rm-var")?.addEventListener("click", () => { row.remove(); updateInvVariantCodes(); updateInvVariantSummary(); });
       list.appendChild(row);
+      updateInvVariantCodes();
       updateInvVariantSummary();
     }
     function setInvImagePreview(srcUrl, labelText) {
@@ -1011,6 +1062,9 @@
       const vList = document.getElementById("invVariantsList");
       if (vList) vList.innerHTML = "";
       refreshInvOptionDatalists();
+      setInvFieldError("invName", "invErrName", false);
+      setInvFieldError("invStock", "invErrStock", false);
+      setInvFieldError("invPrice", "invErrPrice", false);
       updateInvQrPreview();
       updateInvProfitPreview();
       updateInvVariantSummary();
@@ -6200,9 +6254,10 @@
         else setInvImagePreview("", "");
       });
       document.getElementById("invCode")?.addEventListener("input", updateInvQrPreview);
-      document.getElementById("invStock")?.addEventListener("input", updateInvVariantSummary);
+      document.getElementById("invName")?.addEventListener("input", e => { if (e.target.value.trim()) setInvFieldError("invName", "invErrName", false); });
+      document.getElementById("invStock")?.addEventListener("input", e => { if (e.target.value.trim() !== "") setInvFieldError("invStock", "invErrStock", false); updateInvVariantSummary(); });
       document.getElementById("invCost")?.addEventListener("input", e => { e.target.value = fmtIdrInput(e.target.value); updateInvProfitPreview(); });
-      document.getElementById("invPrice")?.addEventListener("input", e => { e.target.value = fmtIdrInput(e.target.value); updateInvProfitPreview(); });
+      document.getElementById("invPrice")?.addEventListener("input", e => { e.target.value = fmtIdrInput(e.target.value); if (parseIdrNum(e.target.value) > 0) setInvFieldError("invPrice", "invErrPrice", false); updateInvProfitPreview(); });
       document.getElementById("btnAddInvVariant")?.addEventListener("click", addInvVariantRow);
       document.getElementById("btnInvDownloadQr")?.addEventListener("click", downloadInvQrPng);
       document.getElementById("btnInvPrintQr")?.addEventListener("click", () => {
