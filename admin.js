@@ -1276,7 +1276,7 @@
             <div class="flex-1 space-y-1 min-w-0">
               <p class="item-inline-err f-warn hidden"></p>
               <p class="item-cost-warn f-warn hidden">⚠ Modal lebih besar dari harga jual. Cek lagi, mungkin salah ketik.</p>
-              <p class="item-free-stock-note f-info" ${prefill?.id ? "hidden" : ""}>Barang bebas tidak mengurangi stok gudang.</p>
+              <p class="item-free-stock-note f-info" ${prefill?.id ? "hidden" : ""}>Barang manual tidak mengurangi stok gudang.</p>
             </div>
             <button type="button" class="btn-close-row-edit btn-done !min-h-[42px] !px-5 shrink-0">✓ Tambah ke Keranjang</button>
           </div>
@@ -5811,7 +5811,7 @@
           return hay.includes(q);
         }).sort((a, b) => (Number(b.stock || 0) > 0) - (Number(a.stock || 0) > 0) || String(a.name || "").localeCompare(String(b.name || ""), "id")).slice(0, 8);
         if (!matches.length) {
-          instantDrop.innerHTML = `<div class="px-3.5 py-3 text-xs font-semibold text-slate-500">Barang tidak ditemukan. Klik "Barang Bebas" untuk input manual.</div>`;
+          instantDrop.innerHTML = `<div class="px-3.5 py-3 text-xs font-semibold text-slate-500">Barang tidak ditemukan. Klik "Barang Manual" untuk input manual.</div>`;
           instantDrop.classList.remove("hidden");
           return;
         }
