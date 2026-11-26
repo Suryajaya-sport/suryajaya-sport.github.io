@@ -1031,11 +1031,14 @@
             <div class="sale-entry-thumbnail shrink-0 ${prefill?.id ? "w-9 h-9" : "hidden"}">${prefill?.id ? productImageMarkup(prefill, "h-9 w-9 rounded-lg border border-slate-200", 120, true) : ""}</div>
             <input type="text" id="${key}" list="inventoryDatalist" autocomplete="off" class="item-name-input min-w-0 flex-1 px-2.5 py-1.5 border border-slate-300 rounded-xl bg-white font-bold !text-sm" placeholder="Pilih stok atau ketik nama barang..." value="${esc(prefillLabel)}">
           </div>
-          <div class="grid grid-cols-2 gap-2 items-end">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 items-end">
             <div>
               <label class="block text-[11px] font-bold text-slate-600 mb-1">Harga jual (Rp)</label>
               <input type="number" min="0" step="1" inputmode="numeric" class="item-price-input w-full px-2.5 py-1.5 border border-slate-300 rounded-xl bg-white font-extrabold !text-sm" placeholder="0" value="${esc(prefill?.price ?? "")}">
-              <input type="hidden" class="item-cost-input" value="${esc(prefill?.cost ?? 0)}">
+            </div>
+            <div class="item-cost-wrap sjs-owner-only-stat" ${prefill?.id ? "hidden" : ""}>
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Modal manual (ops.)</label>
+              <input type="number" min="0" step="1" inputmode="numeric" class="item-cost-input w-full px-2.5 py-1.5 border border-slate-300 rounded-xl bg-white font-bold !text-sm" placeholder="0" value="${esc(prefill?.cost ?? "")}">
             </div>
             <div>
               <label class="block text-[11px] font-bold text-slate-600 mb-1">Jumlah</label>
@@ -1086,6 +1089,8 @@
             nameInput.value = formatItemLabel(match);
             priceInput.value = match.price;
             costInput.value = match.cost || 0;
+          const costWrap = row.querySelector(".item-cost-wrap");
+          if (costWrap) costWrap.hidden = true;
             preview.className = "sale-entry-thumbnail shrink-0 w-9 h-9";
             preview.innerHTML = productImageMarkup(match, "h-9 w-9 rounded-lg border border-slate-200", 120, true);
           }
@@ -1095,7 +1100,9 @@
             preview.innerHTML = "";
             preview.className = "sale-entry-thumbnail shrink-0 hidden";
           }
-          costInput.value = costInput.value || 0;
+          costInput.value = costInput.value || "";
+          const costWrap = row.querySelector(".item-cost-wrap");
+          if (costWrap) costWrap.hidden = false;
         }
         calculateSaleTotals();
       };
@@ -1298,7 +1305,7 @@
         const catKey = detectProductCategoryLabel(it).key;
         const icon = catKey === "badminton" ? "🏸" : catKey === "ball" ? "⚽" : catKey === "chess" ? "♟️" : catKey === "music" ? "🎸" : "🏅";
         const priceTag = shortRpTick(it.price).replace("Rp ", "").replace(" rb", "rb").replace(" jt", "jt");
-        return `<button type="button" data-quick-fav-id="${esc(it.id)}" title="${esc(it.name)} · ${rp(it.price)} (stok ${Number(it.stock || 0)})" class="min-h-[44px] px-3 py-2 rounded-xl bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 shadow-2xs inline-flex items-center gap-1.5 text-xs font-extrabold text-slate-900 transition">
+        return `<button type="button" data-quick-fav-id="${esc(it.id)}" title="${esc(it.name)} · ${rp(it.price)} (stok ${Number(it.stock || 0)})" class="min-h-[44px] px-3.5 py-2 rounded-full bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 shadow-2xs inline-flex items-center gap-1.5 text-xs font-extrabold text-slate-900 transition">
           <span>${icon} ${esc(shortName)}</span>
           <span class="px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[11px] font-extrabold tabular-nums">${esc(priceTag)}</span>
         </button>`;
@@ -1423,7 +1430,7 @@
           <div class="flex items-center gap-1 shrink-0">
             <button type="button" data-pos-reprint="${id}" class="px-2 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 font-extrabold text-[11px]"><i class="fa-solid fa-print mr-1" aria-hidden="true"></i>Nota</button>
             <button type="button" data-pos-wa-rcpt="${id}" class="px-2 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-extrabold text-[11px]"><i class="fa-brands fa-whatsapp mr-1" aria-hidden="true"></i>WA</button>
-            <button type="button" data-pos-void="${id}" title="Batalkan / Retur nota ini" class="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-extrabold text-[11px]">Retur</button>
+            <button type="button" data-pos-void="${id}" title="Hapus / Batalkan transaksi ini (stok otomatis kembali)" class="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-extrabold text-[11px] inline-flex items-center gap-1"><i class="fa-regular fa-trash-can" aria-hidden="true"></i>Hapus</button>
           </div>
         </div>`;
       }).join("");
@@ -1716,7 +1723,14 @@
       return `*STRUK ${shopName.toUpperCase()}*\nNota: ${receiptNumber(tx)}\nTanggal: ${tx.date}\n${lines}${discLine}\n----------------\n*Total: ${rp(tx.totalOmset)}* (${paymentMethodLabel(tx.paymentMethod || "Cash")})${noteLine}\nTerima kasih telah berbelanja di ${shopName}!`;
     }
 
-    async function renderReceiptPngBlob(tx) {
+    function dataUrlToBlob(dataUrl) {
+      const parts = String(dataUrl || "").split(",");
+      const bstr = atob(parts[1] || "");
+      const arr = new Uint8Array(bstr.length);
+      for (let i = 0; i < bstr.length; i++) arr[i] = bstr.charCodeAt(i);
+      return new Blob([arr], { type: "image/png" });
+    }
+    function renderReceiptPngDataUrl(tx) {
       const W = 696, pad = 36, innerW = W - pad * 2;
       const tmp = document.createElement("canvas");
       const tctx = tmp.getContext("2d");
@@ -1840,51 +1854,46 @@
       y += 14;
       centerText("Katalog & stok terbaru: suryajaya-sport.github.io", '17px ui-monospace, "Courier New", monospace', "#64748b");
 
-      return await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+      return canvas.toDataURL("image/png");
     }
 
-    async function downloadReceiptPng(tx) {
-      const blob = await renderReceiptPngBlob(tx);
-      if (!blob) return showToast("Gagal membuat gambar nota.");
+    function downloadReceiptPng(tx) {
+      const dataUrl = renderReceiptPngDataUrl(tx);
+      if (!dataUrl) return showToast("Gagal membuat gambar nota.");
+      const blob = dataUrlToBlob(dataUrl);
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
       a.download = `nota-${receiptNumber(tx)}.png`;
+      document.body.appendChild(a);
       a.click();
+      a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 4000);
       showToast(`Gambar nota ${receiptNumber(tx)} diunduh.`);
     }
 
-    async function sendReceiptImageWhatsApp(tx) {
-      const blob = await renderReceiptPngBlob(tx);
-      if (!blob) return showToast("Gagal membuat gambar nota.");
+    function sendReceiptImageWhatsApp(tx) {
+      const dataUrl = renderReceiptPngDataUrl(tx);
+      if (!dataUrl) return showToast("Gagal membuat gambar nota.");
+      const blob = dataUrlToBlob(dataUrl);
       const fileName = `nota-${receiptNumber(tx)}.png`;
       const file = new File([blob], fileName, { type: "image/png" });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({ files: [file], title: `Nota ${shopName} ${receiptNumber(tx)}` });
-          return;
-        } catch (err) {
-          if (err && err.name === "AbortError") return;
-        }
+        navigator.share({ files: [file], title: `Nota ${shopName} ${receiptNumber(tx)}` }).catch(() => {});
+        return;
       }
-      let copied = false;
+      // Synchronous download + clipboard copy + WhatsApp open (never blocked by Firefox popup blocker)
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 5000);
       if (navigator.clipboard && window.ClipboardItem) {
-        try {
-          await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-          copied = true;
-        } catch {}
-      }
-      if (!copied) {
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = fileName;
-        a.click();
-        setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+        navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]).catch(() => {});
       }
       window.open("https://wa.me/", "_blank", "noopener");
-      showToast(copied
-        ? "Gambar nota disalin! Buka chat WhatsApp lalu tekan Ctrl+V (Tempel) untuk mengirim."
-        : `Gambar ${fileName} diunduh. Lampirkan gambar tersebut di chat WhatsApp.`);
+      showToast(`Gambar ${fileName} diunduh & disalin. Tempel (Ctrl+V) atau lampirkan di WhatsApp!`);
     }
     function showReceiptPreview(tx) {
       lastPreviewedReceiptTx = tx;

@@ -424,50 +424,73 @@
     }
     .pos-exact-numpad .pos-num-btn {
       min-height: 52px !important;
-      border-radius: 12px !important;
+      border-radius: 14px !important;
       border: 1.5px solid #cbd5e1 !important;
+      border-bottom: 4px solid #94a3b8 !important;
       background: #ffffff !important;
       color: #0f172a !important;
-      font-size: 1.2rem !important;
-      font-weight: 800 !important;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, .04) !important;
+      font-size: 1.22rem !important;
+      font-weight: 900 !important;
+      box-shadow: 0 3px 6px rgba(15, 23, 42, .06) !important;
+      transition: transform .08s ease, box-shadow .08s ease, background-color .12s ease !important;
     }
     .pos-exact-numpad .pos-num-btn:hover { background: #f8fafc !important; border-color: #94a3b8 !important; }
+    .pos-exact-numpad .pos-num-btn:active { transform: translateY(2px) scale(.97) !important; border-bottom-width: 2px !important; }
+    .pos-exact-numpad .pos-num-btn[data-numpad="C"] {
+      background: #ffe4e6 !important;
+      border-color: #fda4af !important;
+      border-bottom: 4px solid #e11d48 !important;
+      color: #be123c !important;
+    }
+    .pos-exact-numpad .pos-num-btn[data-numpad="C"]:hover { background: #fecdd3 !important; }
     .pos-exact-numpad .pos-cash-pill {
       min-height: 52px !important;
-      border-radius: 12px !important;
-      border: 1px solid #dbeafe !important;
-      background: #e8f0fe !important;
+      border-radius: 14px !important;
+      border: 1.5px solid #bfdbfe !important;
+      border-bottom: 4px solid #60a5fa !important;
+      background: #eff6ff !important;
       color: #0f2557 !important;
       font-size: .88rem !important;
       font-weight: 800 !important;
-      box-shadow: none !important;
+      box-shadow: 0 3px 6px rgba(29, 78, 216, .08) !important;
+      transition: transform .08s ease, background-color .12s ease !important;
     }
     .pos-exact-numpad .pos-cash-pill:hover { background: #dbeafe !important; }
+    .pos-exact-numpad .pos-cash-pill:active { transform: translateY(2px) scale(.97) !important; border-bottom-width: 2px !important; }
+    .pos-exact-numpad .pos-cash-pill[data-cash-exact] {
+      background: #fef3c7 !important;
+      border-color: #fcd34d !important;
+      border-bottom: 4px solid #d97706 !important;
+      color: #78350f !important;
+      font-weight: 900 !important;
+    }
+    .pos-exact-numpad .pos-cash-pill[data-cash-exact]:hover { background: #fde68a !important; }
     .pos-exact-seg {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      border: 1.5px solid #cbd5e1;
-      border-radius: 12px;
-      overflow: hidden;
-      background: #ffffff;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      background: #f1f5f9;
     }
     body.sjs-admin .pos-exact-seg .pay-option-btn {
       border: none !important;
-      border-right: 1px solid #e2e8f0 !important;
-      border-radius: 0 !important;
-      background: #ffffff !important;
-      color: #1e293b !important;
-      min-height: 42px !important;
+      border-radius: 10px !important;
+      background: transparent !important;
+      color: #334155 !important;
+      min-height: 44px !important;
       padding: .45rem .25rem !important;
       font-size: .84rem !important;
       font-weight: 800 !important;
       box-shadow: none !important;
     }
-    body.sjs-admin .pos-exact-seg .pay-option-btn:last-child { border-right: none !important; }
+    body.sjs-admin .pos-exact-seg .pay-option-btn:hover { background: rgba(255,255,255,.75) !important; color: #0f2557 !important; }
     body.sjs-admin .pos-exact-seg .pay-option-btn[aria-pressed="true"] {
       background: #0f2557 !important;
       color: #ffffff !important;
+      border: none !important;
+      box-shadow: 0 3px 8px rgba(15, 37, 87, .25) !important;
     }
     .pos-exact-fav-pill {
       padding: .35rem .85rem;
@@ -488,23 +511,23 @@
       padding: .75rem 1rem !important;
       text-align: center;
     }
-    #posCashChangeBox.is-change span,
-    #posCashChangeBox.is-change strong { color: #ffffff !important; display: inline !important; font-size: 1.25rem !important; font-weight: 900 !important; letter-spacing: .01em; }
+    #posCashChangeBox.is-change span { color: #d1fae5 !important; display: inline !important; font-size: .95rem !important; font-weight: 800 !important; letter-spacing: .04em; margin-right: .35rem; }
+    #posCashChangeBox.is-change strong { color: #ffffff !important; display: inline !important; font-size: 1.65rem !important; font-weight: 900 !important; letter-spacing: -.01em; }
     #posCashChangeBox.is-short {
       background: #e11d48 !important;
       border: none !important;
-      border-radius: 12px !important;
+      border-radius: 16px !important;
       padding: .75rem 1rem !important;
       text-align: center;
     }
-    #posCashChangeBox.is-short span,
-    #posCashChangeBox.is-short strong { color: #ffffff !important; display: inline !important; font-size: 1.15rem !important; font-weight: 900 !important; }
+    #posCashChangeBox.is-short span { color: #ffe4e6 !important; display: inline !important; font-size: .95rem !important; font-weight: 800 !important; margin-right: .35rem; }
+    #posCashChangeBox.is-short strong { color: #ffffff !important; display: inline !important; font-size: 1.5rem !important; font-weight: 900 !important; }
     .pos-received-frame {
       position: relative;
-      border: 1.5px solid #94a3b8;
-      border-radius: 12px;
-      background: #ffffff;
-      padding: .75rem .75rem .55rem;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 16px;
+      background: #f8fafc;
+      padding: .85rem .85rem .65rem;
       text-align: center;
     }
     .pos-received-legend {
@@ -2305,7 +2328,7 @@
             </div>
 
             <!-- KOLOM KANAN (42%): ALUR VERTIKAL TOTAL BAYAR (NAVY) -> UANG DITERIMA -> KEMBALIAN (HIJAU) -> CARA BAYAR -> NUMPAD -> SIMPAN -->
-            <div class="pos-cart-sticky bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-3">
+            <div class="pos-cart-sticky bg-white rounded-3xl border border-slate-200 shadow-md p-4 space-y-3">
               <!-- 1. TOTAL BAYAR (KARTU KHUSUS NAVY DOMINAN) -->
               <div id="posTotalPayHeroBox" class="text-white shadow-sm !py-3 !px-4">
                 <div class="flex items-center justify-between gap-2">
@@ -3246,6 +3269,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261125-29"></script>
+  <script type="module" src="./admin.js?v=20261125-32"></script>
 </body>
 </html>
