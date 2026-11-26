@@ -994,66 +994,72 @@
 
     function renderSaleRows() {
       const container = document.getElementById("saleItemsContainer");
-      if (!container.children.length) addSaleItemRow();
+      // Keep empty cart clean until user picks an item or clicks + Barang Bebas
       calculateSaleTotals();
     }
 
     function addSaleItemRow(prefill = null) {
       const container = document.getElementById("saleItemsContainer");
       const row = document.createElement("div");
-      row.className = "pos-item-card space-y-2.5";
+      row.className = "py-3 space-y-2.5";
       row.dataset.invId = prefill?.id || "";
       const key = "sale-item-" + ++saleItemRowNumber;
       const prefillLabel = prefill ? (prefill.id ? formatItemLabel(prefill) : String(prefill.name || "")) : "";
+      const isPrefilled = Boolean(prefill && (prefill.id || prefill.name));
       row.innerHTML = `
-        <div class="flex items-center gap-2">
-          <div class="sale-entry-thumbnail shrink-0 ${prefill?.id ? "w-10 h-10" : "hidden"}">${prefill?.id ? productImageMarkup(prefill, "h-10 w-10 rounded-lg border border-slate-200", 120, true) : ""}</div>
-          <input type="text" id="${key}" list="inventoryDatalist" autocomplete="off" class="item-name-input min-w-0 flex-1 px-3 py-2 border border-slate-300 rounded-xl bg-white font-bold !text-sm" placeholder="Pilih stok atau ketik nama barang..." value="${esc(prefillLabel)}">
-          <button type="button" class="btn-remove-row w-9 h-9 shrink-0 rounded-xl text-rose-700 hover:bg-rose-100 inline-flex items-center justify-center" title="Hapus baris" aria-label="Hapus baris"><i class="fa-solid fa-trash text-xs" aria-hidden="true"></i></button>
-        </div>
-        <div class="grid grid-cols-2 gap-2 items-end">
-          <div>
-            <label class="block text-[11px] font-bold text-slate-600 mb-1">Harga jual (Rp)</label>
-            <input type="number" min="0" step="1" inputmode="numeric" class="item-price-input w-full px-2.5 py-2 border border-slate-300 rounded-xl bg-white font-extrabold !text-sm" placeholder="0" value="${esc(prefill?.price ?? "")}">
-            <input type="hidden" class="item-cost-input" value="${esc(prefill?.cost ?? 0)}">
-          </div>
-          <div>
-            <label class="block text-[11px] font-bold text-slate-600 mb-1">Jumlah</label>
-            <div class="flex items-center gap-1">
-              <button type="button" aria-label="Kurangi" class="btn-qty-minus w-7 h-8 shrink-0 rounded-lg bg-slate-200 hover:bg-slate-300 font-extrabold text-sm">−</button>
-              <input type="number" min="1" step="1" inputmode="numeric" value="1" class="item-qty min-w-0 flex-1 px-1 py-1 border border-slate-300 rounded-lg bg-white font-extrabold text-center !text-sm">
-              <button type="button" aria-label="Tambah" class="btn-qty-plus w-7 h-8 shrink-0 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-900 font-extrabold text-sm">+</button>
-            </div>
-            <div class="flex items-center justify-end gap-1 mt-1">
-              <button type="button" data-quick-qty="5" class="btn-quick-qty px-1.5 py-0.5 rounded bg-blue-50 hover:bg-blue-100 border border-blue-200 text-[10px] font-extrabold text-blue-900">+5</button>
-              <button type="button" data-quick-qty="10" class="btn-quick-qty px-1.5 py-0.5 rounded bg-amber-50 hover:bg-amber-100 border border-amber-200 text-[10px] font-extrabold text-amber-900">+10</button>
+        <div class="flex items-center justify-between gap-2.5">
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="item-row-num w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 text-xs font-extrabold flex items-center justify-center shrink-0">1</span>
+            <div class="min-w-0">
+              <p class="item-summary-title font-extrabold text-sm text-slate-900 truncate">${esc(cleanDisplayItemName(prefillLabel || "Barang baru"))}</p>
+              <p class="item-summary-sub text-xs font-semibold text-slate-500">1x @ ${rp(prefill?.price || 0)} · <span class="item-mode-badge font-bold ${prefill?.id ? "text-emerald-700" : "text-amber-700"}">${prefill?.id ? `Stok: ${Number(prefill.stock || 0)}` : "Di luar stok"}</span></p>
             </div>
           </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="item-subtotal font-extrabold text-sm text-slate-950 tabular-nums">${rp(prefill?.price || 0)}</span>
+            <button type="button" class="btn-toggle-row-edit w-8 h-8 rounded-lg hover:bg-blue-50 text-slate-600 hover:text-blue-700 inline-flex items-center justify-center" title="Ubah qty, harga, satuan, atau catatan"><i class="fa-solid fa-pen text-xs" aria-hidden="true"></i></button>
+            <button type="button" class="btn-remove-row w-8 h-8 rounded-lg hover:bg-rose-50 text-slate-500 hover:text-rose-700 inline-flex items-center justify-center" title="Hapus barang"><i class="fa-regular fa-trash-can text-sm" aria-hidden="true"></i></button>
+          </div>
         </div>
-        <div class="flex flex-wrap justify-between items-center gap-2 pt-2 border-t border-slate-200/80 text-[11px]">
-          <div class="flex flex-wrap items-center gap-1.5 min-w-0">
-            <span class="item-mode-badge font-bold ${prefill?.id ? "text-emerald-700" : "text-slate-500"}">${prefill?.id ? `Stok: ${Number(prefill.stock || 0)}` : "Di luar stok"}</span>
-            <select class="item-unit-select px-1.5 py-0.5 rounded-lg border border-slate-200 bg-white text-[11px] font-extrabold text-slate-700" aria-label="Satuan">
+        <div class="item-edit-drawer rounded-xl bg-slate-50 border border-slate-200 p-3 space-y-2.5" ${isPrefilled ? "hidden" : ""}>
+          <div class="flex items-center gap-2">
+            <div class="sale-entry-thumbnail shrink-0 ${prefill?.id ? "w-9 h-9" : "hidden"}">${prefill?.id ? productImageMarkup(prefill, "h-9 w-9 rounded-lg border border-slate-200", 120, true) : ""}</div>
+            <input type="text" id="${key}" list="inventoryDatalist" autocomplete="off" class="item-name-input min-w-0 flex-1 px-2.5 py-1.5 border border-slate-300 rounded-xl bg-white font-bold !text-sm" placeholder="Pilih stok atau ketik nama barang..." value="${esc(prefillLabel)}">
+          </div>
+          <div class="grid grid-cols-2 gap-2 items-end">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Harga jual (Rp)</label>
+              <input type="number" min="0" step="1" inputmode="numeric" class="item-price-input w-full px-2.5 py-1.5 border border-slate-300 rounded-xl bg-white font-extrabold !text-sm" placeholder="0" value="${esc(prefill?.price ?? "")}">
+              <input type="hidden" class="item-cost-input" value="${esc(prefill?.cost ?? 0)}">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Jumlah</label>
+              <div class="flex items-center gap-1">
+                <button type="button" aria-label="Kurangi" class="btn-qty-minus w-7 h-8 shrink-0 rounded-lg bg-slate-200 hover:bg-slate-300 font-extrabold text-sm">−</button>
+                <input type="number" min="1" step="1" inputmode="numeric" value="1" class="item-qty min-w-0 flex-1 px-1 py-1 border border-slate-300 rounded-lg bg-white font-extrabold text-center !text-sm">
+                <button type="button" aria-label="Tambah" class="btn-qty-plus w-7 h-8 shrink-0 rounded-lg bg-blue-100 hover:bg-blue-200 text-blue-900 font-extrabold text-sm">+</button>
+                <button type="button" data-quick-qty="5" class="btn-quick-qty px-1.5 py-1 rounded-lg bg-blue-50 border border-blue-200 text-[10px] font-extrabold text-blue-900">+5</button>
+                <button type="button" data-quick-qty="10" class="btn-quick-qty px-1.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-[10px] font-extrabold text-amber-900">+10</button>
+              </div>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5">
+            <select class="item-unit-select px-2 py-1 rounded-lg border border-slate-300 bg-white text-xs font-extrabold text-slate-700" aria-label="Satuan">
               <option value="Pcs">Pcs</option>
               <option value="Slop">Slop</option>
               <option value="Lusin">Lusin</option>
               <option value="Set">Set</option>
             </select>
-            <input type="text" class="item-note-input w-44 px-2 py-0.5 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white text-[11px] font-semibold text-slate-700" placeholder="Catatan layanan / varian..." maxlength="80">
+            <input type="text" class="item-note-input flex-1 min-w-[140px] px-2.5 py-1 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-700" placeholder="Catatan layanan / varian..." maxlength="80">
           </div>
-          <div class="flex items-center gap-1.5 shrink-0">
-            <span class="font-semibold text-slate-500">Subtotal:</span>
-            <span class="item-subtotal font-extrabold text-sm text-blue-950 tabular-nums">Rp 0</span>
+          <div class="flex flex-wrap items-center gap-1">
+            <button type="button" class="pos-svc-chip" data-svc-note="Pasang 24 lbs">🏸 24 lbs</button>
+            <button type="button" class="pos-svc-chip" data-svc-note="Pasang 27 lbs">🏸 27 lbs</button>
+            <button type="button" class="pos-svc-chip" data-svc-note="Pasang 30 lbs">🏸 30 lbs</button>
+            <button type="button" class="pos-svc-chip" data-svc-note="Kaliber 4.5mm">🎯 Kaliber</button>
+            <button type="button" class="pos-svc-chip" data-svc-note="Ukuran Bola 5">⚽ Uk. Bola</button>
+            <button type="button" class="pos-svc-chip" data-svc-note="Tulisan Piala">🏆 Piala</button>
           </div>
-        </div>
-        <div class="flex flex-wrap items-center gap-1 pt-0.5">
-          <button type="button" class="pos-svc-chip" data-svc-note="Pasang 24 lbs">🏸 24 lbs</button>
-          <button type="button" class="pos-svc-chip" data-svc-note="Pasang 27 lbs">🏸 27 lbs</button>
-          <button type="button" class="pos-svc-chip" data-svc-note="Pasang 30 lbs">🏸 30 lbs</button>
-          <button type="button" class="pos-svc-chip" data-svc-note="Kaliber 4.5mm">🎯 Kaliber</button>
-          <button type="button" class="pos-svc-chip" data-svc-note="Ukuran Sabuk">🥋 Sabuk</button>
-          <button type="button" class="pos-svc-chip" data-svc-note="Ukuran Bola 5">⚽ Ukuran Bola</button>
-          <button type="button" class="pos-svc-chip" data-svc-note="Tulisan Piala">🏆 Tulisan Piala</button>
         </div>`;
       container.appendChild(row);
 
@@ -1062,7 +1068,7 @@
       const priceInput = row.querySelector(".item-price-input");
       const qtyInput = row.querySelector(".item-qty");
       const preview = row.querySelector(".sale-entry-thumbnail");
-      const modeBadge = row.querySelector(".item-mode-badge");
+      const drawer = row.querySelector(".item-edit-drawer");
 
       const handleSelect = () => {
         const val = nameInput.value.trim().toLowerCase();
@@ -1075,12 +1081,9 @@
             nameInput.value = formatItemLabel(match);
             priceInput.value = match.price;
             costInput.value = match.cost || 0;
-            preview.className = "sale-entry-thumbnail shrink-0 w-10 h-10";
-            preview.innerHTML = productImageMarkup(match, "h-10 w-10 rounded-lg border border-slate-200", 120, true);
+            preview.className = "sale-entry-thumbnail shrink-0 w-9 h-9";
+            preview.innerHTML = productImageMarkup(match, "h-9 w-9 rounded-lg border border-slate-200", 120, true);
           }
-          costInput.value = match.cost || 0;
-          modeBadge.textContent = "Dari stok";
-          modeBadge.className = "item-mode-badge font-bold text-emerald-700";
         } else {
           if (row.dataset.invId) {
             row.dataset.invId = "";
@@ -1088,8 +1091,6 @@
             preview.className = "sale-entry-thumbnail shrink-0 hidden";
           }
           costInput.value = costInput.value || 0;
-          modeBadge.textContent = "Di luar stok";
-          modeBadge.className = "item-mode-badge font-bold text-amber-700";
         }
         calculateSaleTotals();
       };
@@ -1098,6 +1099,11 @@
       costInput.addEventListener("input", calculateSaleTotals);
       priceInput.addEventListener("input", calculateSaleTotals);
       qtyInput.addEventListener("input", calculateSaleTotals);
+      row.querySelector(".item-note-input")?.addEventListener("input", calculateSaleTotals);
+      row.querySelector(".item-unit-select")?.addEventListener("change", calculateSaleTotals);
+      row.querySelector(".btn-toggle-row-edit")?.addEventListener("click", () => {
+        if (drawer) drawer.hidden = !drawer.hidden;
+      });
       row.querySelector(".btn-qty-minus").addEventListener("click", () => {
         qtyInput.value = Math.max(1, (parseInt(qtyInput.value, 10) || 1) - 1);
         calculateSaleTotals();
@@ -1120,12 +1126,11 @@
           const tag = btn.dataset.svcNote;
           const cur = noteInp.value.trim();
           noteInp.value = cur ? (cur.includes(tag) ? cur : `${cur} · ${tag}`) : tag;
-          noteInp.focus();
+          calculateSaleTotals();
         });
       });
       row.querySelector(".btn-remove-row").addEventListener("click", () => {
         row.remove();
-        if (!container.children.length) addSaleItemRow();
         calculateSaleTotals();
       });
       calculateSaleTotals();
@@ -1145,6 +1150,23 @@
         total += price * qty;
         profit += (price - cost) * qty;
         row.querySelector(".item-subtotal").textContent = rp(price * qty);
+        const numBadge = row.querySelector(".item-row-num");
+        if (numBadge) numBadge.textContent = String(itemLines || 1);
+        const titleEl = row.querySelector(".item-summary-title");
+        const subEl = row.querySelector(".item-summary-sub");
+        const unitStr = row.querySelector(".item-unit-select")?.value || "Pcs";
+        const noteStr = (row.querySelector(".item-note-input")?.value || "").trim();
+        if (titleEl) titleEl.textContent = cleanDisplayItemName(nm || "Barang baru") + (noteStr ? ` (${noteStr})` : "");
+        if (subEl) {
+          const badgeHtml = inv
+            ? (qty > Number(inv.stock || 0)
+                ? `<span class="item-mode-badge font-extrabold text-rose-700">⚠ Melebihi stok (${Number(inv.stock || 0)})</span>`
+                : Number(inv.stock || 0) < LOW_STOCK_LIMIT
+                  ? `<span class="item-mode-badge font-extrabold text-amber-700">Stok: ${Number(inv.stock || 0)} ⚠</span>`
+                  : `<span class="item-mode-badge font-bold text-emerald-700">Stok: ${Number(inv.stock || 0)}</span>`)
+            : `<span class="item-mode-badge font-bold text-amber-700">Di luar stok</span>`;
+          subEl.innerHTML = `${qty}${unitStr !== "Pcs" ? " " + esc(unitStr) : "x"} @ ${rp(price)} · ${badgeHtml}`;
+        }
         const pInpLive = row.querySelector(".item-price-input");
         if (pInpLive) {
           const invalidPrice = Boolean(nm) && price <= 0;
@@ -1251,15 +1273,15 @@
       if (recInp && document.activeElement !== recInp) recInp.value = cashReceivedAmount > 0 ? String(cashReceivedAmount) : "";
       const diff = cashReceivedAmount - currentSaleTotalAmount;
       if (currentSaleTotalAmount <= 0) {
-        if (lblEl) lblEl.textContent = "✅ Kembalian";
+        if (lblEl) lblEl.textContent = "KEMBALIAN";
         if (chgEl) chgEl.textContent = rp(0);
         if (boxEl) { boxEl.classList.add("is-change"); boxEl.classList.remove("is-short"); }
       } else if (diff < 0) {
-        if (lblEl) lblEl.textContent = "⚠ Kurang Bayar";
-        if (chgEl) chgEl.textContent = "Kurang " + rp(Math.abs(diff));
+        if (lblEl) lblEl.textContent = "⚠ KURANG";
+        if (chgEl) chgEl.textContent = rp(Math.abs(diff));
         if (boxEl) { boxEl.classList.remove("is-change"); boxEl.classList.add("is-short"); }
       } else {
-        if (lblEl) lblEl.textContent = "✅ Kembalian";
+        if (lblEl) lblEl.textContent = "KEMBALIAN";
         if (chgEl) chgEl.textContent = rp(diff);
         if (boxEl) { boxEl.classList.add("is-change"); boxEl.classList.remove("is-short"); }
       }
@@ -1279,14 +1301,9 @@
         }
       }
       const ranked = active.slice().sort((a, b) => (freq.get(b.id) || 0) - (freq.get(a.id) || 0) || Number(b.stock || 0) - Number(a.stock || 0)).slice(0, 7);
-      bar.innerHTML = ranked.map(it => {
-        const shortName = String(it.name || "").length > 20 ? String(it.name).slice(0, 19) + "…" : String(it.name || "");
-        const catKey = detectProductCategoryLabel(it).key;
-        const icon = catKey === "badminton" ? "🏸" : catKey === "ball" ? "⚽" : catKey === "chess" ? "♟️" : catKey === "music" ? "🎸" : "🏅";
-        return `<button type="button" data-quick-fav-id="${esc(it.id)}" title="${esc(it.name)} · ${rp(it.price)} (stok ${Number(it.stock || 0)})" class="pos-fav-card">
-          <span class="text-xs font-extrabold text-slate-900 leading-tight">${icon} ${esc(shortName)}</span>
-          <span class="text-[11px] font-extrabold text-emerald-700 tabular-nums">${esc(shortRpTick(it.price).replace("Rp ", ""))}</span>
-        </button>`;
+      bar.innerHTML = ranked.slice(0, 6).map(it => {
+        const shortName = String(it.name || "").length > 18 ? String(it.name).slice(0, 17) + "…" : String(it.name || "");
+        return `<button type="button" data-quick-fav-id="${esc(it.id)}" title="${esc(it.name)} · ${rp(it.price)} (stok ${Number(it.stock || 0)})" class="pos-exact-fav-pill">${esc(shortName)}</button>`;
       }).join("");
       renderPosQuickAccess();
     }
@@ -1476,7 +1493,7 @@
     }
     function renderHeldSalesBar() {
       const lbl = document.getElementById("btnHoldSaleLabel");
-      if (lbl) lbl.textContent = `Tahan (${heldSales.length})`;
+      if (lbl) lbl.textContent = heldSales.length ? `Tangguhkan (${heldSales.length})` : "Tangguhkan (F3)";
       const bar = document.getElementById("posHeldTabsBar");
       if (!bar) return;
       if (!heldSales.length) { bar.hidden = true; bar.innerHTML = ""; return; }
@@ -1554,7 +1571,7 @@
       if (padBtn) padBtn.setAttribute("aria-expanded", "false");
       selectSalePayment("");
       updateSaleDateSummary();
-      addSaleItemRow();
+      calculateSaleTotals();
     }
     function updateSaleDateSummary() {
       const date = document.getElementById("inputDate").value || todayStr();
@@ -5386,6 +5403,9 @@
         if (e.key === "F2") {
           e.preventDefault();
           document.getElementById("btnOpenScanner")?.click();
+        } else if (e.key === "F3") {
+          e.preventDefault();
+          holdCurrentSale();
         } else if (e.key === "F8") {
           e.preventDefault();
           selectSalePayment("Cash");
