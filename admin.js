@@ -1635,11 +1635,15 @@
       if (selectedPaymentMethod === "Bon") noteParts.push(`BON: DP ${rp(splitPaid)} · Sisa ${rp(Math.max(0, netEst - splitPaid))}`);
       if (cashierName) noteParts.push(`Kasir: ${cashierName}`);
       const saleNote = noteParts.join(" | ").slice(0, 200);
+      const cashRecVal = selectedPaymentMethod === "Cash" && cashReceivedAmount > 0 ? cashReceivedAmount : 0;
+      const cashChgVal = cashRecVal > 0 ? Math.max(0, cashRecVal - netEst) : 0;
       const txData = {
         date: txDate,
         customer: document.getElementById("inputCustomer").value.trim() || "Pelanggan Umum",
+        ...(cashierName ? { cashier: cashierName } : {}),
         ...(saleNote ? { note: saleNote } : {}),
         ...(saleDiscount > 0 ? { discount: saleDiscount } : {}),
+        ...(cashRecVal > 0 ? { cashReceived: cashRecVal, cashChange: cashChgVal } : {}),
         paymentMethod: selectedPaymentMethod,
         items: itemsToSave,
         createdAt: new Date().toISOString()
@@ -1672,47 +1676,63 @@
       if (isNaN(dt)) return "";
       return new Intl.DateTimeFormat("id-ID", { timeZone: "Asia/Makassar", hour: "2-digit", minute: "2-digit", hour12: false }).format(dt) + " WITA";
     }
+    function fmtReceiptDate(dateStr, isoStr) {
+      const m = String(dateStr || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      const dmy = m ? `${m[3]}-${m[2]}-${m[1]}` : String(dateStr || "");
+      const tm = formatWitaTime(isoStr);
+      return tm ? `${dmy} ${tm.replace(" WITA", "")}` : dmy;
+    }
     function buildReceiptHtml(tx) {
       const txItems = tx.items || [];
       const totalPcs = txItems.reduce((sum, it) => sum + Number(it.qty || 0), 0);
-      const timeStr = formatWitaTime(tx.createdAt);
+      const dtStr = fmtReceiptDate(tx.date, tx.createdAt);
+      const cashierStr = tx.cashier || "Admin";
+      const cashRec = Number(tx.cashReceived || 0);
+      const cashChg = Number(tx.cashChange ?? Math.max(0, cashRec - Number(tx.totalOmset || 0)));
       const items = txItems.map(it => {
         const qty = Number(it.qty || 0), price = Number(it.price || 0);
-        return `<div class="rc-item"><div class="rc-name">${esc(it.name)}</div><div class="rc-line"><span>${qty} × ${rp(price)}</span><span>${rp(it.subtotal ?? price * qty)}</span></div></div>`;
+        return `<div class="rc-item"><div class="rc-name">${esc(it.name)}</div><div class="rc-line"><span>${qty} x ${Number(price).toLocaleString("id-ID")}</span><span>${Number(it.subtotal ?? price * qty).toLocaleString("id-ID")}</span></div></div>`;
       }).join("");
+      let qrSvg = "";
+      try { qrSvg = SjsQR.toSvg("https://suryajaya-sport.github.io/", 120, 2); } catch {}
       return `<div class="rcpt">
         <div class="rc-center">
           <div class="rc-shop">${esc(shopName)}</div>
           <div class="rc-sub">Toko Olahraga &amp; Alat Musik</div>
-          <div class="rc-sub">Jl. Ahmad Yani 37, Tanjung Redeb, Berau</div>
-          <div class="rc-sub">WA/Telp: 0823-200-33333</div>
+          <div class="rc-sub">Jl. Ahmad Yani 37, Berau</div>
+          <div class="rc-sub">WA 0823-200-33333</div>
         </div>
-        <hr class="rc-hr-bold">
+        <hr class="rc-hr">
         <div class="rc-meta">
-          <div class="rc-line"><span>No. Nota</span><strong>${esc(receiptNumber(tx))}</strong></div>
-          <div class="rc-line"><span>Tanggal</span><span>${esc(tx.date)}${timeStr ? " · " + esc(timeStr) : ""}</span></div>
-          <div class="rc-line"><span>Pembeli</span><span>${esc(tx.customer || "Pelanggan Umum")}</span></div>
-          <div class="rc-line"><span>Pembayaran</span><strong>${esc(paymentMethodLabel(tx.paymentMethod || "Cash"))}</strong></div>
-          ${tx.note ? `<div class="rc-line"><span>Catatan</span><span>${esc(tx.note)}</span></div>` : ""}
+          <div class="rc-line"><span>No Nota : ${esc(receiptNumber(tx))}</span><span></span></div>
+          <div class="rc-line"><span>Tanggal : ${esc(dtStr)}</span><span></span></div>
+          <div class="rc-line"><span>Kasir   : ${esc(cashierStr)}</span><span></span></div>
+          <div class="rc-line"><span>Pembeli : ${esc(tx.customer || "Pelanggan Umum")}</span><span></span></div>
+          <div class="rc-line"><span>Bayar   : ${esc(paymentMethodLabel(tx.paymentMethod || "Cash"))}</span><span></span></div>
+          ${tx.note ? `<div class="rc-line"><span>Catatan : ${esc(tx.note)}</span><span></span></div>` : ""}
         </div>
         ${tx.cancelledAt ? '<div class="rc-center rc-void">*** NOTA DIBATALKAN ***</div>' : ""}
         <hr class="rc-hr">
         ${items}
-        <div class="rc-total-box">
-          <div class="rc-line" style="font-size:11px;margin-bottom:3px"><span>Total Item</span><span>${totalPcs} pcs</span></div>
-          ${Number(tx.discount || 0) > 0 ? `<div class="rc-line" style="font-size:11px;margin-bottom:3px"><span>Diskon</span><span>-${rp(tx.discount)}</span></div>` : ""}
-          <div class="rc-line rc-total"><span>TOTAL BAYAR</span><span>${rp(tx.totalOmset)}</span></div>
+        <hr class="rc-hr">
+        <div class="rc-meta">
+          <div class="rc-line"><span>Item</span><span>${totalPcs} pcs</span></div>
+          ${Number(tx.discount || 0) > 0 ? `<div class="rc-line"><span>Diskon</span><span>-${Number(tx.discount).toLocaleString("id-ID")}</span></div>` : ""}
+          <div class="rc-line rc-total" style="margin-top:4px"><span>TOTAL</span><span>${Number(tx.totalOmset || 0).toLocaleString("id-ID")}</span></div>
+          ${cashRec > 0 ? `<div class="rc-line"><span>TUNAI</span><span>${cashRec.toLocaleString("id-ID")}</span></div><div class="rc-line"><span>KEMBALIAN</span><span>${cashChg.toLocaleString("id-ID")}</span></div>` : ""}
         </div>
-        <div class="rc-center rc-thanks">Terima kasih telah berbelanja di ${esc(shopName)}!</div>
+        <hr class="rc-hr">
+        <div class="rc-center rc-thanks">Terima kasih telah<br>berbelanja di<br>${esc(shopName)}</div>
+        <div class="rc-center rc-sub" style="margin-top:8px">Scan QR untuk:<br>Katalog &bull; WA &bull; Riwayat Nota</div>
+        ${qrSvg ? `<div class="rc-center" style="margin:8px auto 4px;display:flex;justify-content:center">${qrSvg}</div>` : ""}
+        <hr class="rc-hr">
         <div class="rc-footnote">
-          <div class="rc-footnote-title">Catatan &amp; Ketentuan Pembelian</div>
+          <div class="rc-footnote-title">Ketentuan:</div>
           <ul>
-            <li>Mohon periksa kembali kondisi, jumlah, dan kelengkapan barang sebelum meninggalkan toko.</li>
-            <li>Barang yang sudah dibeli tidak dapat ditukar atau dikembalikan (No Retur).</li>
-            <li>Simpan nota ini sebagai bukti pembelian resmi Anda.</li>
+            <li>Barang yang sudah dibeli tidak dapat ditukar/dikembalikan.</li>
+            <li>Simpan nota sebagai bukti.</li>
           </ul>
         </div>
-        <div class="rc-center rc-sub" style="margin-top:8px">Katalog &amp; stok terbaru: suryajaya-sport.github.io</div>
       </div>`;
     }
     let lastPreviewedReceiptTx = null;
@@ -1722,7 +1742,6 @@
       const noteLine = tx.note ? `\nCatatan: ${tx.note}` : "";
       return `*STRUK ${shopName.toUpperCase()}*\nNota: ${receiptNumber(tx)}\nTanggal: ${tx.date}\n${lines}${discLine}\n----------------\n*Total: ${rp(tx.totalOmset)}* (${paymentMethodLabel(tx.paymentMethod || "Cash")})${noteLine}\nTerima kasih telah berbelanja di ${shopName}!`;
     }
-
     function dataUrlToBlob(dataUrl) {
       const parts = String(dataUrl || "").split(",");
       const bstr = atob(parts[1] || "");
@@ -1731,7 +1750,7 @@
       return new Blob([arr], { type: "image/png" });
     }
     function renderReceiptPngDataUrl(tx) {
-      const W = 696, pad = 36, innerW = W - pad * 2;
+      const W = 680, pad = 40, innerW = W - pad * 2;
       const tmp = document.createElement("canvas");
       const tctx = tmp.getContext("2d");
       const wrapLines = (text, font, maxW) => {
@@ -1750,42 +1769,54 @@
 
       const txItems = tx.items || [];
       const totalPcs = txItems.reduce((s, it) => s + Number(it.qty || 0), 0);
-      const timeStr = formatWitaTime(tx.createdAt);
+      const dtStr = fmtReceiptDate(tx.date, tx.createdAt);
+      const cashierStr = tx.cashier || "Admin";
+      const cashRec = Number(tx.cashReceived || 0);
+      const cashChg = Number(tx.cashChange ?? Math.max(0, cashRec - Number(tx.totalOmset || 0)));
+
       const fontMono = '22px ui-monospace, "Courier New", monospace';
       const fontBold = 'bold 22px ui-monospace, "Courier New", monospace';
-      const fontSub = '19px ui-monospace, "Courier New", monospace';
+      const fontTotal = 'bold 26px ui-monospace, "Courier New", monospace';
+      const fontSub = '20px ui-monospace, "Courier New", monospace';
+
       const itemBlocks = txItems.map(it => {
         const qty = Number(it.qty || 0), price = Number(it.price || 0);
         const lines = wrapLines(it.name || "-", fontBold, innerW);
-        return { lines, left: `${qty} × ${rp(price)}`, right: rp(it.subtotal ?? price * qty) };
+        return { lines, left: `${qty} x ${Number(price).toLocaleString("id-ID")}`, right: Number(it.subtotal ?? price * qty).toLocaleString("id-ID") };
       });
-      const footNotes = [
-        "• Mohon periksa kembali kondisi, jumlah, dan kelengkapan barang sebelum meninggalkan toko.",
-        "• Barang yang sudah dibeli tidak dapat ditukar atau dikembalikan (No Retur).",
-        "• Simpan nota ini sebagai bukti pembelian resmi Anda."
-      ].flatMap(n => wrapLines(n, '17px ui-monospace, "Courier New", monospace', innerW - 8));
+      const ketLines = [
+        "- Barang yang sudah dibeli",
+        "  tidak dapat ditukar/dikembalikan.",
+        "- Simpan nota sebagai bukti."
+      ];
 
-      // Compute exact canvas height
-      let H = 220; // header + meta
+      let H = 190; // header
+      H += 165; // meta 5 lines
       if (tx.note) H += 30;
       if (tx.cancelledAt) H += 48;
-      H += 24;
-      for (const b of itemBlocks) H += b.lines.length * 28 + 38;
-      H += 125 + (Number(tx.discount || 0) > 0 ? 30 : 0); // total box
-      H += 95 + footNotes.length * 23 + 60;
+      H += 28;
+      for (const b of itemBlocks) H += b.lines.length * 28 + 36;
+      H += 95; // Item + TOTAL
+      if (Number(tx.discount || 0) > 0) H += 30;
+      if (cashRec > 0) H += 62;
+      H += 330; // thanks + QR + Ketentuan
 
       const canvas = document.createElement("canvas");
       canvas.width = W; canvas.height = H;
       const ctx = canvas.getContext("2d");
       ctx.fillStyle = "#ffffff";
       ctx.fillRect(0, 0, W, H);
-      ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 3;
+      ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 2;
       ctx.strokeRect(8, 8, W - 16, H - 16);
 
-      let y = 52;
+      let y = 54;
       const centerText = (txt, font, color = "#000000") => {
         ctx.font = font; ctx.fillStyle = color; ctx.textAlign = "center";
         ctx.fillText(txt, W / 2, y);
+      };
+      const leftText = (txt, font, color = "#0f172a") => {
+        ctx.font = font; ctx.fillStyle = color; ctx.textAlign = "left";
+        ctx.fillText(txt, pad, y);
       };
       const rowText = (l, r, fontL, fontR, colorL = "#0f172a", colorR = "#000000") => {
         ctx.font = fontL; ctx.fillStyle = colorL; ctx.textAlign = "left";
@@ -1793,70 +1824,69 @@
         ctx.font = fontR; ctx.fillStyle = colorR; ctx.textAlign = "right";
         ctx.fillText(r, W - pad, y);
       };
-      const rule = (bold = false, dashed = true) => {
+      const dashRule = () => {
         ctx.save();
-        ctx.strokeStyle = bold ? "#000000" : "#475569";
-        ctx.lineWidth = bold ? 3 : 2;
-        if (dashed && !bold) ctx.setLineDash([8, 6]);
+        ctx.strokeStyle = "#475569"; ctx.lineWidth = 2; ctx.setLineDash([9, 7]);
         ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W - pad, y); ctx.stroke();
         ctx.restore();
       };
 
-      centerText(shopName.toUpperCase(), 'bold 30px ui-monospace, "Courier New", monospace', "#000000"); y += 28;
-      centerText("Toko Olahraga & Alat Musik", fontSub, "#334155"); y += 24;
-      centerText("Jl. Ahmad Yani 37, Tanjung Redeb, Berau", fontSub, "#334155"); y += 24;
-      centerText("WA/Telp: 0823-200-33333", fontSub, "#334155"); y += 22;
-      rule(true, false); y += 30;
+      centerText(shopName.toUpperCase(), 'bold 30px ui-monospace, "Courier New", monospace', "#000000"); y += 30;
+      centerText("Toko Olahraga & Alat Musik", fontSub, "#334155"); y += 26;
+      centerText("Jl. Ahmad Yani 37, Berau", fontSub, "#334155"); y += 26;
+      centerText("WA 0823-200-33333", fontSub, "#334155"); y += 24;
+      dashRule(); y += 32;
 
-      rowText("No. Nota", receiptNumber(tx), fontMono, fontBold); y += 28;
-      rowText("Tanggal", `${tx.date}${timeStr ? " · " + timeStr : ""}`, fontMono, fontMono); y += 28;
-      rowText("Pembeli", tx.customer || "Pelanggan Umum", fontMono, fontMono); y += 28;
-      rowText("Pembayaran", paymentMethodLabel(tx.paymentMethod || "Cash"), fontMono, fontBold); y += 28;
-      if (tx.note) { rowText("Catatan", String(tx.note).slice(0, 34), fontMono, fontMono); y += 28; }
+      leftText(`No Nota : ${receiptNumber(tx)}`, fontBold); y += 28;
+      leftText(`Tanggal : ${dtStr}`, fontMono); y += 28;
+      leftText(`Kasir   : ${cashierStr}`, fontMono); y += 28;
+      leftText(`Pembeli : ${tx.customer || "Pelanggan Umum"}`, fontMono); y += 28;
+      leftText(`Bayar   : ${paymentMethodLabel(tx.paymentMethod || "Cash")}`, fontBold); y += 28;
+      if (tx.note) { leftText(`Catatan : ${String(tx.note).slice(0, 34)}`, fontMono); y += 28; }
       if (tx.cancelledAt) {
         ctx.strokeStyle = "#000"; ctx.lineWidth = 2; ctx.strokeRect(pad, y - 20, innerW, 34);
-        centerText("*** NOTA DIBATALKAN ***", fontBold, "#000");
-        y += 34;
+        centerText("*** NOTA DIBATALKAN ***", fontBold, "#000"); y += 34;
       }
-      rule(false, true); y += 28;
+      dashRule(); y += 30;
 
-      for (let i = 0; i < itemBlocks.length; i++) {
-        const b = itemBlocks[i];
-        ctx.font = fontBold; ctx.fillStyle = "#000000"; ctx.textAlign = "left";
-        for (const ln of b.lines) { ctx.fillText(ln, pad, y); y += 28; }
+      for (const b of itemBlocks) {
+        for (const ln of b.lines) { leftText(ln, fontBold, "#000000"); y += 28; }
         rowText(b.left, b.right, fontMono, fontBold, "#334155", "#000000");
-        y += 22;
-        if (i < itemBlocks.length - 1) {
-          ctx.save(); ctx.strokeStyle = "#cbd5e1"; ctx.setLineDash([4, 4]);
-          ctx.beginPath(); ctx.moveTo(pad, y - 8); ctx.lineTo(W - pad, y - 8); ctx.stroke(); ctx.restore();
-          y += 14;
-        }
+        y += 32;
       }
+      dashRule(); y += 30;
 
-      y += 8;
-      const boxH = 88 + (Number(tx.discount || 0) > 0 ? 28 : 0);
-      ctx.fillStyle = "#f8fafc"; ctx.fillRect(pad, y, innerW, boxH);
-      ctx.strokeStyle = "#0f172a"; ctx.lineWidth = 2.5; ctx.strokeRect(pad, y, innerW, boxH);
-      y += 30;
-      rowText("Total Item", `${totalPcs} pcs`, fontSub, fontSub, "#334155", "#0f172a"); y += 28;
+      rowText("Item", `${totalPcs} pcs`, fontMono, fontBold); y += 30;
       if (Number(tx.discount || 0) > 0) {
-        rowText("Diskon", `-${rp(tx.discount)}`, fontSub, fontSub, "#334155", "#be123c"); y += 28;
+        rowText("Diskon", `-${Number(tx.discount).toLocaleString("id-ID")}`, fontMono, fontBold, "#334155", "#be123c"); y += 30;
       }
-      rowText("TOTAL BAYAR", rp(tx.totalOmset), 'bold 26px ui-monospace, "Courier New", monospace', 'bold 26px ui-monospace, "Courier New", monospace', "#000000", "#000000");
-      y += 42;
+      rowText("TOTAL", Number(tx.totalOmset || 0).toLocaleString("id-ID"), fontTotal, fontTotal, "#000000", "#000000"); y += 32;
+      if (cashRec > 0) {
+        rowText("TUNAI", cashRec.toLocaleString("id-ID"), fontMono, fontBold); y += 28;
+        rowText("KEMBALIAN", cashChg.toLocaleString("id-ID"), fontMono, fontBold, "#047857", "#047857"); y += 28;
+      }
+      y += 4;
+      dashRule(); y += 34;
 
-      centerText(`Terima kasih telah berbelanja di ${shopName}!`, fontBold, "#000000"); y += 28;
-      rule(false, true); y += 24;
-      ctx.font = 'bold 18px ui-monospace, "Courier New", monospace'; ctx.fillStyle = "#334155"; ctx.textAlign = "left";
-      ctx.fillText("CATATAN & KETENTUAN PEMBELIAN", pad, y); y += 24;
-      ctx.font = '17px ui-monospace, "Courier New", monospace'; ctx.fillStyle = "#475569";
-      for (const fl of footNotes) { ctx.fillText(fl, pad, y); y += 22; }
-      y += 14;
-      centerText("Katalog & stok terbaru: suryajaya-sport.github.io", '17px ui-monospace, "Courier New", monospace', "#64748b");
+      centerText("Terima kasih telah", fontBold); y += 26;
+      centerText("berbelanja di", fontBold); y += 26;
+      centerText(shopName, fontBold); y += 34;
+      centerText("Scan QR untuk:", fontSub, "#334155"); y += 24;
+      centerText("Katalog • WA • Riwayat Nota", fontSub, "#334155"); y += 16;
+
+      // Draw crisp QR Code centered using SjsQR.drawTo
+      try {
+        const qSize = 152;
+        SjsQR.drawTo(ctx, "https://suryajaya-sport.github.io/", Math.round((W - qSize) / 2), y, qSize);
+        y += qSize + 20;
+      } catch { y += 20; }
+
+      dashRule(); y += 28;
+      leftText("Ketentuan:", fontBold, "#334155"); y += 26;
+      for (const kl of ketLines) { leftText(kl, '19px ui-monospace, "Courier New", monospace', "#475569"); y += 24; }
 
       return canvas.toDataURL("image/png");
     }
-
     function downloadReceiptPng(tx) {
       const dataUrl = renderReceiptPngDataUrl(tx);
       if (!dataUrl) return showToast("Gagal membuat gambar nota.");
@@ -1870,9 +1900,9 @@
       setTimeout(() => URL.revokeObjectURL(a.href), 4000);
       showToast(`Gambar nota ${receiptNumber(tx)} diunduh.`);
     }
-
     function sendReceiptImageWhatsApp(tx) {
-      const dataUrl = renderReceiptPngDataUrl(tx);
+      let dataUrl = "";
+      try { dataUrl = renderReceiptPngDataUrl(tx); } catch (err) { console.error(err); }
       if (!dataUrl) return showToast("Gagal membuat gambar nota.");
       const blob = dataUrlToBlob(dataUrl);
       const fileName = `nota-${receiptNumber(tx)}.png`;
@@ -1881,7 +1911,6 @@
         navigator.share({ files: [file], title: `Nota ${shopName} ${receiptNumber(tx)}` }).catch(() => {});
         return;
       }
-      // Synchronous download + clipboard copy + WhatsApp open (never blocked by Firefox popup blocker)
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
       a.download = fileName;
@@ -1889,15 +1918,33 @@
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+      showReceiptPreview(tx, `✅ File ${fileName} sudah diunduh. Klik kanan gambar di bawah → Salin Gambar (Copy Image), lalu tempel (Ctrl+V) di chat WhatsApp.`);
       if (navigator.clipboard && window.ClipboardItem) {
-        navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]).catch(() => {});
+        navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]).then(() => {
+          const b = document.getElementById("receiptWaHelpBanner");
+          if (b) b.textContent = `✅ Gambar nota disalin ke Clipboard & diunduh (${fileName}). Buka WhatsApp lalu tekan Ctrl+V untuk mengirim!`;
+        }).catch(() => {});
       }
-      window.open("https://wa.me/", "_blank", "noopener");
-      showToast(`Gambar ${fileName} diunduh & disalin. Tempel (Ctrl+V) atau lampirkan di WhatsApp!`);
+      window.open("https://web.whatsapp.com/", "_blank", "noopener");
     }
-    function showReceiptPreview(tx) {
+    function showReceiptPreview(tx, waBannerMsg = "") {
       lastPreviewedReceiptTx = tx;
-      document.getElementById("receiptPreviewBody").innerHTML = buildReceiptHtml(tx);
+      const body = document.getElementById("receiptPreviewBody");
+      const banner = document.getElementById("receiptWaHelpBanner");
+      if (banner) {
+        if (waBannerMsg) { banner.textContent = waBannerMsg; banner.classList.remove("hidden"); }
+        else { banner.textContent = ""; banner.classList.add("hidden"); }
+      }
+      let pngUrl = "";
+      try { pngUrl = renderReceiptPngDataUrl(tx); } catch (err) { console.error("PNG receipt err:", err); }
+      if (pngUrl) {
+        body.innerHTML = `<div class="space-y-2 text-center">
+          <img src="${pngUrl}" alt="Nota ${esc(receiptNumber(tx))}" class="mx-auto max-w-full rounded-xl border border-slate-300 shadow-sm bg-white">
+          <p class="text-[11px] font-bold text-slate-500">Tip PC: Klik kanan gambar nota &rarr; <strong>Salin Gambar</strong>, lalu tempel (<strong>Ctrl+V</strong>) di WhatsApp.</p>
+        </div>`;
+      } else {
+        body.innerHTML = buildReceiptHtml(tx);
+      }
       document.getElementById("receiptPreviewModal").classList.remove("hidden");
     }
     function buildReportHtml() {

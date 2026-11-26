@@ -165,16 +165,17 @@
       #booksCharts > div { break-inside: avoid; border: 1px solid #cbd5e1 !important; box-shadow: none !important; }
       #booksCharts canvas { max-width: 100% !important; height: auto !important; }
     }
+  @page receipt80 { size: 80mm auto; margin: 2mm 3mm; }
+  @page stickerPage { size: auto; margin: 4mm; }
   @media print {
       .no-print { display: none !important; }
       body:not([data-print="receipt"]) #receiptPrintSheet,
       body:not([data-print="sticker"]) #stickerPrintSheet { display: none !important; }
       body[data-print="receipt"] > *:not(#receiptPrintSheet),
       body[data-print="sticker"] > *:not(#stickerPrintSheet) { display: none !important; }
-      body[data-print="receipt"] #receiptPrintSheet,
-      body[data-print="sticker"] #stickerPrintSheet { display: block !important; }
+      body[data-print="receipt"] #receiptPrintSheet { display: block !important; page: receipt80; width: 72mm !important; max-width: 72mm !important; margin: 0 auto !important; padding: 0 !important; }
+      body[data-print="sticker"] #stickerPrintSheet { display: block !important; page: stickerPage; }
       #stickerPrintSheet img { width: 100%; height: auto; }
-      @page { margin: 4mm; }
     }
   .workspace-pane > * { flex-shrink: 0; }
     #receiptPrintSheet, #reportPrintSheet, #stickerPrintSheet { display: none; }
@@ -243,8 +244,36 @@
       body[data-print="report"] .rpt-head, body[data-print="report"] .rpt-kpis, body[data-print="report"] .rpt-foot { break-inside: avoid; page-break-inside: avoid; }
       body[data-print="report"] .rpt-foot { margin-top: 6px !important; padding-top: 4px !important; }
       body[data-print="report"] .rpt-foot { margin-top: 6px !important; padding-top: 4px !important; }
-      #receiptPrintSheet .rcpt { max-width: 72mm; width: 72mm; margin: 0; padding: 0; border: 0; box-shadow: none; }
-      #receiptPrintSheet .rc-total-box, #receiptPrintSheet .rc-footnote { background: #fff !important; }
+      #receiptPrintSheet .rcpt {
+        max-width: 72mm !important;
+        width: 72mm !important;
+        margin: 0 !important;
+        padding: 2mm 1mm !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        background: #fff !important;
+        color: #000 !important;
+        font-family: ui-monospace, "Courier New", monospace !important;
+        font-size: 11px !important;
+        line-height: 1.35 !important;
+      }
+      #receiptPrintSheet .rcpt * { color: #000 !important; }
+      #receiptPrintSheet .rc-shop { font-size: 14px !important; }
+      #receiptPrintSheet .rc-sub { font-size: 10px !important; }
+      #receiptPrintSheet .rc-meta { font-size: 10.5px !important; }
+      #receiptPrintSheet .rc-hr { border-top: 1px dashed #000 !important; margin: 6px 0 !important; }
+      #receiptPrintSheet .rc-item { margin-bottom: 5px !important; padding-bottom: 4px !important; border-bottom: 1px dotted #000 !important; }
+      #receiptPrintSheet .rc-total { font-size: 14px !important; }
+      #receiptPrintSheet .rc-total-box, #receiptPrintSheet .rc-footnote {
+        background: #fff !important;
+        border: 1px dashed #000 !important;
+        border-radius: 0 !important;
+        padding: 5px 6px !important;
+        margin-top: 6px !important;
+      }
+      #receiptPrintSheet .rc-footnote { font-size: 9.5px !important; line-height: 1.35 !important; }
+      #receiptPrintSheet svg { width: 32mm !important; height: 32mm !important; shape-rendering: crispEdges !important; }
       #stickerPrintSheet img { width: 100%; max-width: 100mm; height: auto; }
       * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     }
@@ -3014,6 +3043,7 @@
         <h3 class="font-extrabold text-base">Pratinjau nota</h3>
         <button type="button" id="btnCloseReceiptModal" class="px-3.5 py-2 rounded-xl bg-white/15 font-extrabold text-sm">Tutup</button>
       </div>
+      <div id="receiptWaHelpBanner" class="hidden mx-4 mt-3 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-900 text-left"></div>
       <div id="receiptPreviewBody" class="p-5 overflow-y-auto bg-slate-50 text-sm"></div>
       <div class="p-4 border-t border-slate-200 bg-white">
         <div class="grid grid-cols-3 gap-2">
@@ -3269,6 +3299,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261125-32"></script>
+  <script type="module" src="./admin.js?v=20261125-34"></script>
 </body>
 </html>
