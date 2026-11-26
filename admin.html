@@ -2208,11 +2208,11 @@
           <div class="pos-split">
             <!-- KOLOM KIRI (58%): SCAN QR + SEARCH + FAVORIT CEPAT + KARTU KERANJANG BELANJA + TOTAL + TANGGUHKAN / BARANG BEBAS -->
             <div class="space-y-3 min-w-0">
-              <!-- Baris Scan QR Kuning + Input Cari Produk -->
+              <!-- Baris Scan QR (20%) + Search Dominan (80%) -->
               <div class="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
-                <button type="button" id="btnOpenScanner" class="shrink-0 px-4 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-sm inline-flex items-center gap-2 shadow-sm"><i class="fa-solid fa-qrcode text-base" aria-hidden="true"></i><span>Scan QR / Barcode (F2)</span></button>
-                <div class="relative flex-1 min-w-[200px]">
-                  <input type="search" id="posInstantSearch" placeholder="Cari produk atau scan..." autocomplete="off" class="w-full pl-4 pr-10 py-3 rounded-xl border border-slate-300 focus:border-blue-600 bg-white font-semibold text-sm shadow-xs">
+                <button type="button" id="btnOpenScanner" class="shrink-0 px-3.5 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs sm:text-sm inline-flex items-center gap-1.5 shadow-sm"><i class="fa-solid fa-qrcode text-base" aria-hidden="true"></i><span>Scan QR (F2)</span></button>
+                <div class="relative flex-1 min-w-[220px]">
+                  <input type="search" id="posInstantSearch" placeholder="Cari nama, kode barang, atau scan barcode..." autocomplete="off" class="w-full pl-4 pr-10 py-3 rounded-xl border-2 border-slate-300 focus:border-blue-600 bg-white font-bold text-sm shadow-xs">
                   <i class="fa-solid fa-magnifying-glass absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none" aria-hidden="true"></i>
                   <div id="posInstantDropdown" class="hidden absolute left-0 right-0 top-full mt-1 z-30 bg-white border border-slate-300 rounded-2xl shadow-xl max-h-64 overflow-y-auto divide-y divide-slate-100"></div>
                 </div>
@@ -2305,21 +2305,30 @@
               </div>
             </div>
 
-            <!-- KOLOM KANAN (42%): TERMINAL NUMPAD PRO (IDENTIK DESAIN) -->
-            <div class="pos-cart-sticky bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
-              <!-- 1. BANNER KEMBALIAN HIJAU PENUH (MERAH SAAT KURANG) -->
-              <div id="posCashChangeBox" class="pos-cash-box is-change w-full">
-                <span id="posCashChangeLabel">KEMBALIAN</span>&nbsp;<strong id="posCashChangeText" class="tabular-nums">Rp 0</strong>
+            <!-- KOLOM KANAN (42%): ALUR VERTIKAL TOTAL BAYAR (NAVY) -> UANG DITERIMA -> KEMBALIAN (HIJAU) -> CARA BAYAR -> NUMPAD -> SIMPAN -->
+            <div class="pos-cart-sticky bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-3">
+              <!-- 1. TOTAL BAYAR (KARTU KHUSUS NAVY DOMINAN) -->
+              <div id="posTotalPayHeroBox" class="text-white shadow-sm !py-3 !px-4">
+                <div class="flex items-center justify-between gap-2">
+                  <span class="text-[11px] font-extrabold uppercase tracking-wider text-amber-300">Total Bayar</span>
+                  <span id="posTotalSubtotalHint" class="text-[11px] font-semibold text-blue-200 tabular-nums"></span>
+                </div>
+                <strong id="previewTotalOmsetRight" class="block text-3xl sm:text-4xl font-black text-white tabular-nums mt-0.5 leading-tight">Rp 0</strong>
               </div>
 
-              <!-- 2. KOTAK UANG DITERIMA BESAR DI TENGAH -->
-              <div class="pos-received-frame">
+              <!-- 2. UANG DITERIMA -->
+              <div class="pos-received-frame !py-2">
                 <span class="pos-received-legend">Uang Diterima</span>
                 <div class="flex items-center justify-center gap-2">
-                  <strong id="posCashReceivedText" class="text-3xl font-black text-slate-950 tabular-nums">Rp 0</strong>
+                  <strong id="posCashReceivedText" class="text-2xl font-black text-slate-950 tabular-nums">Rp 0</strong>
                   <span id="posCashFeedbackPill" class="hidden px-2 py-0.5 rounded-full bg-amber-200 text-amber-950 text-[10px] font-extrabold"></span>
                 </div>
-                <input type="text" id="posCashReceivedInput" inputmode="numeric" autocomplete="off" placeholder="atau ketik nominal..." aria-label="Ketik uang diterima" class="mt-1.5 w-44 mx-auto block rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-extrabold text-center text-slate-700 tabular-nums">
+                <input type="text" id="posCashReceivedInput" inputmode="numeric" autocomplete="off" placeholder="atau ketik nominal..." aria-label="Ketik uang diterima" class="mt-1 w-44 mx-auto block rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-extrabold text-center text-slate-700 tabular-nums">
+              </div>
+
+              <!-- 3. KEMBALIAN (HIJAU / MERAH SAAT KURANG) -->
+              <div id="posCashChangeBox" class="pos-cash-box is-change w-full !py-2">
+                <span id="posCashChangeLabel">KEMBALIAN</span>&nbsp;<strong id="posCashChangeText" class="tabular-nums">Rp 0</strong>
               </div>
 
               <!-- 3. SEGMENTED CONTROL CARA BAYAR (4 UTAMA + SPLIT/BON) -->
@@ -3237,6 +3246,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261125-26"></script>
+  <script type="module" src="./admin.js?v=20261125-28"></script>
 </body>
 </html>

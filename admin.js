@@ -14,7 +14,7 @@
     const CLOUDINARY_PRESET = "sjs_product_images";
     const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
     const COMPRESS_MAX_SIDE = 1200;
-    const QRIS_DEFAULT_PAYLOAD = "00020101021126440015id.co.qris.www0115ID10254610182080203A015204594153033605802ID5921SURYA JAYA TOY & GAME6007JAKARTA630412C4";
+    const QRIS_DEFAULT_PAYLOAD = "00020101021126610016ID.CO.SHOPEE.WWW01189360091800225534680208225534680303UMI51440014ID.CO.QRIS.WWW0215ID10254610182080303UMI5204594553033605802ID5910Surya Jaya6005BERAU61057731162070703A0163046EE4";
     const QRIS_MERCHANT_TITLE = "SURYA JAYA SPORT";
     const QRIS_MERCHANT_NMID = "NMID: ID1025461018208 • A01";
     const CATALOG_WA = "https://wa.me/6282320033333";
@@ -1201,6 +1201,10 @@
       const netProfit = profit - discount;
       currentSaleTotalAmount = netTotal;
       document.getElementById("previewTotalOmset").textContent = rp(netTotal);
+      const rightTotEl = document.getElementById("previewTotalOmsetRight");
+      if (rightTotEl) rightTotEl.textContent = rp(netTotal);
+      const rightSubEl = document.getElementById("posTotalSubtotalHint");
+      if (rightSubEl) rightSubEl.textContent = discount > 0 ? `Subtotal ${rp(total)} − Diskon ${rp(discount)}` : "";
       document.getElementById("previewTotalProfit").textContent = rp(netProfit);
       const subLine = document.getElementById("previewSubtotalLine");
       if (subLine) subLine.textContent = discount > 0 ? `Subtotal ${rp(total)} − Diskon ${rp(discount)}` : `Subtotal ${rp(total)}`;
@@ -1302,8 +1306,14 @@
       }
       const ranked = active.slice().sort((a, b) => (freq.get(b.id) || 0) - (freq.get(a.id) || 0) || Number(b.stock || 0) - Number(a.stock || 0)).slice(0, 7);
       bar.innerHTML = ranked.slice(0, 6).map(it => {
-        const shortName = String(it.name || "").length > 18 ? String(it.name).slice(0, 17) + "…" : String(it.name || "");
-        return `<button type="button" data-quick-fav-id="${esc(it.id)}" title="${esc(it.name)} · ${rp(it.price)} (stok ${Number(it.stock || 0)})" class="pos-exact-fav-pill">${esc(shortName)}</button>`;
+        const shortName = String(it.name || "").length > 16 ? String(it.name).slice(0, 15) + "…" : String(it.name || "");
+        const catKey = detectProductCategoryLabel(it).key;
+        const icon = catKey === "badminton" ? "🏸" : catKey === "ball" ? "⚽" : catKey === "chess" ? "♟️" : catKey === "music" ? "🎸" : "🏅";
+        const priceTag = shortRpTick(it.price).replace("Rp ", "").replace(" rb", "rb").replace(" jt", "jt");
+        return `<button type="button" data-quick-fav-id="${esc(it.id)}" title="${esc(it.name)} · ${rp(it.price)} (stok ${Number(it.stock || 0)})" class="px-3 py-1.5 rounded-xl bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 shadow-2xs inline-flex items-center gap-1.5 text-xs font-extrabold text-slate-900 transition">
+          <span>${icon} ${esc(shortName)}</span>
+          <span class="px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[11px] font-extrabold tabular-nums">${esc(priceTag)}</span>
+        </button>`;
       }).join("");
       renderPosQuickAccess();
     }
@@ -4819,7 +4829,7 @@
 
     function applyConfig(data) {
       if (data.shopName) setShopName(data.shopName);
-      if (data.qrisPayload) savedQrisPayload = data.qrisPayload.includes("63048E12") ? QRIS_DEFAULT_PAYLOAD : buildQrisPayload(data.qrisPayload);
+      if (data.qrisPayload) savedQrisPayload = (data.qrisPayload.includes("63048E12") || data.qrisPayload.includes("id.co.qris.www0115")) ? QRIS_DEFAULT_PAYLOAD : buildQrisPayload(data.qrisPayload);
       costCodeDigits = String(data.costCodeDigits || "");
       geminiApiKey = String(data.geminiApiKey || "");
       lockedBookMonths = new Set(Array.isArray(data.lockedBookMonths) ? data.lockedBookMonths.map(String) : []);
