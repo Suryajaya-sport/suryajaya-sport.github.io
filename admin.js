@@ -1041,52 +1041,62 @@
               <span class="item-mode-badge block text-[11px] font-semibold mt-0.5 ${prefill?.id ? "text-emerald-700" : "text-amber-700"}">${prefill?.id ? `Stok ${Number(prefill.stock || 0)}` : "Di luar stok"}</span>
             </div>
             <div class="flex items-center gap-2.5 shrink-0">
-              <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide hidden sm:inline">Qty</span>
-              <div class="inline-flex items-center rounded-xl border border-slate-300 bg-white overflow-hidden shadow-2xs">
-                <button type="button" class="btn-inline-minus w-9 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Kurangi jumlah">−</button>
-                <span class="item-inline-qty px-2.5 text-xs font-bold text-slate-900 tabular-nums border-x border-slate-200 leading-9">1</span>
-                <button type="button" class="btn-inline-plus w-9 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Tambah jumlah">+</button>
+              <div class="item-top-qty-wrap inline-flex items-center gap-2" ${isPrefilled ? "" : "hidden"}>
+                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide hidden sm:inline">Qty</span>
+                <div class="inline-flex items-center rounded-xl border border-slate-300 bg-white overflow-hidden shadow-2xs">
+                  <button type="button" class="btn-inline-minus w-9 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Kurangi jumlah">−</button>
+                  <span class="item-inline-qty px-2.5 text-xs font-bold text-slate-900 tabular-nums border-x border-slate-200 leading-9">1</span>
+                  <button type="button" class="btn-inline-plus w-9 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Tambah jumlah">+</button>
+                </div>
               </div>
               <input type="hidden" value="1" class="item-qty">
               <span class="item-subtotal font-extrabold text-base text-slate-950 tabular-nums min-w-[86px] text-right">${rp(prefill?.price || 0)}</span>
             </div>
           </div>
         </div>
-        <div class="item-edit-drawer rounded-xl bg-slate-50 border border-slate-200 p-3 space-y-2.5" ${isPrefilled ? "hidden" : ""}>
+        <div class="item-edit-drawer rounded-xl bg-slate-50 border border-slate-200 p-3.5 space-y-3" ${isPrefilled ? "hidden" : ""}>
           <div class="flex items-center gap-2">
             <div class="sale-entry-thumbnail shrink-0 ${prefill?.id ? "w-9 h-9" : "hidden"}">${prefill?.id ? productImageMarkup(prefill, "h-9 w-9 rounded-lg border border-slate-200", 120, true) : ""}</div>
-            <input type="text" id="${key}" list="inventoryDatalist" autocomplete="off" class="item-name-input min-w-0 flex-1 px-2.5 py-2 border border-slate-300 rounded-xl bg-white font-semibold !text-sm text-slate-900" placeholder="Pilih stok atau ketik nama barang..." value="${esc(prefillLabel)}">
+            <input type="text" id="${key}" list="inventoryDatalist" autocomplete="off" class="item-name-input min-w-0 flex-1 px-3 py-2 border border-slate-300 rounded-xl bg-white font-semibold !text-sm text-slate-900" placeholder="Pilih stok atau ketik nama barang..." value="${esc(prefillLabel)}">
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 items-start">
+          <div class="grid grid-cols-2 gap-3 items-start">
             <div>
-              <label class="block text-[11px] font-bold text-slate-600 mb-1">Harga jual (Rp)</label>
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Harga Jual</label>
               <input type="text" inputmode="numeric" autocomplete="off" class="item-price-input w-full px-3 py-2 border border-slate-300 rounded-xl bg-white font-bold tabular-nums !text-sm text-slate-900" placeholder="0" value="${esc(fmtIdrInput(prefill?.price))}">
             </div>
             <div class="item-cost-wrap sjs-owner-only-stat" ${prefill?.id ? "hidden" : ""}>
-              <label class="block text-[11px] font-bold text-slate-600 mb-1">Modal manual (ops.)</label>
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Modal</label>
               <input type="text" inputmode="numeric" autocomplete="off" class="item-cost-input w-full px-3 py-2 border border-slate-300 rounded-xl bg-white font-semibold tabular-nums !text-sm text-slate-900" placeholder="0" value="${esc(fmtIdrInput(prefill?.cost))}">
               <p class="item-cost-warn hidden text-[11px] font-bold text-red-600 mt-1">⚠ Modal melebihi harga jual (rugi)</p>
             </div>
           </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <select class="item-unit-select px-2.5 py-1.5 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-800" aria-label="Satuan">
-              <option value="Pcs">Pcs</option>
-              <option value="Set">Set</option>
-              <option value="Pak">Pak</option>
-              <option value="Lusin">Lusin</option>
-            </select>
-            <input type="text" class="item-note-input flex-1 min-w-[140px] px-2.5 py-1.5 rounded-xl border border-slate-300 bg-white text-xs font-medium text-slate-800" placeholder="Catatan layanan / varian..." maxlength="80">
-          </div>
-          <div class="flex flex-wrap items-center justify-between gap-2 pt-0.5">
-            <div class="flex flex-wrap items-center gap-1.5">
-              <button type="button" class="pos-svc-chip" data-svc-note="Pasang 24 lbs">+ 24 lbs</button>
-              <button type="button" class="pos-svc-chip" data-svc-note="Pasang 27 lbs">+ 27 lbs</button>
-              <button type="button" class="pos-svc-chip" data-svc-note="Pasang 30 lbs">+ 30 lbs</button>
-              <button type="button" class="pos-svc-chip" data-svc-note="Kaliber 4.5mm">+ Kaliber 4.5mm</button>
-              <button type="button" class="pos-svc-chip" data-svc-note="Uk. Bola 5">+ Uk. Bola 5</button>
-              <button type="button" class="pos-svc-chip" data-svc-note="Tulisan Piala">+ Tulisan Piala</button>
+          <div>
+            <label class="block text-[11px] font-bold text-slate-600 mb-1">Qty</label>
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2.5">
+                <div class="inline-flex items-center rounded-xl border border-slate-300 bg-white overflow-hidden shadow-2xs">
+                  <button type="button" class="btn-drawer-minus w-10 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Kurangi jumlah">−</button>
+                  <span class="item-drawer-qty px-3.5 text-sm font-bold text-slate-900 tabular-nums border-x border-slate-200 leading-9">1</span>
+                  <button type="button" class="btn-drawer-plus w-10 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Tambah jumlah">+</button>
+                </div>
+                <select class="item-unit-select h-9 px-3 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-800" aria-label="Satuan">
+                  <option value="Pcs">Pcs</option>
+                  <option value="Set">Set</option>
+                  <option value="Pak">Pak</option>
+                  <option value="Lusin">Lusin</option>
+                </select>
+              </div>
+              <button type="button" class="btn-close-row-edit h-9 px-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shrink-0">Selesai</button>
             </div>
-            <button type="button" class="btn-close-row-edit px-3 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-bold shrink-0">Selesai</button>
+          </div>
+          <input type="text" class="item-note-input w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs font-medium text-slate-800" placeholder="Catatan layanan / varian..." maxlength="80">
+          <div class="grid grid-cols-3 gap-1.5">
+            <button type="button" class="pos-svc-chip text-center justify-center" data-svc-note="Pasang 24 lbs">🏸 24 lbs</button>
+            <button type="button" class="pos-svc-chip text-center justify-center" data-svc-note="Pasang 27 lbs">🏸 27 lbs</button>
+            <button type="button" class="pos-svc-chip text-center justify-center" data-svc-note="Pasang 30 lbs">🏸 30 lbs</button>
+            <button type="button" class="pos-svc-chip text-center justify-center" data-svc-note="Kaliber 4.5mm">🎯 Kaliber</button>
+            <button type="button" class="pos-svc-chip text-center justify-center" data-svc-note="Ukuran Bola 5">⚽ Uk. Bola</button>
+            <button type="button" class="pos-svc-chip text-center justify-center" data-svc-note="Tulisan Piala">🏆 Tulisan Piala</button>
           </div>
           <p class="item-free-stock-note text-[11px] text-slate-500" ${prefill?.id ? "hidden" : ""}>ℹ Barang bebas tidak mengurangi stok gudang (hanya tercatat di omzet &amp; laba).</p>
         </div>`;
@@ -1141,20 +1151,25 @@
       priceInput.addEventListener("input", () => formatNumField(priceInput));
       row.querySelector(".item-note-input")?.addEventListener("input", calculateSaleTotals);
       row.querySelector(".item-unit-select")?.addEventListener("change", calculateSaleTotals);
+      const topQtyWrap = row.querySelector(".item-top-qty-wrap");
+      const syncDrawerVis = (open) => {
+        if (drawer) drawer.hidden = !open;
+        if (topQtyWrap) topQtyWrap.hidden = open;
+      };
       row.querySelector(".btn-toggle-row-edit")?.addEventListener("click", () => {
-        if (drawer) drawer.hidden = !drawer.hidden;
+        syncDrawerVis(Boolean(drawer?.hidden));
       });
       row.querySelector(".btn-close-row-edit")?.addEventListener("click", () => {
-        if (drawer) drawer.hidden = true;
+        syncDrawerVis(false);
       });
-      row.querySelector(".btn-inline-minus")?.addEventListener("click", () => {
-        qtyInput.value = Math.max(1, (parseInt(qtyInput.value, 10) || 1) - 1);
+      const stepQty = (delta) => {
+        qtyInput.value = Math.max(1, (parseInt(qtyInput.value, 10) || 1) + delta);
         calculateSaleTotals();
-      });
-      row.querySelector(".btn-inline-plus")?.addEventListener("click", () => {
-        qtyInput.value = (parseInt(qtyInput.value, 10) || 1) + 1;
-        calculateSaleTotals();
-      });
+      };
+      row.querySelector(".btn-inline-minus")?.addEventListener("click", () => stepQty(-1));
+      row.querySelector(".btn-inline-plus")?.addEventListener("click", () => stepQty(1));
+      row.querySelector(".btn-drawer-minus")?.addEventListener("click", () => stepQty(-1));
+      row.querySelector(".btn-drawer-plus")?.addEventListener("click", () => stepQty(1));
       row.querySelectorAll("[data-svc-note]").forEach(btn => {
         btn.addEventListener("click", () => {
           const noteInp = row.querySelector(".item-note-input");
@@ -1190,6 +1205,8 @@
         if (numBadge) numBadge.textContent = String(itemLines || 1);
         const inlineQtyEl = row.querySelector(".item-inline-qty");
         if (inlineQtyEl) inlineQtyEl.textContent = String(qty);
+        const drawerQtyEl = row.querySelector(".item-drawer-qty");
+        if (drawerQtyEl) drawerQtyEl.textContent = String(qty);
         const titleEl = row.querySelector(".item-summary-title");
         const subEl = row.querySelector(".item-summary-sub");
         const unitStr = row.querySelector(".item-unit-select")?.value || "Pcs";
