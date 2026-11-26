@@ -3782,7 +3782,10 @@
                 <div class="flex items-center gap-3 bg-white rounded-xl border border-slate-200 p-2 shrink-0">
                   <div id="invCodeQrPreview" class="w-16 h-16 flex items-center justify-center shrink-0" title="Pratinjau QR label"></div>
                   <div class="flex flex-col gap-1.5">
-                    <span id="invQrCodeText" class="text-[11px] font-extrabold text-slate-900 tabular-nums">SJS-001</span>
+                    <div>
+                      <span id="invQrCodeText" class="block text-[11px] font-extrabold text-slate-900 tabular-nums leading-tight">SJS-001</span>
+                      <span class="block text-[10px] font-semibold text-slate-500">Label untuk barang utama</span>
+                    </div>
                     <button type="button" id="btnInvDownloadQr" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-[11px] font-bold"><i class="fa-solid fa-download mr-1" aria-hidden="true"></i>Unduh QR</button>
                     <button type="button" id="btnInvPrintQr" class="px-2.5 py-1 rounded-lg bg-white hover:bg-slate-100 border border-slate-300 text-slate-800 text-[11px] font-bold"><i class="fa-solid fa-print mr-1" aria-hidden="true"></i>Cetak Label</button>
                   </div>
@@ -3795,28 +3798,28 @@
             </div>
           </section>
 
-          <!-- SECTION 2: MEDIA -->
+          <!-- SECTION 2: MEDIA RINGKAS (PANEL PRATINJAU MUNCUL SAAT FOTO DIPILIH) -->
           <section class="rounded-2xl border border-slate-200 bg-white p-3.5 shadow-2xs space-y-2.5">
-            <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-500 flex items-center gap-2 pb-2 border-b border-slate-100">
-              <span class="w-5 h-5 rounded-md bg-slate-900 text-white inline-flex items-center justify-center text-[10px]">2</span>
-              <span>Media (Opsional)</span>
-            </h3>
             <input type="file" id="invImageFile" accept="image/jpeg,image/png,image/webp" class="sr-only">
-            <div id="invImagePreviewWrap" class="rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-dashed border-slate-300 p-2.5 flex items-center justify-between gap-3 transition">
-              <div class="flex items-center gap-3 min-w-0">
-                <div id="invImagePreviewEmpty" class="w-16 h-16 rounded-xl border border-slate-200 bg-white flex flex-col items-center justify-center text-center text-[10px] font-semibold text-slate-400 px-1.5 shrink-0">
-                  <i class="fa-regular fa-image text-lg mb-0.5" aria-hidden="true"></i>
-                  <span>Foto</span>
-                </div>
-                <img id="invImagePreview" alt="Pratinjau foto produk" class="hidden w-16 h-16 object-contain bg-white rounded-xl border border-slate-200 shadow-sm shrink-0">
-                <div class="min-w-0 space-y-0.5">
-                  <span id="invImagePreviewLabel" class="block text-xs font-bold text-slate-800 truncate">Belum ada foto dipilih</span>
-                  <p class="text-[11px] text-slate-500">JPG, PNG, atau WebP — langsung tampil sebelum disimpan.</p>
+            <div class="flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2 min-w-0">
+                <span class="w-5 h-5 rounded-md bg-slate-900 text-white inline-flex items-center justify-center text-[10px] font-extrabold shrink-0">2</span>
+                <div class="min-w-0">
+                  <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-700 leading-tight">Media (Opsional)</h3>
+                  <p class="text-[11px] text-slate-500 truncate">Foto produk tampil di katalog online</p>
                 </div>
               </div>
-              <label for="invImageFile" class="shrink-0 cursor-pointer px-3.5 py-2 rounded-xl bg-white hover:bg-slate-900 hover:text-white border border-slate-300 text-slate-800 text-xs font-bold shadow-2xs transition inline-flex items-center gap-1.5">
-                <i class="fa-solid fa-upload text-[11px]" aria-hidden="true"></i><span>Pilih Foto</span>
+              <label for="invImageFile" class="shrink-0 cursor-pointer px-3.5 py-2 rounded-xl bg-slate-50 hover:bg-slate-900 hover:text-white border border-slate-300 text-slate-800 text-xs font-bold transition inline-flex items-center gap-1.5">
+                <i class="fa-solid fa-camera text-[11px]" aria-hidden="true"></i><span id="invPickPhotoText">Tambah Foto</span>
               </label>
+            </div>
+            <div id="invImagePreviewWrap" class="hidden rounded-xl bg-slate-50 border border-slate-200 p-2 flex items-center justify-between gap-3">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div id="invImagePreviewEmpty" class="hidden"></div>
+                <img id="invImagePreview" alt="Pratinjau foto produk" class="hidden w-14 h-14 object-contain bg-white rounded-lg border border-slate-200 shrink-0">
+                <span id="invImagePreviewLabel" class="block text-xs font-bold text-slate-800 truncate"></span>
+              </div>
+              <button type="button" id="btnClearInvPhoto" class="shrink-0 px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-[11px] font-bold">Hapus</button>
             </div>
           </section>
 
@@ -4216,6 +4219,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261126-25"></script>
+  <script type="module" src="./admin.js?v=20261126-26"></script>
 </body>
 </html>

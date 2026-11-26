@@ -1036,18 +1036,21 @@
       updateInvVariantSummary();
     }
     function setInvImagePreview(srcUrl, labelText) {
+      const wrap = document.getElementById("invImagePreviewWrap");
       const img = document.getElementById("invImagePreview");
-      const empty = document.getElementById("invImagePreviewEmpty");
       const lbl = document.getElementById("invImagePreviewLabel");
+      const btnTxt = document.getElementById("invPickPhotoText");
       if (srcUrl && img) {
         img.src = srcUrl;
         img.classList.remove("hidden");
-        if (empty) empty.classList.add("hidden");
+        if (wrap) wrap.classList.remove("hidden");
         if (lbl) lbl.textContent = labelText || "Pratinjau foto siap disimpan";
+        if (btnTxt) btnTxt.textContent = "Ganti Foto";
       } else {
         if (img) { img.src = ""; img.classList.add("hidden"); }
-        if (empty) empty.classList.remove("hidden");
-        if (lbl) lbl.textContent = "Belum ada foto dipilih";
+        if (wrap) wrap.classList.add("hidden");
+        if (lbl) lbl.textContent = "";
+        if (btnTxt) btnTxt.textContent = "Tambah Foto";
       }
     }
     function resetInvForm() {
@@ -6254,6 +6257,11 @@
         const f = e.target.files?.[0];
         if (f) setInvImagePreview(URL.createObjectURL(f), f.name);
         else setInvImagePreview("", "");
+      });
+      document.getElementById("btnClearInvPhoto")?.addEventListener("click", () => {
+        const fi = document.getElementById("invImageFile");
+        if (fi) fi.value = "";
+        setInvImagePreview("", "");
       });
       document.getElementById("invCode")?.addEventListener("input", updateInvQrPreview);
       document.getElementById("invName")?.addEventListener("input", e => { if (e.target.value.trim()) setInvFieldError("invName", "invErrName", false); });
