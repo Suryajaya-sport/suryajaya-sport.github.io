@@ -1121,10 +1121,11 @@
           </div>
           <div class="f-foot !mt-1 !pt-1.5">
             <div class="flex-1 space-y-1 min-w-0">
+              <p class="item-inline-err f-warn hidden"></p>
               <p class="item-cost-warn f-warn hidden">⚠ Modal lebih besar dari harga jual. Cek lagi, mungkin salah ketik.</p>
               <p class="item-free-stock-note f-info" ${prefill?.id ? "hidden" : ""}>Barang bebas tidak mengurangi stok gudang.</p>
             </div>
-            <button type="button" class="btn-close-row-edit btn-done !min-h-[38px] !px-4 shrink-0">✓ Simpan Barang</button>
+            <button type="button" class="btn-close-row-edit btn-done !min-h-[38px] !px-4 shrink-0">Selesai</button>
           </div>
         </div>`;
       container.appendChild(row);
@@ -1272,6 +1273,16 @@
           cInpLive.classList.toggle("bg-red-50", lossCost);
         }
         if (cWarn) cWarn.classList.toggle("hidden", !lossCost);
+        const inlineErrEl = row.querySelector(".item-inline-err");
+        if (inlineErrEl) {
+          if (!inv) {
+            const vRes = validateFreeItem({ name: nm, price, cost: freeCost, qty });
+            inlineErrEl.textContent = vRes.ok ? "" : ("⚠ " + vRes.errors[0]);
+            inlineErrEl.classList.toggle("hidden", vRes.ok);
+          } else {
+            inlineErrEl.classList.add("hidden");
+          }
+        }
         const badge = row.querySelector(".item-mode-badge");
         if (badge) {
           if (inv) {
@@ -1567,11 +1578,21 @@
       if (topBadge) topBadge.hidden = okPay;
       const payBox = document.getElementById("posPaySectionBox");
       if (payBox) payBox.classList.toggle("border-amber-300", !okPay);
+      const hasAnyRow = document.querySelectorAll("#saleItemsContainer > div").length > 0;
       const canSave = saveState.enabled && !saleFormSaving;
+      const hardDisabled = saleFormSaving || !hasAnyRow;
       const btnSave = document.getElementById("btnSaveTx");
       const btnSavePrint = document.getElementById("btnSaveAndPrintTx");
-      if (btnSave) { btnSave.disabled = !canSave; btnSave.classList.toggle("is-disabled", !canSave); }
-      if (btnSavePrint) { btnSavePrint.disabled = !canSave; btnSavePrint.classList.toggle("is-disabled", !canSave); }
+      if (btnSave) {
+        btnSave.disabled = hardDisabled;
+        btnSave.setAttribute("aria-disabled", String(!canSave));
+        btnSave.classList.toggle("is-disabled", !canSave);
+      }
+      if (btnSavePrint) {
+        btnSavePrint.disabled = hardDisabled;
+        btnSavePrint.setAttribute("aria-disabled", String(!canSave));
+        btnSavePrint.classList.toggle("is-disabled", !canSave);
+      }
       const splitPanel = document.getElementById("posSplitBonPanel");
       if (splitPanel) {
         const isSplitOrBon = selectedPaymentMethod === "Split" || selectedPaymentMethod === "Bon";

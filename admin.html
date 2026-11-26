@@ -2307,6 +2307,34 @@
       box-shadow: 0 0 0 3px rgba(220, 38, 38, .15) !important;
     }
 
+
+    /* === SPACING SERAGAM PANEL KANAN + MARGIN ATAS UANG DITERIMA + STICKY SAVE CLEAN === */
+    body.sjs-admin .pos-cart-sticky {
+      gap: 12px !important;
+    }
+    body.sjs-admin #posCashOnlyWrap {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 2px;
+    }
+    body.sjs-admin #posCashOnlyWrap[hidden] {
+      display: none !important;
+    }
+    body.sjs-admin .pos-received-frame {
+      margin-top: 10px !important;
+    }
+    body.sjs-admin #posSaveActionsSticky {
+      bottom: 0 !important;
+      padding: 10px 0 4px !important;
+    }
+    body.sjs-admin #btnSaveTx.is-disabled {
+      background: #F8FAFC !important;
+      border: 1.5px solid #CBD5E1 !important;
+      color: #475569 !important;
+      opacity: 1 !important;
+    }
+
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -4042,6 +4070,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261126-18"></script>
+  <script type="module" src="./admin.js?v=20261126-19"></script>
 </body>
 </html>
