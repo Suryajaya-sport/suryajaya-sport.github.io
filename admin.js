@@ -1106,16 +1106,16 @@
             </div>
           </div>
           <div>
-            <label class="block text-[11px] font-bold text-slate-600 mb-1">Catatan layanan / varian...</label>
+            <label class="block text-[11px] font-bold text-slate-600 mb-1">Catatan <span class="opt">(opsional)</span></label>
             <input type="text" class="item-note-input w-full h-9 px-3 rounded-xl border border-slate-300 bg-white text-xs font-medium text-slate-800" placeholder="Tulis catatan atau pilih cepat di bawah..." maxlength="80">
           </div>
-          <div class="grid grid-cols-3 gap-1.5">
-            <button type="button" class="pos-svc-chip text-center justify-center" data-svc-note="Pasang 24 lbs">🏸 24 lbs</button>
-            <button type="button" class="pos-svc-chip text-center justify-center" data-svc-note="Pasang 27 lbs">🏸 27 lbs</button>
-            <button type="button" class="pos-svc-chip text-center justify-center" data-svc-note="Pasang 30 lbs">🏸 30 lbs</button>
-            <button type="button" class="pos-svc-chip text-center justify-center" data-svc-note="Kaliber 4.5mm">🎯 Kaliber</button>
-            <button type="button" class="pos-svc-chip text-center justify-center" data-svc-note="Ukuran Bola 5">⚽ Uk. Bola</button>
-            <button type="button" class="pos-svc-chip text-center justify-center" data-svc-note="Tulisan Piala">🏆 Tulisan Piala</button>
+          <div class="f-chips-wrap">
+            <button type="button" class="pos-svc-chip" data-svc-note="Pasang 24 lbs">🏸 24 lbs</button>
+            <button type="button" class="pos-svc-chip" data-svc-note="Pasang 27 lbs">🏸 27 lbs</button>
+            <button type="button" class="pos-svc-chip" data-svc-note="Pasang 30 lbs">🏸 30 lbs</button>
+            <button type="button" class="pos-svc-chip" data-svc-note="Kaliber 4.5mm">🎯 Kaliber</button>
+            <button type="button" class="pos-svc-chip" data-svc-note="Ukuran Bola 5">⚽ Uk. Bola</button>
+            <button type="button" class="pos-svc-chip" data-svc-note="Tulisan Piala">🏆 Tulisan Piala</button>
           </div>
           <div class="f-foot">
             <div class="flex-1 space-y-1 min-w-0">
@@ -1344,18 +1344,18 @@
       const recInp = document.getElementById("posCashReceivedInput");
       if (recInp && document.activeElement !== recInp) recInp.value = cashReceivedAmount > 0 ? ("Rp " + Number(cashReceivedAmount).toLocaleString("id-ID")) : "";
       const diff = cashReceivedAmount - currentSaleTotalAmount;
-      if (currentSaleTotalAmount <= 0) {
-        if (lblEl) lblEl.textContent = "✓ KEMBALIAN";
+      if (currentSaleTotalAmount <= 0 || cashReceivedAmount <= 0) {
+        if (lblEl) lblEl.textContent = "KEMBALIAN";
         if (chgEl) chgEl.textContent = rp(0);
-        if (boxEl) { boxEl.classList.add("is-change"); boxEl.classList.remove("is-short"); }
+        if (boxEl) { boxEl.classList.add("is-idle"); boxEl.classList.remove("is-change", "is-short"); }
       } else if (diff < 0) {
         if (lblEl) lblEl.textContent = "⚠ KURANG";
         if (chgEl) chgEl.textContent = rp(Math.abs(diff));
-        if (boxEl) { boxEl.classList.remove("is-change"); boxEl.classList.add("is-short"); }
+        if (boxEl) { boxEl.classList.add("is-short"); boxEl.classList.remove("is-change", "is-idle"); }
       } else {
         if (lblEl) lblEl.textContent = "✓ KEMBALIAN";
         if (chgEl) chgEl.textContent = rp(diff);
-        if (boxEl) { boxEl.classList.add("is-change"); boxEl.classList.remove("is-short"); }
+        if (boxEl) { boxEl.classList.add("is-change"); boxEl.classList.remove("is-short", "is-idle"); }
       }
     }
 
