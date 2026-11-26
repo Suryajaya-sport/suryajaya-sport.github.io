@@ -1001,7 +1001,7 @@
     function addSaleItemRow(prefill = null) {
       const container = document.getElementById("saleItemsContainer");
       const row = document.createElement("div");
-      row.className = "bg-slate-50 border border-slate-200 rounded-2xl p-3 space-y-2.5";
+      row.className = "pos-item-card space-y-2.5";
       row.dataset.invId = prefill?.id || "";
       const key = "sale-item-" + ++saleItemRowNumber;
       const prefillLabel = prefill ? (prefill.id ? formatItemLabel(prefill) : String(prefill.name || "")) : "";
@@ -1042,12 +1042,20 @@
               <option value="Lusin">Lusin</option>
               <option value="Set">Set</option>
             </select>
-            <input type="text" class="item-note-input w-36 px-2 py-0.5 rounded-lg border border-slate-200 bg-white text-[11px] font-semibold text-slate-700" placeholder="Varian / 24 lbs / garansi" maxlength="80">
+            <input type="text" class="item-note-input w-44 px-2 py-0.5 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white text-[11px] font-semibold text-slate-700" placeholder="Catatan layanan / varian..." maxlength="80">
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
             <span class="font-semibold text-slate-500">Subtotal:</span>
-            <span class="item-subtotal font-extrabold text-sm text-slate-900 tabular-nums">Rp 0</span>
+            <span class="item-subtotal font-extrabold text-sm text-blue-950 tabular-nums">Rp 0</span>
           </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-1 pt-0.5">
+          <button type="button" class="pos-svc-chip" data-svc-note="Pasang 24 lbs">🏸 24 lbs</button>
+          <button type="button" class="pos-svc-chip" data-svc-note="Pasang 27 lbs">🏸 27 lbs</button>
+          <button type="button" class="pos-svc-chip" data-svc-note="Kaliber 4.5mm">🎯 Kaliber</button>
+          <button type="button" class="pos-svc-chip" data-svc-note="Ukuran Sabuk">🥋 Sabuk</button>
+          <button type="button" class="pos-svc-chip" data-svc-note="Ukuran Bola 5">⚽ Uk. Bola</button>
+          <button type="button" class="pos-svc-chip" data-svc-note="Tulisan Piala">🏅 Piala</button>
         </div>`;
       container.appendChild(row);
 
@@ -1113,6 +1121,16 @@
           calculateSaleTotals();
         });
       });
+      row.querySelectorAll("[data-svc-note]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const noteInp = row.querySelector(".item-note-input");
+          if (!noteInp) return;
+          const tag = btn.dataset.svcNote;
+          const cur = noteInp.value.trim();
+          noteInp.value = cur ? (cur.includes(tag) ? cur : `${cur} · ${tag}`) : tag;
+          noteInp.focus();
+        });
+      });
       row.querySelector(".btn-remove-row").addEventListener("click", () => {
         row.remove();
         if (!container.children.length) addSaleItemRow();
@@ -1141,10 +1159,10 @@
             const st = Number(inv.stock || 0);
             if (qty > st) {
               badge.textContent = `⚠ Melebihi stok (tersisa ${st})`;
-              badge.className = "item-mode-badge font-extrabold text-white bg-rose-700 px-2 py-0.5 rounded-full";
+              badge.className = "item-mode-badge font-extrabold text-rose-700";
             } else if (st < LOW_STOCK_LIMIT) {
-              badge.textContent = `⚠ Stok ${st}`;
-              badge.className = "item-mode-badge font-extrabold text-white bg-rose-600 px-2 py-0.5 rounded-full";
+              badge.textContent = `Stok: ${st} ⚠`;
+              badge.className = "item-mode-badge font-extrabold text-amber-700";
             } else {
               badge.textContent = `Stok: ${st}`;
               badge.className = "item-mode-badge font-bold text-emerald-700";
@@ -5182,10 +5200,10 @@
         const matched = transactions.filter(t => String(t.customer || "").trim().toLowerCase() === val);
         const bonTx = matched.filter(t => t.paymentMethod === "Bon");
         const badges = [];
-        if (matched.length >= 2) badges.push(`<span class="px-2 py-0.5 rounded-full bg-blue-900 text-white font-extrabold">MEMBER (${matched.length}x)</span>`);
+        if (matched.length >= 2) badges.push(`<span class="px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300">⭐ MEMBER (${matched.length}x)</span>`);
         if (bonTx.length > 0) {
           const bonTot = bonTx.reduce((s, t) => s + Number(t.totalOmset || 0), 0);
-          badges.push(`<span class="px-2 py-0.5 rounded-full bg-rose-700 text-white font-extrabold">BON ${esc(shortRpTick(bonTot))}</span>`);
+          badges.push(`<span class="px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300">🔴 BON ${esc(shortRpTick(bonTot))}</span>`);
         }
         wrap.innerHTML = badges.join("");
       };
@@ -5299,9 +5317,6 @@
         if (e.key === "F2") {
           e.preventDefault();
           document.getElementById("btnOpenScanner")?.click();
-        } else if (e.key === "F3") {
-          e.preventDefault();
-          holdCurrentSale();
         } else if (e.key === "F8") {
           e.preventDefault();
           selectSalePayment("Cash");
@@ -5346,7 +5361,7 @@
         showToast(next ? "Mode Pegawai Kasir aktif (Omzet & Modal disembunyikan)." : "Mode Pemilik aktif.");
       });
       document.getElementById("btnPosShortcutHelp")?.addEventListener("click", () => {
-        showToast("Pintasan Kasir: F2 = Scan QR · F3 = Tahan nota · F8 = Tunai · F4 = Simpan · Enter = Tambah barang · Esc = Tutup saran");
+        showToast("Pintasan Kasir: F2 = Scan QR · F8 = Tunai · F4 = Simpan · Enter = Tambah barang · Esc = Tutup saran");
       });
       window.addEventListener("offline", () => updateSyncStatus(false, "Offline — menunggu koneksi"));
       window.addEventListener("online", () => updateSyncStatus(true, isAdmin ? "Cloud Online" : "Katalog publik"));

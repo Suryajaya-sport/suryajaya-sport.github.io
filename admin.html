@@ -152,9 +152,9 @@
 
     .shop-footer { border-top: 1px solid #dbeafe; background: #fff; padding: 1.35rem 1rem; text-align: center; font-size: .8125rem; color: #64748b; }
 
-    #sjsAiFab { position: fixed !important; bottom: 18px !important; left: 112px !important; right: auto !important; z-index: 40; }
+    #sjsAiFab { position: fixed !important; bottom: 18px !important; left: 82px !important; right: auto !important; z-index: 40; }
     #sjsAiFab button { background: linear-gradient(135deg,#1e3a8a,#2563eb); color: #fff; height: 44px; padding: 0 15px; border-radius: 9999px; border: 2px solid #fff; box-shadow: 0 10px 26px rgba(29,78,216,.35); display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; cursor: pointer; }
-    #sjsAiBox { position: fixed !important; bottom: 72px !important; left: 112px !important; right: auto !important; width: 400px; max-width: calc(100vw - 28px); height: 540px; max-height: calc(100vh - 108px); background: #fff; border-radius: 1.6rem; border: 1.5px solid #cbd5e1; box-shadow: 0 24px 55px rgba(15,23,42,.28); display: flex; flex-direction: column; overflow: hidden; z-index: 40; }
+    #sjsAiBox { position: fixed !important; bottom: 72px !important; left: 82px !important; right: auto !important; width: 400px; max-width: calc(100vw - 28px); height: 540px; max-height: calc(100vh - 108px); background: #fff; border-radius: 1.6rem; border: 1.5px solid #cbd5e1; box-shadow: 0 24px 55px rgba(15,23,42,.28); display: flex; flex-direction: column; overflow: hidden; z-index: 40; }
     #sjsAiBox.hidden { display: none !important; }
     #sjsAssistantSaleActions[hidden] { display: none !important; }
 
@@ -666,8 +666,36 @@
       background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
       border: 2px solid #facc15;
     }
-    #posTotalPayHeroBox #previewTotalOmset { font-size: 2.1rem !important; line-height: 1.15 !important; letter-spacing: -.02em; }
+    #posTotalPayHeroBox #previewTotalOmset { font-size: 1.6rem !important; line-height: 1.15 !important; letter-spacing: -.02em; }
     body.sjs-staff-privacy .sjs-owner-only-stat { display: none !important; }
+    .pos-item-card {
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 1.25rem;
+      padding: .85rem 1rem;
+      box-shadow: 0 4px 14px -8px rgba(15, 37, 87, .12);
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    .pos-item-card:hover {
+      border-color: #93c5fd;
+      box-shadow: 0 8px 20px -10px rgba(29, 78, 216, .18);
+    }
+    .pos-svc-chip {
+      padding: .18rem .5rem;
+      border-radius: 9999px;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      color: #334155;
+      font-size: 10px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all .12s ease;
+    }
+    .pos-svc-chip:hover {
+      background: #eff6ff;
+      border-color: #93c5fd;
+      color: #1d4ed8;
+    }
     @keyframes sjsCashPop {
       0% { transform: scale(1); background-color: #dbeafe; }
       45% { transform: scale(1.08); background-color: #fef08a; }
@@ -722,33 +750,39 @@
     @media (min-width: 768px) {
       body.sjs-admin .shop-main {
         max-width: none !important;
-        padding-left: 112px !important;
+        padding-left: 80px !important;
         padding-right: 1.25rem !important;
-        padding-top: 1rem !important;
+        padding-top: .85rem !important;
       }
       body.sjs-admin.sjs-tablet-mode .shop-main {
-        padding-left: 124px !important;
+        padding-left: 92px !important;
       }
       body.sjs-admin #mainNavigation:not([hidden]) {
         position: fixed !important;
         top: var(--sjs-header-h, 74px) !important;
         left: 0 !important;
         bottom: 0 !important;
-        width: 96px !important;
-        z-index: 42 !important;
+        width: 66px !important;
+        z-index: 44 !important;
         margin: 0 !important;
         padding: .75rem .45rem !important;
-        border-radius: 0 1.35rem 0 0 !important;
+        border-radius: 0 1.25rem 0 0 !important;
         border: none !important;
         border-right: 3px solid #facc15 !important;
         background: linear-gradient(180deg, #0f2557 0%, #1e3a8a 60%, #1d4ed8 100%) !important;
-        box-shadow: 6px 0 24px rgba(15, 37, 87, .2) !important;
+        box-shadow: 6px 0 24px rgba(15, 37, 87, .22) !important;
         display: flex !important;
         flex-direction: column !important;
         align-items: stretch !important;
         justify-content: flex-start !important;
-        gap: .5rem !important;
+        gap: .45rem !important;
         overflow-y: auto !important;
+        overflow-x: hidden !important;
+        transition: width .2s cubic-bezier(.4, 0, .2, 1) !important;
+      }
+      body.sjs-admin #mainNavigation:not([hidden]):hover {
+        width: 204px !important;
+        box-shadow: 12px 0 36px rgba(15, 37, 87, .32) !important;
       }
       body.sjs-admin #mainNavigation .workspace-nav-title { display: none !important; }
       body.sjs-admin.sjs-tablet-mode #mainNavigation:not([hidden]) {
@@ -759,20 +793,31 @@
       body.sjs-admin #mainNavigation button[data-workspace] {
         min-width: 0 !important;
         width: 100% !important;
-        min-height: 62px !important;
-        padding: .5rem .3rem !important;
-        flex-direction: column !important;
-        justify-content: center !important;
-        gap: .25rem !important;
+        min-height: 48px !important;
+        padding: .55rem .85rem !important;
+        flex-direction: row !important;
+        justify-content: flex-start !important;
+        align-items: center !important;
+        gap: .75rem !important;
         border-radius: .95rem !important;
-        background: rgba(255, 255, 255, .10) !important;
+        background: rgba(255, 255, 255, .08) !important;
         color: #eff6ff !important;
-        border: 1.5px solid rgba(255, 255, 255, .14) !important;
-        font-size: .74rem !important;
+        border: 1px solid rgba(255, 255, 255, .12) !important;
+        font-size: .82rem !important;
         font-weight: 800 !important;
-        line-height: 1.15 !important;
-        text-align: center !important;
+        line-height: 1.2 !important;
+        text-align: left !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
         position: relative !important;
+      }
+      body.sjs-admin #mainNavigation button[data-workspace] > i { width: 20px; text-align: center; flex-shrink: 0; }
+      body.sjs-admin #mainNavigation button[data-workspace] > span:not(#navStockBadge) {
+        opacity: 0;
+        transition: opacity .15s ease;
+      }
+      body.sjs-admin #mainNavigation:hover button[data-workspace] > span:not(#navStockBadge) {
+        opacity: 1;
       }
       body.sjs-admin #mainNavigation button[data-workspace] i { font-size: 1.15rem !important; }
       body.sjs-admin.sjs-tablet-mode #mainNavigation button[data-workspace] {
@@ -2001,7 +2046,7 @@
             <div class="flex flex-wrap items-center gap-1.5">
               <button type="button" id="btnToggleStaffPrivacy" aria-pressed="false" title="Sembunyikan angka omzet & modal saat pegawai menjaga kasir" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-amber-50 border border-slate-200 text-[11px] font-extrabold text-slate-700 inline-flex items-center gap-1"><i class="fa-regular fa-eye-slash" aria-hidden="true"></i> <span>Sembunyi Omzet</span></button>
               <button type="button" id="btnPosQuickClosing" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 border border-slate-200 text-[11px] font-extrabold text-slate-700 inline-flex items-center gap-1"><i class="fa-solid fa-vault text-blue-700" aria-hidden="true"></i> Tutup Kas</button>
-              <button type="button" id="btnPosShortcutHelp" class="hidden md:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-200 text-[11px] font-extrabold text-blue-900" title="Lihat daftar pintasan keyboard"><i class="fa-regular fa-keyboard" aria-hidden="true"></i> F2 Scan · F3 Tahan · F8 Tunai · F4 Simpan</button>
+              <button type="button" id="btnPosShortcutHelp" class="hidden md:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-200 text-[10px] font-extrabold text-blue-900" title="Lihat daftar pintasan keyboard"><i class="fa-regular fa-keyboard" aria-hidden="true"></i> F2 · F8 · F4</button>
             </div>
           </div>
 
@@ -3046,6 +3091,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261125-19"></script>
+  <script type="module" src="./admin.js?v=20261125-20"></script>
 </body>
 </html>
