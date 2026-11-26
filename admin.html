@@ -412,7 +412,7 @@
     /* Clean SaaS Split-Screen POS (Shopify Admin / Square POS style) */
     .pos-split {
       display: grid;
-      grid-template-columns: minmax(0, 7fr) minmax(330px, 3.3fr);
+      grid-template-columns: minmax(0, 68fr) minmax(340px, 32fr);
       gap: 1rem;
       align-items: start;
       padding-bottom: 4.5rem;
@@ -663,10 +663,65 @@
     #posCashChangeBox.is-short span { color: #9f1239 !important; font-size: .7rem !important; letter-spacing: .08em; }
     #posCashChangeBox.is-short strong { color: #be123c !important; font-size: 1.45rem !important; line-height: 1.15 !important; }
     #posTotalPayHeroBox {
-      background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+      background: linear-gradient(135deg, #0b1938 0%, #12285a 100%);
       border: 2px solid #facc15;
+      border-radius: 16px;
+      padding: .95rem 1.1rem;
     }
-    #posTotalPayHeroBox #previewTotalOmset { font-size: 1.6rem !important; line-height: 1.15 !important; letter-spacing: -.02em; }
+    #posTotalPayHeroBox #previewTotalOmset {
+      font-size: clamp(2.25rem, 3.1vw, 3rem) !important;
+      line-height: 1.08 !important;
+      letter-spacing: -.03em;
+    }
+    .pos-segmented {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 4px;
+      background: #e2e8f0;
+      padding: 4px;
+      border-radius: 14px;
+    }
+    body.sjs-admin .pos-segmented .pay-option-btn {
+      border: none !important;
+      border-radius: 10px !important;
+      background: transparent !important;
+      color: #334155 !important;
+      box-shadow: none !important;
+      min-height: 36px !important;
+      padding: .4rem .25rem !important;
+      font-size: .78rem !important;
+      font-weight: 800 !important;
+    }
+    body.sjs-admin .pos-segmented .pay-option-btn:hover {
+      background: rgba(255, 255, 255, .65) !important;
+      color: #0f2557 !important;
+    }
+    body.sjs-admin .pos-segmented .pay-option-btn[aria-pressed="true"] {
+      background: #1d4ed8 !important;
+      color: #ffffff !important;
+      box-shadow: 0 3px 10px rgba(29, 78, 216, .32) !important;
+    }
+    body.sjs-admin .pos-segmented .pay-option-btn[aria-pressed="true"] i {
+      color: #facc15 !important;
+    }
+    .pos-fav-card {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+      padding: .45rem .75rem;
+      border-radius: 14px;
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, .04);
+      transition: all .14s ease;
+      cursor: pointer;
+    }
+    .pos-fav-card:hover {
+      border-color: #2563eb;
+      background: #eff6ff;
+      transform: translateY(-1px);
+    }
     body.sjs-staff-privacy .sjs-owner-only-stat { display: none !important; }
     .pos-item-card {
       background: #ffffff;
@@ -2037,16 +2092,16 @@
               <span class="text-slate-300 sjs-owner-only-stat">|</span>
               <span class="sjs-owner-only-stat">Rata²: <strong id="posStatAvgToday" class="text-slate-900 font-extrabold tabular-nums">Rp 0</strong><span id="posStatAvgSub" class="hidden"></span></span>
               <span class="text-slate-300">|</span>
-              <button type="button" id="btnPosStatLowStock" class="inline-flex items-center gap-1 text-amber-800 hover:underline font-extrabold">
-                <i class="fa-solid fa-triangle-exclamation text-amber-500" aria-hidden="true"></i>
+              <button type="button" id="btnPosStatLowStock" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-800 font-extrabold">
+                <i class="fa-solid fa-triangle-exclamation text-rose-500" aria-hidden="true"></i>
                 <span id="posStatLowStock">0 Barang</span> Menipis
-                <span id="posStatLowStockNames" class="hidden sm:inline text-[11px] font-semibold text-slate-500 max-w-[180px] truncate"></span>
+                <span id="posStatLowStockNames" class="hidden sm:inline text-[11px] font-semibold text-rose-700/80 max-w-[180px] truncate"></span>
               </button>
             </div>
             <div class="flex flex-wrap items-center gap-1.5">
               <button type="button" id="btnToggleStaffPrivacy" aria-pressed="false" title="Sembunyikan angka omzet & modal saat pegawai menjaga kasir" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-amber-50 border border-slate-200 text-[11px] font-extrabold text-slate-700 inline-flex items-center gap-1"><i class="fa-regular fa-eye-slash" aria-hidden="true"></i> <span>Sembunyi Omzet</span></button>
               <button type="button" id="btnPosQuickClosing" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 border border-slate-200 text-[11px] font-extrabold text-slate-700 inline-flex items-center gap-1"><i class="fa-solid fa-vault text-blue-700" aria-hidden="true"></i> Tutup Kas</button>
-              <button type="button" id="btnPosShortcutHelp" class="hidden md:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-200 text-[10px] font-extrabold text-blue-900" title="Lihat daftar pintasan keyboard"><i class="fa-regular fa-keyboard" aria-hidden="true"></i> F2 · F8 · F4</button>
+              <button type="button" id="btnPosShortcutHelp" class="hidden md:inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-200 text-[10px] font-extrabold text-blue-900" title="Lihat daftar pintasan keyboard"><i class="fa-regular fa-keyboard" aria-hidden="true"></i> F2 Scan · F8 Tunai · F4 Simpan</button>
             </div>
           </div>
 
@@ -2054,7 +2109,7 @@
           <div class="pos-split">
             <!-- KOLOM KIRI (70%): SCAN, CARI, FAVORIT, KERANJANG, AKSI & RIWAYAT HARI INI -->
             <div class="space-y-3 min-w-0">
-              <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-4 space-y-3">
+              <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 space-y-3">
                 <div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
                   <button type="button" id="btnOpenScanner" class="shrink-0 px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs inline-flex items-center gap-1.5 shadow-xs"><i class="fa-solid fa-qrcode text-sm" aria-hidden="true"></i><span>Scan QR (F2)</span></button>
                   <div class="relative flex-1 min-w-[200px]">
@@ -2083,10 +2138,10 @@
 
                 <p id="replacementSaleNotice" class="rounded-2xl bg-blue-50 border border-blue-200 p-3 text-xs font-bold text-blue-900" role="status" hidden></p>
 
-                <!-- Keranjang Kosong -->
-                <div id="posCartEmptyHint" class="rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 px-4 py-8 text-center space-y-1">
-                  <p class="text-sm font-extrabold text-slate-700">🛒 Keranjang Kosong</p>
-                  <p class="text-xs font-semibold text-slate-500">Cari nama/kode barang di atas, klik <strong>Favorit Cepat</strong>, atau tekan <strong>F2</strong> untuk Scan QR.</p>
+                <!-- Keranjang Kosong Ringkas -->
+                <div id="posCartEmptyHint" class="rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 px-4 py-4 flex flex-wrap items-center justify-between gap-2">
+                  <p class="text-sm font-extrabold text-slate-700">🛒 Belum ada barang</p>
+                  <p class="text-xs font-semibold text-slate-500">Scan QR (<strong>F2</strong>) · Cari nama barang · Klik favorit cepat</p>
                 </div>
 
                 <div id="posCartSummaryList" hidden></div>
@@ -2112,7 +2167,7 @@
               </div>
 
               <!-- TRANSAKSI TERAKHIR HARI INI -->
-              <div id="posRecentTxCard" class="bg-white rounded-3xl border border-slate-200 p-4 space-y-2">
+              <div id="posRecentTxCard" class="bg-white rounded-2xl border border-slate-200 p-4 space-y-2">
                 <div class="flex items-center justify-between gap-2">
                   <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-700"><i class="fa-solid fa-clock-rotate-left text-blue-700 mr-1.5" aria-hidden="true"></i>Transaksi Terakhir Hari Ini</h4>
                   <button type="button" id="btnPosOpenHistory" class="text-[11px] font-extrabold text-blue-700 hover:underline">Lihat semua →</button>
@@ -2121,58 +2176,62 @@
               </div>
             </div>
 
-            <!-- KOLOM KANAN (30%): ALUR KRONOLOGIS TOTAL -> PELANGGAN -> CARA BAYAR -> DISKON -> UANG DITERIMA & NUMPAD -> KEMBALIAN -> SIMPAN -->
-            <div class="pos-cart-sticky bg-white rounded-3xl border-2 border-blue-200 shadow-lg overflow-hidden">
-              <!-- 1. TOTAL BAYAR (ATAS, PENUH, PALING JELAS) -->
-              <div id="posTotalPayHeroBox" class="shrink-0 px-4 py-3 text-white">
-                <div class="flex items-center justify-between gap-2">
-                  <span class="text-[11px] font-extrabold uppercase tracking-wider text-amber-300">Total Bayar</span>
-                  <span id="previewSubtotalLine" class="text-[11px] font-semibold text-blue-100 tabular-nums">Subtotal Rp 0</span>
-                </div>
-                <strong id="previewTotalOmset" class="block font-black text-white tabular-nums mt-0.5">Rp 0</strong>
-                <div class="hidden"><span id="previewTotalProfit">Rp 0</span></div>
-              </div>
-
-              <div class="flex-1 min-h-0 overflow-y-auto p-3 space-y-2.5">
-                <!-- 2. PELANGGAN + BADGE MEMBER & BON -->
+            <!-- KOLOM KANAN (32%): PELANGGAN -> CARA BAYAR (SEGMENTED) -> TOTAL BAYAR (48PX) -> UANG DITERIMA & NUMPAD -> KEMBALIAN -> SIMPAN -->
+            <div class="pos-cart-sticky bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden">
+              <div class="flex-1 min-h-0 overflow-y-auto p-3.5 space-y-3">
+                <!-- 1. PELANGGAN -->
                 <div class="space-y-1.5">
                   <div class="flex items-center justify-between gap-2">
-                    <label for="inputCustomer" class="text-[11px] font-extrabold uppercase tracking-wider text-slate-600">Pelanggan</label>
+                    <label for="inputCustomer" class="text-[11px] font-extrabold uppercase tracking-wider text-slate-500">Pelanggan</label>
                     <div id="posCustomerStatusBadges" class="flex items-center gap-1.5 text-[10px] font-extrabold"></div>
                   </div>
-                  <input type="text" id="inputCustomer" maxlength="500" placeholder="Pelanggan umum (ketik nama member...)" class="w-full rounded-xl border border-slate-300 bg-slate-50 focus:bg-white px-2.5 py-1.5 font-bold !text-sm">
+                  <input type="text" id="inputCustomer" maxlength="500" placeholder="Pelanggan umum (ketik nama member...)" class="w-full rounded-xl border border-slate-300 bg-slate-50 focus:bg-white px-3 py-1.5 font-bold !text-sm">
                   <div id="posRecentCustomersBar" class="flex flex-wrap items-center gap-1 text-[10px]" hidden></div>
                 </div>
 
-                <!-- 3. CARA BAYAR -->
-                <div id="posPaySectionBox" class="space-y-1.5 rounded-2xl border border-slate-200 bg-slate-50 p-2.5">
+                <!-- 2. CARA BAYAR (SEGMENTED CONTROL MODERN) -->
+                <div id="posPaySectionBox" class="space-y-1.5">
                   <div class="flex items-center justify-between gap-2">
                     <div class="flex items-center gap-1.5">
-                      <span class="text-[11px] font-extrabold uppercase tracking-wider text-slate-600">Cara Bayar</span>
+                      <span class="text-[11px] font-extrabold uppercase tracking-wider text-slate-500">Cara Bayar</span>
                       <span id="salePaymentTopBadge" class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-extrabold">Wajib pilih</span>
                     </div>
-                    <button type="button" id="btnShowQrisPay" class="px-2 py-0.5 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 text-[10px] font-bold text-slate-800 inline-flex items-center gap-1"><i class="fa-solid fa-qrcode text-red-600" aria-hidden="true"></i><span>QRIS</span></button>
+                    <button type="button" id="btnShowQrisPay" class="px-2 py-0.5 rounded-lg bg-slate-100 border border-slate-200 hover:bg-blue-50 text-[10px] font-extrabold text-slate-700 inline-flex items-center gap-1"><i class="fa-solid fa-qrcode text-red-600" aria-hidden="true"></i><span>QRIS</span></button>
                   </div>
-                  <div class="grid grid-cols-3 gap-1.5" role="group" aria-label="Cara bayar">
-                    <button type="button" data-pay="Cash" aria-pressed="false" class="shop-button pay-option-btn !min-h-9 !py-1.5 !px-1.5 !text-xs"><i class="fa-solid fa-money-bill-wave" aria-hidden="true"></i> Tunai</button>
-                    <button type="button" data-pay="QRIS" aria-pressed="false" class="shop-button pay-option-btn !min-h-9 !py-1.5 !px-1.5 !text-xs"><i class="fa-solid fa-qrcode" aria-hidden="true"></i> QRIS</button>
-                    <button type="button" data-pay="Kartu" aria-pressed="false" class="shop-button pay-option-btn !min-h-9 !py-1.5 !px-1.5 !text-xs"><i class="fa-solid fa-credit-card" aria-hidden="true"></i> Kartu</button>
-                    <button type="button" data-pay="Transfer" aria-pressed="false" class="shop-button pay-option-btn !min-h-9 !py-1.5 !px-1.5 !text-xs"><i class="fa-solid fa-building-columns" aria-hidden="true"></i> Transfer</button>
-                    <button type="button" data-pay="Split" aria-pressed="false" class="shop-button pay-option-btn !min-h-9 !py-1.5 !px-1.5 !text-xs"><i class="fa-solid fa-code-branch" aria-hidden="true"></i> Split</button>
-                    <button type="button" data-pay="Bon" aria-pressed="false" class="shop-button pay-option-btn !min-h-9 !py-1.5 !px-1.5 !text-xs"><i class="fa-solid fa-file-invoice" aria-hidden="true"></i> Bon</button>
+                  <div class="space-y-1.5" role="group" aria-label="Cara bayar">
+                    <div class="pos-segmented">
+                      <button type="button" data-pay="Cash" aria-pressed="false" class="pay-option-btn inline-flex items-center justify-center gap-1"><i class="fa-solid fa-money-bill-wave" aria-hidden="true"></i> Tunai</button>
+                      <button type="button" data-pay="QRIS" aria-pressed="false" class="pay-option-btn inline-flex items-center justify-center gap-1"><i class="fa-solid fa-qrcode" aria-hidden="true"></i> QRIS</button>
+                      <button type="button" data-pay="Kartu" aria-pressed="false" class="pay-option-btn inline-flex items-center justify-center gap-1"><i class="fa-solid fa-credit-card" aria-hidden="true"></i> Kartu</button>
+                    </div>
+                    <div class="pos-segmented">
+                      <button type="button" data-pay="Transfer" aria-pressed="false" class="pay-option-btn inline-flex items-center justify-center gap-1"><i class="fa-solid fa-building-columns" aria-hidden="true"></i> Transfer</button>
+                      <button type="button" data-pay="Split" aria-pressed="false" class="pay-option-btn inline-flex items-center justify-center gap-1"><i class="fa-solid fa-code-branch" aria-hidden="true"></i> Split</button>
+                      <button type="button" data-pay="Bon" aria-pressed="false" class="pay-option-btn inline-flex items-center justify-center gap-1"><i class="fa-solid fa-file-invoice" aria-hidden="true"></i> Bon</button>
+                    </div>
                   </div>
-                  <div id="posSplitBonPanel" class="hidden pt-2 border-t border-slate-200 grid grid-cols-2 gap-2 text-xs">
+                  <div id="posSplitBonPanel" class="hidden pt-1.5 grid grid-cols-2 gap-2 text-xs">
                     <label class="font-bold text-slate-700"><span id="posSplitPrimaryLbl">Bayar Tunai (Rp)</span>
                       <input type="number" id="inputSplitCash" min="0" step="1000" value="0" inputmode="numeric" class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-2 py-1 font-extrabold tabular-nums">
                     </label>
-                    <div class="rounded-xl bg-white border border-slate-200 px-2 py-1 flex flex-col justify-center">
+                    <div class="rounded-xl bg-slate-50 border border-slate-200 px-2 py-1 flex flex-col justify-center">
                       <span id="posSplitRemainLbl" class="text-[10px] font-bold text-slate-500 uppercase">Sisa QRIS/Transfer</span>
                       <strong id="posSplitRemainVal" class="text-sm font-extrabold text-blue-900 tabular-nums">Rp 0</strong>
                     </div>
                   </div>
                 </div>
 
-                <!-- 4. DISKON NOTA -->
+                <!-- 3. TOTAL BAYAR (ELEMEN TERBESAR DI LAYAR — NAVY GELAP + AKSEN KUNING) -->
+                <div id="posTotalPayHeroBox" class="text-white shadow-md">
+                  <div class="flex items-center justify-between gap-2">
+                    <span class="text-[11px] font-extrabold uppercase tracking-wider text-amber-300">Total Bayar</span>
+                    <span id="previewSubtotalLine" class="text-[11px] font-semibold text-blue-200 tabular-nums">Subtotal Rp 0</span>
+                  </div>
+                  <strong id="previewTotalOmset" class="block font-black text-white tabular-nums mt-1">Rp 0</strong>
+                  <div class="hidden"><span id="previewTotalProfit">Rp 0</span></div>
+                </div>
+
+                <!-- DISKON NOTA -->
                 <div class="flex items-center justify-between gap-2 text-xs font-bold text-slate-700 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5">
                   <span>Diskon Nota</span>
                   <div class="flex items-center gap-1.5">
@@ -2184,8 +2243,8 @@
                   </div>
                 </div>
 
-                <!-- 5. UANG DITERIMA + PECAHAN CEPAT + NUMPAD (DENGAN BACKSPACE ←) -->
-                <div id="posCashCalcPanel" class="pos-cash-calc shrink-0 !p-2.5 !gap-2" aria-label="Hitung uang tunai dan kembalian">
+                <!-- 4. UANG DITERIMA + PECAHAN CEPAT + NUMPAD SELALU TERLIHAT -->
+                <div id="posCashCalcPanel" class="pos-cash-calc shrink-0 !p-2.5 !gap-2 !rounded-2xl" aria-label="Hitung uang tunai dan kembalian">
                   <div class="pos-cash-box w-full flex items-center justify-between gap-2 !py-1.5 !px-2.5">
                     <div class="min-w-0">
                       <span class="block">Uang Diterima</span>
@@ -2223,7 +2282,7 @@
                   </div>
                 </div>
 
-                <!-- 6. ✅ KEMBALIAN (TEPAT DI ATAS TOMBOL SIMPAN!) -->
+                <!-- 5. KEMBALIAN (HIJAU BESAR) -->
                 <div id="posCashChangeBox" class="pos-cash-box is-change !rounded-2xl !py-2.5 !px-3 w-full">
                   <span id="posCashChangeLabel" class="block font-extrabold uppercase">✅ Kembalian</span>
                   <strong id="posCashChangeText" class="block tabular-nums mt-0.5">Rp 0</strong>
@@ -2232,8 +2291,8 @@
                 <p id="salePaymentHint" class="text-xs font-semibold text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-3 py-1.5">Tambahkan minimal 1 barang untuk menyimpan penjualan.</p>
               </div>
 
-              <!-- 7. TOMBOL SIMPAN & CETAK MENEMPEL DI BAWAH -->
-              <div class="shrink-0 border-t-2 border-blue-100 bg-slate-50 px-3 py-2.5 space-y-1.5">
+              <!-- 6. SIMPAN & CETAK (TOMBOL HIJAU BESAR) -->
+              <div class="shrink-0 border-t border-slate-200 bg-slate-50 px-3.5 py-2.5 space-y-1.5">
                 <button type="button" id="btnSaveAndPrintTx" class="shop-button shop-button-emerald !w-full" disabled><i class="fa-solid fa-print" aria-hidden="true"></i> Simpan &amp; Cetak</button>
                 <button type="button" id="btnSaveTx" class="shop-button shop-button-secondary !w-full !min-h-10 !py-1.5" disabled><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Simpan (F4)</button>
               </div>
@@ -3091,6 +3150,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261125-21"></script>
+  <script type="module" src="./admin.js?v=20261125-22"></script>
 </body>
 </html>

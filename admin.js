@@ -1052,10 +1052,11 @@
         <div class="flex flex-wrap items-center gap-1 pt-0.5">
           <button type="button" class="pos-svc-chip" data-svc-note="Pasang 24 lbs">🏸 24 lbs</button>
           <button type="button" class="pos-svc-chip" data-svc-note="Pasang 27 lbs">🏸 27 lbs</button>
+          <button type="button" class="pos-svc-chip" data-svc-note="Pasang 30 lbs">🏸 30 lbs</button>
           <button type="button" class="pos-svc-chip" data-svc-note="Kaliber 4.5mm">🎯 Kaliber</button>
           <button type="button" class="pos-svc-chip" data-svc-note="Ukuran Sabuk">🥋 Sabuk</button>
-          <button type="button" class="pos-svc-chip" data-svc-note="Ukuran Bola 5">⚽ Uk. Bola</button>
-          <button type="button" class="pos-svc-chip" data-svc-note="Tulisan Piala">🏅 Piala</button>
+          <button type="button" class="pos-svc-chip" data-svc-note="Ukuran Bola 5">⚽ Ukuran Bola</button>
+          <button type="button" class="pos-svc-chip" data-svc-note="Tulisan Piala">🏆 Tulisan Piala</button>
         </div>`;
       container.appendChild(row);
 
@@ -1153,6 +1154,12 @@
         total += price * qty;
         profit += (price - cost) * qty;
         row.querySelector(".item-subtotal").textContent = rp(price * qty);
+        const pInpLive = row.querySelector(".item-price-input");
+        if (pInpLive) {
+          const invalidPrice = Boolean(nm) && price <= 0;
+          pInpLive.classList.toggle("border-rose-500", invalidPrice);
+          pInpLive.classList.toggle("bg-rose-50", invalidPrice);
+        }
         const badge = row.querySelector(".item-mode-badge");
         if (badge) {
           if (inv) {
@@ -1252,13 +1259,13 @@
       const recInp = document.getElementById("posCashReceivedInput");
       if (recInp && document.activeElement !== recInp) recInp.value = cashReceivedAmount > 0 ? String(cashReceivedAmount) : "";
       const diff = cashReceivedAmount - currentSaleTotalAmount;
-      if (cashReceivedAmount === 0) {
+      if (currentSaleTotalAmount <= 0) {
         if (lblEl) lblEl.textContent = "✅ Kembalian";
         if (chgEl) chgEl.textContent = rp(0);
         if (boxEl) { boxEl.classList.add("is-change"); boxEl.classList.remove("is-short"); }
       } else if (diff < 0) {
         if (lblEl) lblEl.textContent = "⚠ Kurang Bayar";
-        if (chgEl) chgEl.textContent = rp(Math.abs(diff));
+        if (chgEl) chgEl.textContent = "Kurang " + rp(Math.abs(diff));
         if (boxEl) { boxEl.classList.remove("is-change"); boxEl.classList.add("is-short"); }
       } else {
         if (lblEl) lblEl.textContent = "✅ Kembalian";
@@ -1282,8 +1289,13 @@
       }
       const ranked = active.slice().sort((a, b) => (freq.get(b.id) || 0) - (freq.get(a.id) || 0) || Number(b.stock || 0) - Number(a.stock || 0)).slice(0, 7);
       bar.innerHTML = ranked.map(it => {
-        const shortName = String(it.name || "").length > 22 ? String(it.name).slice(0, 21) + "…" : String(it.name || "");
-        return `<button type="button" data-quick-fav-id="${esc(it.id)}" title="${esc(it.name)} · ${rp(it.price)} (stok ${Number(it.stock || 0)})" class="px-2.5 py-1 rounded-full bg-white hover:bg-blue-50 border border-amber-300 hover:border-blue-400 text-xs font-extrabold text-slate-800 inline-flex items-center gap-1 transition"><span>+ ${esc(shortName)}</span><span class="text-[10px] text-emerald-700">${esc(shortRpTick(it.price).replace("Rp ", ""))}</span></button>`;
+        const shortName = String(it.name || "").length > 20 ? String(it.name).slice(0, 19) + "…" : String(it.name || "");
+        const catKey = detectProductCategoryLabel(it).key;
+        const icon = catKey === "badminton" ? "🏸" : catKey === "ball" ? "⚽" : catKey === "chess" ? "♟️" : catKey === "music" ? "🎸" : "🏅";
+        return `<button type="button" data-quick-fav-id="${esc(it.id)}" title="${esc(it.name)} · ${rp(it.price)} (stok ${Number(it.stock || 0)})" class="pos-fav-card">
+          <span class="text-xs font-extrabold text-slate-900 leading-tight">${icon} ${esc(shortName)}</span>
+          <span class="text-[11px] font-extrabold text-emerald-700 tabular-nums">${esc(shortRpTick(it.price).replace("Rp ", ""))}</span>
+        </button>`;
       }).join("");
     }
 
@@ -1535,7 +1547,12 @@
         const manualCost = Math.max(0, Math.round(Number(row.querySelector(".item-cost-input")?.value) || 0));
         if (!inv && !typedName) { showToast("Isi nama barang atau pilih dari daftar stok."); row.querySelector(".item-name-input").focus(); return; }
         if (!Number.isSafeInteger(qty) || qty < 1) return showToast("Jumlah minimal 1 pcs.");
-        if (!Number.isSafeInteger(price) || price < 0) return showToast("Isi harga jual dalam Rupiah.");
+        const priceInp = row.querySelector(".item-price-input");
+        if (!Number.isSafeInteger(price) || price <= 0) {
+          if (priceInp) { priceInp.classList.add("border-rose-500", "bg-rose-50"); priceInp.focus(); }
+          return showToast(`Harga jual "${typedName || "barang"}" harus lebih dari Rp 0.`);
+        }
+        if (priceInp) priceInp.classList.remove("border-rose-500", "bg-rose-50");
         const itemUnit = String(row.querySelector(".item-unit-select")?.value || "Pcs");
         const itemNote = String(row.querySelector(".item-note-input")?.value || "").trim().slice(0, 80);
         const displayItemName = inv ? formatItemLabel(inv) : typedName.slice(0, 160);
@@ -5512,7 +5529,7 @@
       document.getElementById("invCropBottom").addEventListener("input", retriggerPreview);
       document.getElementById("btnSaveGeminiKey")?.addEventListener("click", async () => {
         if (!isAdmin) return;
-        const val = String(document.getElementById("geminiApiKeyInput")?.value || "").trim();
+        const val = String(geminiApiKey || "").trim();
         if (!val) return showToast("Tempel Gemini API Key terlebih dahulu.");
         geminiApiKey = val;
         const ok = await saveConfig({ geminiApiKey: val });
