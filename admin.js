@@ -936,6 +936,8 @@
       const txtEl = document.getElementById("invQrCodeText");
       if (hintEl) hintEl.textContent = nextAutoCode();
       if (txtEl) txtEl.textContent = code;
+      const exEl = document.getElementById("invVariantExampleCode");
+      if (exEl) exEl.textContent = `${code}-A`;
       updateInvVariantCodes();
       if (!box) return;
       try {
@@ -6255,7 +6257,7 @@
       });
       document.getElementById("invCode")?.addEventListener("input", updateInvQrPreview);
       document.getElementById("invName")?.addEventListener("input", e => { if (e.target.value.trim()) setInvFieldError("invName", "invErrName", false); });
-      document.getElementById("invStock")?.addEventListener("input", e => { if (e.target.value.trim() !== "") setInvFieldError("invStock", "invErrStock", false); updateInvVariantSummary(); });
+      document.getElementById("invStock")?.addEventListener("input", e => { e.target.value = String(e.target.value || "").replace(/[^\d]/g, "").slice(0, 6); if (e.target.value.trim() !== "") setInvFieldError("invStock", "invErrStock", false); updateInvVariantSummary(); });
       document.getElementById("invCost")?.addEventListener("input", e => { e.target.value = fmtIdrInput(e.target.value); updateInvProfitPreview(); });
       document.getElementById("invPrice")?.addEventListener("input", e => { e.target.value = fmtIdrInput(e.target.value); if (parseIdrNum(e.target.value) > 0) setInvFieldError("invPrice", "invErrPrice", false); updateInvProfitPreview(); });
       document.getElementById("btnAddInvVariant")?.addEventListener("click", addInvVariantRow);

@@ -2391,6 +2391,22 @@
       font-size: 13.5px !important;
     }
 
+
+    /* === TOMBOL SIMPAN BARANG & BUAT QR: NAVY + GOLD SERAGAM === */
+    body.sjs-admin #btnSaveInventory {
+      background: linear-gradient(135deg, #0F172A 0%, #142850 100%) !important;
+      border: 1.5px solid #F5B700 !important;
+      color: #FFFFFF !important;
+      font-weight: 800 !important;
+      border-radius: 12px !important;
+      box-shadow: 0 6px 16px rgba(15, 23, 42, .24) !important;
+    }
+    body.sjs-admin #btnSaveInventory i { color: #F5B700 !important; }
+    body.sjs-admin #btnSaveInventory:hover {
+      background: #0F172A !important;
+      border-color: #FFD029 !important;
+    }
+
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -3785,17 +3801,22 @@
               <span class="w-5 h-5 rounded-md bg-slate-900 text-white inline-flex items-center justify-center text-[10px]">2</span>
               <span>Media (Opsional)</span>
             </h3>
-            <input type="file" id="invImageFile" accept="image/jpeg,image/png,image/webp" class="block w-full text-sm">
-            <div id="invImagePreviewWrap" class="rounded-xl bg-slate-50 border border-slate-200 p-2.5 flex items-center gap-3">
-              <div id="invImagePreviewEmpty" class="w-16 h-16 rounded-xl border border-dashed border-slate-300 bg-white flex flex-col items-center justify-center text-center text-[10px] font-semibold text-slate-400 px-2 shrink-0">
-                <i class="fa-regular fa-image text-lg mb-1" aria-hidden="true"></i>
-                <span>Pratinjau foto</span>
+            <input type="file" id="invImageFile" accept="image/jpeg,image/png,image/webp" class="sr-only">
+            <div id="invImagePreviewWrap" class="rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-dashed border-slate-300 p-2.5 flex items-center justify-between gap-3 transition">
+              <div class="flex items-center gap-3 min-w-0">
+                <div id="invImagePreviewEmpty" class="w-16 h-16 rounded-xl border border-slate-200 bg-white flex flex-col items-center justify-center text-center text-[10px] font-semibold text-slate-400 px-1.5 shrink-0">
+                  <i class="fa-regular fa-image text-lg mb-0.5" aria-hidden="true"></i>
+                  <span>Foto</span>
+                </div>
+                <img id="invImagePreview" alt="Pratinjau foto produk" class="hidden w-16 h-16 object-contain bg-white rounded-xl border border-slate-200 shadow-sm shrink-0">
+                <div class="min-w-0 space-y-0.5">
+                  <span id="invImagePreviewLabel" class="block text-xs font-bold text-slate-800 truncate">Belum ada foto dipilih</span>
+                  <p class="text-[11px] text-slate-500">JPG, PNG, atau WebP — langsung tampil sebelum disimpan.</p>
+                </div>
               </div>
-              <img id="invImagePreview" alt="Pratinjau foto produk" class="hidden w-16 h-16 object-contain bg-white rounded-xl border border-slate-200 shadow-sm shrink-0">
-              <div class="min-w-0 space-y-1">
-                <span id="invImagePreviewLabel" class="block text-xs font-bold text-slate-700">Belum ada foto dipilih</span>
-                <p class="text-[11px] text-slate-500">Foto yang dipilih langsung tampil di kotak pratinjau sebelum disimpan.</p>
-              </div>
+              <label for="invImageFile" class="shrink-0 cursor-pointer px-3.5 py-2 rounded-xl bg-white hover:bg-slate-900 hover:text-white border border-slate-300 text-slate-800 text-xs font-bold shadow-2xs transition inline-flex items-center gap-1.5">
+                <i class="fa-solid fa-upload text-[11px]" aria-hidden="true"></i><span>Pilih Foto</span>
+              </label>
             </div>
           </section>
 
@@ -3820,7 +3841,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-start">
               <div>
                 <label for="invStock" class="block text-xs font-bold text-slate-700 mb-1">Stok awal (Pcs) <span class="text-rose-600">*</span></label>
-                <input type="number" min="0" step="1" inputmode="numeric" id="invStock" placeholder="Contoh: 10" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl font-extrabold tabular-nums placeholder:font-normal placeholder:text-slate-400">
+                <input type="text" inputmode="numeric" autocomplete="off" id="invStock" placeholder="Contoh: 10" class="w-full px-3.5 py-2 border border-slate-300 rounded-xl font-extrabold tabular-nums placeholder:font-normal placeholder:text-slate-400">
                 <p class="text-[11px] text-slate-500 mt-1">Isi 0 jika belum ada stok</p>
                 <p id="invErrStock" class="hidden text-[11px] font-bold text-red-600 mt-1">⚠ Stok awal wajib diisi (minimal 0).</p>
               </div>
@@ -3847,7 +3868,7 @@
               </h3>
               <span id="invVariantTotalBadge" class="px-2.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-[11px] font-bold">Utama saja</span>
             </div>
-            <p class="text-[11px] text-slate-500">Stok awal di atas berlaku khusus untuk barang utama. Tiap varian di bawah punya stok &amp; kode QR otomatis sendiri (mis. <strong>SJS-001-A</strong>) tanpa membagi stok utama.</p>
+            <p class="text-[11px] text-slate-500">Stok awal di atas berlaku khusus untuk barang utama. Tiap varian di bawah punya stok &amp; kode QR otomatis sendiri (mis. <strong id="invVariantExampleCode">SJS-001-A</strong>) tanpa membagi stok utama.</p>
             <div id="invVariantsList" class="space-y-2.5"></div>
             <div class="pt-0.5">
               <button type="button" id="btnAddInvVariant" class="w-full sm:w-auto px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition">+ Tambah Varian</button>
@@ -4195,6 +4216,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261126-24"></script>
+  <script type="module" src="./admin.js?v=20261126-25"></script>
 </body>
 </html>
