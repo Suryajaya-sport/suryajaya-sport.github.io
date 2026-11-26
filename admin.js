@@ -1255,6 +1255,8 @@
         if (subEl) {
           subEl.textContent = `${qty}${unitStr !== "Pcs" ? " " + unitStr : "x"} @ ${rp(price)}`;
         }
+        const nInpLive = row.querySelector(".item-name-input");
+        if (nInpLive && nm) nInpLive.classList.remove("invalid");
         const pInpLive = row.querySelector(".item-price-input");
         if (pInpLive) {
           const invalidPrice = Boolean(nm) && price <= 0;
@@ -1697,14 +1699,23 @@
         const price = parseIdrNum(row.querySelector(".item-price-input")?.value);
         const rawManualCost = parseNullableIdr(row.querySelector(".item-cost-input")?.value);
         const manualCost = rawManualCost == null ? null : Math.max(0, Math.round(rawManualCost));
-        if (!inv && !typedName) { showToast("Isi nama barang atau pilih dari daftar stok."); row.querySelector(".item-name-input").focus(); return; }
-        if (!Number.isSafeInteger(qty) || qty < 1) return showToast("Jumlah minimal 1 pcs.");
+        const nameInp = row.querySelector(".item-name-input");
         const priceInp = row.querySelector(".item-price-input");
+        const drawerEl = row.querySelector(".item-edit-drawer");
+        if (!inv && !typedName) {
+          if (drawerEl) drawerEl.hidden = false;
+          if (nameInp) { nameInp.classList.add("invalid"); nameInp.scrollIntoView({ behavior: "smooth", block: "center" }); nameInp.focus(); }
+          showToast("Isi nama barang terlebih dahulu.");
+          return;
+        }
+        if (nameInp) nameInp.classList.remove("invalid");
+        if (!Number.isSafeInteger(qty) || qty < 1) return showToast("Jumlah minimal 1 pcs.");
         if (!Number.isSafeInteger(price) || price <= 0) {
-          if (priceInp) { priceInp.classList.add("border-rose-500", "bg-rose-50"); priceInp.focus(); }
+          if (drawerEl) drawerEl.hidden = false;
+          if (priceInp) { priceInp.classList.add("invalid", "border-rose-500", "bg-rose-50"); priceInp.scrollIntoView({ behavior: "smooth", block: "center" }); priceInp.focus(); }
           return showToast(`Harga jual "${typedName || "barang"}" harus lebih dari Rp 0.`);
         }
-        if (priceInp) priceInp.classList.remove("border-rose-500", "bg-rose-50");
+        if (priceInp) priceInp.classList.remove("invalid", "border-rose-500", "bg-rose-50");
         const itemUnit = String(row.querySelector(".item-unit-select")?.value || "Pcs");
         const itemNote = String(row.querySelector(".item-note-input")?.value || "").trim().slice(0, 80);
         const displayItemName = inv ? formatItemLabel(inv) : typedName.slice(0, 160);
