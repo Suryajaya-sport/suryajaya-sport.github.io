@@ -2200,7 +2200,7 @@
             <div class="flex items-center gap-1.5">
               <button type="button" id="btnToggleStaffPrivacy" aria-pressed="false" class="px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-amber-50 border border-slate-200 text-[10px] font-extrabold text-slate-600"><i class="fa-regular fa-eye-slash mr-1" aria-hidden="true"></i><span>Sembunyi Omzet</span></button>
               <button type="button" id="btnPosQuickClosing" class="px-2 py-0.5 rounded-lg bg-slate-100 hover:bg-blue-50 border border-slate-200 text-[10px] font-extrabold text-slate-700"><i class="fa-solid fa-vault text-blue-700 mr-1" aria-hidden="true"></i>Tutup Kas</button>
-              <button type="button" id="btnPosShortcutHelp" class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-blue-50 border border-blue-200 text-[10px] font-extrabold text-blue-900">F2 Scan · F3 Hold · F8 Tunai · F4 Simpan</button>
+              <button type="button" id="btnPosShortcutHelp" class="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-blue-50 border border-blue-200 text-[10px] font-extrabold text-blue-900">F2 Scan · F3 Hold · F8 Tunai · Enter Cetak · F4 Simpan</button>
             </div>
           </div>
 
@@ -2319,7 +2319,7 @@
                   <strong id="posCashReceivedText" class="text-3xl font-black text-slate-950 tabular-nums">Rp 0</strong>
                   <span id="posCashFeedbackPill" class="hidden px-2 py-0.5 rounded-full bg-amber-200 text-amber-950 text-[10px] font-extrabold"></span>
                 </div>
-                <input type="number" id="posCashReceivedInput" min="0" step="1000" inputmode="numeric" placeholder="atau ketik nominal..." aria-label="Ketik uang diterima" class="mt-1.5 w-40 mx-auto block rounded-lg border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-bold text-center text-slate-700 tabular-nums">
+                <input type="text" id="posCashReceivedInput" inputmode="numeric" autocomplete="off" placeholder="atau ketik nominal..." aria-label="Ketik uang diterima" class="mt-1.5 w-44 mx-auto block rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-extrabold text-center text-slate-700 tabular-nums">
               </div>
 
               <!-- 3. SEGMENTED CONTROL CARA BAYAR (4 UTAMA + SPLIT/BON) -->
@@ -3103,6 +3103,8 @@
         <p id="qrisShopLabel" class="text-base font-extrabold"></p>
         <p id="qrisNmidLabel" class="text-xs font-mono font-bold text-slate-600"></p>
         <div><p class="text-xs font-bold text-slate-500 uppercase">Total tagihan pembeli</p><p id="qrisAmountLabel" class="text-2xl font-extrabold text-sky-700 tabular-nums">Rp 0</p></div>
+          <label class="inline-flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer mt-1"><input type="checkbox" id="qrisDynamicToggle" checked class="h-4 w-4 rounded border-slate-300"> Sertakan nominal otomatis (QRIS Dinamis)</label>
+          <p id="qrisValidNote" class="text-[11px] font-bold text-emerald-700"></p>
         <div id="qrisCodeCanvas" class="mx-auto p-4 bg-white border-4 border-red-500 rounded-2xl flex items-center justify-center min-h-[240px] min-w-[240px]"></div>
         <div id="qrisTempDecoderBox" class="hidden"></div>
         <div class="pt-3 border-t border-slate-100 space-y-2.5 text-left">
@@ -3235,6 +3237,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261125-24"></script>
+  <script type="module" src="./admin.js?v=20261125-26"></script>
 </body>
 </html>

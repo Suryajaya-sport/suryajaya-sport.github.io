@@ -14,7 +14,7 @@
     const CLOUDINARY_PRESET = "sjs_product_images";
     const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
     const COMPRESS_MAX_SIDE = 1200;
-    const QRIS_DEFAULT_PAYLOAD = "00020101021126430015id.co.qris.www0115ID10254610182080203A015204594153033605802ID5920SURYA JAYA TOY & GAME6007JAKARTA63048E12";
+    const QRIS_DEFAULT_PAYLOAD = "00020101021126440015id.co.qris.www0115ID10254610182080203A015204594153033605802ID5921SURYA JAYA TOY & GAME6007JAKARTA630412C4";
     const QRIS_MERCHANT_TITLE = "SURYA JAYA SPORT";
     const QRIS_MERCHANT_NMID = "NMID: ID1025461018208 • A01";
     const CATALOG_WA = "https://wa.me/6282320033333";
@@ -1270,7 +1270,7 @@
       const boxEl = document.getElementById("posCashChangeBox");
       if (recEl) recEl.textContent = rp(cashReceivedAmount);
       const recInp = document.getElementById("posCashReceivedInput");
-      if (recInp && document.activeElement !== recInp) recInp.value = cashReceivedAmount > 0 ? String(cashReceivedAmount) : "";
+      if (recInp && document.activeElement !== recInp) recInp.value = cashReceivedAmount > 0 ? Number(cashReceivedAmount).toLocaleString("id-ID") : "";
       const diff = cashReceivedAmount - currentSaleTotalAmount;
       if (currentSaleTotalAmount <= 0) {
         if (lblEl) lblEl.textContent = "KEMBALIAN";
@@ -4683,35 +4683,96 @@
       }
     }
 
-    // ==================== QRIS ====================
+    // ==================== QRIS (EMVCo TLV + CRC16-CCITT UTF-8) ====================
     function crc16(str) {
+      const bytes = new TextEncoder().encode(String(str || ""));
       let crc = 0xFFFF;
-      for (let i = 0; i < str.length; i++) {
-        crc ^= str.charCodeAt(i) << 8;
+      for (let i = 0; i < bytes.length; i++) {
+        crc ^= bytes[i] << 8;
         for (let j = 0; j < 8; j++) crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) & 0xFFFF : (crc << 1) & 0xFFFF;
       }
       return crc.toString(16).toUpperCase().padStart(4, "0");
     }
+    function parseEmvTlv(raw) {
+      const s = String(raw || "").trim().replace(/[\r\n]+/g, "");
+      const tags = [];
+      let i = 0;
+      while (i + 4 <= s.length) {
+        const id = s.slice(i, i + 2);
+        const lenStr = s.slice(i + 2, i + 4);
+        if (!/^\d{2}$/.test(id) || !/^\d{2}$/.test(lenStr)) return null;
+        const len = Number(lenStr);
+        const valStart = i + 4;
+        const valEnd = valStart + len;
+        if (valEnd > s.length) return null;
+        tags.push({ id, value: s.slice(valStart, valEnd) });
+        i = valEnd;
+      }
+      return i === s.length && tags.length > 0 ? tags : null;
+    }
+    function makeDynamicQrisPayload(basePayload, amount) {
+      const clean = String(basePayload || "").trim().replace(/[\r\n]+/g, "");
+      const amt = Math.round(Number(amount || 0));
+      const tags = parseEmvTlv(clean);
+      if (!tags) return { payload: clean, valid: false, isDynamic: false };
+      // Remove existing CRC (63) and existing Amount (54)
+      const filtered = tags.filter(t => t.id !== "63" && t.id !== "54");
+      const useDynamic = amt > 0;
+      // Set Point of Initiation Method (tag 01): "12" = dynamic, "11" = static
+      const tag01 = filtered.find(t => t.id === "01");
+      if (tag01) tag01.value = useDynamic ? "12" : "11";
+      if (useDynamic) {
+        const amtStr = String(amt);
+        const amtTag = { id: "54", value: amtStr };
+        // EMVCo order: insert tag 54 right after tag 53 (Currency) or before tag 58 (Country)
+        const idx53 = filtered.findIndex(t => t.id === "53");
+        const idx58 = filtered.findIndex(t => t.id === "58");
+        if (idx53 >= 0) filtered.splice(idx53 + 1, 0, amtTag);
+        else if (idx58 >= 0) filtered.splice(idx58, 0, amtTag);
+        else filtered.push(amtTag);
+      }
+      const body = filtered.map(t => t.id + String(t.value.length).padStart(2, "0") + t.value).join("") + "6304";
+      return { payload: body + crc16(body), valid: true, isDynamic: useDynamic };
+    }
     function buildQrisPayload(raw) {
-      const input = raw.trim();
-      if (input.startsWith("000201")) return input;
+      const input = String(raw || "").trim().replace(/[\r\n]+/g, "");
+      if (input.startsWith("000201")) {
+        // Re-validate and normalize CRC on pasted/scanned official QRIS string
+        const res = makeDynamicQrisPayload(input, 0);
+        return res.valid ? res.payload : input;
+      }
       const nmid = input.replace(/[^a-zA-Z0-9]/g, "");
       const t26c = "0015id.co.qris.www01" + String(nmid.length).padStart(2, "0") + nmid + "0203A01";
       const t26 = "26" + String(t26c.length).padStart(2, "0") + t26c;
       const name = QRIS_MERCHANT_TITLE.slice(0, 25);
-      const city = "JAKARTA";
+      const city = "BERAU";
       const base = "000201010211" + t26 + "5204594153033605802ID" + "59" + String(name.length).padStart(2, "0") + name
         + "60" + String(city.length).padStart(2, "0") + city + "6304";
       return base + crc16(base);
     }
     function renderQrisScreen() {
       const box = document.getElementById("qrisCodeCanvas");
-      document.getElementById("qrisAmountLabel").textContent = document.getElementById("previewTotalOmset").textContent;
+      const wantDynamic = document.getElementById("qrisDynamicToggle")?.checked !== false;
+      const amt = wantDynamic ? Math.max(0, Math.round(Number(currentSaleTotalAmount || 0))) : 0;
+      const qris = makeDynamicQrisPayload(savedQrisPayload, amt);
+      document.getElementById("qrisAmountLabel").textContent = amt > 0 ? rp(amt) : (document.getElementById("previewTotalOmset")?.textContent || "Rp 0");
       document.getElementById("qrisShopLabel").textContent = QRIS_MERCHANT_TITLE;
       document.getElementById("qrisNmidLabel").textContent = QRIS_MERCHANT_NMID;
+      const noteEl = document.getElementById("qrisValidNote");
+      if (noteEl) {
+        if (!qris.valid) {
+          noteEl.textContent = "⚠ Format teks QRIS tidak valid. Unggah foto QRIS resmi toko Anda di bawah.";
+          noteEl.className = "text-[11px] font-bold text-rose-700";
+        } else {
+          noteEl.textContent = qris.isDynamic
+            ? `✅ QRIS Dinamis valid (CRC ${qris.payload.slice(-4)}) · nominal otomatis ${rp(amt)}`
+            : `✅ QRIS Statis valid (CRC ${qris.payload.slice(-4)}) · pembeli ketik nominal manual`;
+          noteEl.className = "text-[11px] font-bold text-emerald-700";
+        }
+      }
       box.innerHTML = "";
       try {
-        box.innerHTML = SjsQR.toSvg(savedQrisPayload, 240, 3);
+        box.innerHTML = SjsQR.toSvg(qris.payload, 250, 4);
       } catch (err) {
         console.error("QRIS gagal:", err);
         box.textContent = "Gagal membuat QRIS.";
@@ -4758,7 +4819,7 @@
 
     function applyConfig(data) {
       if (data.shopName) setShopName(data.shopName);
-      if (data.qrisPayload) savedQrisPayload = data.qrisPayload;
+      if (data.qrisPayload) savedQrisPayload = data.qrisPayload.includes("63048E12") ? QRIS_DEFAULT_PAYLOAD : buildQrisPayload(data.qrisPayload);
       costCodeDigits = String(data.costCodeDigits || "");
       geminiApiKey = String(data.geminiApiKey || "");
       lockedBookMonths = new Set(Array.isArray(data.lockedBookMonths) ? data.lockedBookMonths.map(String) : []);
@@ -5174,8 +5235,10 @@
         handleScannedCode(card.dataset.posAdd, false);
       });
       document.getElementById("posCashReceivedInput")?.addEventListener("input", e => {
-        const val = Math.max(0, Math.round(Number(e.target.value) || 0));
+        const digits = String(e.target.value || "").replace(/[^\d]/g, "").slice(0, 10);
+        const val = digits ? Number(digits) : 0;
         cashReceivedAmount = Number.isSafeInteger(val) ? val : 0;
+        e.target.value = cashReceivedAmount > 0 ? cashReceivedAmount.toLocaleString("id-ID") : "";
         if (!selectedPaymentMethod && cashReceivedAmount > 0) selectSalePayment("Cash");
         else updateCashCalcUI();
       });
@@ -5414,7 +5477,16 @@
           e.preventDefault();
           const saveBtn = document.getElementById("btnSaveTx");
           if (saveBtn && !saveBtn.disabled) saveSale(false);
-          else showToast("Pilih cara bayar dulu (tekan F8 untuk Tunai).");
+          else showToast("Pilih barang & cara bayar dulu (F8 untuk Tunai).");
+        } else if (e.key === "Enter" && !e.shiftKey && !e.ctrlKey && !e.altKey) {
+          const tag = (document.activeElement?.tagName || "").toUpperCase();
+          const id = document.activeElement?.id || "";
+          if (id === "posInstantSearch" || tag === "TEXTAREA" || tag === "BUTTON" || tag === "SELECT") return;
+          const printBtn = document.getElementById("btnSaveAndPrintTx");
+          if (printBtn && !printBtn.disabled) {
+            e.preventDefault();
+            saveSale(true);
+          }
         }
       });
       document.getElementById("btnBatchPrintQr")?.addEventListener("click", printBatchQrStickers);
@@ -5450,7 +5522,7 @@
         showToast(next ? "Mode Pegawai Kasir aktif (Omzet & Modal disembunyikan)." : "Mode Pemilik aktif.");
       });
       document.getElementById("btnPosShortcutHelp")?.addEventListener("click", () => {
-        showToast("Pintasan Kasir: F2 = Scan QR · F8 = Tunai · F4 = Simpan · Enter = Tambah barang · Esc = Tutup saran");
+        showToast("Pintasan Kasir: F2 = Scan QR · F3 = Tangguhkan · F8 = Tunai · Enter = Simpan & Cetak · F4 = Simpan tanpa cetak");
       });
       window.addEventListener("offline", () => updateSyncStatus(false, "Offline — menunggu koneksi"));
       window.addEventListener("online", () => updateSyncStatus(true, isAdmin ? "Cloud Online" : "Katalog publik"));
@@ -5503,6 +5575,7 @@
         document.getElementById("qrisPayModal").classList.remove("hidden");
       });
       document.getElementById("btnCloseQrisModal").addEventListener("click", () => document.getElementById("qrisPayModal").classList.add("hidden"));
+      document.getElementById("qrisDynamicToggle")?.addEventListener("change", renderQrisScreen);
       document.getElementById("btnSaveRawQrisString").addEventListener("click", () => saveQrisPayload(document.getElementById("qrisRawStringInput").value));
       document.getElementById("qrisStandeePhotoInput").addEventListener("change", async e => {
         const file = e.target.files?.[0];
