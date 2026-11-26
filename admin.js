@@ -1015,10 +1015,15 @@
               <p class="item-summary-sub text-xs font-semibold text-slate-500">1x @ ${rp(prefill?.price || 0)} · <span class="item-mode-badge font-bold ${prefill?.id ? "text-emerald-700" : "text-amber-700"}">${prefill?.id ? `Stok: ${Number(prefill.stock || 0)}` : "Di luar stok"}</span></p>
             </div>
           </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <span class="item-subtotal font-extrabold text-sm text-slate-950 tabular-nums">${rp(prefill?.price || 0)}</span>
-            <button type="button" class="btn-toggle-row-edit w-8 h-8 rounded-lg hover:bg-blue-50 text-slate-600 hover:text-blue-700 inline-flex items-center justify-center" title="Ubah qty, harga, satuan, atau catatan"><i class="fa-solid fa-pen text-xs" aria-hidden="true"></i></button>
-            <button type="button" class="btn-remove-row w-8 h-8 rounded-lg hover:bg-rose-50 text-slate-500 hover:text-rose-700 inline-flex items-center justify-center" title="Hapus barang"><i class="fa-regular fa-trash-can text-sm" aria-hidden="true"></i></button>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <div class="inline-flex items-center rounded-xl border border-slate-200 bg-slate-50 overflow-hidden mr-1">
+              <button type="button" class="btn-inline-minus w-9 h-9 hover:bg-slate-200 font-extrabold text-sm text-slate-700" aria-label="Kurangi jumlah">−</button>
+              <span class="item-inline-qty px-2 text-xs font-extrabold text-slate-900 tabular-nums">1</span>
+              <button type="button" class="btn-inline-plus w-9 h-9 hover:bg-blue-100 font-extrabold text-sm text-blue-900" aria-label="Tambah jumlah">+</button>
+            </div>
+            <span class="item-subtotal font-extrabold text-sm text-slate-950 tabular-nums min-w-[72px] text-right">${rp(prefill?.price || 0)}</span>
+            <button type="button" class="btn-toggle-row-edit w-9 h-9 rounded-lg hover:bg-blue-50 text-slate-600 hover:text-blue-700 inline-flex items-center justify-center" title="Ubah harga, satuan, atau catatan"><i class="fa-solid fa-pen text-xs" aria-hidden="true"></i></button>
+            <button type="button" class="btn-remove-row w-9 h-9 rounded-lg hover:bg-rose-50 text-slate-500 hover:text-rose-700 inline-flex items-center justify-center" title="Hapus barang"><i class="fa-regular fa-trash-can text-sm" aria-hidden="true"></i></button>
           </div>
         </div>
         <div class="item-edit-drawer rounded-xl bg-slate-50 border border-slate-200 p-3 space-y-2.5" ${isPrefilled ? "hidden" : ""}>
@@ -1104,6 +1109,14 @@
       row.querySelector(".btn-toggle-row-edit")?.addEventListener("click", () => {
         if (drawer) drawer.hidden = !drawer.hidden;
       });
+      row.querySelector(".btn-inline-minus")?.addEventListener("click", () => {
+        qtyInput.value = Math.max(1, (parseInt(qtyInput.value, 10) || 1) - 1);
+        calculateSaleTotals();
+      });
+      row.querySelector(".btn-inline-plus")?.addEventListener("click", () => {
+        qtyInput.value = (parseInt(qtyInput.value, 10) || 1) + 1;
+        calculateSaleTotals();
+      });
       row.querySelector(".btn-qty-minus").addEventListener("click", () => {
         qtyInput.value = Math.max(1, (parseInt(qtyInput.value, 10) || 1) - 1);
         calculateSaleTotals();
@@ -1152,6 +1165,8 @@
         row.querySelector(".item-subtotal").textContent = rp(price * qty);
         const numBadge = row.querySelector(".item-row-num");
         if (numBadge) numBadge.textContent = String(itemLines || 1);
+        const inlineQtyEl = row.querySelector(".item-inline-qty");
+        if (inlineQtyEl) inlineQtyEl.textContent = String(qty);
         const titleEl = row.querySelector(".item-summary-title");
         const subEl = row.querySelector(".item-summary-sub");
         const unitStr = row.querySelector(".item-unit-select")?.value || "Pcs";
@@ -1213,36 +1228,9 @@
       const splitCash = Math.max(0, Math.round(Number(document.getElementById("inputSplitCash")?.value) || 0));
       const splitRemEl = document.getElementById("posSplitRemainVal");
       if (splitRemEl) splitRemEl.textContent = rp(Math.max(0, netTotal - splitCash));
-      const sumBox = document.getElementById("posCartSummaryList");
-      if (sumBox) {
-        const summaryRows = [];
-        for (const row of document.querySelectorAll("#saleItemsContainer > div")) {
-          const nm = (row.querySelector(".item-name-input")?.value || "").trim();
-          const pr = parseFloat(row.querySelector(".item-price-input")?.value) || 0;
-          const qt = Number(row.querySelector(".item-qty")?.value) || 0;
-          if (nm && qt > 0) summaryRows.push({ nm: cleanDisplayItemName(nm), qt, sub: pr * qt });
-        }
-        const emptyHint = document.getElementById("posCartEmptyHint");
-        const itemsCont = document.getElementById("saleItemsContainer");
-        const hasAnyRowValue = summaryRows.length > 0 || (itemsCont && itemsCont.children.length > 1);
-        if (emptyHint) emptyHint.hidden = hasAnyRowValue;
-        if (!summaryRows.length) {
-          sumBox.hidden = true;
-          sumBox.innerHTML = "";
-        } else {
-          sumBox.hidden = false;
-          sumBox.innerHTML = `<table class="w-full text-left border-collapse">
-            <thead><tr class="border-b border-blue-200 text-[10px] font-extrabold uppercase text-blue-900"><th class="py-1 pr-1">Barang</th><th class="py-1 px-1 text-center">Qty</th><th class="py-1 pl-1 text-right">Subtotal</th></tr></thead>
-            <tbody class="divide-y divide-blue-100">${summaryRows.map(r => `
-              <tr>
-                <td class="py-1 pr-1 font-bold text-slate-800 max-w-[165px] truncate" title="${esc(r.nm)}">${esc(r.nm)}</td>
-                <td class="py-1 px-1 text-center font-extrabold text-blue-900 tabular-nums">${r.qt}</td>
-                <td class="py-1 pl-1 text-right font-extrabold text-slate-900 tabular-nums whitespace-nowrap">${esc(shortRpTick(r.sub))}</td>
-              </tr>`).join("")}
-            </tbody>
-          </table>`;
-        }
-      }
+      const emptyHint = document.getElementById("posCartEmptyHint");
+      const itemsCont = document.getElementById("saleItemsContainer");
+      if (emptyHint) emptyHint.hidden = itemLines > 0 || Boolean(itemsCont && itemsCont.children.length > 0);
       renderSalePayment();
     }
 
@@ -1310,7 +1298,7 @@
         const catKey = detectProductCategoryLabel(it).key;
         const icon = catKey === "badminton" ? "🏸" : catKey === "ball" ? "⚽" : catKey === "chess" ? "♟️" : catKey === "music" ? "🎸" : "🏅";
         const priceTag = shortRpTick(it.price).replace("Rp ", "").replace(" rb", "rb").replace(" jt", "jt");
-        return `<button type="button" data-quick-fav-id="${esc(it.id)}" title="${esc(it.name)} · ${rp(it.price)} (stok ${Number(it.stock || 0)})" class="px-3 py-1.5 rounded-xl bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 shadow-2xs inline-flex items-center gap-1.5 text-xs font-extrabold text-slate-900 transition">
+        return `<button type="button" data-quick-fav-id="${esc(it.id)}" title="${esc(it.name)} · ${rp(it.price)} (stok ${Number(it.stock || 0)})" class="min-h-[44px] px-3 py-2 rounded-xl bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 shadow-2xs inline-flex items-center gap-1.5 text-xs font-extrabold text-slate-900 transition">
           <span>${icon} ${esc(shortName)}</span>
           <span class="px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[11px] font-extrabold tabular-nums">${esc(priceTag)}</span>
         </button>`;
@@ -1726,6 +1714,177 @@
       const discLine = Number(tx.discount || 0) > 0 ? `\nDiskon: −${rp(tx.discount)}` : "";
       const noteLine = tx.note ? `\nCatatan: ${tx.note}` : "";
       return `*STRUK ${shopName.toUpperCase()}*\nNota: ${receiptNumber(tx)}\nTanggal: ${tx.date}\n${lines}${discLine}\n----------------\n*Total: ${rp(tx.totalOmset)}* (${paymentMethodLabel(tx.paymentMethod || "Cash")})${noteLine}\nTerima kasih telah berbelanja di ${shopName}!`;
+    }
+
+    async function renderReceiptPngBlob(tx) {
+      const W = 696, pad = 36, innerW = W - pad * 2;
+      const tmp = document.createElement("canvas");
+      const tctx = tmp.getContext("2d");
+      const wrapLines = (text, font, maxW) => {
+        tctx.font = font;
+        const words = String(text || "").split(/\s+/);
+        const out = [];
+        let cur = "";
+        for (const w of words) {
+          const test = cur ? cur + " " + w : w;
+          if (tctx.measureText(test).width > maxW && cur) { out.push(cur); cur = w; }
+          else cur = test;
+        }
+        if (cur) out.push(cur);
+        return out.length ? out : [""];
+      };
+
+      const txItems = tx.items || [];
+      const totalPcs = txItems.reduce((s, it) => s + Number(it.qty || 0), 0);
+      const timeStr = formatWitaTime(tx.createdAt);
+      const fontMono = '22px ui-monospace, "Courier New", monospace';
+      const fontBold = 'bold 22px ui-monospace, "Courier New", monospace';
+      const fontSub = '19px ui-monospace, "Courier New", monospace';
+      const itemBlocks = txItems.map(it => {
+        const qty = Number(it.qty || 0), price = Number(it.price || 0);
+        const lines = wrapLines(it.name || "-", fontBold, innerW);
+        return { lines, left: `${qty} × ${rp(price)}`, right: rp(it.subtotal ?? price * qty) };
+      });
+      const footNotes = [
+        "• Mohon periksa kembali kondisi, jumlah, dan kelengkapan barang sebelum meninggalkan toko.",
+        "• Barang yang sudah dibeli tidak dapat ditukar atau dikembalikan (No Retur).",
+        "• Simpan nota ini sebagai bukti pembelian resmi Anda."
+      ].flatMap(n => wrapLines(n, '17px ui-monospace, "Courier New", monospace', innerW - 8));
+
+      // Compute exact canvas height
+      let H = 220; // header + meta
+      if (tx.note) H += 30;
+      if (tx.cancelledAt) H += 48;
+      H += 24;
+      for (const b of itemBlocks) H += b.lines.length * 28 + 38;
+      H += 125 + (Number(tx.discount || 0) > 0 ? 30 : 0); // total box
+      H += 95 + footNotes.length * 23 + 60;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = W; canvas.height = H;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, W, H);
+      ctx.strokeStyle = "#cbd5e1"; ctx.lineWidth = 3;
+      ctx.strokeRect(8, 8, W - 16, H - 16);
+
+      let y = 52;
+      const centerText = (txt, font, color = "#000000") => {
+        ctx.font = font; ctx.fillStyle = color; ctx.textAlign = "center";
+        ctx.fillText(txt, W / 2, y);
+      };
+      const rowText = (l, r, fontL, fontR, colorL = "#0f172a", colorR = "#000000") => {
+        ctx.font = fontL; ctx.fillStyle = colorL; ctx.textAlign = "left";
+        ctx.fillText(l, pad, y);
+        ctx.font = fontR; ctx.fillStyle = colorR; ctx.textAlign = "right";
+        ctx.fillText(r, W - pad, y);
+      };
+      const rule = (bold = false, dashed = true) => {
+        ctx.save();
+        ctx.strokeStyle = bold ? "#000000" : "#475569";
+        ctx.lineWidth = bold ? 3 : 2;
+        if (dashed && !bold) ctx.setLineDash([8, 6]);
+        ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W - pad, y); ctx.stroke();
+        ctx.restore();
+      };
+
+      centerText(shopName.toUpperCase(), 'bold 30px ui-monospace, "Courier New", monospace', "#000000"); y += 28;
+      centerText("Toko Olahraga & Alat Musik", fontSub, "#334155"); y += 24;
+      centerText("Jl. Ahmad Yani 37, Tanjung Redeb, Berau", fontSub, "#334155"); y += 24;
+      centerText("WA/Telp: 0823-200-33333", fontSub, "#334155"); y += 22;
+      rule(true, false); y += 30;
+
+      rowText("No. Nota", receiptNumber(tx), fontMono, fontBold); y += 28;
+      rowText("Tanggal", `${tx.date}${timeStr ? " · " + timeStr : ""}`, fontMono, fontMono); y += 28;
+      rowText("Pembeli", tx.customer || "Pelanggan Umum", fontMono, fontMono); y += 28;
+      rowText("Pembayaran", paymentMethodLabel(tx.paymentMethod || "Cash"), fontMono, fontBold); y += 28;
+      if (tx.note) { rowText("Catatan", String(tx.note).slice(0, 34), fontMono, fontMono); y += 28; }
+      if (tx.cancelledAt) {
+        ctx.strokeStyle = "#000"; ctx.lineWidth = 2; ctx.strokeRect(pad, y - 20, innerW, 34);
+        centerText("*** NOTA DIBATALKAN ***", fontBold, "#000");
+        y += 34;
+      }
+      rule(false, true); y += 28;
+
+      for (let i = 0; i < itemBlocks.length; i++) {
+        const b = itemBlocks[i];
+        ctx.font = fontBold; ctx.fillStyle = "#000000"; ctx.textAlign = "left";
+        for (const ln of b.lines) { ctx.fillText(ln, pad, y); y += 28; }
+        rowText(b.left, b.right, fontMono, fontBold, "#334155", "#000000");
+        y += 22;
+        if (i < itemBlocks.length - 1) {
+          ctx.save(); ctx.strokeStyle = "#cbd5e1"; ctx.setLineDash([4, 4]);
+          ctx.beginPath(); ctx.moveTo(pad, y - 8); ctx.lineTo(W - pad, y - 8); ctx.stroke(); ctx.restore();
+          y += 14;
+        }
+      }
+
+      y += 8;
+      const boxH = 88 + (Number(tx.discount || 0) > 0 ? 28 : 0);
+      ctx.fillStyle = "#f8fafc"; ctx.fillRect(pad, y, innerW, boxH);
+      ctx.strokeStyle = "#0f172a"; ctx.lineWidth = 2.5; ctx.strokeRect(pad, y, innerW, boxH);
+      y += 30;
+      rowText("Total Item", `${totalPcs} pcs`, fontSub, fontSub, "#334155", "#0f172a"); y += 28;
+      if (Number(tx.discount || 0) > 0) {
+        rowText("Diskon", `-${rp(tx.discount)}`, fontSub, fontSub, "#334155", "#be123c"); y += 28;
+      }
+      rowText("TOTAL BAYAR", rp(tx.totalOmset), 'bold 26px ui-monospace, "Courier New", monospace', 'bold 26px ui-monospace, "Courier New", monospace', "#000000", "#000000");
+      y += 42;
+
+      centerText(`Terima kasih telah berbelanja di ${shopName}!`, fontBold, "#000000"); y += 28;
+      rule(false, true); y += 24;
+      ctx.font = 'bold 18px ui-monospace, "Courier New", monospace'; ctx.fillStyle = "#334155"; ctx.textAlign = "left";
+      ctx.fillText("CATATAN & KETENTUAN PEMBELIAN", pad, y); y += 24;
+      ctx.font = '17px ui-monospace, "Courier New", monospace'; ctx.fillStyle = "#475569";
+      for (const fl of footNotes) { ctx.fillText(fl, pad, y); y += 22; }
+      y += 14;
+      centerText("Katalog & stok terbaru: suryajaya-sport.github.io", '17px ui-monospace, "Courier New", monospace', "#64748b");
+
+      return await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+    }
+
+    async function downloadReceiptPng(tx) {
+      const blob = await renderReceiptPngBlob(tx);
+      if (!blob) return showToast("Gagal membuat gambar nota.");
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `nota-${receiptNumber(tx)}.png`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      showToast(`Gambar nota ${receiptNumber(tx)} diunduh.`);
+    }
+
+    async function sendReceiptImageWhatsApp(tx) {
+      const blob = await renderReceiptPngBlob(tx);
+      if (!blob) return showToast("Gagal membuat gambar nota.");
+      const fileName = `nota-${receiptNumber(tx)}.png`;
+      const file = new File([blob], fileName, { type: "image/png" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: `Nota ${shopName} ${receiptNumber(tx)}` });
+          return;
+        } catch (err) {
+          if (err && err.name === "AbortError") return;
+        }
+      }
+      let copied = false;
+      if (navigator.clipboard && window.ClipboardItem) {
+        try {
+          await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+          copied = true;
+        } catch {}
+      }
+      if (!copied) {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = fileName;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      }
+      window.open("https://wa.me/", "_blank", "noopener");
+      showToast(copied
+        ? "Gambar nota disalin! Buka chat WhatsApp lalu tekan Ctrl+V (Tempel) untuk mengirim."
+        : `Gambar ${fileName} diunduh. Lampirkan gambar tersebut di chat WhatsApp.`);
     }
     function showReceiptPreview(tx) {
       lastPreviewedReceiptTx = tx;
@@ -5372,11 +5531,7 @@
         const wa = e.target.closest("[data-pos-wa-rcpt]");
         if (wa) {
           const tx = transactions.find(t => t.id === wa.dataset.posWaRcpt);
-          if (tx) {
-            const lines = (tx.items || []).map(it => `• ${cleanDisplayItemName(it.name)} (${it.qty}x) = ${rp(it.subtotal ?? it.price * it.qty)}`).join("\n");
-            const msg = `*STRUK ${shopName.toUpperCase()}*\nNota: ${receiptNumber(tx)}\nTanggal: ${tx.date}\n${lines}\n----------------\n*Total: ${rp(tx.totalOmset)}* (${paymentMethodLabel(tx.paymentMethod || "Cash")})\nTerima kasih telah berbelanja di ${shopName}!`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
-          }
+          if (tx) sendReceiptImageWhatsApp(tx);
           return;
         }
         const vd = e.target.closest("[data-pos-void]");
@@ -5510,9 +5665,13 @@
       document.getElementById("btnSaveAndPrintTx").addEventListener("click", () => saveSale(true));
       document.getElementById("btnCloseReceiptModal").addEventListener("click", () => document.getElementById("receiptPreviewModal").classList.add("hidden"));
       document.getElementById("btnTriggerPrintReceipt").addEventListener("click", printReceiptNow);
+      document.getElementById("btnDownloadReceiptImg")?.addEventListener("click", () => {
+        if (!lastPreviewedReceiptTx) return showToast("Belum ada nota yang dibuka.");
+        downloadReceiptPng(lastPreviewedReceiptTx);
+      });
       document.getElementById("btnSendReceiptWa")?.addEventListener("click", () => {
         if (!lastPreviewedReceiptTx) return showToast("Belum ada nota yang dibuka.");
-        window.open(`https://wa.me/?text=${encodeURIComponent(formatWhatsAppReceiptText(lastPreviewedReceiptTx))}`, "_blank", "noopener");
+        sendReceiptImageWhatsApp(lastPreviewedReceiptTx);
       });
       const staffBtn = document.getElementById("btnToggleStaffPrivacy");
       const applyStaffPrivacy = enabled => {
