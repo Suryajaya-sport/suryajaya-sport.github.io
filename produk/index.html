@@ -141,6 +141,7 @@
   </footer>
 
   <script type="module">
+    import { catalogImageUrl } from "./katalog.js";
     const EMBEDDED_FIREBASE_CONFIG = {
       apiKey: "AIzaSyBFtI_lwLU7cDcioDE1GpgC0AjKPZ1mHag",
       authDomain: "suryajayasport-3fd5e.firebaseapp.com",
@@ -154,9 +155,7 @@
 
     const esc = s => String(s ?? "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
     const rp = n => "Rp " + Math.round(Number(n) || 0).toLocaleString("id-ID");
-    function safeHttpsUrl(url) {
-      try { const u = new URL(String(url || "").trim()); return u.protocol === "https:" ? u.href : ""; } catch { return ""; }
-    }
+
     const MUSIC_RE = /\b(gitar|guitar|ukulele|bass|capo|plektrum|musik|akustik|acoustic|klasik|classic|elektrik|electric|biola|violin|drum|stik\s*drum|cajon|jimbe|harmonika|tama|sonor|zildjian|yamaha\s*f|pyramid|d'?addario|orphee|ernie\s*ball|elixir|fender|nilon|nylon|kawat)\b/i;
     const BALL_ITEM_RE = /\b(futsal|bola|sepak|basket|voli|volley|football|soccer|molten|spalding|mikasa|nassau)\b/i;
     const BADMINTON_STRING_MODEL_RE = /\b(bg\s*\d{1,2}m?(?!\d)|nbg\s*\d{2,3}(?!\d)|exbolt|nanogy|aerobite|aerosonic|ultimax|tectonic\s*65|vbs\s*\d{2,3}(?!\d)|no\.?\s*[157]\s*boost?)\b/i;
@@ -239,7 +238,7 @@
         if (!item) {
           renderNotFound();
         } else {
-          const imgUrl = safeHttpsUrl(item.imageUrl);
+          const imgUrl = catalogImageUrl(item);
           const stockNum = Number(item.stock || 0);
           const out = stockNum <= 0;
           const meta = [item.code, item.size, item.color].filter(Boolean).join(" · ");
