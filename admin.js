@@ -1083,31 +1083,31 @@
             </div>
           </div>
         </div>
-        <div class="item-edit-drawer rounded-xl bg-slate-50 border border-slate-200 p-3.5 space-y-3" ${isPrefilled ? "hidden" : ""}>
+        <div class="item-edit-drawer rounded-xl bg-slate-50 border border-slate-200 p-2.5 space-y-2" ${isPrefilled ? "hidden" : ""}>
           <div class="flex items-center gap-2">
-            <div class="sale-entry-thumbnail shrink-0 ${prefill?.id ? "w-9 h-9" : "hidden"}">${prefill?.id ? productImageMarkup(prefill, "h-9 w-9 rounded-lg border border-slate-200", 120, true) : ""}</div>
-            <input type="text" id="${key}" list="inventoryDatalist" autocomplete="off" class="item-name-input min-w-0 flex-1 px-3 py-2 border border-slate-300 rounded-xl bg-white font-semibold !text-sm text-slate-900" placeholder="Pilih stok atau ketik nama barang..." value="${esc(prefillLabel)}">
+            <div class="sale-entry-thumbnail shrink-0 ${prefill?.id ? "w-8 h-8" : "hidden"}">${prefill?.id ? productImageMarkup(prefill, "h-8 w-8 rounded-lg border border-slate-200", 120, true) : ""}</div>
+            <input type="text" id="${key}" list="inventoryDatalist" autocomplete="off" class="item-name-input min-w-0 flex-1 h-9 px-2.5 border border-slate-300 rounded-lg bg-white font-semibold !text-sm text-slate-900" placeholder="Pilih stok atau ketik nama barang..." value="${esc(prefillLabel)}">
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
+          <div class="grid grid-cols-2 gap-2 items-start">
             <div>
-              <label class="block text-[11px] font-bold text-slate-600 mb-1">Harga Jual</label>
-              <input type="text" inputmode="numeric" autocomplete="off" class="item-price-input w-full px-3 py-2 border border-slate-300 rounded-xl bg-white font-bold tabular-nums !text-sm text-slate-900" placeholder="0" value="${esc(fmtIdrInput(prefill?.price))}">
+              <label class="block text-[11px] font-bold text-slate-600 mb-0.5">Harga Jual</label>
+              <input type="text" inputmode="numeric" autocomplete="off" class="item-price-input w-full h-9 px-2.5 border border-slate-300 rounded-lg bg-white font-bold tabular-nums !text-sm text-slate-900" placeholder="0" value="${esc(fmtIdrInput(prefill?.price))}">
             </div>
             <div class="item-cost-wrap sjs-owner-only-stat" ${prefill?.id ? "hidden" : ""}>
-              <label class="block text-[11px] font-bold text-slate-600 mb-1">Modal <span class="opt">(opsional)</span></label>
-              <input type="text" inputmode="numeric" autocomplete="off" class="item-cost-input w-full px-3 py-2 border border-slate-300 rounded-xl bg-white font-semibold tabular-nums !text-sm text-slate-900" placeholder="Kosongkan jika tidak tahu" value="${esc(fmtIdrInput(prefill?.cost))}">
+              <label class="block text-[11px] font-bold text-slate-600 mb-0.5">Modal <span class="opt">(opsional)</span></label>
+              <input type="text" inputmode="numeric" autocomplete="off" class="item-cost-input w-full h-9 px-2.5 border border-slate-300 rounded-lg bg-white font-semibold tabular-nums !text-sm text-slate-900" placeholder="Kosongkan jika tidak tahu" value="${esc(fmtIdrInput(prefill?.cost))}">
             </div>
           </div>
-          <div class="flex flex-wrap sm:flex-nowrap items-end gap-3">
+          <div class="flex flex-wrap sm:flex-nowrap items-end gap-2">
             <div class="shrink-0">
-              <label class="block text-[11px] font-bold text-slate-600 mb-1">Qty</label>
-              <div class="flex items-center gap-2">
-                <div class="inline-flex items-center rounded-xl border border-slate-300 bg-white overflow-hidden shadow-2xs">
-                  <button type="button" class="btn-drawer-minus w-9 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Kurangi jumlah">−</button>
-                  <span class="item-drawer-qty px-3 text-sm font-bold text-slate-900 tabular-nums border-x border-slate-200 leading-9">1</span>
-                  <button type="button" class="btn-drawer-plus w-9 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Tambah jumlah">+</button>
+              <label class="block text-[11px] font-bold text-slate-600 mb-0.5">Jumlah</label>
+              <div class="flex items-center gap-1.5">
+                <div class="inline-flex items-center rounded-lg border border-slate-300 bg-white overflow-hidden">
+                  <button type="button" class="btn-drawer-minus w-8 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Kurangi jumlah">−</button>
+                  <span class="item-drawer-qty px-3 text-xs font-bold text-slate-900 tabular-nums border-x border-slate-200 leading-9">1</span>
+                  <button type="button" class="btn-drawer-plus w-8 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Tambah jumlah">+</button>
                 </div>
-                <select class="item-unit-select h-9 px-2.5 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-800" aria-label="Satuan">
+                <select class="item-unit-select h-9 px-2 rounded-lg border border-slate-300 bg-white text-xs font-bold text-slate-800" aria-label="Satuan">
                   <option value="Pcs">Pcs</option>
                   <option value="Set">Set</option>
                   <option value="Pak">Pak</option>
@@ -1115,12 +1115,12 @@
                 </select>
               </div>
             </div>
-            <div class="flex-1 min-w-[160px]">
-              <label class="block text-[11px] font-bold text-slate-600 mb-1">Catatan <span class="opt">(opsional)</span></label>
-              <input type="text" class="item-note-input w-full h-9 px-3 rounded-xl border border-slate-300 bg-white text-xs font-medium text-slate-800" placeholder="Layanan / varian..." maxlength="80">
+            <div class="flex-1 min-w-[150px]">
+              <label class="block text-[11px] font-bold text-slate-600 mb-0.5">Catatan <span class="opt">(opsional)</span></label>
+              <input type="text" class="item-note-input w-full h-9 px-2.5 rounded-lg border border-slate-300 bg-white text-xs font-medium text-slate-800" placeholder="Layanan / varian..." maxlength="80">
             </div>
           </div>
-          <div class="f-chips">
+          <div class="f-chips-wrap">
             <button type="button" class="pos-svc-chip" data-svc-note="Pasang 24 lbs">🏸 24 lbs</button>
             <button type="button" class="pos-svc-chip" data-svc-note="Pasang 27 lbs">🏸 27 lbs</button>
             <button type="button" class="pos-svc-chip" data-svc-note="Pasang 30 lbs">🏸 30 lbs</button>
@@ -1128,12 +1128,13 @@
             <button type="button" class="pos-svc-chip" data-svc-note="Ukuran Bola 5">⚽ Uk. Bola</button>
             <button type="button" class="pos-svc-chip" data-svc-note="Tulisan Piala">🏆 Tulisan Piala</button>
           </div>
-          <div class="f-foot">
+          <div class="f-foot !mt-1 !pt-1.5">
             <div class="flex-1 space-y-1 min-w-0">
+              <p class="item-inline-err f-warn hidden"></p>
               <p class="item-cost-warn f-warn hidden">⚠ Modal lebih besar dari harga jual. Cek lagi, mungkin salah ketik.</p>
-              <p class="item-free-stock-note f-info" ${prefill?.id ? "hidden" : ""}>Barang bebas tidak mengurangi stok gudang (hanya tercatat di omzet &amp; laba).</p>
+              <p class="item-free-stock-note f-info" ${prefill?.id ? "hidden" : ""}>Barang bebas tidak mengurangi stok gudang.</p>
             </div>
-            <button type="button" class="btn-close-row-edit btn-done shrink-0">Selesai</button>
+            <button type="button" class="btn-close-row-edit btn-done !min-h-[38px] !px-4 shrink-0">Selesai</button>
           </div>
         </div>`;
       container.appendChild(row);
@@ -1265,7 +1266,7 @@
           subEl.textContent = `${qty}${unitStr !== "Pcs" ? " " + unitStr : "x"} @ ${rp(price)}`;
         }
         const nInpLive = row.querySelector(".item-name-input");
-        if (nInpLive) nInpLive.classList.toggle("invalid", !inv && !nm && (price > 0 || freeCost != null));
+        if (nInpLive && nm) nInpLive.classList.remove("invalid");
         const pInpLive = row.querySelector(".item-price-input");
         if (pInpLive) {
           const invalidPrice = Boolean(nm) && price <= 0;
@@ -1281,6 +1282,16 @@
           cInpLive.classList.toggle("bg-red-50", lossCost);
         }
         if (cWarn) cWarn.classList.toggle("hidden", !lossCost);
+        const inlineErrEl = row.querySelector(".item-inline-err");
+        if (inlineErrEl) {
+          if (!inv) {
+            const vRes = validateFreeItem({ name: nm, price, cost: freeCost, qty });
+            inlineErrEl.textContent = vRes.ok ? "" : ("⚠ " + vRes.errors[0]);
+            inlineErrEl.classList.toggle("hidden", vRes.ok);
+          } else {
+            inlineErrEl.classList.add("hidden");
+          }
+        }
         const badge = row.querySelector(".item-mode-badge");
         if (badge) {
           if (inv) {
@@ -1357,18 +1368,18 @@
       const recInp = document.getElementById("posCashReceivedInput");
       if (recInp && document.activeElement !== recInp) recInp.value = cashReceivedAmount > 0 ? ("Rp " + Number(cashReceivedAmount).toLocaleString("id-ID")) : "";
       const diff = cashReceivedAmount - currentSaleTotalAmount;
-      if (currentSaleTotalAmount <= 0) {
-        if (lblEl) lblEl.textContent = "✓ KEMBALIAN";
+      if (currentSaleTotalAmount <= 0 || cashReceivedAmount <= 0) {
+        if (lblEl) lblEl.textContent = "KEMBALIAN";
         if (chgEl) chgEl.textContent = rp(0);
-        if (boxEl) { boxEl.classList.add("is-change"); boxEl.classList.remove("is-short"); }
+        if (boxEl) { boxEl.classList.add("is-idle"); boxEl.classList.remove("is-change", "is-short"); }
       } else if (diff < 0) {
         if (lblEl) lblEl.textContent = "⚠ KURANG";
         if (chgEl) chgEl.textContent = rp(Math.abs(diff));
-        if (boxEl) { boxEl.classList.remove("is-change"); boxEl.classList.add("is-short"); }
+        if (boxEl) { boxEl.classList.add("is-short"); boxEl.classList.remove("is-change", "is-idle"); }
       } else {
         if (lblEl) lblEl.textContent = "✓ KEMBALIAN";
         if (chgEl) chgEl.textContent = rp(diff);
-        if (boxEl) { boxEl.classList.add("is-change"); boxEl.classList.remove("is-short"); }
+        if (boxEl) { boxEl.classList.add("is-change"); boxEl.classList.remove("is-short", "is-idle"); }
       }
     }
 
@@ -1578,11 +1589,21 @@
       if (topBadge) topBadge.hidden = okPay;
       const payBox = document.getElementById("posPaySectionBox");
       if (payBox) payBox.classList.toggle("border-amber-300", !okPay);
+      const hasAnyRow = document.querySelectorAll("#saleItemsContainer > div").length > 0;
       const canSave = saveState.enabled && !saleFormSaving;
+      const hardDisabled = saleFormSaving || !hasAnyRow;
       const btnSave = document.getElementById("btnSaveTx");
       const btnSavePrint = document.getElementById("btnSaveAndPrintTx");
-      if (btnSave) { btnSave.disabled = !canSave; btnSave.classList.toggle("is-disabled", !canSave); }
-      if (btnSavePrint) { btnSavePrint.disabled = !canSave; btnSavePrint.classList.toggle("is-disabled", !canSave); }
+      if (btnSave) {
+        btnSave.disabled = hardDisabled;
+        btnSave.setAttribute("aria-disabled", String(!canSave));
+        btnSave.classList.toggle("is-disabled", !canSave);
+      }
+      if (btnSavePrint) {
+        btnSavePrint.disabled = hardDisabled;
+        btnSavePrint.setAttribute("aria-disabled", String(!canSave));
+        btnSavePrint.classList.toggle("is-disabled", !canSave);
+      }
       const splitPanel = document.getElementById("posSplitBonPanel");
       if (splitPanel) {
         const isSplitOrBon = selectedPaymentMethod === "Split" || selectedPaymentMethod === "Bon";
@@ -1597,6 +1618,8 @@
           if (rLbl) rLbl.textContent = "Sisa QRIS / Transfer";
         }
       }
+      const cashWrap = document.getElementById("posCashOnlyWrap");
+      if (cashWrap) cashWrap.hidden = (selectedPaymentMethod !== "Cash");
       updateCashCalcUI();
     }
 
@@ -1709,14 +1732,23 @@
         const price = parseIdrNum(row.querySelector(".item-price-input")?.value);
         const rawManualCost = parseNullableIdr(row.querySelector(".item-cost-input")?.value);
         const manualCost = rawManualCost == null ? null : Math.max(0, Math.round(rawManualCost));
-        if (!inv && !typedName) { showToast("Isi nama barang atau pilih dari daftar stok."); row.querySelector(".item-name-input").focus(); return; }
-        if (!Number.isSafeInteger(qty) || qty < 1) return showToast("Jumlah minimal 1 pcs.");
+        const nameInp = row.querySelector(".item-name-input");
         const priceInp = row.querySelector(".item-price-input");
+        const drawerEl = row.querySelector(".item-edit-drawer");
+        if (!inv && !typedName) {
+          if (drawerEl) drawerEl.hidden = false;
+          if (nameInp) { nameInp.classList.add("invalid"); nameInp.scrollIntoView({ behavior: "smooth", block: "center" }); nameInp.focus(); }
+          showToast("Isi nama barang terlebih dahulu.");
+          return;
+        }
+        if (nameInp) nameInp.classList.remove("invalid");
+        if (!Number.isSafeInteger(qty) || qty < 1) return showToast("Jumlah minimal 1 pcs.");
         if (!Number.isSafeInteger(price) || price <= 0) {
-          if (priceInp) { priceInp.classList.add("border-rose-500", "bg-rose-50"); priceInp.focus(); }
+          if (drawerEl) drawerEl.hidden = false;
+          if (priceInp) { priceInp.classList.add("invalid", "border-rose-500", "bg-rose-50"); priceInp.scrollIntoView({ behavior: "smooth", block: "center" }); priceInp.focus(); }
           return showToast(`Harga jual "${typedName || "barang"}" harus lebih dari Rp 0.`);
         }
-        if (priceInp) priceInp.classList.remove("border-rose-500", "bg-rose-50");
+        if (priceInp) priceInp.classList.remove("invalid", "border-rose-500", "bg-rose-50");
         const itemUnit = String(row.querySelector(".item-unit-select")?.value || "Pcs");
         const itemNote = String(row.querySelector(".item-note-input")?.value || "").trim().slice(0, 80);
         const displayItemName = inv ? formatItemLabel(inv) : typedName.slice(0, 160);
