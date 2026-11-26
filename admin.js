@@ -780,23 +780,9 @@
       };
 
       try {
-        const autoPoster = document.getElementById("invAutoPoster")?.checked;
-        if (pendingPosterBlob) {
-          showToast("Mengunggah poster produk...");
-          const uploaded = await uploadBlobToCloudinary(pendingPosterBlob, itemId);
-          itemData.imageUrl = uploaded.imageUrl;
-          itemData.imagePath = uploaded.imagePath;
-          pendingPosterBlob = null;
-        } else if (imageFile) {
-          const usePoster = autoPoster && !isCanvasReadBlocked();
-          if (autoPoster && isCanvasReadBlocked()) {
-            showToast("Ekspor kanvas diblokir Firefox — mengunggah foto asli agar tidak putih...");
-          } else {
-            showToast(usePoster ? "Membuat poster katalog & mengunggah..." : "Mengompres dan mengunggah foto...");
-          }
-          const uploaded = usePoster
-            ? await uploadBlobToCloudinary(await renderProductPosterBlob(itemData, imageFile, { removeWhiteBg: document.getElementById('invRemoveWhiteBg')?.checked !== false, withTouch: false, cropTopPct: (Number(document.getElementById('invCropTop')?.value) || 0) / 100, cropBottomPct: (Number(document.getElementById('invCropBottom')?.value) || 0) / 100 }), itemId)
-            : await uploadProductImage(imageFile, itemId);
+        if (imageFile) {
+          showToast("Mengunggah foto produk...");
+          const uploaded = await uploadProductImage(imageFile, itemId);
           itemData.imageUrl = uploaded.imageUrl;
           itemData.imagePath = uploaded.imagePath;
         }
@@ -899,39 +885,70 @@
     }
     function updateInvQrPreview() {
       const box = document.getElementById("invCodeQrPreview");
-      if (!box) return;
       const code = document.getElementById("invCode")?.value.trim() || nextAutoCode();
+      const hintEl = document.getElementById("invAutoCodeHint");
+      const txtEl = document.getElementById("invQrCodeText");
+      if (hintEl) hintEl.textContent = nextAutoCode();
+      if (txtEl) txtEl.textContent = code;
+      if (!box) return;
       try {
-        box.innerHTML = SjsQR.toSvg(code, 48, 1);
+        box.innerHTML = SjsQR.toSvg(code, 60, 1);
         box.title = "Pratinjau QR: " + code;
       } catch {
         box.innerHTML = "";
       }
+    }
+    function downloadInvQrPng() {
+      const code = document.getElementById("invCode")?.value.trim() || nextAutoCode();
+      const name = document.getElementById("invName")?.value.trim() || "Barang";
+      const c = document.createElement("canvas");
+      c.width = 360; c.height = 420;
+      const ctx = c.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, c.width, c.height);
+      SjsQR.drawTo(ctx, code, 40, 24, 280);
+      ctx.fillStyle = "#0f172a";
+      ctx.textAlign = "center";
+      ctx.font = "bold 24px ui-monospace, monospace";
+      ctx.fillText(code, 180, 344);
+      ctx.font = "600 18px sans-serif";
+      ctx.fillText(name.slice(0, 28), 180, 378);
+      const a = document.createElement("a");
+      a.href = c.toDataURL("image/png");
+      a.download = `qr-${code}.png`;
+      a.click();
     }
     function updateInvProfitPreview() {
       const el = document.getElementById("invProfitPreview");
       if (!el) return;
       const cost = parseIdrNum(document.getElementById("invCost")?.value);
       const price = parseIdrNum(document.getElementById("invPrice")?.value);
-      if (!(price > 0)) {
-        el.classList.add("hidden");
-        return;
-      }
-      el.classList.remove("hidden");
-      if (cost <= 0) {
+      if (!(price > 0) || cost <= 0) {
         el.className = "sm:col-span-12 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-600";
-        el.textContent = "Isi harga modal untuk melihat estimasi laba per unit & margin %.";
+        el.textContent = price > 0 ? "Laba per unit: — (isi harga modal untuk menghitung laba & margin)" : "Laba per unit: — (isi harga modal & harga jual)";
         return;
       }
       const profit = price - cost;
       const margin = (profit / price) * 100;
       if (profit < 0) {
         el.className = "sm:col-span-12 rounded-xl border border-red-300 bg-red-50 px-3.5 py-2 text-xs font-bold text-red-700";
-        el.textContent = `⚠ Rugi ${rp(Math.abs(profit))}/pcs (${margin.toFixed(1)}%) — Harga modal lebih besar dari harga jual.`;
+        el.textContent = `⚠ Rugi per unit: ${rp(Math.abs(profit))} (${margin.toFixed(1)}%) — Harga modal lebih besar dari harga jual.`;
       } else {
         el.className = "sm:col-span-12 rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2 text-xs font-bold text-emerald-800";
-        el.textContent = `✓ Estimasi laba: ${rp(profit)}/pcs · Margin ${margin.toFixed(1)}%`;
+        el.textContent = `✓ Laba per unit: ${rp(profit)} (${margin.toFixed(1)}%)`;
       }
+    }
+    function updateInvVariantSummary() {
+      const badge = document.getElementById("invVariantTotalBadge");
+      if (!badge) return;
+      const mainStock = Math.max(0, Math.trunc(Number(document.getElementById("invStock")?.value) || 0));
+      const rows = [...document.querySelectorAll("#invVariantsList .inv-variant-row")];
+      if (!rows.length) {
+        badge.textContent = `Utama saja (${mainStock} pcs)`;
+        return;
+      }
+      const varStock = rows.reduce((s, r) => s + Math.max(0, Math.trunc(Number(r.querySelector(".var-stock")?.value) || 0)), 0);
+      badge.textContent = `1 utama + ${rows.length} varian · Total ${mainStock + varStock} pcs`;
     }
     function refreshInvOptionDatalists() {
       const mergeList = (id, defaults, field) => {
@@ -957,19 +974,35 @@
         <input type="text" list="invColorOptions" maxlength="60" placeholder="Warna" class="var-color col-span-3 px-2.5 py-1.5 border border-slate-300 rounded-lg text-xs font-semibold">
         <input type="number" min="0" step="1" inputmode="numeric" value="0" placeholder="Stok" class="var-stock col-span-2 px-2 py-1.5 border border-slate-300 rounded-lg text-xs font-bold text-center tabular-nums">
         <input type="text" inputmode="numeric" autocomplete="off" placeholder="Harga (ops.)" class="var-price col-span-2 px-2 py-1.5 border border-slate-300 rounded-lg text-xs font-bold tabular-nums">
-        <button type="button" class="btn-rm-var col-span-1 h-8 rounded-lg hover:bg-red-50 text-slate-400 hover:text-red-600 font-bold" title="Hapus varian">×</button>
+        <button type="button" class="btn-rm-var col-span-1 h-8 rounded-lg bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 font-extrabold text-sm" title="Kurangi / hapus varian">−</button>
       `;
       row.querySelector(".var-price")?.addEventListener("input", e => { e.target.value = fmtIdrInput(e.target.value); });
-      row.querySelector(".btn-rm-var")?.addEventListener("click", () => row.remove());
+      row.querySelector(".var-stock")?.addEventListener("input", updateInvVariantSummary);
+      row.querySelector(".btn-rm-var")?.addEventListener("click", () => { row.remove(); updateInvVariantSummary(); });
       list.appendChild(row);
+      updateInvVariantSummary();
+    }
+    function setInvImagePreview(srcUrl, labelText) {
+      const img = document.getElementById("invImagePreview");
+      const empty = document.getElementById("invImagePreviewEmpty");
+      const lbl = document.getElementById("invImagePreviewLabel");
+      if (srcUrl && img) {
+        img.src = srcUrl;
+        img.classList.remove("hidden");
+        if (empty) empty.classList.add("hidden");
+        if (lbl) lbl.textContent = labelText || "Pratinjau foto siap disimpan";
+      } else {
+        if (img) { img.src = ""; img.classList.add("hidden"); }
+        if (empty) empty.classList.remove("hidden");
+        if (lbl) lbl.textContent = "Belum ada foto dipilih";
+      }
     }
     function resetInvForm() {
       ["editInvId", "invName", "invCode", "invSize", "invColor", "invStock", "invCost", "invPrice", "invDescription"]
         .forEach(id => document.getElementById(id).value = "");
       document.getElementById("invImageFile").value = "";
       pendingPosterBlob = null;
-      document.getElementById("invImagePreviewWrap").classList.add("hidden");
-      document.getElementById("btnWrapExistingPoster")?.classList.add("hidden");
+      setInvImagePreview("", "");
       document.getElementById("btnCancelInvEdit").classList.add("hidden");
       document.getElementById("btnSaveInvText").textContent = "Simpan barang & buat QR";
       document.getElementById("inventoryEntryTitle").textContent = "Tambah barang";
@@ -980,6 +1013,7 @@
       refreshInvOptionDatalists();
       updateInvQrPreview();
       updateInvProfitPreview();
+      updateInvVariantSummary();
     }
     function editInventoryItem(id) {
       if (!isAdmin) return;
@@ -995,14 +1029,15 @@
       document.getElementById("invCost").value = fmtIdrInput(item.cost || 0);
       document.getElementById("invPrice").value = fmtIdrInput(item.price || 0);
       document.getElementById("invDescription").value = item.description || "";
+      if (item.imageUrl) setInvImagePreview(item.imageUrl, "Foto produk tersimpan");
       document.getElementById("btnCancelInvEdit").classList.remove("hidden");
       document.getElementById("btnSaveInvText").textContent = "Simpan perubahan";
       document.getElementById("inventoryEntryTitle").textContent = "Ubah barang";
-      document.getElementById("btnWrapExistingPoster")?.classList.remove("hidden");
       const vSec = document.getElementById("invVariantsSection");
       if (vSec) vSec.hidden = true;
       updateInvQrPreview();
       updateInvProfitPreview();
+      updateInvVariantSummary();
       openDialog("invEntryCard");
     };
 
@@ -6158,26 +6193,24 @@
         }
         wrap.classList.remove("hidden");
       }
-      document.getElementById("invImageFile").addEventListener("change", e => {
+      document.getElementById("invImageFile")?.addEventListener("change", e => {
         pendingPosterBlob = null;
-        refreshInvPosterPreview(e.target.files?.[0]);
+        const f = e.target.files?.[0];
+        if (f) setInvImagePreview(URL.createObjectURL(f), f.name);
+        else setInvImagePreview("", "");
       });
-      const retriggerPreview = () => {
-        const topEl = document.getElementById("invCropTop");
-        const botEl = document.getElementById("invCropBottom");
-        if (topEl) document.getElementById("invCropTopVal").textContent = topEl.value + "%";
-        if (botEl) document.getElementById("invCropBottomVal").textContent = botEl.value + "%";
-        const f = document.getElementById("invImageFile").files?.[0];
-        if (f) refreshInvPosterPreview(f);
-      };
-      document.getElementById("invAutoPoster").addEventListener("change", retriggerPreview);
-      document.getElementById("invRemoveWhiteBg").addEventListener("change", retriggerPreview);
       document.getElementById("invCode")?.addEventListener("input", updateInvQrPreview);
+      document.getElementById("invStock")?.addEventListener("input", updateInvVariantSummary);
       document.getElementById("invCost")?.addEventListener("input", e => { e.target.value = fmtIdrInput(e.target.value); updateInvProfitPreview(); });
       document.getElementById("invPrice")?.addEventListener("input", e => { e.target.value = fmtIdrInput(e.target.value); updateInvProfitPreview(); });
       document.getElementById("btnAddInvVariant")?.addEventListener("click", addInvVariantRow);
-      document.getElementById("invCropTop").addEventListener("input", retriggerPreview);
-      document.getElementById("invCropBottom").addEventListener("input", retriggerPreview);
+      document.getElementById("btnInvDownloadQr")?.addEventListener("click", downloadInvQrPng);
+      document.getElementById("btnInvPrintQr")?.addEventListener("click", () => {
+        const code = document.getElementById("invCode")?.value.trim() || nextAutoCode();
+        const name = document.getElementById("invName")?.value.trim() || "Barang Baru";
+        const price = parseIdrNum(document.getElementById("invPrice")?.value);
+        renderQrLabel({ code, name, price, cost: parseIdrNum(document.getElementById("invCost")?.value), size: document.getElementById("invSize")?.value.trim() || "", color: document.getElementById("invColor")?.value.trim() || "" }); printMode("sticker");
+      });
       document.getElementById("btnSaveGeminiKey")?.addEventListener("click", async () => {
         if (!isAdmin) return;
         const val = String(geminiApiKey || "").trim();
@@ -6229,7 +6262,7 @@
         }
       });
 
-      document.getElementById("btnWrapExistingPoster").addEventListener("click", async () => {
+      document.getElementById("btnWrapExistingPoster")?.addEventListener("click", async () => {
         const editId = document.getElementById("editInvId").value.trim();
         const item = inventory.find(i => i.id === editId);
         const meta = {
