@@ -1960,6 +1960,30 @@
     .pos-received-frame { cursor: text; }
     .pos-received-frame input::placeholder { color: #0F172A; opacity: 1; }
 
+
+    /* === FINAL POLISH: SCAN QR CONSISTENT BORDER + UNIFORM FAVORIT HEIGHT (2-LINE CLAMP) === */
+    body.sjs-admin #btnOpenScanner {
+      border: 1.5px solid #F5B700 !important;
+      border-left: 1.5px solid #F5B700 !important;
+      border-bottom: 1.5px solid #F5B700 !important;
+    }
+    .pos-fav-pro-card {
+      height: 70px !important;
+      min-width: 144px;
+      max-width: 172px !important;
+      justify-content: space-between !important;
+      padding: .5rem .75rem !important;
+    }
+    .pos-fav-pro-name {
+      display: -webkit-box !important;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.25;
+      max-height: 2.5em;
+    }
+
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -2767,13 +2791,12 @@
                 <strong id="previewTotalOmsetRight" class="block text-3xl sm:text-4xl font-black text-white tabular-nums mt-0.5 leading-tight">Rp 0</strong>
               </div>
 
-              <!-- 2. UANG DITERIMA (SATU INPUT BERSIH, TANPA DOBEL) -->
+              <!-- 2. UANG DITERIMA (SATU INPUT RATA TENGAH "Rp 225.000") -->
               <div class="pos-received-frame !py-2.5">
                 <span class="pos-received-legend">Uang Diterima</span>
                 <div class="flex items-center justify-center gap-1.5">
-                  <span class="text-xl font-bold text-slate-400 select-none">Rp</span>
-                  <input type="text" id="posCashReceivedInput" inputmode="numeric" autocomplete="off" placeholder="0" aria-label="Uang diterima" class="w-44 bg-transparent border-0 focus:outline-none focus:ring-0 text-2xl sm:text-3xl font-extrabold text-center text-slate-950 tabular-nums p-0">
-                  <span id="posCashFeedbackPill" class="hidden px-2 py-0.5 rounded-full bg-amber-200 text-amber-950 text-[10px] font-extrabold"></span>
+                  <input type="text" id="posCashReceivedInput" inputmode="numeric" autocomplete="off" placeholder="Rp 0" aria-label="Uang diterima" class="w-full bg-transparent border-0 focus:outline-none focus:ring-0 text-2xl sm:text-3xl font-extrabold text-center text-slate-950 tabular-nums p-0">
+                  <span id="posCashFeedbackPill" class="hidden shrink-0 px-2 py-0.5 rounded-full bg-amber-200 text-amber-950 text-[10px] font-extrabold"></span>
                 </div>
                 <strong id="posCashReceivedText" class="hidden">Rp 0</strong>
               </div>
@@ -3701,6 +3724,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261126-06"></script>
+  <script type="module" src="./admin.js?v=20261126-07"></script>
 </body>
 </html>

@@ -1279,7 +1279,7 @@
       const boxEl = document.getElementById("posCashChangeBox");
       if (recEl) recEl.textContent = rp(cashReceivedAmount);
       const recInp = document.getElementById("posCashReceivedInput");
-      if (recInp && document.activeElement !== recInp) recInp.value = cashReceivedAmount > 0 ? Number(cashReceivedAmount).toLocaleString("id-ID") : "";
+      if (recInp && document.activeElement !== recInp) recInp.value = cashReceivedAmount > 0 ? ("Rp " + Number(cashReceivedAmount).toLocaleString("id-ID")) : "";
       const diff = cashReceivedAmount - currentSaleTotalAmount;
       if (currentSaleTotalAmount <= 0) {
         if (lblEl) lblEl.textContent = "✓ KEMBALIAN";
@@ -5506,7 +5506,7 @@
         const digits = String(e.target.value || "").replace(/[^\d]/g, "").slice(0, 10);
         const val = digits ? Number(digits) : 0;
         cashReceivedAmount = Number.isSafeInteger(val) ? val : 0;
-        e.target.value = cashReceivedAmount > 0 ? cashReceivedAmount.toLocaleString("id-ID") : "";
+        e.target.value = cashReceivedAmount > 0 ? ("Rp " + cashReceivedAmount.toLocaleString("id-ID")) : "";
         if (!selectedPaymentMethod && cashReceivedAmount > 0) selectSalePayment("Cash");
         else updateCashCalcUI();
       });
