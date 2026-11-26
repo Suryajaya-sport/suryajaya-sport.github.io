@@ -1735,6 +1735,15 @@
         </div>
         ${qrSvg ? `<div class="rc-center" style="margin:8px auto 4px;display:flex;justify-content:center">${qrSvg}</div>` : ""}
         <hr class="rc-hr">
+        <div class="rc-footnote">
+          <div class="rc-footnote-title">CATATAN &amp; KETENTUAN</div>
+          <ul>
+            <li>Periksa kembali barang dan jumlah pembelian sebelum meninggalkan toko.</li>
+            <li>Barang yang sudah dibeli tidak dapat ditukar atau dikembalikan, kecuali terdapat kesalahan toko atau cacat produksi.</li>
+            <li>Simpan nota ini sebagai bukti pembelian dan klaim garansi (jika berlaku).</li>
+          </ul>
+        </div>
+        <hr class="rc-hr">
         <div class="rc-center rc-thanks" style="margin-top:6px">Terima kasih telah berbelanja</div>
         <div class="rc-center rc-sub" style="margin-top:4px">WA: 0823-200-33333</div>
         <div class="rc-center rc-sub">suryajaya-sport.github.io</div>
@@ -1792,6 +1801,15 @@
         return { lines, left: `${qty} x ${Number(price).toLocaleString("id-ID")}`, right: Number(it.subtotal ?? price * qty).toLocaleString("id-ID") };
       });
 
+      const fontKet = '18px ui-monospace, "Courier New", monospace';
+      const ketBullets = [
+        "- Periksa kembali barang dan jumlah pembelian sebelum meninggalkan toko.",
+        "- Barang yang sudah dibeli tidak dapat ditukar atau dikembalikan, kecuali terdapat kesalahan toko atau cacat produksi.",
+        "- Simpan nota ini sebagai bukti pembelian dan klaim garansi (jika berlaku)."
+      ];
+      const ketWrapped = ketBullets.map(b => wrapLines(b, fontKet, innerW));
+      const ketHeight = 34 + ketWrapped.reduce((s, lines) => s + lines.length * 22 + 8, 0) + 20;
+
       let H = 200; // header
       H += 170; // meta 5 lines + divider
       if (tx.note) H += 28;
@@ -1801,7 +1819,7 @@
       H += 106; // Item + TOTAL BAYAR + 1 payment line + divider
       if (Number(tx.discount || 0) > 0) H += 30;
       if (cashRec > 0) H += 28; // extra line for KEMBALIAN
-      H += 396; // QR section + compact footer + bottom pad
+      H += 396 + ketHeight; // QR section + CATATAN & KETENTUAN + compact footer + bottom pad
 
       const canvas = document.createElement("canvas");
       canvas.width = W; canvas.height = H;
@@ -1888,6 +1906,13 @@
         y += qSize + 22;
       } catch { y += 22; }
 
+      dashRule(); y += 28;
+      leftText("CATATAN & KETENTUAN", 'bold 19px ui-monospace, "Courier New", monospace', "#000000"); y += 26;
+      for (const lines of ketWrapped) {
+        for (const ln of lines) { leftText(ln, fontKet, "#334155"); y += 22; }
+        y += 8;
+      }
+      y += 4;
       dashRule(); y += 30;
       centerText("Terima kasih telah berbelanja", fontBold); y += 26;
       centerText("WA: 0823-200-33333", fontSub, "#334155"); y += 24;
