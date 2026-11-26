@@ -1089,26 +1089,26 @@
               <input type="text" inputmode="numeric" autocomplete="off" class="item-cost-input w-full px-3 py-2 border border-slate-300 rounded-xl bg-white font-semibold tabular-nums !text-sm text-slate-900" placeholder="Kosongkan jika tidak tahu" value="${esc(fmtIdrInput(prefill?.cost))}">
             </div>
           </div>
-          <div class="flex flex-wrap sm:flex-nowrap items-end gap-3">
-            <div class="shrink-0">
+          <div class="space-y-2.5">
+            <div>
               <label class="block text-[11px] font-bold text-slate-600 mb-1">Qty</label>
-              <div class="flex items-center gap-2">
-                <div class="inline-flex items-center rounded-xl border border-slate-300 bg-white overflow-hidden shadow-2xs">
-                  <button type="button" class="btn-drawer-minus w-9 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Kurangi jumlah">−</button>
-                  <span class="item-drawer-qty px-3 text-sm font-bold text-slate-900 tabular-nums border-x border-slate-200 leading-9">1</span>
-                  <button type="button" class="btn-drawer-plus w-9 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Tambah jumlah">+</button>
-                </div>
-                <select class="item-unit-select h-9 px-2.5 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-800" aria-label="Satuan">
-                  <option value="Pcs">Pcs</option>
-                  <option value="Set">Set</option>
-                  <option value="Pak">Pak</option>
-                  <option value="Lusin">Lusin</option>
-                </select>
+              <div class="inline-flex items-center rounded-xl border border-slate-300 bg-white overflow-hidden shadow-2xs">
+                <button type="button" class="btn-drawer-minus w-10 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Kurangi jumlah">−</button>
+                <span class="item-drawer-qty px-4 text-sm font-bold text-slate-900 tabular-nums border-x border-slate-200 leading-9">1</span>
+                <button type="button" class="btn-drawer-plus w-10 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Tambah jumlah">+</button>
               </div>
             </div>
-            <div class="flex-1 min-w-[160px]">
-              <label class="block text-[11px] font-bold text-slate-600 mb-1">Catatan <span class="opt">(opsional)</span></label>
-              <input type="text" class="item-note-input w-full h-9 px-3 rounded-xl border border-slate-300 bg-white text-xs font-medium text-slate-800" placeholder="Layanan / varian..." maxlength="80">
+            <div>
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Satuan</label>
+              <select class="item-unit-select h-9 min-w-[120px] px-3 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-800" aria-label="Satuan">
+                <option value="Pcs">Pcs</option>
+                <option value="Set">Set</option>
+                <option value="Pak">Pak</option>
+                <option value="Lusin">Lusin</option>
+              </select>
+            </div>
+            <div>
+              <input type="text" class="item-note-input w-full h-9 px-3 rounded-xl border border-slate-300 bg-white text-xs font-medium text-slate-800" placeholder="Catatan layanan..." maxlength="80">
             </div>
           </div>
           <div class="f-chips">
