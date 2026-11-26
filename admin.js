@@ -1301,13 +1301,13 @@
       }
       const ranked = active.slice().sort((a, b) => (freq.get(b.id) || 0) - (freq.get(a.id) || 0) || Number(b.stock || 0) - Number(a.stock || 0)).slice(0, 7);
       bar.innerHTML = ranked.slice(0, 6).map(it => {
-        const shortName = String(it.name || "").length > 16 ? String(it.name).slice(0, 15) + "…" : String(it.name || "");
+        const shortName = String(it.name || "").length > 18 ? String(it.name).slice(0, 17) + "…" : String(it.name || "");
         const catKey = detectProductCategoryLabel(it).key;
         const icon = catKey === "badminton" ? "🏸" : catKey === "ball" ? "⚽" : catKey === "chess" ? "♟️" : catKey === "music" ? "🎸" : "🏅";
-        const priceTag = shortRpTick(it.price).replace("Rp ", "").replace(" rb", "rb").replace(" jt", "jt");
-        return `<button type="button" data-quick-fav-id="${esc(it.id)}" title="${esc(it.name)} · ${rp(it.price)} (stok ${Number(it.stock || 0)})" class="min-h-[44px] px-3.5 py-2 rounded-full bg-white hover:bg-blue-50 border border-slate-300 hover:border-blue-400 shadow-2xs inline-flex items-center gap-1.5 text-xs font-extrabold text-slate-900 transition">
-          <span>${icon} ${esc(shortName)}</span>
-          <span class="px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 text-[11px] font-extrabold tabular-nums">${esc(priceTag)}</span>
+        const priceStr = "Rp" + Number(it.price || 0).toLocaleString("id-ID");
+        return `<button type="button" data-quick-fav-id="${esc(it.id)}" title="${esc(it.name)} · ${rp(it.price)} (stok ${Number(it.stock || 0)})" class="pos-fav-pro-card">
+          <span class="pos-fav-pro-name">${icon} ${esc(shortName)}</span>
+          <span class="pos-fav-pro-price">${esc(priceStr)}</span>
         </button>`;
       }).join("");
       renderPosQuickAccess();
