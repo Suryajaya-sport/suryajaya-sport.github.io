@@ -2090,6 +2090,27 @@
       box-shadow: 0 0 0 3px rgba(220, 38, 38, .15) !important;
     }
 
+
+    /* === TOMBOL SIMPAN TANPA CETAK: AKSI SEKUNDER ABU TUA RINGAN === */
+    body.sjs-admin #btnSaveTx {
+      background: #F8FAFC !important;
+      border: 1px solid #CBD5E1 !important;
+      color: #334155 !important;
+      font-weight: 700 !important;
+      transition: background-color .14s ease, border-color .14s ease, color .14s ease !important;
+    }
+    body.sjs-admin #btnSaveTx:hover:not(:disabled) {
+      background: #F1F5F9 !important;
+      border-color: #94A3B8 !important;
+      color: #0F172A !important;
+    }
+    body.sjs-admin #btnSaveTx:disabled {
+      background: #F8FAFC !important;
+      border-color: #E2E8F0 !important;
+      color: #64748B !important;
+      opacity: .8 !important;
+    }
+
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -3830,6 +3851,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261126-13"></script>
+  <script type="module" src="./admin.js?v=20261126-15"></script>
 </body>
 </html>
