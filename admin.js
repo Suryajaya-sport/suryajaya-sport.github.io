@@ -900,22 +900,12 @@
       }
       if (err) err.classList.toggle("hidden", !isErr);
     }
-    function downloadQrCodePng(code, labelName) {
-      const c = document.createElement("canvas");
-      c.width = 360; c.height = 420;
-      const ctx = c.getContext("2d");
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, c.width, c.height);
-      SjsQR.drawTo(ctx, code, 40, 24, 280);
-      ctx.fillStyle = "#0f172a";
-      ctx.textAlign = "center";
-      ctx.font = "bold 24px ui-monospace, monospace";
-      ctx.fillText(code, 180, 344);
-      ctx.font = "600 18px sans-serif";
-      ctx.fillText(String(labelName || "Barang").slice(0, 28), 180, 378);
+    function downloadBrandedLabelPng(itemObj) {
+      renderQrLabel(itemObj);
+      if (!lastStickerCanvas) return;
       const a = document.createElement("a");
-      a.href = c.toDataURL("image/png");
-      a.download = `qr-${code}.png`;
+      a.href = lastStickerCanvas.toDataURL("image/png");
+      a.download = `label-${itemObj.code || "SJS"}.png`;
       a.click();
     }
     function updateInvVariantCodes() {
@@ -949,8 +939,12 @@
     }
     function downloadInvQrPng() {
       const code = document.getElementById("invCode")?.value.trim() || nextAutoCode();
-      const name = document.getElementById("invName")?.value.trim() || "Barang";
-      downloadQrCodePng(code, name);
+      const name = document.getElementById("invName")?.value.trim() || "Barang Baru";
+      const price = parseIdrNum(document.getElementById("invPrice")?.value);
+      const cost = parseIdrNum(document.getElementById("invCost")?.value);
+      const size = document.getElementById("invSize")?.value.trim() || "";
+      const color = document.getElementById("invColor")?.value.trim() || "";
+      downloadBrandedLabelPng({ code, name, price, cost, size, color });
     }
     function updateInvProfitPreview() {
       const el = document.getElementById("invProfitPreview");
@@ -1027,8 +1021,11 @@
       row.querySelector(".btn-var-qr")?.addEventListener("click", () => {
         const vCode = row.dataset.varCode || "SJS-VAR";
         const baseName = document.getElementById("invName")?.value.trim() || "Barang";
-        const spec = [row.querySelector(".var-size")?.value.trim(), row.querySelector(".var-color")?.value.trim()].filter(Boolean).join(" ");
-        downloadQrCodePng(vCode, spec ? `${baseName} (${spec})` : baseName);
+        const vSize = row.querySelector(".var-size")?.value.trim() || "";
+        const vColor = row.querySelector(".var-color")?.value.trim() || "";
+        const vPrice = parseIdrNum(row.querySelector(".var-price")?.value) || parseIdrNum(document.getElementById("invPrice")?.value);
+        const vCost = parseIdrNum(document.getElementById("invCost")?.value);
+        downloadBrandedLabelPng({ code: vCode, name: baseName, price: vPrice, cost: vCost, size: vSize, color: vColor });
       });
       row.querySelector(".btn-rm-var")?.addEventListener("click", () => { row.remove(); updateInvVariantCodes(); updateInvVariantSummary(); });
       list.appendChild(row);
@@ -5143,28 +5140,69 @@
         ctx.fillText("SCAN CEK PRODUK", 138, 320);
         ctx.textAlign = "left";
 
-        // Right product details
+        // Right product details (auto-balanced vertically — no awkward empty white gap)
         const rightX = 272;
         const rightW = 296;
-        ctx.fillStyle = "#0f172a";
-        ctx.font = "bold 29px Arial, sans-serif";
-        wrapText(ctx, String(item.name || ""), rightX, 114, rightW, 34, 3);
-
+        const rawName = String(item.name || "").trim();
         const variant = [...new Set([item.size, item.color].map(v => String(v || "").trim()).filter(Boolean))].join(" · ");
+
+        const splitLines = (text, font, maxW, maxL) => {
+          ctx.font = font;
+          const words = text.split(/\s+/).filter(Boolean);
+          const out = [];
+          let line = "";
+          for (const w of words) {
+            const test = line ? line + " " + w : w;
+            if (ctx.measureText(test).width > maxW && line) {
+              out.push(line);
+              line = w;
+              if (out.length >= maxL) return out;
+            } else line = test;
+          }
+          if (line && out.length < maxL) out.push(line);
+          return out.length ? out : ["-"];
+        };
+
+        let nameFont = "bold 34px Arial, sans-serif";
+        let lineH = 38;
+        let nameLines = splitLines(rawName, nameFont, rightW, 3);
+        if (nameLines.length > 2) {
+          nameFont = "bold 27px Arial, sans-serif";
+          lineH = 32;
+          nameLines = splitLines(rawName, nameFont, rightW, 3);
+        } else if (nameLines.length === 2) {
+          nameFont = "bold 30px Arial, sans-serif";
+          lineH = 35;
+          nameLines = splitLines(rawName, nameFont, rightW, 2);
+        }
+
+        const pillH = nameLines.length === 1 && !variant ? 68 : 58;
+        const pillY = 296 - pillH;
+        const topZoneStart = 82;
+        const topZoneEnd = pillY - 12;
+        const textBlockH = nameLines.length * lineH + (variant ? 26 : 0);
+        let curY = Math.round(topZoneStart + Math.max(10, (topZoneEnd - topZoneStart - textBlockH) / 2)) + lineH * 0.72;
+
+        ctx.fillStyle = "#0f172a";
+        ctx.font = nameFont;
+        for (const ln of nameLines) {
+          ctx.fillText(ln, rightX, curY);
+          curY += lineH;
+        }
         if (variant) {
-          ctx.fillStyle = "#334155";
+          ctx.fillStyle = "#475569";
           ctx.font = "bold 19px Arial, sans-serif";
-          ctx.fillText(variant.slice(0, 28), rightX, 224);
+          ctx.fillText(variant.slice(0, 28), rightX, curY + 2);
         }
 
         // High-contrast price pill
-        drawRoundedRect(ctx, rightX, 240, rightW, 56, 12);
+        drawRoundedRect(ctx, rightX, pillY, rightW, pillH, 12);
         ctx.fillStyle = "#0f172a";
         ctx.fill();
         ctx.fillStyle = "#ffffff";
-        ctx.font = "bold 33px Arial, sans-serif";
+        ctx.font = pillH >= 64 ? "bold 36px Arial, sans-serif" : "bold 33px Arial, sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText(rp(item.price), rightX + rightW / 2, 279);
+        ctx.fillText(rp(item.price), rightX + rightW / 2, pillY + Math.round(pillH * 0.68));
         ctx.textAlign = "left";
 
         // SKU code & secret 3-digit cost code footer
