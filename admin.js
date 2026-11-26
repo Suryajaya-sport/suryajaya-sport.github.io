@@ -1677,24 +1677,29 @@
       return new Intl.DateTimeFormat("id-ID", { timeZone: "Asia/Makassar", hour: "2-digit", minute: "2-digit", hour12: false }).format(dt) + " WITA";
     }
     function fmtReceiptDate(dateStr, isoStr) {
-      const m = String(dateStr || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
-      const dmy = m ? `${m[3]}-${m[2]}-${m[1]}` : String(dateStr || "");
+      const baseDate = String(dateStr || "").trim();
       const tm = formatWitaTime(isoStr);
-      return tm ? `${dmy} ${tm.replace(" WITA", "")}` : dmy;
+      if (!baseDate) return tm || "";
+      return tm ? `${baseDate} ${tm}` : baseDate;
     }
     function buildReceiptHtml(tx) {
       const txItems = tx.items || [];
       const totalPcs = txItems.reduce((sum, it) => sum + Number(it.qty || 0), 0);
       const dtStr = fmtReceiptDate(tx.date, tx.createdAt);
       const cashierStr = tx.cashier || "Admin";
+      const payLabel = paymentMethodLabel(tx.paymentMethod || "Cash");
+      const totalOmset = Number(tx.totalOmset || 0);
       const cashRec = Number(tx.cashReceived || 0);
-      const cashChg = Number(tx.cashChange ?? Math.max(0, cashRec - Number(tx.totalOmset || 0)));
+      const cashChg = Number(tx.cashChange ?? Math.max(0, cashRec - totalOmset));
       const items = txItems.map(it => {
         const qty = Number(it.qty || 0), price = Number(it.price || 0);
         return `<div class="rc-item"><div class="rc-name">${esc(it.name)}</div><div class="rc-line"><span>${qty} x ${Number(price).toLocaleString("id-ID")}</span><span>${Number(it.subtotal ?? price * qty).toLocaleString("id-ID")}</span></div></div>`;
       }).join("");
       let qrSvg = "";
-      try { qrSvg = SjsQR.toSvg("https://suryajaya-sport.github.io/", 120, 2); } catch {}
+      try { qrSvg = SjsQR.toSvg("https://suryajaya-sport.github.io/", 132, 2); } catch {}
+      const paySummaryHtml = cashRec > 0
+        ? `<div class="rc-line"><span>TUNAI</span><span>Rp${cashRec.toLocaleString("id-ID")}</span></div><div class="rc-line"><span>KEMBALIAN</span><span>Rp${cashChg.toLocaleString("id-ID")}</span></div>`
+        : `<div class="rc-line"><span>${esc(payLabel.toUpperCase())}</span><span>Rp${totalOmset.toLocaleString("id-ID")}</span></div>`;
       return `<div class="rcpt">
         <div class="rc-center">
           <div class="rc-shop">${esc(shopName)}</div>
@@ -1704,12 +1709,12 @@
         </div>
         <hr class="rc-hr">
         <div class="rc-meta">
-          <div class="rc-line"><span>No Nota : ${esc(receiptNumber(tx))}</span><span></span></div>
-          <div class="rc-line"><span>Tanggal : ${esc(dtStr)}</span><span></span></div>
-          <div class="rc-line"><span>Kasir   : ${esc(cashierStr)}</span><span></span></div>
-          <div class="rc-line"><span>Pembeli : ${esc(tx.customer || "Pelanggan Umum")}</span><span></span></div>
-          <div class="rc-line"><span>Bayar   : ${esc(paymentMethodLabel(tx.paymentMethod || "Cash"))}</span><span></span></div>
-          ${tx.note ? `<div class="rc-line"><span>Catatan : ${esc(tx.note)}</span><span></span></div>` : ""}
+          <div class="rc-line"><span>No Nota    : ${esc(receiptNumber(tx))}</span><span></span></div>
+          <div class="rc-line"><span>Tanggal    : ${esc(dtStr)}</span><span></span></div>
+          <div class="rc-line"><span>Kasir      : ${esc(cashierStr)}</span><span></span></div>
+          <div class="rc-line"><span>Pembeli    : ${esc(tx.customer || "Pelanggan Umum")}</span><span></span></div>
+          <div class="rc-line"><span>Pembayaran : ${esc(payLabel)}</span><span></span></div>
+          ${tx.note ? `<div class="rc-line"><span>Catatan    : ${esc(tx.note)}</span><span></span></div>` : ""}
         </div>
         ${tx.cancelledAt ? '<div class="rc-center rc-void">*** NOTA DIBATALKAN ***</div>' : ""}
         <hr class="rc-hr">
@@ -1717,22 +1722,22 @@
         <hr class="rc-hr">
         <div class="rc-meta">
           <div class="rc-line"><span>Item</span><span>${totalPcs} pcs</span></div>
-          ${Number(tx.discount || 0) > 0 ? `<div class="rc-line"><span>Diskon</span><span>-${Number(tx.discount).toLocaleString("id-ID")}</span></div>` : ""}
-          <div class="rc-line rc-total" style="margin-top:4px"><span>TOTAL</span><span>${Number(tx.totalOmset || 0).toLocaleString("id-ID")}</span></div>
-          ${cashRec > 0 ? `<div class="rc-line"><span>TUNAI</span><span>${cashRec.toLocaleString("id-ID")}</span></div><div class="rc-line"><span>KEMBALIAN</span><span>${cashChg.toLocaleString("id-ID")}</span></div>` : ""}
+          ${Number(tx.discount || 0) > 0 ? `<div class="rc-line"><span>Diskon</span><span>-Rp${Number(tx.discount).toLocaleString("id-ID")}</span></div>` : ""}
+          <div class="rc-line rc-total" style="margin-top:4px"><span>TOTAL BAYAR</span><span>Rp${totalOmset.toLocaleString("id-ID")}</span></div>
+          ${paySummaryHtml}
         </div>
         <hr class="rc-hr">
-        <div class="rc-center rc-thanks">Terima kasih telah<br>berbelanja di<br>${esc(shopName)}</div>
-        <div class="rc-center rc-sub" style="margin-top:8px">Scan QR untuk:<br>Katalog &bull; WA &bull; Riwayat Nota</div>
+        <div class="rc-sub" style="text-align:left;max-width:210px;margin:6px auto 0;line-height:1.45">
+          <div style="font-weight:700;color:#000">Scan QR:</div>
+          <div>- Cek keaslian nota</div>
+          <div>- Hubungi WA toko</div>
+          <div>- Lihat katalog terbaru</div>
+        </div>
         ${qrSvg ? `<div class="rc-center" style="margin:8px auto 4px;display:flex;justify-content:center">${qrSvg}</div>` : ""}
         <hr class="rc-hr">
-        <div class="rc-footnote">
-          <div class="rc-footnote-title">Ketentuan:</div>
-          <ul>
-            <li>Barang yang sudah dibeli tidak dapat ditukar/dikembalikan.</li>
-            <li>Simpan nota sebagai bukti.</li>
-          </ul>
-        </div>
+        <div class="rc-center rc-thanks" style="margin-top:6px">Terima kasih telah berbelanja</div>
+        <div class="rc-center rc-sub" style="margin-top:4px">WA: 0823-200-33333</div>
+        <div class="rc-center rc-sub">suryajaya-sport.github.io</div>
       </div>`;
     }
     let lastPreviewedReceiptTx = null;
@@ -1771,8 +1776,10 @@
       const totalPcs = txItems.reduce((s, it) => s + Number(it.qty || 0), 0);
       const dtStr = fmtReceiptDate(tx.date, tx.createdAt);
       const cashierStr = tx.cashier || "Admin";
+      const payLabel = paymentMethodLabel(tx.paymentMethod || "Cash");
+      const totalOmset = Number(tx.totalOmset || 0);
       const cashRec = Number(tx.cashReceived || 0);
-      const cashChg = Number(tx.cashChange ?? Math.max(0, cashRec - Number(tx.totalOmset || 0)));
+      const cashChg = Number(tx.cashChange ?? Math.max(0, cashRec - totalOmset));
 
       const fontMono = '22px ui-monospace, "Courier New", monospace';
       const fontBold = 'bold 22px ui-monospace, "Courier New", monospace';
@@ -1784,22 +1791,17 @@
         const lines = wrapLines(it.name || "-", fontBold, innerW);
         return { lines, left: `${qty} x ${Number(price).toLocaleString("id-ID")}`, right: Number(it.subtotal ?? price * qty).toLocaleString("id-ID") };
       });
-      const ketLines = [
-        "- Barang yang sudah dibeli",
-        "  tidak dapat ditukar/dikembalikan.",
-        "- Simpan nota sebagai bukti."
-      ];
 
-      let H = 190; // header
-      H += 165; // meta 5 lines
-      if (tx.note) H += 30;
-      if (tx.cancelledAt) H += 48;
-      H += 28;
-      for (const b of itemBlocks) H += b.lines.length * 28 + 36;
-      H += 95; // Item + TOTAL
+      let H = 200; // header
+      H += 170; // meta 5 lines + divider
+      if (tx.note) H += 28;
+      if (tx.cancelledAt) H += 34;
+      H += 30;
+      for (const b of itemBlocks) H += b.lines.length * 28 + 32;
+      H += 106; // Item + TOTAL BAYAR + 1 payment line + divider
       if (Number(tx.discount || 0) > 0) H += 30;
-      if (cashRec > 0) H += 62;
-      H += 330; // thanks + QR + Ketentuan
+      if (cashRec > 0) H += 28; // extra line for KEMBALIAN
+      H += 396; // QR section + compact footer + bottom pad
 
       const canvas = document.createElement("canvas");
       canvas.width = W; canvas.height = H;
@@ -1837,12 +1839,12 @@
       centerText("WA 0823-200-33333", fontSub, "#334155"); y += 24;
       dashRule(); y += 32;
 
-      leftText(`No Nota : ${receiptNumber(tx)}`, fontBold); y += 28;
-      leftText(`Tanggal : ${dtStr}`, fontMono); y += 28;
-      leftText(`Kasir   : ${cashierStr}`, fontMono); y += 28;
-      leftText(`Pembeli : ${tx.customer || "Pelanggan Umum"}`, fontMono); y += 28;
-      leftText(`Bayar   : ${paymentMethodLabel(tx.paymentMethod || "Cash")}`, fontBold); y += 28;
-      if (tx.note) { leftText(`Catatan : ${String(tx.note).slice(0, 34)}`, fontMono); y += 28; }
+      leftText(`No Nota    : ${receiptNumber(tx)}`, fontBold); y += 28;
+      leftText(`Tanggal    : ${dtStr}`, fontMono); y += 28;
+      leftText(`Kasir      : ${cashierStr}`, fontMono); y += 28;
+      leftText(`Pembeli    : ${tx.customer || "Pelanggan Umum"}`, fontMono); y += 28;
+      leftText(`Pembayaran : ${payLabel}`, fontBold); y += 28;
+      if (tx.note) { leftText(`Catatan    : ${String(tx.note).slice(0, 32)}`, fontMono); y += 28; }
       if (tx.cancelledAt) {
         ctx.strokeStyle = "#000"; ctx.lineWidth = 2; ctx.strokeRect(pad, y - 20, innerW, 34);
         centerText("*** NOTA DIBATALKAN ***", fontBold, "#000"); y += 34;
@@ -1858,32 +1860,38 @@
 
       rowText("Item", `${totalPcs} pcs`, fontMono, fontBold); y += 30;
       if (Number(tx.discount || 0) > 0) {
-        rowText("Diskon", `-${Number(tx.discount).toLocaleString("id-ID")}`, fontMono, fontBold, "#334155", "#be123c"); y += 30;
+        rowText("Diskon", `-Rp${Number(tx.discount).toLocaleString("id-ID")}`, fontMono, fontBold, "#334155", "#be123c"); y += 30;
       }
-      rowText("TOTAL", Number(tx.totalOmset || 0).toLocaleString("id-ID"), fontTotal, fontTotal, "#000000", "#000000"); y += 32;
+      rowText("TOTAL BAYAR", `Rp${totalOmset.toLocaleString("id-ID")}`, fontTotal, fontTotal, "#000000", "#000000"); y += 34;
       if (cashRec > 0) {
-        rowText("TUNAI", cashRec.toLocaleString("id-ID"), fontMono, fontBold); y += 28;
-        rowText("KEMBALIAN", cashChg.toLocaleString("id-ID"), fontMono, fontBold, "#047857", "#047857"); y += 28;
+        rowText("TUNAI", `Rp${cashRec.toLocaleString("id-ID")}`, fontMono, fontBold); y += 28;
+        rowText("KEMBALIAN", `Rp${cashChg.toLocaleString("id-ID")}`, fontMono, fontBold, "#047857", "#047857"); y += 28;
+      } else {
+        rowText(payLabel.toUpperCase(), `Rp${totalOmset.toLocaleString("id-ID")}`, fontMono, fontBold); y += 28;
       }
       y += 4;
-      dashRule(); y += 34;
+      dashRule(); y += 30;
 
-      centerText("Terima kasih telah", fontBold); y += 26;
-      centerText("berbelanja di", fontBold); y += 26;
-      centerText(shopName, fontBold); y += 34;
-      centerText("Scan QR untuk:", fontSub, "#334155"); y += 24;
-      centerText("Katalog • WA • Riwayat Nota", fontSub, "#334155"); y += 16;
+      const qrInfoX = Math.round((W - 310) / 2);
+      const qrInfo = (txt, font, color = "#334155") => {
+        ctx.font = font; ctx.fillStyle = color; ctx.textAlign = "left";
+        ctx.fillText(txt, qrInfoX, y);
+      };
+      qrInfo("Scan QR:", 'bold 20px ui-monospace, "Courier New", monospace', "#000000"); y += 24;
+      qrInfo("- Cek keaslian nota", fontSub); y += 22;
+      qrInfo("- Hubungi WA toko", fontSub); y += 22;
+      qrInfo("- Lihat katalog terbaru", fontSub); y += 14;
 
-      // Draw crisp QR Code centered using SjsQR.drawTo
       try {
-        const qSize = 152;
+        const qSize = 136;
         SjsQR.drawTo(ctx, "https://suryajaya-sport.github.io/", Math.round((W - qSize) / 2), y, qSize);
-        y += qSize + 20;
-      } catch { y += 20; }
+        y += qSize + 22;
+      } catch { y += 22; }
 
-      dashRule(); y += 28;
-      leftText("Ketentuan:", fontBold, "#334155"); y += 26;
-      for (const kl of ketLines) { leftText(kl, '19px ui-monospace, "Courier New", monospace', "#475569"); y += 24; }
+      dashRule(); y += 30;
+      centerText("Terima kasih telah berbelanja", fontBold); y += 26;
+      centerText("WA: 0823-200-33333", fontSub, "#334155"); y += 24;
+      centerText("suryajaya-sport.github.io", fontSub, "#334155");
 
       return canvas.toDataURL("image/png");
     }
