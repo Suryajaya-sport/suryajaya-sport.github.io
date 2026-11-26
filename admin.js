@@ -1012,17 +1012,8 @@
       return n > 0 ? n.toLocaleString("id-ID") : "";
     }
     function titleCase(s) {
-      const t = String(s || "").trim().replace(/\s+/g, " ");
-      if (t !== t.toLowerCase()) return t; // sudah ada huruf besar: jangan diubah (PVC, LED, BWF)
-      return t.replace(/(^|\s)\S/g, c => c.toUpperCase());
-    }
-    // Baris barang bebas yang masih kosong total (nama, harga, modal kosong): dianggap tidak ada
-    function isBlankDraftRow(row) {
-      if (row.dataset.invId) return false;
-      const nm = (row.querySelector(".item-name-input")?.value || "").trim();
-      const price = parseIdrNum(row.querySelector(".item-price-input")?.value);
-      const cost = parseNullableIdr(row.querySelector(".item-cost-input")?.value);
-      return !nm && price === 0 && cost == null;
+      return String(s || "").trim().replace(/\s+/g, " ")
+        .toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase());
     }
     function validateFreeItem(item) {
       const errors = [];
@@ -1094,8 +1085,8 @@
               <input type="text" inputmode="numeric" autocomplete="off" class="item-price-input w-full h-9 px-2.5 border border-slate-300 rounded-lg bg-white font-bold tabular-nums !text-sm text-slate-900" placeholder="0" value="${esc(fmtIdrInput(prefill?.price))}">
             </div>
             <div class="item-cost-wrap sjs-owner-only-stat" ${prefill?.id ? "hidden" : ""}>
-              <label class="block text-[11px] font-bold text-slate-600 mb-0.5">Modal <span class="opt">(opsional)</span></label>
-              <input type="text" inputmode="numeric" autocomplete="off" class="item-cost-input w-full h-9 px-2.5 border border-slate-300 rounded-lg bg-white font-semibold tabular-nums !text-sm text-slate-900" placeholder="Kosongkan jika tidak tahu" value="${esc(fmtIdrInput(prefill?.cost))}">
+              <label class="block text-[11px] font-medium text-slate-400 mb-0.5">Modal <span class="opt">(opsional)</span></label>
+              <input type="text" inputmode="numeric" autocomplete="off" class="item-cost-input w-full h-9 px-2.5 border border-slate-200 rounded-lg bg-slate-100/70 focus:bg-white font-medium tabular-nums !text-sm text-slate-600 placeholder:text-slate-400" placeholder="Kosongkan jika tidak tahu" value="${esc(fmtIdrInput(prefill?.cost))}">
             </div>
           </div>
           <div class="flex flex-wrap sm:flex-nowrap items-end gap-2">
@@ -1134,7 +1125,7 @@
               <p class="item-cost-warn f-warn hidden">⚠ Modal lebih besar dari harga jual. Cek lagi, mungkin salah ketik.</p>
               <p class="item-free-stock-note f-info" ${prefill?.id ? "hidden" : ""}>Barang bebas tidak mengurangi stok gudang.</p>
             </div>
-            <button type="button" class="btn-close-row-edit btn-done !min-h-[38px] !px-4 shrink-0">Selesai</button>
+            <button type="button" class="btn-close-row-edit btn-done !min-h-[42px] !px-5 shrink-0">✓ Tambah ke Keranjang</button>
           </div>
         </div>`;
       container.appendChild(row);
@@ -1368,7 +1359,7 @@
       const recInp = document.getElementById("posCashReceivedInput");
       if (recInp && document.activeElement !== recInp) recInp.value = cashReceivedAmount > 0 ? ("Rp " + Number(cashReceivedAmount).toLocaleString("id-ID")) : "";
       const diff = cashReceivedAmount - currentSaleTotalAmount;
-      if (currentSaleTotalAmount <= 0 || cashReceivedAmount <= 0) {
+      if (selectedPaymentMethod !== "Cash" || currentSaleTotalAmount <= 0 || cashReceivedAmount <= 0) {
         if (lblEl) lblEl.textContent = "KEMBALIAN";
         if (chgEl) chgEl.textContent = rp(0);
         if (boxEl) { boxEl.classList.add("is-idle"); boxEl.classList.remove("is-change", "is-short"); }
@@ -1548,7 +1539,7 @@
       return false;
     }
     function getPosSaveState() {
-      const rows = [...document.querySelectorAll("#saleItemsContainer > div")].filter(r => !isBlankDraftRow(r));
+      const rows = [...document.querySelectorAll("#saleItemsContainer > div")];
       if (!rows.length) {
         return { enabled: false, message: "Tambahkan minimal 1 barang untuk menyimpan penjualan." };
       }
@@ -1560,8 +1551,6 @@
         if (!inv) {
           const v = validateFreeItem({ name: nm, price, cost: parseNullableIdr(row.querySelector(".item-cost-input")?.value), qty });
           if (!v.ok) return { enabled: false, message: `${nm || "Barang baru"}: ${v.errors[0]}` };
-        } else if (qty > Number(inv.stock || 0)) {
-          return { enabled: false, message: `${nm || "Barang"}: stok tersisa ${Number(inv.stock || 0)}.` };
         } else if (qty < 1 || price <= 0) {
           return { enabled: false, message: `${nm || "Barang"}: Isi harga jual & jumlah dulu.` };
         }
@@ -1723,8 +1712,7 @@
         return showToast(`⚠ Uang diterima kurang ${rp(currentSaleTotalAmount - cashReceivedAmount)} dari total bayar.`);
       }
       const itemsToSave = [];
-      for (const row of [...document.querySelectorAll("#saleItemsContainer > div")]) {
-        if (isBlankDraftRow(row)) { row.remove(); continue; }
+      for (const row of document.querySelectorAll("#saleItemsContainer > div")) {
         const invId = row.dataset.invId;
         const inv = activeInventory().find(i => i.id === invId);
         const typedName = row.querySelector(".item-name-input").value.trim();

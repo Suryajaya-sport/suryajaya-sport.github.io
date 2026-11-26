@@ -2336,27 +2336,37 @@
     }
 
 
-    /* === PERBAIKAN: kolom nama merah, tombol terkunci, ikon printer nonaktif === */
-    .item-name-input.invalid {
-      border-color: #DC2626 !important;
-      box-shadow: 0 0 0 3px rgba(220, 38, 38, .15) !important;
+    /* === BARANG BEBAS GOLD ACCENT BESAR + SEARCH LEBIH RINGKAS === */
+    body.sjs-admin #btnAddItemRow {
+      min-height: 56px !important;
+      min-width: 172px !important;
+      justify-content: center !important;
+      background: linear-gradient(135deg, #F5B700 0%, #E5A700 100%) !important;
+      color: #0F172A !important;
+      border: 1.5px solid #D99B00 !important;
+      box-shadow: 0 4px 12px rgba(245, 183, 0, .28) !important;
+      font-weight: 800 !important;
     }
-    body.sjs-admin #btnSaveTx:disabled,
-    body.sjs-admin #btnSaveTx.is-disabled {
-      background: #F8FAFC !important;
-      color: #94A3B8 !important;
-      border: 1.5px solid #CBD5E1 !important;
-      opacity: 1 !important;
-      box-shadow: none !important;
-      cursor: not-allowed !important;
+    body.sjs-admin #btnAddItemRow:hover {
+      background: linear-gradient(135deg, #FFC61A 0%, #EAB308 100%) !important;
+      color: #0F172A !important;
+      box-shadow: 0 6px 16px rgba(245, 183, 0, .38) !important;
     }
-    body.sjs-admin #btnSaveAndPrintTx:disabled i,
-    body.sjs-admin #btnSaveAndPrintTx:disabled svg,
-    body.sjs-admin #btnSaveAndPrintTx.is-disabled i,
-    body.sjs-admin #btnSaveAndPrintTx.is-disabled svg {
-      color: #E2E8F0 !important;
-      fill: #E2E8F0 !important;
+    body.sjs-admin #btnAddItemRow:active {
+      transform: scale(.98) !important;
     }
+    .pos-shopify-search {
+      height: 52px !important;
+      padding: 0 14px 0 40px !important;
+      font-size: 14px !important;
+    }
+    body.sjs-admin #btnOpenScanner {
+      min-height: 52px !important;
+    }
+    body.sjs-admin #btnAddItemRow {
+      min-height: 52px !important;
+    }
+
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -3053,15 +3063,15 @@
           <div class="pos-split">
             <!-- KOLOM KIRI (58%): SCAN QR + SEARCH + FAVORIT CEPAT + KARTU KERANJANG BELANJA + TOTAL + TANGGUHKAN / BARANG BEBAS -->
             <div class="space-y-3 min-w-0">
-              <!-- Baris Scan QR + Search Dominan + Barang Bebas -->
-              <div class="flex flex-wrap sm:flex-nowrap items-center gap-2">
-                <button type="button" id="btnOpenScanner" class="shrink-0 px-3.5 inline-flex items-center gap-2 text-xs sm:text-sm font-bold"><i class="fa-solid fa-qrcode text-base" aria-hidden="true"></i><span>Scan QR (F2)</span></button>
-                <div class="relative flex-1 min-w-[180px]">
-                  <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-lg pointer-events-none" aria-hidden="true"></i>
-                  <input type="search" id="posInstantSearch" placeholder="Cari nama, kode barang, barcode..." autocomplete="off" class="pos-shopify-search w-full">
+              <!-- Baris Scan QR + Search Ringkas + Tombol Barang Bebas Gold Menonjol -->
+              <div class="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
+                <button type="button" id="btnOpenScanner" class="shrink-0 px-4 inline-flex items-center gap-2 text-xs sm:text-sm font-bold"><i class="fa-solid fa-qrcode text-base" aria-hidden="true"></i><span>Scan QR (F2)</span></button>
+                <div class="relative flex-1 min-w-[160px]">
+                  <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none" aria-hidden="true"></i>
+                  <input type="search" id="posInstantSearch" placeholder="Cari nama, kode, barcode..." autocomplete="off" class="pos-shopify-search w-full">
                   <div id="posInstantDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 z-30 bg-white border border-slate-200 rounded-2xl shadow-xl max-h-64 overflow-y-auto divide-y divide-slate-100"></div>
                 </div>
-                <button type="button" id="btnAddItemRow" class="shrink-0 min-h-[56px] px-3.5 rounded-2xl bg-white hover:bg-slate-50 border-1.5 border-slate-300 hover:border-slate-800 text-slate-900 font-bold text-xs sm:text-sm shadow-2xs transition">+ Barang Bebas</button>
+                <button type="button" id="btnAddItemRow" class="shrink-0 min-h-[56px] px-5 rounded-2xl font-extrabold text-sm inline-flex items-center gap-1.5 transition"><i class="fa-solid fa-plus" aria-hidden="true"></i><span>Barang Bebas</span></button>
               </div>
 
               <!-- Favorit Cepat (Pill Bersih 1 Baris) -->
@@ -4092,6 +4102,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261126-19"></script>
+  <script type="module" src="./admin.js?v=20261126-20"></script>
 </body>
 </html>
