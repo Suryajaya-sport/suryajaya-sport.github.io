@@ -1984,6 +1984,50 @@
       max-height: 2.5em;
     }
 
+
+    /* === BRIGHT ACTION BUTTON + 56PX SEARCH + BIGGER KEMBALIAN === */
+    .pos-shopify-search {
+      height: 56px !important;
+      padding: 0 18px 0 46px !important;
+      font-size: 15px !important;
+      border-radius: 16px !important;
+      box-shadow: 0 3px 10px rgba(15, 23, 42, .06) !important;
+    }
+    body.sjs-admin #btnOpenScanner {
+      min-height: 56px !important;
+    }
+    /* Kembalian nominal lebih besar & tegas */
+    body.sjs-admin #posCashChangeBox.is-change {
+      border: 2px solid #22C55E !important;
+      padding: .9rem 1rem !important;
+    }
+    body.sjs-admin #posCashChangeBox.is-change strong {
+      font-size: 2.35rem !important;
+      line-height: 1.08 !important;
+      color: #15803D !important;
+    }
+    /* Tombol Simpan & Cetak: Hijau Cerah Vivid (tidak pucat / tidak pudar saat kosong) */
+    body.sjs-admin #btnSaveAndPrintTx {
+      background: linear-gradient(135deg, #22C55E 0%, #10B981 100%) !important;
+      border: 1.5px solid #16A34A !important;
+      color: #FFFFFF !important;
+      min-height: 52px !important;
+      font-size: 14.5px !important;
+      font-weight: 800 !important;
+      letter-spacing: .04em !important;
+      box-shadow: 0 6px 18px rgba(34, 197, 94, .34) !important;
+      transition: transform .08s ease, box-shadow .14s ease, filter .14s ease !important;
+    }
+    body.sjs-admin #btnSaveAndPrintTx:hover:not(:disabled) {
+      background: linear-gradient(135deg, #16A34A 0%, #059669 100%) !important;
+      box-shadow: 0 8px 22px rgba(22, 163, 74, .42) !important;
+    }
+    body.sjs-admin #btnSaveAndPrintTx:disabled {
+      opacity: .84 !important;
+      box-shadow: 0 4px 12px rgba(34, 197, 94, .22) !important;
+      cursor: not-allowed !important;
+    }
+
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -2665,7 +2709,7 @@
           <!-- BAR STATUS TIPIS (OPSIONAL / HEMAT RUANG) -->
           <div id="posLiveStatsStrip" class="flex flex-wrap items-center justify-between gap-2 py-0.5 text-xs" aria-label="Ringkasan hari ini">
             <div class="flex flex-wrap items-center gap-2">
-              <span class="sjs-owner-only-stat pos-hdr-badge pos-hdr-omzet">💰 Omzet <strong id="posStatOmsetToday" class="tabular-nums">Rp 0</strong></span>
+              <span class="sjs-owner-only-stat pos-hdr-badge pos-hdr-omzet" title="Omzet hari ini">💰 <strong id="posStatOmsetToday" class="tabular-nums">Rp0</strong></span>
               <span class="pos-hdr-badge pos-hdr-nota">🧾 <strong id="posStatTxToday">0 Nota</strong><span id="posStatPcsToday" class="hidden">0 pcs</span></span>
               <span class="hidden"><strong id="posStatAvgToday">Rp 0</strong><span id="posStatAvgSub"></span></span>
               <button type="button" id="btnPosStatLowStock" class="pos-hdr-badge pos-hdr-warn">
@@ -2688,7 +2732,7 @@
               <div class="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
                 <button type="button" id="btnOpenScanner" class="shrink-0 px-4 inline-flex items-center gap-2 text-xs sm:text-sm font-bold"><i class="fa-solid fa-qrcode text-base" aria-hidden="true"></i><span>Scan QR (F2)</span></button>
                 <div class="relative flex-1 min-w-[220px]">
-                  <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none" aria-hidden="true"></i>
+                  <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-lg pointer-events-none" aria-hidden="true"></i>
                   <input type="search" id="posInstantSearch" placeholder="Cari nama, kode barang, barcode..." autocomplete="off" class="pos-shopify-search w-full">
                   <div id="posInstantDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 z-30 bg-white border border-slate-200 rounded-2xl shadow-xl max-h-64 overflow-y-auto divide-y divide-slate-100"></div>
                 </div>
@@ -3724,6 +3768,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261126-07"></script>
+  <script type="module" src="./admin.js?v=20261126-08"></script>
 </body>
 </html>

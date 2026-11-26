@@ -1031,13 +1031,14 @@
               <p class="item-summary-sub text-xs font-medium text-slate-500 tabular-nums">1x @ ${rp(prefill?.price || 0)}</p>
               <span class="item-mode-badge block text-[11px] font-semibold mt-0.5 ${prefill?.id ? "text-emerald-700" : "text-amber-700"}">${prefill?.id ? `Stok ${Number(prefill.stock || 0)}` : "Di luar stok"}</span>
             </div>
-            <div class="flex items-center gap-3 shrink-0">
+            <div class="flex items-center gap-2.5 shrink-0">
+              <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide hidden sm:inline">Qty</span>
               <div class="inline-flex items-center rounded-xl border border-slate-200 bg-slate-50 overflow-hidden">
                 <button type="button" class="btn-inline-minus w-9 h-9 hover:bg-slate-200 font-bold text-sm text-slate-700 transition" aria-label="Kurangi jumlah">−</button>
                 <span class="item-inline-qty px-2.5 text-xs font-bold text-slate-900 tabular-nums">1</span>
                 <button type="button" class="btn-inline-plus w-9 h-9 hover:bg-slate-200 font-bold text-sm text-slate-900 transition" aria-label="Tambah jumlah">+</button>
               </div>
-              <span class="item-subtotal font-extrabold text-[15px] text-slate-950 tabular-nums min-w-[82px] text-right">${rp(prefill?.price || 0)}</span>
+              <span class="item-subtotal font-extrabold text-base text-slate-950 tabular-nums min-w-[86px] text-right">${rp(prefill?.price || 0)}</span>
             </div>
           </div>
         </div>
@@ -1371,7 +1372,9 @@
       const avgNota = todaySales.length > 0 ? Math.round(omset / todaySales.length) : 0;
       const lowItems = activeInventory().filter(i => Number(i.stock || 0) < LOW_STOCK_LIMIT)
         .sort((a, b) => Number(a.stock || 0) - Number(b.stock || 0));
-      omEl.textContent = rp(omset);
+      const omShort = omset >= 1000 ? shortRpTick(omset).replace("Rp ", "Rp").replace(" rb", "rb").replace(" jt", "jt") : rp(omset).replace("Rp ", "Rp");
+      omEl.textContent = omShort;
+      omEl.title = "Omzet hari ini: " + rp(omset);
       const txEl = document.getElementById("posStatTxToday");
       const pcsEl = document.getElementById("posStatPcsToday");
       const avgEl = document.getElementById("posStatAvgToday");
@@ -1382,7 +1385,7 @@
       if (pcsEl) pcsEl.textContent = pcs + " pcs terjual";
       if (avgEl) avgEl.textContent = rp(avgNota);
       if (avgSub) avgSub.textContent = `${todaySales.length} transaksi · ${pcs} barang`;
-      if (lwEl) lwEl.textContent = lowItems.length + " Barang";
+      if (lwEl) lwEl.textContent = String(lowItems.length);
       if (lwNames) {
         const preview = lowItems.slice(0, 3).map(i => String(i.name || "").split(" ").slice(0, 2).join(" ")).join(", ");
         lwNames.textContent = lowItems.length ? `${preview}${lowItems.length > 3 ? "…" : ""}` : "Semua stok aman";
