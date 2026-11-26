@@ -1002,9 +1002,29 @@
       const digits = String(val ?? "").replace(/[^\d]/g, "");
       return digits ? Number(digits) : 0;
     }
+    function parseNullableIdr(val) {
+      const digits = String(val ?? "").replace(/[^\d]/g, "");
+      return digits === "" ? null : Number(digits);
+    }
     function fmtIdrInput(val) {
+      if (val == null || val === "") return "";
       const n = parseIdrNum(val);
       return n > 0 ? n.toLocaleString("id-ID") : "";
+    }
+    function titleCase(s) {
+      return String(s || "").trim().replace(/\s+/g, " ")
+        .toLowerCase().replace(/(^|\s)\S/g, c => c.toUpperCase());
+    }
+    function validateFreeItem(item) {
+      const errors = [];
+      const warnings = [];
+      if (!item.name || !item.name.trim()) errors.push("Isi nama barang dulu.");
+      if (!(item.price > 0)) errors.push("Isi harga jual dulu.");
+      if (!(item.qty >= 1)) errors.push("Jumlah minimal 1.");
+      if (item.cost != null && item.price > 0 && item.cost > item.price) {
+        warnings.push("Modal lebih besar dari harga jual. Cek lagi, mungkin salah ketik.");
+      }
+      return { ok: errors.length === 0, errors, warnings };
     }
 
     function posCategoryEmoji(itemOrName) {
@@ -1021,7 +1041,7 @@
       const key = "sale-item-" + ++saleItemRowNumber;
       const prefillLabel = prefill ? (prefill.id ? formatItemLabel(prefill) : String(prefill.name || "")) : "";
       const isPrefilled = Boolean(prefill && (prefill.id || prefill.name));
-      const catIcon = posCategoryEmoji(prefill || prefillLabel);
+      const catIcon = prefill?.id ? posCategoryEmoji(prefill) : "📦";
       row.innerHTML = `
         <div class="space-y-2">
           <div class="flex items-start justify-between gap-2">
@@ -1059,46 +1079,53 @@
             <div class="sale-entry-thumbnail shrink-0 ${prefill?.id ? "w-9 h-9" : "hidden"}">${prefill?.id ? productImageMarkup(prefill, "h-9 w-9 rounded-lg border border-slate-200", 120, true) : ""}</div>
             <input type="text" id="${key}" list="inventoryDatalist" autocomplete="off" class="item-name-input min-w-0 flex-1 px-3 py-2 border border-slate-300 rounded-xl bg-white font-semibold !text-sm text-slate-900" placeholder="Pilih stok atau ketik nama barang..." value="${esc(prefillLabel)}">
           </div>
-          <div class="grid grid-cols-2 gap-3 items-start">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
             <div>
               <label class="block text-[11px] font-bold text-slate-600 mb-1">Harga Jual</label>
               <input type="text" inputmode="numeric" autocomplete="off" class="item-price-input w-full px-3 py-2 border border-slate-300 rounded-xl bg-white font-bold tabular-nums !text-sm text-slate-900" placeholder="0" value="${esc(fmtIdrInput(prefill?.price))}">
             </div>
             <div class="item-cost-wrap sjs-owner-only-stat" ${prefill?.id ? "hidden" : ""}>
-              <label class="block text-[11px] font-bold text-slate-600 mb-1">Modal</label>
-              <input type="text" inputmode="numeric" autocomplete="off" class="item-cost-input w-full px-3 py-2 border border-slate-300 rounded-xl bg-white font-semibold tabular-nums !text-sm text-slate-900" placeholder="0" value="${esc(fmtIdrInput(prefill?.cost))}">
-              <p class="item-cost-warn hidden text-[11px] font-bold text-red-600 mt-1">⚠ Modal melebihi harga jual (rugi)</p>
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Modal <span class="opt">(opsional)</span></label>
+              <input type="text" inputmode="numeric" autocomplete="off" class="item-cost-input w-full px-3 py-2 border border-slate-300 rounded-xl bg-white font-semibold tabular-nums !text-sm text-slate-900" placeholder="Kosongkan jika tidak tahu" value="${esc(fmtIdrInput(prefill?.cost))}">
             </div>
           </div>
-          <div>
-            <label class="block text-[11px] font-bold text-slate-600 mb-1">Qty</label>
-            <div class="flex items-center justify-between gap-2">
-              <div class="flex items-center gap-2.5">
+          <div class="flex flex-wrap sm:flex-nowrap items-end gap-3">
+            <div class="shrink-0">
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Qty</label>
+              <div class="flex items-center gap-2">
                 <div class="inline-flex items-center rounded-xl border border-slate-300 bg-white overflow-hidden shadow-2xs">
-                  <button type="button" class="btn-drawer-minus w-10 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Kurangi jumlah">−</button>
-                  <span class="item-drawer-qty px-3.5 text-sm font-bold text-slate-900 tabular-nums border-x border-slate-200 leading-9">1</span>
-                  <button type="button" class="btn-drawer-plus w-10 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Tambah jumlah">+</button>
+                  <button type="button" class="btn-drawer-minus w-9 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Kurangi jumlah">−</button>
+                  <span class="item-drawer-qty px-3 text-sm font-bold text-slate-900 tabular-nums border-x border-slate-200 leading-9">1</span>
+                  <button type="button" class="btn-drawer-plus w-9 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Tambah jumlah">+</button>
                 </div>
-                <select class="item-unit-select h-9 px-3 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-800" aria-label="Satuan">
+                <select class="item-unit-select h-9 px-2.5 rounded-xl border border-slate-300 bg-white text-xs font-bold text-slate-800" aria-label="Satuan">
                   <option value="Pcs">Pcs</option>
                   <option value="Set">Set</option>
                   <option value="Pak">Pak</option>
                   <option value="Lusin">Lusin</option>
                 </select>
               </div>
-              <button type="button" class="btn-close-row-edit h-9 px-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shrink-0">Selesai</button>
+            </div>
+            <div class="flex-1 min-w-[160px]">
+              <label class="block text-[11px] font-bold text-slate-600 mb-1">Catatan <span class="opt">(opsional)</span></label>
+              <input type="text" class="item-note-input w-full h-9 px-3 rounded-xl border border-slate-300 bg-white text-xs font-medium text-slate-800" placeholder="Layanan / varian..." maxlength="80">
             </div>
           </div>
-          <input type="text" class="item-note-input w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs font-medium text-slate-800" placeholder="Catatan layanan / varian..." maxlength="80">
-          <div class="grid grid-cols-3 gap-1.5">
-            <button type="button" class="pos-svc-chip text-center justify-center" data-svc-note="Pasang 24 lbs">🏸 24 lbs</button>
-            <button type="button" class="pos-svc-chip text-center justify-center" data-svc-note="Pasang 27 lbs">🏸 27 lbs</button>
-            <button type="button" class="pos-svc-chip text-center justify-center" data-svc-note="Pasang 30 lbs">🏸 30 lbs</button>
-            <button type="button" class="pos-svc-chip text-center justify-center" data-svc-note="Kaliber 4.5mm">🎯 Kaliber</button>
-            <button type="button" class="pos-svc-chip text-center justify-center" data-svc-note="Ukuran Bola 5">⚽ Uk. Bola</button>
-            <button type="button" class="pos-svc-chip text-center justify-center" data-svc-note="Tulisan Piala">🏆 Tulisan Piala</button>
+          <div class="f-chips">
+            <button type="button" class="pos-svc-chip" data-svc-note="Pasang 24 lbs">🏸 24 lbs</button>
+            <button type="button" class="pos-svc-chip" data-svc-note="Pasang 27 lbs">🏸 27 lbs</button>
+            <button type="button" class="pos-svc-chip" data-svc-note="Pasang 30 lbs">🏸 30 lbs</button>
+            <button type="button" class="pos-svc-chip" data-svc-note="Kaliber 4.5mm">🎯 Kaliber</button>
+            <button type="button" class="pos-svc-chip" data-svc-note="Ukuran Bola 5">⚽ Uk. Bola</button>
+            <button type="button" class="pos-svc-chip" data-svc-note="Tulisan Piala">🏆 Tulisan Piala</button>
           </div>
-          <p class="item-free-stock-note text-[11px] text-slate-500" ${prefill?.id ? "hidden" : ""}>ℹ Barang bebas tidak mengurangi stok gudang (hanya tercatat di omzet &amp; laba).</p>
+          <div class="f-foot">
+            <div class="flex-1 space-y-1 min-w-0">
+              <p class="item-cost-warn f-warn hidden">⚠ Modal lebih besar dari harga jual. Cek lagi, mungkin salah ketik.</p>
+              <p class="item-free-stock-note f-info" ${prefill?.id ? "hidden" : ""}>Barang bebas tidak mengurangi stok gudang (hanya tercatat di omzet &amp; laba).</p>
+            </div>
+            <button type="button" class="btn-close-row-edit btn-done shrink-0">Selesai</button>
+          </div>
         </div>`;
       container.appendChild(row);
 
@@ -1147,6 +1174,12 @@
       };
       nameInput.addEventListener("input", handleSelect);
       nameInput.addEventListener("change", handleSelect);
+      nameInput.addEventListener("blur", () => {
+        if (!row.dataset.invId && nameInput.value.trim()) {
+          nameInput.value = titleCase(nameInput.value);
+          calculateSaleTotals();
+        }
+      });
       costInput.addEventListener("input", () => formatNumField(costInput));
       priceInput.addEventListener("input", () => formatNumField(priceInput));
       row.querySelector(".item-note-input")?.addEventListener("input", calculateSaleTotals);
@@ -1196,10 +1229,15 @@
         const qtyInput = row.querySelector(".item-qty");
         const qty = Math.max(0, parseInt(qtyInput?.value, 10) || 0);
         const inv = activeInventory().find(i => i.id === row.dataset.invId);
-        const cost = inv ? Number(inv.cost || 0) : parseIdrNum(row.querySelector(".item-cost-input")?.value);
-        if (nm && qty > 0) { itemLines++; totalQty += qty; }
-        total += price * qty;
-        profit += (price - cost) * qty;
+        const freeCost = inv ? Number(inv.cost || 0) : parseNullableIdr(row.querySelector(".item-cost-input")?.value);
+        const cost = freeCost ?? 0;
+        const rowValid = inv ? (nm && qty > 0) : validateFreeItem({ name: nm, price, cost: freeCost, qty }).ok;
+        if (rowValid) {
+          itemLines++;
+          totalQty += qty;
+          total += price * qty;
+          if (inv || freeCost != null) profit += (price - cost) * qty;
+        }
         row.querySelector(".item-subtotal").textContent = rp(price * qty);
         const numBadge = row.querySelector(".item-row-num");
         if (numBadge) numBadge.textContent = String(itemLines || 1);
@@ -1212,7 +1250,7 @@
         const unitStr = row.querySelector(".item-unit-select")?.value || "Pcs";
         const noteStr = (row.querySelector(".item-note-input")?.value || "").trim();
         const iconEl = row.querySelector(".item-cat-icon");
-        if (iconEl) iconEl.textContent = posCategoryEmoji(inv || nm);
+        if (iconEl) iconEl.textContent = inv ? posCategoryEmoji(inv) : "📦";
         if (titleEl) titleEl.textContent = cleanDisplayItemName(nm || "Barang baru") + (noteStr ? ` (${noteStr})` : "");
         if (subEl) {
           subEl.textContent = `${qty}${unitStr !== "Pcs" ? " " + unitStr : "x"} @ ${rp(price)}`;
@@ -1220,12 +1258,13 @@
         const pInpLive = row.querySelector(".item-price-input");
         if (pInpLive) {
           const invalidPrice = Boolean(nm) && price <= 0;
+          pInpLive.classList.toggle("invalid", invalidPrice);
           pInpLive.classList.toggle("border-rose-500", invalidPrice);
           pInpLive.classList.toggle("bg-rose-50", invalidPrice);
         }
         const cInpLive = row.querySelector(".item-cost-input");
         const cWarn = row.querySelector(".item-cost-warn");
-        const lossCost = !inv && cost > 0 && price > 0 && cost > price;
+        const lossCost = !inv && freeCost != null && price > 0 && freeCost > price;
         if (cInpLive) {
           cInpLive.classList.toggle("border-red-500", lossCost);
           cInpLive.classList.toggle("bg-red-50", lossCost);
@@ -1486,31 +1525,51 @@
       }
       return false;
     }
+    function getPosSaveState() {
+      const rows = [...document.querySelectorAll("#saleItemsContainer > div")];
+      if (!rows.length) {
+        return { enabled: false, message: "Tambahkan minimal 1 barang untuk menyimpan penjualan." };
+      }
+      for (const row of rows) {
+        const inv = activeInventory().find(i => i.id === row.dataset.invId);
+        const nm = (row.querySelector(".item-name-input")?.value || "").trim();
+        const price = parseIdrNum(row.querySelector(".item-price-input")?.value);
+        const qty = parseInt(row.querySelector(".item-qty")?.value, 10) || 0;
+        if (!inv) {
+          const v = validateFreeItem({ name: nm, price, cost: parseNullableIdr(row.querySelector(".item-cost-input")?.value), qty });
+          if (!v.ok) return { enabled: false, message: `${nm || "Barang baru"}: ${v.errors[0]}` };
+        } else if (qty < 1 || price <= 0) {
+          return { enabled: false, message: `${nm || "Barang"}: Isi harga jual & jumlah dulu.` };
+        }
+      }
+      if (!salePaymentMethods.has(selectedPaymentMethod)) {
+        return { enabled: false, message: "Pilih cara bayar untuk menyimpan penjualan." };
+      }
+      if (selectedPaymentMethod === "Cash" && cashReceivedAmount > 0 && cashReceivedAmount < currentSaleTotalAmount) {
+        return { enabled: false, message: `Uang kurang ${rp(currentSaleTotalAmount - cashReceivedAmount)}.` };
+      }
+      return { enabled: true, message: "" };
+    }
     function renderSalePayment() {
       const okPay = salePaymentMethods.has(selectedPaymentMethod);
-      const okItems = hasSaleItems();
       for (const b of document.querySelectorAll(".pay-option-btn")) {
         b.setAttribute("aria-pressed", String(b.dataset.pay === selectedPaymentMethod));
       }
+      const saveState = getPosSaveState();
       const hintEl = document.getElementById("salePaymentHint");
       if (hintEl) {
-        if (!okItems) {
-          hintEl.textContent = "Tambahkan minimal 1 barang untuk menyimpan penjualan.";
-          hintEl.hidden = false;
-        } else if (!okPay) {
-          hintEl.textContent = "Pilih cara bayar untuk menyimpan penjualan.";
-          hintEl.hidden = false;
-        } else {
-          hintEl.hidden = true;
-        }
+        hintEl.textContent = saveState.message;
+        hintEl.hidden = saveState.enabled;
       }
       const topBadge = document.getElementById("salePaymentTopBadge");
       if (topBadge) topBadge.hidden = okPay;
       const payBox = document.getElementById("posPaySectionBox");
       if (payBox) payBox.classList.toggle("border-amber-300", !okPay);
-      const canSave = okPay && okItems && !saleFormSaving;
-      document.getElementById("btnSaveTx").disabled = !canSave;
-      document.getElementById("btnSaveAndPrintTx").disabled = !canSave;
+      const canSave = saveState.enabled && !saleFormSaving;
+      const btnSave = document.getElementById("btnSaveTx");
+      const btnSavePrint = document.getElementById("btnSaveAndPrintTx");
+      if (btnSave) { btnSave.disabled = !canSave; btnSave.classList.toggle("is-disabled", !canSave); }
+      if (btnSavePrint) { btnSavePrint.disabled = !canSave; btnSavePrint.classList.toggle("is-disabled", !canSave); }
       const splitPanel = document.getElementById("posSplitBonPanel");
       if (splitPanel) {
         const isSplitOrBon = selectedPaymentMethod === "Split" || selectedPaymentMethod === "Bon";
@@ -1634,7 +1693,8 @@
         const typedName = row.querySelector(".item-name-input").value.trim();
         const qty = Number(row.querySelector(".item-qty").value);
         const price = parseIdrNum(row.querySelector(".item-price-input")?.value);
-        const manualCost = Math.max(0, Math.round(parseIdrNum(row.querySelector(".item-cost-input")?.value)));
+        const rawManualCost = parseNullableIdr(row.querySelector(".item-cost-input")?.value);
+        const manualCost = rawManualCost == null ? null : Math.max(0, Math.round(rawManualCost));
         if (!inv && !typedName) { showToast("Isi nama barang atau pilih dari daftar stok."); row.querySelector(".item-name-input").focus(); return; }
         if (!Number.isSafeInteger(qty) || qty < 1) return showToast("Jumlah minimal 1 pcs.");
         const priceInp = row.querySelector(".item-price-input");
@@ -1653,7 +1713,7 @@
         if (inv) {
           itemsToSave.push({ inventoryId: invId, name: finalItemName, qty, price, cost: Number(inv.cost || 0), imageUrl: inv.imageUrl || "" });
         } else {
-          itemsToSave.push({ inventoryId: "", isCustom: true, name: finalItemName, qty, price, cost: manualCost, imageUrl: "" });
+          itemsToSave.push({ inventoryId: "", isCustom: true, name: finalItemName, qty, price, cost: manualCost == null ? price : manualCost, costUnknown: manualCost == null, imageUrl: "" });
         }
       }
       if (!itemsToSave.length) return showToast("Tambahkan minimal 1 barang.");
