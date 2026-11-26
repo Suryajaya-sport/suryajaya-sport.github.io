@@ -998,32 +998,47 @@
       calculateSaleTotals();
     }
 
+    function posCategoryEmoji(itemOrName) {
+      const obj = typeof itemOrName === "string" ? { name: itemOrName } : (itemOrName || {});
+      const catKey = detectProductCategoryLabel(obj).key;
+      return catKey === "badminton" ? "🏸" : catKey === "ball" ? "⚽" : catKey === "chess" ? "♟️" : catKey === "music" ? "🎸" : "🏅";
+    }
+
     function addSaleItemRow(prefill = null) {
       const container = document.getElementById("saleItemsContainer");
       const row = document.createElement("div");
-      row.className = "py-3 space-y-2.5";
+      row.className = "pos-cart-item-card space-y-2.5";
       row.dataset.invId = prefill?.id || "";
       const key = "sale-item-" + ++saleItemRowNumber;
       const prefillLabel = prefill ? (prefill.id ? formatItemLabel(prefill) : String(prefill.name || "")) : "";
       const isPrefilled = Boolean(prefill && (prefill.id || prefill.name));
+      const catIcon = posCategoryEmoji(prefill || prefillLabel);
       row.innerHTML = `
-        <div class="flex items-center justify-between gap-2.5">
-          <div class="flex items-center gap-3 min-w-0">
-            <span class="item-row-num w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 text-xs font-extrabold flex items-center justify-center shrink-0">1</span>
-            <div class="min-w-0">
-              <p class="item-summary-title font-extrabold text-sm text-slate-900 truncate">${esc(cleanDisplayItemName(prefillLabel || "Barang baru"))}</p>
-              <p class="item-summary-sub text-xs font-semibold text-slate-500">1x @ ${rp(prefill?.price || 0)} · <span class="item-mode-badge font-bold ${prefill?.id ? "text-emerald-700" : "text-amber-700"}">${prefill?.id ? `Stok: ${Number(prefill.stock || 0)}` : "Di luar stok"}</span></p>
+        <div class="space-y-2">
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="item-row-num hidden">1</span>
+              <span class="item-cat-icon text-base leading-none shrink-0" aria-hidden="true">${catIcon}</span>
+              <p class="item-summary-title font-bold text-sm text-slate-900 truncate">${esc(cleanDisplayItemName(prefillLabel || "Barang baru"))}</p>
+            </div>
+            <div class="flex items-center gap-1 shrink-0">
+              <button type="button" class="btn-toggle-row-edit w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 inline-flex items-center justify-center transition" title="Ubah harga, satuan, atau catatan"><i class="fa-solid fa-pen text-[11px]" aria-hidden="true"></i></button>
+              <button type="button" class="btn-remove-row w-8 h-8 rounded-lg bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-500 hover:text-red-600 inline-flex items-center justify-center transition" title="Hapus barang"><i class="fa-regular fa-trash-can text-xs" aria-hidden="true"></i></button>
             </div>
           </div>
-          <div class="flex items-center gap-1.5 shrink-0">
-            <div class="inline-flex items-center rounded-xl border border-slate-200 bg-slate-50 overflow-hidden mr-1">
-              <button type="button" class="btn-inline-minus w-9 h-9 hover:bg-slate-200 font-extrabold text-sm text-slate-700" aria-label="Kurangi jumlah">−</button>
-              <span class="item-inline-qty px-2 text-xs font-extrabold text-slate-900 tabular-nums">1</span>
-              <button type="button" class="btn-inline-plus w-9 h-9 hover:bg-blue-100 font-extrabold text-sm text-blue-900" aria-label="Tambah jumlah">+</button>
+          <div class="flex items-center justify-between gap-2 pt-0.5">
+            <div class="min-w-0 leading-snug">
+              <p class="item-summary-sub text-xs font-medium text-slate-500 tabular-nums">1x @ ${rp(prefill?.price || 0)}</p>
+              <span class="item-mode-badge block text-[11px] font-semibold mt-0.5 ${prefill?.id ? "text-emerald-700" : "text-amber-700"}">${prefill?.id ? `Stok ${Number(prefill.stock || 0)}` : "Di luar stok"}</span>
             </div>
-            <span class="item-subtotal font-extrabold text-sm text-slate-950 tabular-nums min-w-[72px] text-right">${rp(prefill?.price || 0)}</span>
-            <button type="button" class="btn-toggle-row-edit w-9 h-9 rounded-lg hover:bg-blue-50 text-slate-600 hover:text-blue-700 inline-flex items-center justify-center" title="Ubah harga, satuan, atau catatan"><i class="fa-solid fa-pen text-xs" aria-hidden="true"></i></button>
-            <button type="button" class="btn-remove-row w-9 h-9 rounded-lg hover:bg-rose-50 text-slate-500 hover:text-rose-700 inline-flex items-center justify-center" title="Hapus barang"><i class="fa-regular fa-trash-can text-sm" aria-hidden="true"></i></button>
+            <div class="flex items-center gap-3 shrink-0">
+              <div class="inline-flex items-center rounded-xl border border-slate-200 bg-slate-50 overflow-hidden">
+                <button type="button" class="btn-inline-minus w-9 h-9 hover:bg-slate-200 font-bold text-sm text-slate-700 transition" aria-label="Kurangi jumlah">−</button>
+                <span class="item-inline-qty px-2.5 text-xs font-bold text-slate-900 tabular-nums">1</span>
+                <button type="button" class="btn-inline-plus w-9 h-9 hover:bg-slate-200 font-bold text-sm text-slate-900 transition" aria-label="Tambah jumlah">+</button>
+              </div>
+              <span class="item-subtotal font-extrabold text-[15px] text-slate-950 tabular-nums min-w-[82px] text-right">${rp(prefill?.price || 0)}</span>
+            </div>
           </div>
         </div>
         <div class="item-edit-drawer rounded-xl bg-slate-50 border border-slate-200 p-3 space-y-2.5" ${isPrefilled ? "hidden" : ""}>
@@ -1178,16 +1193,11 @@
         const subEl = row.querySelector(".item-summary-sub");
         const unitStr = row.querySelector(".item-unit-select")?.value || "Pcs";
         const noteStr = (row.querySelector(".item-note-input")?.value || "").trim();
+        const iconEl = row.querySelector(".item-cat-icon");
+        if (iconEl) iconEl.textContent = posCategoryEmoji(inv || nm);
         if (titleEl) titleEl.textContent = cleanDisplayItemName(nm || "Barang baru") + (noteStr ? ` (${noteStr})` : "");
         if (subEl) {
-          const badgeHtml = inv
-            ? (qty > Number(inv.stock || 0)
-                ? `<span class="item-mode-badge font-extrabold text-rose-700">⚠ Melebihi stok (${Number(inv.stock || 0)})</span>`
-                : Number(inv.stock || 0) < LOW_STOCK_LIMIT
-                  ? `<span class="item-mode-badge font-extrabold text-amber-700">Stok: ${Number(inv.stock || 0)} ⚠</span>`
-                  : `<span class="item-mode-badge font-bold text-emerald-700">Stok: ${Number(inv.stock || 0)}</span>`)
-            : `<span class="item-mode-badge font-bold text-amber-700">Di luar stok</span>`;
-          subEl.innerHTML = `${qty}${unitStr !== "Pcs" ? " " + esc(unitStr) : "x"} @ ${rp(price)} · ${badgeHtml}`;
+          subEl.textContent = `${qty}${unitStr !== "Pcs" ? " " + unitStr : "x"} @ ${rp(price)}`;
         }
         const pInpLive = row.querySelector(".item-price-input");
         if (pInpLive) {
@@ -1203,11 +1213,11 @@
               badge.textContent = `⚠ Melebihi stok (tersisa ${st})`;
               badge.className = "item-mode-badge font-extrabold text-rose-700";
             } else if (st < LOW_STOCK_LIMIT) {
-              badge.textContent = `Stok: ${st} ⚠`;
-              badge.className = "item-mode-badge font-extrabold text-amber-700";
+              badge.textContent = `Stok ${st} ⚠`;
+              badge.className = "item-mode-badge block text-[11px] font-bold mt-0.5 text-amber-700";
             } else {
-              badge.textContent = `Stok: ${st}`;
-              badge.className = "item-mode-badge font-bold text-emerald-700";
+              badge.textContent = `Stok ${st}`;
+              badge.className = "item-mode-badge block text-[11px] font-semibold mt-0.5 text-emerald-700";
             }
           } else {
             badge.textContent = "Di luar stok";
@@ -1272,7 +1282,7 @@
       if (recInp && document.activeElement !== recInp) recInp.value = cashReceivedAmount > 0 ? Number(cashReceivedAmount).toLocaleString("id-ID") : "";
       const diff = cashReceivedAmount - currentSaleTotalAmount;
       if (currentSaleTotalAmount <= 0) {
-        if (lblEl) lblEl.textContent = "KEMBALIAN";
+        if (lblEl) lblEl.textContent = "✓ KEMBALIAN";
         if (chgEl) chgEl.textContent = rp(0);
         if (boxEl) { boxEl.classList.add("is-change"); boxEl.classList.remove("is-short"); }
       } else if (diff < 0) {
@@ -1280,7 +1290,7 @@
         if (chgEl) chgEl.textContent = rp(Math.abs(diff));
         if (boxEl) { boxEl.classList.remove("is-change"); boxEl.classList.add("is-short"); }
       } else {
-        if (lblEl) lblEl.textContent = "KEMBALIAN";
+        if (lblEl) lblEl.textContent = "✓ KEMBALIAN";
         if (chgEl) chgEl.textContent = rp(diff);
         if (boxEl) { boxEl.classList.add("is-change"); boxEl.classList.remove("is-short"); }
       }

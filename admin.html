@@ -1836,6 +1836,119 @@
       color: #F5B700 !important;
     }
 
+
+    /* === COMMERCIAL POS POLISH (9.8/10: SHOPIFY SEARCH, CART CARDS, STRIPE KEMBALIAN, NAVY SCAN QR, HEADER BADGES) === */
+    /* 1. Header Atas Badges */
+    .pos-hdr-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 9999px;
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, .05);
+      color: #0F172A;
+      font-size: 12px;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+    .pos-hdr-badge strong { font-weight: 700; color: #0F172A; }
+    .pos-hdr-badge.pos-hdr-omzet { border-color: #CBD5E1; }
+    .pos-hdr-badge.pos-hdr-nota { color: #142850; }
+    .pos-hdr-badge.pos-hdr-warn {
+      background: #FEF2F2;
+      border-color: #FECACA;
+      color: #DC2626;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color .14s ease;
+    }
+    .pos-hdr-badge.pos-hdr-warn:hover { background: #FEE2E2; }
+
+    /* 2. Tombol Scan QR: Navy Deep + Gold Left Accent */
+    body.sjs-admin #btnOpenScanner {
+      min-height: 54px !important;
+      background: #0F172A !important;
+      color: #FFFFFF !important;
+      border: 1px solid #1E293B !important;
+      border-left: 4px solid #F5B700 !important;
+      border-bottom: 1px solid #1E293B !important;
+      border-radius: 14px !important;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, .16) !important;
+      font-weight: 700 !important;
+      transition: background-color .14s ease, transform .08s ease !important;
+    }
+    body.sjs-admin #btnOpenScanner:hover {
+      background: #142850 !important;
+    }
+    body.sjs-admin #btnOpenScanner:active {
+      transform: scale(.98) !important;
+    }
+    body.sjs-admin #btnOpenScanner i {
+      color: #F5B700 !important;
+    }
+
+    /* 3. Search Bar: Shopify POS style (54px, radius 16px, subtle shadow) */
+    .pos-shopify-search {
+      height: 54px;
+      padding: 0 16px 0 42px;
+      border-radius: 16px;
+      border: 1.5px solid #CBD5E1;
+      background: #FFFFFF;
+      color: #0F172A;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, .05);
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    .pos-shopify-search::placeholder {
+      color: #94A3B8;
+      font-weight: 500;
+    }
+    .pos-shopify-search:focus {
+      outline: none;
+      border-color: #142850;
+      box-shadow: 0 0 0 3px rgba(20, 40, 80, .12), 0 4px 12px rgba(15, 23, 42, .07);
+    }
+
+    /* 4. Cart Item Card: Modern white card with soft shadow */
+    .pos-cart-item-card {
+      background: #FFFFFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 14px;
+      padding: 12px 14px;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, .04);
+      transition: border-color .14s ease, box-shadow .14s ease;
+    }
+    .pos-cart-item-card:hover {
+      border-color: #CBD5E1;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, .07);
+    }
+
+    /* 5. Kembalian: Stripe Success Panel */
+    body.sjs-admin #posCashChangeBox.is-change {
+      background: #DCFCE7 !important;
+      border: 1.5px solid #16A34A !important;
+      border-radius: 14px !important;
+      padding: .85rem 1rem !important;
+      box-shadow: 0 4px 14px rgba(22, 163, 74, .12) !important;
+    }
+    body.sjs-admin #posCashChangeBox.is-change span {
+      color: #15803D !important;
+      font-size: 12px !important;
+      font-weight: 800 !important;
+      letter-spacing: .08em !important;
+      margin-bottom: 4px !important;
+    }
+    body.sjs-admin #posCashChangeBox.is-change strong {
+      color: #14532D !important;
+      font-size: 2rem !important;
+      font-weight: 900 !important;
+      line-height: 1.1 !important;
+      letter-spacing: -.025em !important;
+    }
+
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -2515,15 +2628,13 @@
 
         <section id="salesEntryCard" class="hidden no-print space-y-3">
           <!-- BAR STATUS TIPIS (OPSIONAL / HEMAT RUANG) -->
-          <div id="posLiveStatsStrip" class="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-white/90 border border-slate-200 px-3.5 py-1.5 text-[11px]" aria-label="Ringkasan hari ini">
-            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 font-bold text-slate-600">
-              <span class="sjs-owner-only-stat">Omzet: <strong id="posStatOmsetToday" class="text-slate-900 font-extrabold tabular-nums">Rp 0</strong></span>
-              <span class="text-slate-300 sjs-owner-only-stat">|</span>
-              <span><strong id="posStatTxToday" class="text-blue-900 font-extrabold">0 Nota</strong> (<span id="posStatPcsToday">0 pcs</span>)</span>
+          <div id="posLiveStatsStrip" class="flex flex-wrap items-center justify-between gap-2 py-0.5 text-xs" aria-label="Ringkasan hari ini">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="sjs-owner-only-stat pos-hdr-badge pos-hdr-omzet">💰 <strong id="posStatOmsetToday" class="tabular-nums">Rp 0</strong></span>
+              <span class="pos-hdr-badge pos-hdr-nota">🧾 <strong id="posStatTxToday">0 Nota</strong><span id="posStatPcsToday" class="hidden">0 pcs</span></span>
               <span class="hidden"><strong id="posStatAvgToday">Rp 0</strong><span id="posStatAvgSub"></span></span>
-              <span class="text-slate-300">|</span>
-              <button type="button" id="btnPosStatLowStock" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-800 font-extrabold">
-                <span id="posStatLowStock">0 Barang</span> Menipis
+              <button type="button" id="btnPosStatLowStock" class="pos-hdr-badge pos-hdr-warn">
+                ⚠ <span id="posStatLowStock">0</span> Menipis
                 <span id="posStatLowStockNames" class="hidden"></span>
               </button>
             </div>
@@ -2540,11 +2651,11 @@
             <div class="space-y-3 min-w-0">
               <!-- Baris Scan QR (20%) + Search Dominan (80%) -->
               <div class="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
-                <button type="button" id="btnOpenScanner" class="shrink-0 px-3.5 py-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs sm:text-sm inline-flex items-center gap-1.5 shadow-sm"><i class="fa-solid fa-qrcode text-base" aria-hidden="true"></i><span>Scan QR (F2)</span></button>
+                <button type="button" id="btnOpenScanner" class="shrink-0 px-4 inline-flex items-center gap-2 text-xs sm:text-sm font-bold"><i class="fa-solid fa-qrcode text-base" aria-hidden="true"></i><span>Scan QR (F2)</span></button>
                 <div class="relative flex-1 min-w-[220px]">
-                  <input type="search" id="posInstantSearch" placeholder="Cari nama, kode barang, atau scan barcode..." autocomplete="off" class="w-full pl-4 pr-10 py-3 rounded-xl border-2 border-slate-300 focus:border-blue-600 bg-white font-bold text-sm shadow-xs">
-                  <i class="fa-solid fa-magnifying-glass absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none" aria-hidden="true"></i>
-                  <div id="posInstantDropdown" class="hidden absolute left-0 right-0 top-full mt-1 z-30 bg-white border border-slate-300 rounded-2xl shadow-xl max-h-64 overflow-y-auto divide-y divide-slate-100"></div>
+                  <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none" aria-hidden="true"></i>
+                  <input type="search" id="posInstantSearch" placeholder="Cari nama, kode barang, barcode..." autocomplete="off" class="pos-shopify-search w-full">
+                  <div id="posInstantDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 z-30 bg-white border border-slate-200 rounded-2xl shadow-xl max-h-64 overflow-y-auto divide-y divide-slate-100"></div>
                 </div>
               </div>
 
@@ -2575,7 +2686,7 @@
                   <p class="text-xs font-semibold text-slate-500">Cari produk di atas, klik <strong>Favorit Cepat</strong>, atau tekan <strong>F2</strong> untuk Scan QR.</p>
                 </div>
 
-                <div id="saleItemsContainer" class="divide-y divide-slate-200 max-h-[42vh] overflow-y-auto pr-0.5"></div>
+                <div id="saleItemsContainer" class="space-y-2.5 max-h-[44vh] overflow-y-auto pr-0.5 py-0.5"></div>
 
                 <!-- TOTAL BESAR DI BAWAH DAFTAR KERANJANG (IDENTIK DESAIN) -->
                 <div class="pt-3 border-t-2 border-slate-900/80 flex items-baseline justify-between gap-2">
@@ -2657,7 +2768,7 @@
 
               <!-- 3. KEMBALIAN (HIJAU / MERAH SAAT KURANG) -->
               <div id="posCashChangeBox" class="pos-cash-box is-change w-full">
-                <span id="posCashChangeLabel">KEMBALIAN</span>
+                <span id="posCashChangeLabel">✓ KEMBALIAN</span>
                 <strong id="posCashChangeText" class="tabular-nums">Rp 0</strong>
               </div>
 
@@ -3578,6 +3689,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261126-04"></script>
+  <script type="module" src="./admin.js?v=20261126-05"></script>
 </body>
 </html>
