@@ -4366,5 +4366,3 @@
             <thead><tr class="border-b border-slate-200 text-[10px] font-extrabold uppercase text-slate-500"><th class="py-2 pr-1">Produk</th><th class="py-2 px-1 text-right">Omzet</th><th class="py-2 px-1 text-right">Laba</th><th class="py-2 pl-1 text-right">Margin</th></tr></thead>
             <tbody class="divide-y divide-slate-100">${topProfitable.map(([n, v], i) => {
               const mPct = v.omset > 0 ? Math.round((v.
-
-Displaying admin-v5.js.
