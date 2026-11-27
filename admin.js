@@ -1,5 +1,4 @@
-
-    // ==================== KONFIGURASI ====================
+// ==================== KONFIGURASI ====================
     const EMBEDDED_FIREBASE_CONFIG = {
       apiKey: "AIzaSyBFtI_lwLU7cDcioDE1GpgC0AjKPZ1mHag",
       authDomain: "suryajayasport-3fd5e.firebaseapp.com",
