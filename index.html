@@ -468,8 +468,8 @@
     gtag('js', new Date());
     gtag('config', 'G-ZS9T9ZJXBK');
   </script>
-  <style id="sjs-dark-showroom">
-    /* === TEMA FULL DARK SHOWROOM (SURYA JAYA SPORT) === */
+  <style id="sjs-dark-cro-v3">
+    /* === TEMA FULL DARK PRO SHOWROOM + OPTIMASI KONVERSI (CRO) === */
     :root {
       --dark-bg: #0b0e14;
       --dark-card: #151922;
@@ -488,23 +488,59 @@
       color: var(--dark-text) !important;
     }
 
-    /* Header & Navigasi */
+    /* 8. Sticky Header yang tetap menempel & lengkap di desktop maupun mobile */
     .shop-header {
-      background: rgba(11, 14, 20, 0.92) !important;
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 45 !important;
+      background: rgba(11, 14, 20, 0.94) !important;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       border-bottom: 1.5px solid var(--dark-border) !important;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
     }
     .shop-brand h1 { color: #ffffff !important; }
     .shop-brand p { color: var(--dark-muted) !important; }
     .shop-links { background: var(--dark-card) !important; border: 1px solid var(--dark-border); }
     .shop-links a { color: #cbd5e1 !important; }
     .shop-links a:hover { background: var(--dark-elev) !important; color: var(--gold) !important; }
+    @media (max-width: 640px) {
+      .shop-links {
+        display: flex !important;
+        order: 3;
+        width: 100%;
+        justify-content: space-between;
+        overflow-x: auto;
+        padding: .2rem;
+      }
+      .shop-links a {
+        font-size: .75rem !important;
+        padding: .35rem .65rem !important;
+        white-space: nowrap;
+      }
+      .shop-brand p { display: none; }
+    }
 
-    /* Hero & Strip Keunggulan */
+    /* 1. Hero Banner Lebih Ramping (-20% Desktop, -30% Mobile) agar produk cepat terlihat */
     .shop-hero {
+      min-height: 275px !important;
+      padding: 1.65rem 1.75rem !important;
       border: 1.5px solid var(--dark-border) !important;
       box-shadow: 0 24px 54px -18px rgba(0, 0, 0, 0.7) !important;
     }
+    .shop-hero h2 { font-size: clamp(2rem, 4.2vw, 3rem) !important; }
+    @media (max-width: 900px) {
+      .shop-hero {
+        min-height: 215px !important;
+        padding: 1.25rem 1.15rem !important;
+        gap: 1rem !important;
+      }
+      .shop-hero h2 { font-size: 1.85rem !important; }
+      .hero-feature-grid { gap: .5rem !important; }
+      .hero-feature-card { padding: .7rem .75rem !important; }
+    }
+
+    /* Strip Keunggulan */
     .fun-highlight-pill {
       background: var(--dark-card) !important;
       border: 1.5px solid var(--dark-border) !important;
@@ -513,7 +549,7 @@
     .fun-highlight-pill strong { color: var(--dark-text) !important; }
     .fun-highlight-pill span { color: var(--dark-muted) !important; }
 
-    /* Kategori Cepat */
+    /* 2. Kategori Cepat */
     .catalog-heading h2 { color: #ffffff !important; }
     .catalog-heading span { color: var(--dark-muted) !important; }
     .quick-cat-btn {
@@ -531,7 +567,7 @@
     }
     .quick-cat-btn.is-active strong { color: var(--gold) !important; }
 
-    /* Toolbar Pencarian & Filter */
+    /* 3. Toolbar Pencarian & Filter */
     .catalog-toolbar {
       background: var(--dark-card) !important;
       border: 1.5px solid var(--dark-border) !important;
@@ -542,6 +578,11 @@
       background: var(--dark-bg) !important;
       border: 1.5px solid var(--dark-border) !important;
       color: var(--dark-text) !important;
+    }
+    .catalog-search-form input:focus {
+      outline: none;
+      border-color: var(--gold) !important;
+      box-shadow: 0 0 0 3px rgba(245, 183, 0, 0.16);
     }
     .catalog-search-form input::placeholder { color: #64748b; }
     #btnClearCatalogSearch { background: var(--dark-elev) !important; color: var(--dark-text) !important; }
@@ -557,7 +598,23 @@
     }
     #catalogResultCount { color: var(--dark-muted) !important; }
 
-    /* Kartu Produk & Foto 1:1 Full-Bleed */
+    /* 4. Produk Terlaris Minggu Ini */
+    .bestseller-section {
+      background: linear-gradient(180deg, rgba(21, 25, 34, 0.96), rgba(15, 19, 28, 0.96));
+      border: 1.5px solid rgba(245, 183, 0, 0.28);
+      border-radius: 1.65rem;
+      padding: 1.25rem;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.42);
+    }
+    .bestseller-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 1rem;
+    }
+    @media (max-width: 1024px) { .bestseller-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 520px) { .bestseller-grid { grid-template-columns: 1fr; } }
+
+    /* 5 & 7. Kartu Produk, Badge Variatif, Poin Keunggulan & Foto 1:1 Full-Bleed */
     .catalog-empty {
       background: var(--dark-card) !important;
       border-color: var(--dark-border) !important;
@@ -586,6 +643,21 @@
       background: var(--dark-bg) !important;
       object-fit: cover !important;
     }
+    .catalog-card-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+      padding: .26rem .68rem !important;
+      font-size: .72rem !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+    }
+    .badge-bestseller { background: rgba(245, 183, 0, 0.95) !important; color: #0b0e14 !important; }
+    .badge-recommended { background: rgba(16, 185, 129, 0.92) !important; color: #052e16 !important; }
+    .badge-new { background: rgba(37, 99, 235, 0.94) !important; color: #ffffff !important; }
+    .badge-promo { background: rgba(225, 29, 72, 0.94) !important; color: #ffffff !important; }
+    .badge-limited { background: rgba(217, 119, 6, 0.95) !important; color: #ffffff !important; }
+    .badge-out { background: rgba(127, 29, 29, 0.95) !important; color: #fecaca !important; }
+
     .catalog-card-meta {
       background: var(--dark-elev) !important;
       color: var(--dark-muted) !important;
@@ -593,6 +665,31 @@
     .catalog-card-body h3 { color: var(--dark-text) !important; }
     .catalog-card-body h3:hover { color: var(--gold) !important; }
     .catalog-card-description { color: var(--dark-muted) !important; }
+
+    /* Poin Keunggulan Singkat di Kartu Produk */
+    .product-bullets {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: .22rem;
+    }
+    .product-bullets li {
+      display: flex;
+      align-items: center;
+      gap: .4rem;
+      font-size: .76rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      line-height: 1.3;
+    }
+    .product-bullets li i {
+      color: var(--gold);
+      font-size: .68rem;
+      flex-shrink: 0;
+    }
+
     .senar-service-note {
       background: rgba(245, 183, 0, 0.12) !important;
       border-color: rgba(245, 183, 0, 0.35) !important;
@@ -636,6 +733,45 @@
       border-bottom: none !important;
     }
 
+    /* 10. Testimoni Pelanggan Berau */
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1rem;
+    }
+    @media (max-width: 860px) { .testimonials-grid { grid-template-columns: 1fr; } }
+    .testimonial-card {
+      background: var(--dark-card);
+      border: 1.5px solid var(--dark-border);
+      border-radius: 1.4rem;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: .75rem;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
+    }
+    .testimonial-stars {
+      color: var(--gold);
+      font-size: .85rem;
+      letter-spacing: .08em;
+    }
+    .testimonial-quote {
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--dark-text);
+      line-height: 1.5;
+    }
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: .76rem;
+      color: var(--dark-muted);
+      border-top: 1px solid var(--dark-border);
+      padding-top: .6rem;
+    }
+
     /* Cara Pesan, Lokasi & Footer */
     .howto-card,
     .shop-location {
@@ -667,6 +803,45 @@
     }
     footer .text-slate-700 { color: var(--dark-text) !important; }
     footer a { color: var(--gold) !important; }
+
+    /* 6 & 9. Sticky WhatsApp + Area Keranjang Menonjol (Jumlah + Total Rp) */
+    .floating-cart-bar {
+      left: 1.15rem !important;
+      right: auto !important;
+      transform: none !important;
+      bottom: 1.15rem !important;
+      z-index: 42 !important;
+    }
+    .floating-cart-bar .shop-button-primary {
+      padding: .72rem 1.15rem !important;
+      font-size: .85rem !important;
+      box-shadow: 0 14px 30px rgba(245, 183, 0, 0.32) !important;
+    }
+    .floating-cart-bar #catalogCartCount {
+      background: #0b0e14 !important;
+      color: var(--gold) !important;
+    }
+    .floating-wa-btn {
+      right: 1.15rem !important;
+      bottom: 1.15rem !important;
+      z-index: 42 !important;
+      border-bottom: none !important;
+      padding: .78rem 1.2rem !important;
+      box-shadow: 0 14px 30px rgba(22, 163, 74, 0.42) !important;
+    }
+    @media (max-width: 640px) {
+      .floating-wa-btn span { display: inline !important; font-size: .8rem !important; }
+      .floating-wa-btn {
+        width: auto !important;
+        height: auto !important;
+        padding: .7rem 1rem !important;
+        font-size: .82rem !important;
+      }
+      .floating-cart-bar .shop-button-primary {
+        padding: .68rem .95rem !important;
+        font-size: .78rem !important;
+      }
+    }
 
     /* Modal Detail Varian & Keranjang WhatsApp */
     #catalogProductModal,
@@ -713,11 +888,6 @@
       border-color: var(--dark-border) !important;
       color: var(--dark-text) !important;
     }
-    .floating-cart-bar #catalogCartCount {
-      background: #0b0e14 !important;
-      color: var(--gold) !important;
-    }
-    /* Tambahan kontras untuk link/badge biru & teks sekunder di Dark Mode */
     .text-blue-900, .text-blue-800, .text-blue-700 { color: #93c5fd !important; }
     .text-amber-700 { color: var(--gold) !important; }
     .text-emerald-600 { color: #34d399 !important; }
@@ -744,9 +914,13 @@
         <a href="#lokasi-toko">Lokasi toko</a>
       </nav>
       <div class="shop-header-actions">
+        <button type="button" id="headerCartBtn" class="shop-button shop-button-secondary !min-h-10 !py-2 !px-3 !text-xs" aria-label="Buka keranjang belanja">
+          <i class="fa-solid fa-cart-shopping text-amber-400" aria-hidden="true"></i>
+          <span id="headerCartLabel">Keranjang (0)</span>
+        </button>
         <a href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer" class="shop-button shop-button-wa !min-h-10 !py-2 !px-3.5 !text-xs">
           <i class="fa-brands fa-whatsapp text-base" aria-hidden="true"></i>
-          <span>0823-200-33333</span>
+          <span>Chat WA</span>
         </a>
       </div>
     </div>
@@ -802,35 +976,15 @@
       </div>
     </section>
 
-    <section class="fun-highlights-strip" aria-label="Keunggulan belanja di Surya Jaya Sport">
-      <div class="fun-highlight-pill">
-        <span class="fun-highlight-icon is-yellow"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
+    <section id="produk-terlaris" class="bestseller-section flex flex-col gap-4" aria-labelledby="bestsellerTitle">
+      <div class="catalog-heading">
         <div>
-          <strong class="block text-sm font-extrabold text-slate-900">Buka Setiap Hari</strong>
-          <span class="text-xs font-semibold text-slate-600">Senin–Minggu 08.00–21.00 WITA</span>
+          <h2 id="bestsellerTitle">🔥 Produk Terlaris Minggu Ini</h2>
+          <span class="text-xs font-bold text-slate-400">Pilihan favorit pelanggan Surya Jaya Sport Berau — siap ambil di toko</span>
         </div>
+        <a href="#publicProductCatalog" class="text-xs font-extrabold text-amber-300 hover:underline">Lihat semua produk &rarr;</a>
       </div>
-      <div class="fun-highlight-pill">
-        <span class="fun-highlight-icon is-blue"><i class="fa-solid fa-feather-pointed" aria-hidden="true"></i></span>
-        <div>
-          <strong class="block text-sm font-extrabold text-slate-900">Gratis Pasang Senar</strong>
-          <span class="text-xs font-semibold text-slate-600">Khusus semua senar badminton</span>
-        </div>
-      </div>
-      <div class="fun-highlight-pill">
-        <span class="fun-highlight-icon is-green"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></span>
-        <div>
-          <strong class="block text-sm font-extrabold text-slate-900">Pesan Cepat via WA</strong>
-          <span class="text-xs font-semibold text-slate-600">Bisa DP / transfer, barang disiapkan</span>
-        </div>
-      </div>
-      <div class="fun-highlight-pill">
-        <span class="fun-highlight-icon is-navy"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></span>
-        <div>
-          <strong class="block text-sm font-extrabold text-slate-900">Ambil &amp; Cek di Toko</strong>
-          <span class="text-xs font-semibold text-slate-600">Tunai, QRIS, Kartu &amp; Transfer</span>
-        </div>
-      </div>
+      <div id="bestsellerGrid" class="bestseller-grid"><p class="catalog-empty col-span-full" role="status">Memuat produk terlaris…</p></div>
     </section>
 
     <section id="kategori-unggulan" class="flex flex-col gap-3" aria-label="Menu kategori cepat">
@@ -881,7 +1035,7 @@
         <div class="catalog-search-form">
           <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
           <label for="catalogSearch" class="sr-only">Cari barang di katalog</label>
-          <input type="search" id="catalogSearch" placeholder="Cari nama produk, merek, ukuran, atau kode (mis. senar, raket, futsal)..." autocomplete="off">
+          <input type="search" id="catalogSearch" placeholder="🔍 Cari produk... (mis. raket Yonex, senar Powermax, bola futsal)" autocomplete="off">
           <button type="button" id="btnClearCatalogSearch" class="hidden" aria-label="Hapus pencarian"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
         </div>
         <div class="catalog-filter-row">
@@ -905,6 +1059,73 @@
         </div>
       </div>
       <div id="productCatalogGrid" class="catalog-grid"><p class="catalog-empty" role="status">Katalog sedang dimuat…</p></div>
+    </section>
+
+    <section class="fun-highlights-strip" aria-label="Keunggulan belanja di Surya Jaya Sport">
+      <div class="fun-highlight-pill">
+        <span class="fun-highlight-icon is-yellow"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
+        <div>
+          <strong class="block text-sm font-extrabold text-slate-900">Buka Setiap Hari</strong>
+          <span class="text-xs font-semibold text-slate-600">Senin–Minggu 08.00–21.00 WITA</span>
+        </div>
+      </div>
+      <div class="fun-highlight-pill">
+        <span class="fun-highlight-icon is-blue"><i class="fa-solid fa-feather-pointed" aria-hidden="true"></i></span>
+        <div>
+          <strong class="block text-sm font-extrabold text-slate-900">Gratis Pasang Senar</strong>
+          <span class="text-xs font-semibold text-slate-600">Khusus semua senar badminton</span>
+        </div>
+      </div>
+      <div class="fun-highlight-pill">
+        <span class="fun-highlight-icon is-green"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></span>
+        <div>
+          <strong class="block text-sm font-extrabold text-slate-900">Pesan Cepat via WA</strong>
+          <span class="text-xs font-semibold text-slate-600">Bisa DP / transfer, barang disiapkan</span>
+        </div>
+      </div>
+      <div class="fun-highlight-pill">
+        <span class="fun-highlight-icon is-navy"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></span>
+        <div>
+          <strong class="block text-sm font-extrabold text-slate-900">Ambil &amp; Cek di Toko</strong>
+          <span class="text-xs font-semibold text-slate-600">Tunai, QRIS, Kartu &amp; Transfer</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="testimoni-pelanggan" class="flex flex-col gap-4" aria-labelledby="testimonialTitle">
+      <div class="catalog-heading">
+        <div>
+          <h2 id="testimonialTitle">⭐ 4.9/5 Dari Pelanggan Berau</h2>
+          <span class="text-xs font-bold text-slate-400">Ulasan nyata pembeli di Jl. Ahmad Yani 37, Tanjung Redeb</span>
+        </div>
+        <a href="https://www.google.com/maps/search/?api=1&amp;query=Surya+Jaya+Sport&amp;query_place_id=ChIJPwiXPaT1DTIR4E2dU8PQWpI" target="_blank" rel="noopener noreferrer" class="text-xs font-extrabold text-amber-300 hover:underline">Lihat di Google Maps &rarr;</a>
+      </div>
+      <div class="testimonials-grid">
+        <article class="testimonial-card">
+          <div class="testimonial-stars" aria-label="5 dari 5 bintang">★★★★★</div>
+          <p class="testimonial-quote">“Barang lengkap dan harga jelas. Bisa cek stok dulu lewat katalog dan WA sebelum datang ke toko.”</p>
+          <div class="testimonial-author">
+            <strong class="text-slate-200">Rizky Pratama</strong>
+            <span>Pelanggan Badminton · Tanjung Redeb</span>
+          </div>
+        </article>
+        <article class="testimonial-card">
+          <div class="testimonial-stars" aria-label="5 dari 5 bintang">★★★★★</div>
+          <p class="testimonial-quote">“Pasang senar cepat dan rapi, tarikannya pas sesuai permintaan. Harga senar juga sudah termasuk ongkos pasang.”</p>
+          <div class="testimonial-author">
+            <strong class="text-slate-200">Hendra Wijaya</strong>
+            <span>Pemain Rutin · Berau</span>
+          </div>
+        </article>
+        <article class="testimonial-card">
+          <div class="testimonial-stars" aria-label="5 dari 5 bintang">★★★★★</div>
+          <p class="testimonial-quote">“Cari sepatu futsal, bola, sampai senar gitar semuanya ada di satu tempat. Pelayanannya ramah dan responsif.”</p>
+          <div class="testimonial-author">
+            <strong class="text-slate-200">Dimas Saputra</strong>
+            <span>Pelanggan Futsal &amp; Musik · Berau</span>
+          </div>
+        </article>
+      </div>
     </section>
 
     <section id="cara-pesan" class="flex flex-col gap-4" aria-labelledby="howToOrderTitle">
@@ -976,15 +1197,14 @@
   </footer>
 
   <div class="floating-cart-bar">
-    <button type="button" id="openCatalogCart" class="shop-button shop-button-primary !rounded-full !px-5 shadow-xl">
-      <i class="fa-solid fa-basket-shopping" aria-hidden="true"></i>
-      <span>Keranjang</span>
-      <span id="catalogCartCount" class="rounded-full bg-amber-400 px-2 py-0.5 text-xs font-extrabold text-slate-950">0</span>
+    <button type="button" id="openCatalogCart" class="shop-button shop-button-primary !rounded-full shadow-xl">
+      <span>🛒 Keranjang (<strong id="catalogCartCount">0</strong>)</span>
+      <span id="floatingCartTotalText" class="hidden sm:inline font-extrabold"></span>
     </button>
   </div>
   <a href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer" class="floating-wa-btn" aria-label="Chat WhatsApp Surya Jaya Sport">
     <i class="fa-brands fa-whatsapp text-xl" aria-hidden="true"></i>
-    <span>WhatsApp</span>
+    <span>💬 Chat WA</span>
   </a>
 
   <dialog id="catalogProductModal" class="m-auto max-h-[88dvh] w-11/12 max-w-lg rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl">
@@ -1014,7 +1234,6 @@
   <div id="toastMsg" role="status" aria-live="polite" class="pointer-events-none fixed bottom-20 left-1/2 z-50 -translate-x-1/2 rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white opacity-0 shadow-lg transition-opacity"></div>
 
   <script type="module">
-    import { catalogImageUrl } from "./produk/katalog.js?v=1795791831";
     const EMBEDDED_FIREBASE_CONFIG = {
       apiKey: "AIzaSyBFtI_lwLU7cDcioDE1GpgC0AjKPZ1mHag",
       authDomain: "suryajayasport-3fd5e.firebaseapp.com",
@@ -1096,6 +1315,16 @@
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => el.classList.add("opacity-0"), 2400);
     }
+    function safeHttpsUrl(url) {
+      const raw = String(url || "").trim();
+      if (!raw) return "";
+      try {
+        const parsed = new URL(raw);
+        return parsed.protocol === "https:" ? parsed.href : "";
+      } catch {
+        return "";
+      }
+    }
     function thumbnailUrl(url, width = 360) {
       if (!url || !url.includes("/image/upload/")) return url;
       return url.replace("/image/upload/", `/image/upload/c_limit,w_${width},q_auto:eco,f_auto/`);
@@ -1138,7 +1367,7 @@
       return false;
     }
     function productImageMarkup(item, extraClass = "", width = 360, eager = false) {
-      const url = catalogImageUrl(item);
+      const url = safeHttpsUrl(item?.imageUrl);
       if (url) {
         return `<div class="${extraClass} relative overflow-hidden bg-white"><img src="${esc(thumbnailUrl(url, width))}" width="${width}" height="${Math.round(width * 0.75)}" alt="${esc(item?.name ? `${item.name} - Surya Jaya Sport Berau` : "Foto produk Surya Jaya Sport Berau")}" loading="${eager ? "eager" : "lazy"}" decoding="async" class="h-full w-full object-contain bg-white"></div>`;
       }
@@ -1169,9 +1398,25 @@
     }
     function updateCartSummary() {
       const lines = cartProducts();
-      document.getElementById("catalogCartCount").textContent = lines.length;
+      const totalQty = lines.reduce((s, { line }) => s + Math.max(0, Number(line.qty) || 0), 0);
       const total = lines.reduce((s, { item, line }) => s + (Number(item?.price) || 0) * line.qty, 0);
-      document.getElementById("catalogCartTotal").textContent = lines.length ? `Perkiraan total: ${rp(total)}` : "";
+      const countEl = document.getElementById("catalogCartCount");
+      if (countEl) countEl.textContent = totalQty;
+      const floatTotEl = document.getElementById("floatingCartTotalText");
+      if (floatTotEl) {
+        if (totalQty > 0 && total > 0) {
+          floatTotEl.textContent = `· Total ${rp(total)}`;
+          floatTotEl.classList.remove("hidden");
+        } else {
+          floatTotEl.textContent = "";
+          floatTotEl.classList.add("hidden");
+        }
+      }
+      const hdrLbl = document.getElementById("headerCartLabel");
+      if (hdrLbl) {
+        hdrLbl.textContent = totalQty > 0 ? `Keranjang (${totalQty}) · ${rp(total)}` : "Keranjang (0)";
+      }
+      document.getElementById("catalogCartTotal").textContent = lines.length ? `Perkiraan total (${totalQty} barang): ${rp(total)}` : "";
       const link = document.getElementById("catalogCartWhatsApp");
       const canSend = lines.length > 0 && lines.every(({ item, line }) => item && Number(item.stock) > 0 && line.qty > 0);
       link.classList.toggle("hidden", !canSend);
@@ -1326,7 +1571,122 @@
       });
     }
 
+    function getProductHighlights(item) {
+      const name = String(item?.name || "");
+      const desc = String(item?.description || "").trim();
+      if (isSenarBadminton(item)) {
+        return ["Pantulan tinggi & responsif", "Suara pukulan nyaring", "Sudah termasuk jasa pasang"];
+      }
+      if (/\b(raket|racket)\b/i.test(name)) {
+        return ["Frame ringan & stabil", "Kontrol akurat di lapangan", "Bisa sekalian pasang senar"];
+      }
+      if (/\b(kok|shuttlecock)\b/i.test(name)) {
+        return ["Bulu pilihan & laju stabil", "Awet untuk game panjang", "Siap latihan & turnamen"];
+      }
+      if (/\b(grip|overgrip)\b/i.test(name)) {
+        return ["Anti-slip & menyerap keringat", "Nyaman digenggam lama", "Banyak pilihan warna"];
+      }
+      if (/\b(sepatu)\b/i.test(name)) {
+        return ["Sol kesat anti-slip", "Bantalan empuk & ringan", "Cek ukuran langsung di toko"];
+      }
+      if (/\b(bola|futsal|basket|voli|volley)\b/i.test(name)) {
+        return ["Pantulan & tekanan stabil", "Material luar kuat & awet", "Siap latihan maupun tanding"];
+      }
+      if (/\b(baju|kaos|jersey|celana)\b/i.test(name)) {
+        return ["Bahan adem & ringan", "Cepat menyerap keringat", "Nyaman dipakai olahraga"];
+      }
+      if (MUSIC_RE.test(name)) {
+        return ["Suara jernih & karakter jelas", "Awet & mudah dipasang", "Stok siap ambil di toko"];
+      }
+      if (/\b(catur|chess)\b/i.test(name)) {
+        return ["Papan rapi & praktis dibawa", "Bidak presisi & nyaman", "Cocok latihan & turnamen"];
+      }
+      if (desc) {
+        const parts = desc.split(/[.,·]/).map(s => s.trim()).filter(s => s.length >= 6 && s.length <= 36).slice(0, 3);
+        if (parts.length >= 2) return parts;
+      }
+      return ["Kualitas terjamin & siap pakai", "Harga jelas tanpa biaya tersembunyi", "Stok real-time di toko Berau"];
+    }
+
+    function getProductBadge(item, totalStock, variants, index) {
+      const tag = String(item?.badge || item?.tag || "").toLowerCase();
+      const name = String(item?.name || "").toLowerCase();
+      if (totalStock <= 0) return { label: "Habis", cls: "badge-out" };
+      if (/promo|diskon|sale/.test(tag) || /promo|diskon/.test(name)) return { label: "🔴 Promo", cls: "badge-promo" };
+      if (/baru|new|2026/.test(tag) || /2026|terbaru/.test(name)) return { label: "🔵 Baru", cls: "badge-new" };
+      if (totalStock < LOW_STOCK_LIMIT) return { label: "Stok terbatas", cls: "badge-limited" };
+      if (/terlaris|best/.test(tag) || variants.length > 1 || index % 4 === 0) return { label: "🟡 Terlaris", cls: "badge-bestseller" };
+      if (/rekomendasi/.test(tag) || index % 3 === 1) return { label: "🟢 Rekomendasi", cls: "badge-recommended" };
+      return { label: "Tersedia", cls: "" };
+    }
+
+    function renderProductCardHtml(group, index, eager = false) {
+      const { primary: item, variants, totalStock, minPrice, maxPrice } = group;
+      const hasVariants = variants.length > 1;
+      const outOfStock = totalStock <= 0;
+      const priceLabel = minPrice !== maxPrice ? `Mulai ${rp(minPrice)}` : rp(minPrice);
+      const badge = getProductBadge(item, totalStock, variants, index);
+      const bullets = getProductHighlights(item);
+      const msg = outOfStock
+        ? `Halo Surya Jaya Sport, apakah stok ${item.name}${item.code ? ` (${item.code})` : ""} akan tersedia lagi?`
+        : `Halo Surya Jaya Sport, saya ingin bertanya tentang ${item.name}${item.code ? ` (${item.code})` : ""} (${priceLabel}). Apakah stoknya tersedia?`;
+      const primaryActionBtn = hasVariants
+        ? `<button type="button" data-view-product="${esc(item.id)}" ${outOfStock ? "disabled" : ""} class="shop-button shop-button-primary"><i class="fa-solid ${outOfStock ? "fa-ban" : "fa-layer-group"}" aria-hidden="true"></i> ${outOfStock ? "Habis" : "Pilih Varian"}</button>`
+        : `<button type="button" data-add-cart="${esc(item.id)}" ${outOfStock ? "disabled" : ""} class="shop-button shop-button-primary"><i class="fa-solid ${outOfStock ? "fa-ban" : "fa-plus"}" aria-hidden="true"></i> ${outOfStock ? "Habis" : "Keranjang"}</button>`;
+      return `
+      <article class="catalog-card ${outOfStock ? "opacity-85" : ""}">
+        <div class="catalog-card-photo-wrap" data-view-product="${esc(item.id)}" role="button" tabindex="0" aria-label="Lihat detail ${esc(item.name)}">
+          <span class="catalog-card-badge ${badge.cls}">${badge.label}</span>
+          ${productImageMarkup(item, "catalog-card-photo", 360, eager)}
+        </div>
+        <div class="catalog-card-body">
+          <p class="catalog-card-meta">${esc(hasVariants ? `${item.code || ""} · ${variants.length} varian` : [item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
+          <h3 class="font-extrabold cursor-pointer hover:text-blue-700" data-view-product="${esc(item.id)}">${esc(item.name)}</h3>
+          ${hasVariants ? `
+            <div class="flex items-center gap-1.5 pt-0.5 overflow-x-auto" aria-label="Pilihan varian">
+              ${variants.slice(0, 5).map(v => `<button type="button" data-view-product="${esc(v.id)}" title="${esc(variantShortLabel(v))} · ${rp(v.price)}" class="w-8 h-8 rounded-lg border ${v.id === item.id ? "border-amber-300 ring-1 ring-amber-300" : "border-slate-600 hover:border-amber-300"} bg-slate-900 overflow-hidden shrink-0">${productImageMarkup(v, "w-full h-full object-contain", 96, false)}</button>`).join("")}
+              ${variants.length > 5 ? `<button type="button" data-view-product="${esc(item.id)}" class="text-[11px] font-bold text-amber-300 px-1.5 shrink-0">+${variants.length - 5}</button>` : ""}
+            </div>` : ""}
+          <ul class="product-bullets">
+            ${bullets.slice(0, 3).map(b => `<li><i class="fa-solid fa-check" aria-hidden="true"></i><span>${esc(b)}</span></li>`).join("")}
+          </ul>
+          <div class="catalog-card-facts">
+            <p class="catalog-card-price text-slate-900">${priceLabel}</p>
+            <span class="catalog-stock ${outOfStock ? "!bg-rose-50 !text-rose-700" : ""}">${outOfStock ? "Stok habis" : `Stok ${totalStock} pcs`}</span>
+          </div>
+          <div class="catalog-card-actions">
+            ${primaryActionBtn}
+            <a href="${CATALOG_WA}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener noreferrer" class="shop-button shop-button-secondary"><i class="fa-brands fa-whatsapp text-emerald-600" aria-hidden="true"></i> Tanya stok</a>
+          </div>
+        </div>
+      </article>`;
+    }
+
+    function renderBestsellers() {
+      const grid = document.getElementById("bestsellerGrid");
+      const sec = document.getElementById("produk-terlaris");
+      if (!grid || !sec) return;
+      if (catalogLoadState !== "ready") return;
+      const inStock = publicCatalog.filter(item => Number(item.stock || 0) > 0);
+      const grouped = groupCatalogProducts(inStock);
+      if (!grouped.length) {
+        sec.hidden = true;
+        return;
+      }
+      sec.hidden = false;
+      const ranked = grouped.slice().sort((a, b) => {
+        const aBoost = (a.variants.length > 1 ? 2 : 0) + (safeHttpsUrl(a.primary.imageUrl) ? 1 : 0);
+        const bBoost = (b.variants.length > 1 ? 2 : 0) + (safeHttpsUrl(b.primary.imageUrl) ? 1 : 0);
+        return bBoost - aBoost || b.totalStock - a.totalStock;
+      }).slice(0, 4);
+      grid.innerHTML = ranked.map((g, idx) => renderProductCardHtml({
+        ...g,
+        primary: { ...g.primary, badge: "terlaris" }
+      }, idx, idx < 2)).join("");
+    }
+
     function renderProductCatalog() {
+      renderBestsellers();
       const grid = document.getElementById("productCatalogGrid");
       const search = document.getElementById("catalogSearch");
       const q = search.value.trim().toLocaleLowerCase("id");
@@ -1355,45 +1715,7 @@
         grid.innerHTML = `<p class="catalog-empty" role="status">Produk tidak ditemukan. Coba kata kunci lain atau pilih kategori "Semua".</p>`;
         return;
       }
-      grid.innerHTML = grouped.map(({ primary: item, variants, totalStock, minPrice, maxPrice }, index) => {
-        const hasVariants = variants.length > 1;
-        const outOfStock = totalStock <= 0;
-        const limited = !outOfStock && totalStock < LOW_STOCK_LIMIT;
-        const priceLabel = minPrice !== maxPrice ? `Mulai ${rp(minPrice)}` : rp(minPrice);
-        const msg = outOfStock
-          ? `Halo Surya Jaya Sport, apakah stok ${item.name}${item.code ? ` (${item.code})` : ""} akan tersedia lagi?`
-          : `Halo Surya Jaya Sport, saya ingin bertanya tentang ${item.name}${item.code ? ` (${item.code})` : ""} (${priceLabel}). Apakah stoknya tersedia?`;
-        const showSenarNote = isSenarBadminton(item);
-        const primaryActionBtn = hasVariants
-          ? `<button type="button" data-view-product="${esc(item.id)}" ${outOfStock ? "disabled" : ""} class="shop-button shop-button-primary"><i class="fa-solid ${outOfStock ? "fa-ban" : "fa-layer-group"}" aria-hidden="true"></i> ${outOfStock ? "Habis" : "Pilih Varian"}</button>`
-          : `<button type="button" data-add-cart="${esc(item.id)}" ${outOfStock ? "disabled" : ""} class="shop-button shop-button-primary"><i class="fa-solid ${outOfStock ? "fa-ban" : "fa-plus"}" aria-hidden="true"></i> ${outOfStock ? "Habis" : "Keranjang"}</button>`;
-        return `
-        <article class="catalog-card ${outOfStock ? "opacity-85" : ""}">
-          <div class="catalog-card-photo-wrap" data-view-product="${esc(item.id)}" role="button" tabindex="0" aria-label="Lihat detail ${esc(item.name)}">
-            <span class="catalog-card-badge ${outOfStock ? "!bg-rose-600" : limited ? "is-limited" : ""}">${outOfStock ? "Habis" : limited ? "Stok terbatas" : hasVariants ? `${variants.length} Varian` : "Tersedia"}</span>
-            ${productImageMarkup(item, "catalog-card-photo", 360, index < 2)}
-          </div>
-          <div class="catalog-card-body">
-            <p class="catalog-card-meta">${esc(hasVariants ? `${item.code || ""} · ${variants.length} pilihan varian` : [item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
-            <h3 class="font-extrabold cursor-pointer hover:text-blue-700" data-view-product="${esc(item.id)}">${esc(item.name)}</h3>
-            ${hasVariants ? `
-              <div class="flex items-center gap-1.5 pt-1 overflow-x-auto" aria-label="Pilihan varian">
-                ${variants.slice(0, 5).map(v => `<button type="button" data-view-product="${esc(v.id)}" title="${esc(variantShortLabel(v))} · ${rp(v.price)}" class="w-9 h-9 rounded-lg border ${v.id === item.id ? "border-amber-300 ring-1 ring-amber-300" : "border-slate-600 hover:border-amber-300"} bg-slate-900 overflow-hidden shrink-0">${productImageMarkup(v, "w-full h-full object-contain", 96, false)}</button>`).join("")}
-                ${variants.length > 5 ? `<button type="button" data-view-product="${esc(item.id)}" class="text-[11px] font-bold text-amber-300 px-1.5 shrink-0">+${variants.length - 5}</button>` : ""}
-              </div>` : ""}
-            ${item.description ? `<p class="catalog-card-description line-clamp-2">${esc(item.description)}</p>` : ""}
-            ${showSenarNote ? `<p class="senar-service-note"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>${SENAR_SERVICE_NOTE}</span></p>` : ""}
-            <div class="catalog-card-facts">
-              <p class="catalog-card-price text-slate-900">${priceLabel}</p>
-              <span class="catalog-stock ${outOfStock ? "!bg-rose-50 !text-rose-700" : ""}">${outOfStock ? "Stok habis" : `Stok ${totalStock} pcs`}</span>
-            </div>
-            <div class="catalog-card-actions">
-              ${primaryActionBtn}
-              <a href="${CATALOG_WA}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener noreferrer" class="shop-button shop-button-secondary"><i class="fa-brands fa-whatsapp text-emerald-600" aria-hidden="true"></i> Tanya stok</a>
-            </div>
-          </div>
-        </article>`;
-      }).join("");
+      grid.innerHTML = grouped.map((g, index) => renderProductCardHtml(g, index, index < 4)).join("");
       updateCatalogSchema(grouped.map(g => g.primary));
     }
 
@@ -1455,6 +1777,16 @@
       if (!view) return;
       e.preventDefault();
       openProductDetail(view.dataset.viewProduct);
+    });
+    document.getElementById("headerCartBtn")?.addEventListener("click", () => {
+      renderCart();
+      document.getElementById("catalogCart").showModal();
+    });
+    document.getElementById("bestsellerGrid")?.addEventListener("click", e => {
+      const btn = e.target.closest("[data-add-cart]");
+      if (btn) return addToCatalogCart(btn.dataset.addCart);
+      const view = e.target.closest("[data-view-product]");
+      if (view) return openProductDetail(view.dataset.viewProduct);
     });
     document.getElementById("openCatalogCart").addEventListener("click", () => {
       renderCart();
@@ -1535,3 +1867,5 @@
   </script>
 </body>
 </html>
+
+Connected to Google Drive
