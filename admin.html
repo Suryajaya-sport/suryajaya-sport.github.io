@@ -12,7 +12,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="manifest" href="/admin-manifest.webmanifest">
-  <meta name="theme-color" content="#f5f4f0">
+  <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Surya Jaya Sport">
@@ -2408,8 +2408,95 @@
     }
 
   
+    /* === DARK STUDIO THEME FOR CUSTOMER VIEW IN ADMIN.HTML === */
+    #viewCatalog {
+      background: radial-gradient(circle at 20% 0%, rgba(220, 38, 38, 0.10), transparent 36%),
+                  radial-gradient(circle at 85% 15%, rgba(56, 189, 248, 0.11), transparent 36%),
+                  #080a0f;
+      color: #f8fafc;
+      padding: 1.35rem;
+      border-radius: 2rem;
+      border: 1.5px solid rgba(255, 255, 255, 0.10);
+    }
+    #viewCatalog .shop-hero {
+      background: linear-gradient(95deg, rgba(8, 10, 15, 0.96) 0%, rgba(15, 20, 32, 0.88) 54%, rgba(15, 20, 32, 0.42) 100%),
+                  url('hero-surya-jaya-sport.webp') right center / cover no-repeat, #080a0f !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
+    }
+    #viewCatalog .hero-feature-card {
+      background: rgba(20, 25, 38, 0.80) !important;
+      border-color: rgba(255, 255, 255, 0.14) !important;
+    }
+    #viewCatalog .hero-feature-card:hover { border-color: #facc15 !important; }
+    #viewCatalog .catalog-heading h2 { color: #ffffff !important; }
+    #viewCatalog .catalog-heading span { color: #94a3b8 !important; }
+    #viewCatalog .quick-cat-btn {
+      background: #141926 !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+      color: #ffffff !important;
+    }
+    #viewCatalog .quick-cat-btn strong { color: #ffffff !important; }
+    #viewCatalog .quick-cat-btn span:not(.quick-cat-icon) { color: #94a3b8 !important; }
+    #viewCatalog .quick-cat-btn .quick-cat-icon { background: rgba(56, 189, 248, 0.15) !important; color: #38bdf8 !important; }
+    #viewCatalog .quick-cat-btn.is-active {
+      background: linear-gradient(135deg, #1b2438, #0f172a) !important;
+      border-color: #facc15 !important;
+    }
+    #viewCatalog .quick-cat-btn.is-active .quick-cat-icon { background: rgba(250, 204, 21, 0.2) !important; color: #facc15 !important; }
+    #viewCatalog .catalog-toolbar,
+    #viewCatalog .howto-card,
+    #viewCatalog .shop-location {
+      background: #141926 !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+      color: #f8fafc !important;
+    }
+    #viewCatalog .howto-card h3, #viewCatalog .shop-location h2 { color: #ffffff !important; }
+    #viewCatalog .howto-card p, #viewCatalog .shop-location address { color: #94a3b8 !important; }
+    #viewCatalog .catalog-search-form input, #viewCatalog #catalogSort {
+      background: #0b0e16 !important;
+      border-color: rgba(255, 255, 255, 0.16) !important;
+      color: #ffffff !important;
+    }
+    #viewCatalog .catalog-categories label span {
+      background: #0b0e16 !important;
+      color: #cbd5e1 !important;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    #viewCatalog .catalog-categories label input:checked + span {
+      background: linear-gradient(135deg, #facc15, #eab308) !important;
+      color: #090d16 !important;
+    }
+    #viewCatalog .catalog-card {
+      background: #141926 !important;
+      border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+    #viewCatalog .catalog-card:hover { border-color: #facc15 !important; }
+    #viewCatalog .catalog-card-photo {
+      aspect-ratio: 1 / 1 !important;
+      background: #0b0e16 !important;
+      border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+    }
+    #viewCatalog .catalog-card-body h3 { color: #ffffff !important; }
+    #viewCatalog .catalog-card-description { color: #94a3b8 !important; }
+    #viewCatalog .catalog-card-facts { border-top-color: rgba(255, 255, 255, 0.09) !important; }
+    #viewCatalog .catalog-card-price {
+      background: rgba(250, 204, 21, 0.14) !important;
+      color: #facc15 !important;
+      padding: .2rem .6rem;
+      border-radius: .65rem;
+      border: 1px solid rgba(250, 204, 21, 0.4);
+    }
+    #viewCatalog .catalog-stock {
+      background: rgba(16, 185, 129, 0.16) !important;
+      color: #6ee7b7 !important;
+    }
+    #viewCatalog .shop-button-secondary {
+      background: #1b2234 !important;
+      border-color: rgba(255, 255, 255, 0.16) !important;
+      color: #f1f5f9 !important;
+    }
+
   </style>
-  <link rel="stylesheet" href="/brand.css" media="screen">
 </head>
 <body class="antialiased min-h-screen flex flex-col">
 
@@ -2638,11 +2725,41 @@
     <section id="viewCatalog" class="flex flex-col gap-7">
       <div class="shop-hero">
         <div class="shop-hero-content">
-          <p class="shop-eyebrow">Surya Jaya Sport · Berau</p>
-          <h2 id="catalogPageTitle" tabindex="-1">Koleksi<br>Badminton</h2>
-          <div class="shop-hero-actions">
-            <a class="shop-button shop-button-accent" href="#publicProductCatalog">Lihat Katalog</a>
+          <p class="shop-eyebrow"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Tanjung Redeb, Berau · Stok Real-Time</p>
+          <h2 id="catalogPageTitle" tabindex="-1">Perlengkapan Olahraga<br><span class="shop-hero-accent">&amp; Alat Musik</span></h2>
+          <p class="text-[15px] text-slate-200 leading-relaxed">Temukan perlengkapan badminton, futsal, bola, catur, hingga aksesori gitar dengan harga jelas dan stok langsung dari toko kami di Berau.</p>
+          <div class="hero-trust-row">
+            <span class="hero-trust-pill"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Harga &amp; stok terkini</span>
+            <span class="hero-trust-pill"><i class="fa-solid fa-bolt" aria-hidden="true"></i> Pesan cepat lewat WA</span>
+            <span class="hero-trust-pill"><i class="fa-solid fa-qrcode" aria-hidden="true"></i> Terima Tunai, QRIS, Kartu &amp; Transfer</span>
           </div>
+          <div class="shop-hero-actions pt-1">
+            <a class="shop-button shop-button-accent" href="#publicProductCatalog">Jelajahi katalog <i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a>
+            <a class="shop-button shop-button-outline" href="#cara-pesan"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> Cara pesan</a>
+            <a class="shop-button shop-button-outline" href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp text-emerald-300" aria-hidden="true"></i> Chat WhatsApp</a>
+          </div>
+        </div>
+        <div class="hero-feature-grid" aria-label="Pilih kategori cepat">
+          <button type="button" class="hero-feature-card" data-quick-cat="badminton">
+            <i class="fa-solid fa-feather-pointed" aria-hidden="true"></i>
+            <strong>Badminton</strong>
+            <span>Raket, kok, senar &amp; grip</span>
+          </button>
+          <button type="button" class="hero-feature-card" data-quick-cat="ball">
+            <i class="fa-solid fa-futbol" aria-hidden="true"></i>
+            <strong>Futsal &amp; Bola</strong>
+            <span>Sepatu, bola &amp; pelindung</span>
+          </button>
+          <button type="button" class="hero-feature-card" data-quick-cat="chess">
+            <i class="fa-solid fa-chess-knight" aria-hidden="true"></i>
+            <strong>Catur</strong>
+            <span>Papan &amp; bidak standar</span>
+          </button>
+          <button type="button" class="hero-feature-card" data-quick-cat="music">
+            <i class="fa-solid fa-guitar" aria-hidden="true"></i>
+            <strong>Musik &amp; Gitar</strong>
+            <span>Senar, capo &amp; aksesori</span>
+          </button>
         </div>
       </div>
 
