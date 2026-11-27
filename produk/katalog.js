@@ -5,6 +5,7 @@ const posters = new Map([
   ["SJS-032", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795761633/products/7kN7Aw7VA4vgSWhcxptU-1795761631531.webp", "sjs-032-v1795761633.webp"]],
   ["SJS-035", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795759702/products/4SMA9jTLaA2J37UI478g-1795759700555.webp", "sjs-035-v1795759702.webp"]],
   ["SJS-033", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795760349/products/2YIkiT7eTSx1uS7pahLM-1795760347677.webp", "sjs-033-v1795760349.webp"]],
+  ["SJS-044", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795304837/xd4vxpwvqeud2fvtnesc.png", "sjs-044-exbolt-65.webp"]],
   ["SJS-017", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795672883/products/xTSULFT9eCVZn5suPAYz-1795672883153.webp", "sjs-017-v1795672883.webp"]],
   ["SJS-021", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795744724/products/TtL3JseAQq3Db9SADZPE-1795744724563.webp", "sjs-021-v1795744724.webp"]],
   ["SJS-028", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795672600/products/fwdC91xEbu01ZQjGWAnn-1795672598266.webp", "sjs-028-v1795672600.webp"]],
