@@ -32,6 +32,9 @@ const posters = new Map([
   ["SJS-A", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795741585/products/ZW0Q41xgLnxFq7uyGo8d-1795741584617.webp", "sjs-a-d-e-v1795741585.webp"]],
   ["SJS-D", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795741585/products/ZW0Q41xgLnxFq7uyGo8d-1795741584617.webp", "sjs-a-d-e-v1795741585.webp"]],
   ["SJS-E", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795741585/products/ZW0Q41xgLnxFq7uyGo8d-1795741584617.webp", "sjs-a-d-e-v1795741585.webp"]]
+  ["SJS-061", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795672870/products/8ygCPKmSz3U9FpD0b4fy-1795672869704.webp", "sjs-061-v1795672870.webp"]],
+  ["SJS-061-B", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795672870/products/8ygCPKmSz3U9FpD0b4fy-1795672869704.webp", "sjs-061-v1795672870.webp"]],
+  ["SJS-062", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795744755/products/tDahi4wC7dIh4vsbY9BZ-1795744755906.webp", "sjs-062-v1795744755.webp"]],
 ]);
 
 export function catalogImageUrl(item) {
