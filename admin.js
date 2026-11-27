@@ -1,4 +1,5 @@
-// ==================== KONFIGURASI ====================
+
+    // ==================== KONFIGURASI ====================
     const EMBEDDED_FIREBASE_CONFIG = {
       apiKey: "AIzaSyBFtI_lwLU7cDcioDE1GpgC0AjKPZ1mHag",
       authDomain: "suryajayasport-3fd5e.firebaseapp.com",
@@ -778,13 +779,11 @@
 
       const itemId = editId || doc(collection(db, ...paths("inventory"))).id;
       const oldItem = inventory.find(i => i.id === itemId);
-      const featured = Boolean(document.getElementById("invFeatured")?.checked);
       const itemData = {
         code, name,
         size: sizeVal,
         color: colorVal,
         stock, cost, price, description: autoDesc,
-        featured,
         imageUrl: oldItem?.imageUrl || "",
         imagePath: oldItem?.imagePath || "",
         updatedAt: new Date().toISOString()
@@ -818,77 +817,58 @@
           tx.set(invRef, patch, { merge: true });
           if (published.exists()) tx.set(publicRef, publicProductData(patch));
         });
-        // Simpan & perbarui varian (berlaku untuk Tambah Baru maupun Ubah Barang)
+        // Simpan varian tambahan (jika ada, khusus mode Tambah barang baru)
         let savedVariants = 0;
-        const vRows = [...document.querySelectorAll("#invVariantsList .inv-variant-row")];
-        const validVarRows = vRows.filter(vr => (vr.querySelector(".var-size")?.value.trim() || vr.querySelector(".var-color")?.value.trim()));
-        const groupId = oldItem?.variantGroup || itemId;
-        const isMainPublished = publicCatalog.some(p => p.id === itemId);
-
-        if (validVarRows.length > 0 && oldItem?.variantGroup !== groupId) {
-          await setDoc(doc(db, ...paths("inventory", itemId)), { variantGroup: groupId }, { merge: true });
-          if (isMainPublished) {
-            await setDoc(doc(db, "publicCatalog", itemId), publicProductData({ ...itemData, variantGroup: groupId }), { merge: true });
-          }
-        }
-
-        const usedCodes = new Set(inventory.map(i => String(i.code || "").trim().toLowerCase()));
-        usedCodes.add(code.toLowerCase());
-        const allocCode = (idx) => {
-          const suffix = idx < 26 ? String.fromCharCode(65 + idx) : String(idx + 1);
-          let cand = `${code}-${suffix}`;
-          let seq = 2;
-          while (usedCodes.has(cand.toLowerCase())) { cand = `${code}-${suffix}${seq++}`; }
-          usedCodes.add(cand.toLowerCase());
-          return cand;
-        };
-
-        for (let vi = 0; vi < validVarRows.length; vi++) {
-          const vr = validVarRows[vi];
-          const existingId = vr.dataset.varId || "";
-          const vId = existingId || doc(collection(db, ...paths("inventory"))).id;
-          const vCode = vr.dataset.existingCode || allocCode(vi);
-          const vSize = vr.querySelector(".var-size")?.value.trim() || "";
-          const vColor = vr.querySelector(".var-color")?.value.trim() || "";
-          const vStock = Math.max(0, Math.trunc(Number(vr.querySelector(".var-stock")?.value) || 0));
-          const vPrice = parseIdrNum(vr.querySelector(".var-price")?.value) || price;
-
-          let vImgUrl = vr.dataset.clearPhoto === "1" ? (itemData.imageUrl || "") : (vr.dataset.existingImgUrl || itemData.imageUrl || "");
-          let vImgPath = vr.dataset.clearPhoto === "1" ? (itemData.imagePath || "") : (vr.dataset.existingImgPath || itemData.imagePath || "");
-          const vFile = vr.querySelector(".var-photo-input")?.files?.[0] || null;
-          if (vFile) {
-            showToast(`Mengunggah foto varian ${vi + 1}/${validVarRows.length}...`);
-            const upVar = await uploadProductImage(vFile, vId);
-            vImgUrl = upVar.imageUrl;
-            vImgPath = upVar.imagePath;
-          }
-
-          const vData = {
-            code: vCode,
-            name,
-            size: vSize,
-            color: vColor,
-            stock: vStock,
-            cost,
-            price: vPrice,
-            description: autoDesc,
-            featured,
-            imageUrl: vImgUrl,
-            imagePath: vImgPath,
-            variantGroup: groupId,
-            updatedAt: new Date().toISOString()
+        if (!editId) {
+          const vRows = [...document.querySelectorAll("#invVariantsList .inv-variant-row")];
+          const usedCodes = new Set(inventory.map(i => String(i.code || "").trim().toLowerCase()));
+          usedCodes.add(code.toLowerCase());
+          const allocCode = (idx) => {
+            const suffix = idx < 26 ? String.fromCharCode(65 + idx) : String(idx + 1);
+            let cand = `${code}-${suffix}`;
+            let seq = 2;
+            while (usedCodes.has(cand.toLowerCase())) { cand = `${code}-${suffix}${seq++}`; }
+            usedCodes.add(cand.toLowerCase());
+            return cand;
           };
-          await setDoc(doc(db, ...paths("inventory", vId)), vData, { merge: true });
-          if (isMainPublished) {
-            await setDoc(doc(db, "publicCatalog", vId), publicProductData(vData));
+          const validVarRows = vRows.filter(vr => (vr.querySelector(".var-size")?.value.trim() || vr.querySelector(".var-color")?.value.trim()));
+          if (validVarRows.length > 0) {
+            await setDoc(doc(db, ...paths("inventory", itemId)), { variantGroup: itemId }, { merge: true });
           }
-          savedVariants++;
+          for (let vi = 0; vi < validVarRows.length; vi++) {
+            const vr = validVarRows[vi];
+            const vSize = vr.querySelector(".var-size")?.value.trim() || "";
+            const vColor = vr.querySelector(".var-color")?.value.trim() || "";
+            const vStock = Math.max(0, Math.trunc(Number(vr.querySelector(".var-stock")?.value) || 0));
+            const vPrice = parseIdrNum(vr.querySelector(".var-price")?.value) || price;
+            const vId = doc(collection(db, ...paths("inventory"))).id;
+            let vImgUrl = itemData.imageUrl || "";
+            let vImgPath = itemData.imagePath || "";
+            const vFile = vr.querySelector(".var-photo-input")?.files?.[0] || null;
+            if (vFile) {
+              showToast(`Mengunggah foto varian ${vi + 1}/${validVarRows.length}...`);
+              const upVar = await uploadProductImage(vFile, vId);
+              vImgUrl = upVar.imageUrl;
+              vImgPath = upVar.imagePath;
+            }
+            const vData = {
+              code: allocCode(vi),
+              name,
+              size: vSize,
+              color: vColor,
+              stock: vStock,
+              cost,
+              price: vPrice,
+              description: autoDesc,
+              imageUrl: vImgUrl,
+              imagePath: vImgPath,
+              variantGroup: itemId,
+              updatedAt: new Date().toISOString()
+            };
+            await setDoc(doc(db, ...paths("inventory", vId)), vData, { merge: true });
+            savedVariants++;
+          }
         }
-
-        for (const remId of removedVariantIds) {
-          await archiveOrRestore(remId, true);
-        }
-        removedVariantIds = [];
         resetInvForm();
         document.getElementById("invEntryCard").close();
         showToast(savedVariants > 0 ? `Barang & ${savedVariants} varian berhasil disimpan.` : "Barang berhasil disimpan.");
@@ -918,8 +898,7 @@
         stock: Math.max(0, Math.trunc(Number(item.stock) || 0)),
         imageUrl: productImageUrl(item).slice(0, 2048),
         description: String(item.description || "").slice(0, 400),
-        variantGroup: String(item.variantGroup || "").slice(0, 120),
-        featured: Boolean(item.featured)
+        variantGroup: String(item.variantGroup || "").slice(0, 120)
       };
     }
 
@@ -944,14 +923,12 @@
       a.download = `label-${itemObj.code || "SJS"}.png`;
       a.click();
     }
-    let removedVariantIds = [];
     function updateInvVariantCodes() {
       const base = document.getElementById("invCode")?.value.trim() || nextAutoCode();
       const rows = [...document.querySelectorAll("#invVariantsList .inv-variant-row")];
       rows.forEach((row, idx) => {
-        const existingCode = row.dataset.existingCode || "";
         const suffix = idx < 26 ? String.fromCharCode(65 + idx) : String(idx + 1);
-        const vCode = existingCode || `${base}-${suffix}`;
+        const vCode = `${base}-${suffix}`;
         row.dataset.varCode = vCode;
         const badge = row.querySelector(".var-code-badge");
         if (badge) badge.textContent = vCode;
@@ -1030,18 +1007,11 @@
       mergeList("invSizeOptions", ["24 lbs","27 lbs","30 lbs","Size 4","Size 5","38","39","40","41","42","43","44","45","S","M","L","XL","XXL","Isi 6","Isi 12","Standar"], "size");
       mergeList("invColorOptions", ["Hitam","Putih","Biru","Navy","Merah","Kuning","Hijau","Abu-abu","Oranye","Ungu","Emas"], "color");
     }
-    function addInvVariantRow(prefill = null) {
-      const data = (prefill && !(prefill instanceof Event)) ? prefill : null;
+    function addInvVariantRow() {
       const list = document.getElementById("invVariantsList");
       if (!list) return;
       const row = document.createElement("div");
       row.className = "inv-variant-row rounded-xl border border-slate-200 bg-slate-50/70 p-2.5 space-y-2";
-      row.dataset.varId = data?.id || "";
-      row.dataset.existingCode = data?.code || "";
-      row.dataset.existingImgUrl = data?.imageUrl || "";
-      row.dataset.existingImgPath = data?.imagePath || "";
-      row.dataset.clearPhoto = "0";
-      const hasExistingPhoto = Boolean(data?.imageUrl);
       row.innerHTML = `
         <div class="flex items-center justify-between gap-2">
           <span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-700">
@@ -1055,22 +1025,22 @@
           </div>
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-12 gap-2">
-          <input type="text" list="invSizeOptions" maxlength="40" placeholder="Ukuran" value="${esc(data?.size || "")}" class="var-size sm:col-span-3 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-semibold">
-          <input type="text" list="invColorOptions" maxlength="60" placeholder="Warna" value="${esc(data?.color || "")}" class="var-color sm:col-span-3 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-semibold">
-          <input type="number" min="0" step="1" inputmode="numeric" value="${Number(data?.stock ?? 0)}" placeholder="Stok" class="var-stock sm:col-span-2 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-bold text-center tabular-nums">
-          <input type="text" inputmode="numeric" autocomplete="off" placeholder="Harga" value="${esc(data?.price ? fmtIdrInput(data.price) : "")}" class="var-price sm:col-span-4 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-bold tabular-nums">
+          <input type="text" list="invSizeOptions" maxlength="40" placeholder="Ukuran" class="var-size sm:col-span-3 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-semibold">
+          <input type="text" list="invColorOptions" maxlength="60" placeholder="Warna" class="var-color sm:col-span-3 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-semibold">
+          <input type="number" min="0" step="1" inputmode="numeric" value="0" placeholder="Stok" class="var-stock sm:col-span-2 px-2 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-bold text-center tabular-nums">
+          <input type="text" inputmode="numeric" autocomplete="off" placeholder="Harga" class="var-price sm:col-span-4 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-bold tabular-nums">
         </div>
         <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-200/70">
           <div class="flex items-center gap-2 min-w-0">
-            <img class="var-photo-thumb ${hasExistingPhoto ? "" : "hidden"} w-9 h-9 object-contain rounded-lg border border-slate-200 bg-white shrink-0" src="${hasExistingPhoto ? esc(data.imageUrl) : ""}" alt="Foto varian">
-            <span class="var-photo-label text-[11px] text-slate-500 truncate">${hasExistingPhoto ? "Foto varian tersimpan" : "Foto varian (opsional, ikut foto utama jika kosong)"}</span>
+            <img class="var-photo-thumb hidden w-9 h-9 object-contain rounded-lg border border-slate-200 bg-white shrink-0" alt="Foto varian">
+            <span class="var-photo-label text-[11px] text-slate-500 truncate">Foto varian (opsional, ikut foto utama jika kosong)</span>
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
             <label class="cursor-pointer px-2.5 py-1 rounded-lg bg-white hover:bg-slate-900 hover:text-white border border-slate-300 text-[11px] font-bold text-slate-700 transition inline-flex items-center gap-1">
-              <i class="fa-solid fa-camera text-[10px]" aria-hidden="true"></i><span class="var-photo-btn-txt">${hasExistingPhoto ? "Ganti" : "Foto Varian"}</span>
+              <i class="fa-solid fa-camera text-[10px]" aria-hidden="true"></i><span class="var-photo-btn-txt">Foto Varian</span>
               <input type="file" accept="image/jpeg,image/png,image/webp" class="var-photo-input sr-only">
             </label>
-            <button type="button" class="btn-var-photo-clear ${hasExistingPhoto ? "" : "hidden"} px-2 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-[11px] font-bold" title="Hapus foto varian">×</button>
+            <button type="button" class="btn-var-photo-clear hidden px-2 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-[11px] font-bold" title="Hapus foto varian">×</button>
           </div>
         </div>
       `;
@@ -1082,20 +1052,21 @@
       varPhotoInp?.addEventListener("change", e => {
         const f = e.target.files?.[0];
         if (f) {
-          row.dataset.clearPhoto = "0";
           if (varPhotoThumb) { varPhotoThumb.src = URL.createObjectURL(f); varPhotoThumb.classList.remove("hidden"); }
           if (varPhotoLbl) varPhotoLbl.textContent = f.name;
           if (varPhotoBtnTxt) varPhotoBtnTxt.textContent = "Ganti";
           varPhotoClear?.classList.remove("hidden");
+        } else {
+          if (varPhotoThumb) { varPhotoThumb.src = ""; varPhotoThumb.classList.add("hidden"); }
+          if (varPhotoLbl) varPhotoLbl.textContent = "Foto varian (opsional, ikut foto utama jika kosong)";
+          if (varPhotoBtnTxt) varPhotoBtnTxt.textContent = "Foto Varian";
+          varPhotoClear?.classList.add("hidden");
         }
       });
       varPhotoClear?.addEventListener("click", () => {
-        row.dataset.clearPhoto = "1";
-        row.dataset.existingImgUrl = "";
-        row.dataset.existingImgPath = "";
         if (varPhotoInp) varPhotoInp.value = "";
         if (varPhotoThumb) { varPhotoThumb.src = ""; varPhotoThumb.classList.add("hidden"); }
-        if (varPhotoLbl) varPhotoLbl.textContent = "Foto varian dihapus (akan ikut foto utama)";
+        if (varPhotoLbl) varPhotoLbl.textContent = "Foto varian (opsional, ikut foto utama jika kosong)";
         if (varPhotoBtnTxt) varPhotoBtnTxt.textContent = "Foto Varian";
         varPhotoClear.classList.add("hidden");
       });
@@ -1110,12 +1081,7 @@
         const vCost = parseIdrNum(document.getElementById("invCost")?.value);
         downloadBrandedLabelPng({ code: vCode, name: baseName, price: vPrice, cost: vCost, size: vSize, color: vColor });
       });
-      row.querySelector(".btn-rm-var")?.addEventListener("click", () => {
-        if (row.dataset.varId) removedVariantIds.push(row.dataset.varId);
-        row.remove();
-        updateInvVariantCodes();
-        updateInvVariantSummary();
-      });
+      row.querySelector(".btn-rm-var")?.addEventListener("click", () => { row.remove(); updateInvVariantCodes(); updateInvVariantSummary(); });
       list.appendChild(row);
       updateInvVariantCodes();
       updateInvVariantSummary();
@@ -1139,11 +1105,8 @@
       }
     }
     function resetInvForm() {
-      removedVariantIds = [];
       ["editInvId", "invName", "invCode", "invSize", "invColor", "invStock", "invCost", "invPrice", "invDescription"]
         .forEach(id => document.getElementById(id).value = "");
-      const featEl = document.getElementById("invFeatured");
-      if (featEl) featEl.checked = false;
       document.getElementById("invImageFile").value = "";
       pendingPosterBlob = null;
       setInvImagePreview("", "");
@@ -1176,22 +1139,12 @@
       document.getElementById("invCost").value = fmtIdrInput(item.cost || 0);
       document.getElementById("invPrice").value = fmtIdrInput(item.price || 0);
       document.getElementById("invDescription").value = item.description || "";
-      const featEl = document.getElementById("invFeatured");
-      if (featEl) featEl.checked = Boolean(item.featured);
       if (item.imageUrl) setInvImagePreview(item.imageUrl, "Foto produk tersimpan");
       document.getElementById("btnCancelInvEdit").classList.remove("hidden");
       document.getElementById("btnSaveInvText").textContent = "Simpan perubahan";
       document.getElementById("inventoryEntryTitle").textContent = "Ubah barang";
       const vSec = document.getElementById("invVariantsSection");
-      if (vSec) vSec.hidden = false;
-      const siblings = activeInventory().filter(i =>
-        i.id !== item.id && (
-          (item.variantGroup && i.variantGroup === item.variantGroup) ||
-          i.variantGroup === item.id ||
-          (!item.variantGroup && String(i.name || "").trim().toLowerCase() === String(item.name || "").trim().toLowerCase())
-        )
-      );
-      for (const sib of siblings) addInvVariantRow(sib);
+      if (vSec) vSec.hidden = true;
       updateInvQrPreview();
       updateInvProfitPreview();
       updateInvVariantSummary();
@@ -2569,34 +2522,35 @@
       return base ? `${base} · ${SENAR_SERVICE_NOTE}` : SENAR_SERVICE_NOTE;
     }
 
+
     const CATALOG_BRANDS = [
-      { id: "yonex", name: "Yonex", sub: "Badminton", searchTerm: "Yonex", re: /\byonex\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><circle cx="24" cy="11" r="4.5" fill="#0066cc"/><circle cx="38" cy="11" r="4.5" fill="#10b981"/><path d="M18 19 L31 29 L44 19 L39 19 L31 24.5 L23 19 Z" fill="#0066cc"/><path d="M26 17 L31 21 L36 17" stroke="#10b981" stroke-width="2.5" fill="none"/></svg>` },
-      { id: "lining", name: "Li-Ning", sub: "Badminton & Sport", searchTerm: "Li-Ning", re: /\b(li-?ning|lining)\b/i, svg: `<svg viewBox="0 0 84 34" class="h-7 w-auto" aria-hidden="true"><path d="M14 25 C28 22, 44 14, 68 7 C52 17, 36 24, 18 28 Z" fill="#ef4444"/><path d="M24 12 L42 18 L28 24 Z" fill="#facc15"/></svg>` },
-      { id: "victor", name: "Victor", sub: "Badminton", searchTerm: "Victor", re: /\bvictor\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M22 7 L40 28 L58 7 L49 7 L40 19 L31 7 Z" fill="#2563eb"/><path d="M33 7 L40 15 L47 7 Z" fill="#ef4444"/></svg>` },
-      { id: "hiqua", name: "Hiqua", sub: "Badminton", searchTerm: "Hiqua", re: /\b(hi-?qua|hiqua)\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><rect x="20" y="7" width="6" height="20" rx="2" fill="#f5b700"/><rect x="34" y="7" width="6" height="20" rx="2" fill="#f5b700"/><rect x="20" y="14.5" width="20" height="5" fill="#f5b700"/><circle cx="52" cy="17" r="8" stroke="#38bdf8" stroke-width="4" fill="none"/><path d="M55 21 L62 27" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/></svg>` },
-      { id: "rs", name: "RS", sub: "Reinforce Speed", searchTerm: "RS", re: /\b(rs|reinforce(\s*speed)?)\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><polygon points="18,26 26,8 42,8 38,16 29,16 25,26" fill="#ef4444"/><polygon points="42,26 46,18 58,18 62,8 46,8 42,16 53,16 49,26" fill="#facc15"/></svg>` },
-      { id: "flypower", name: "Flypower", sub: "Badminton", searchTerm: "Flypower", re: /\bflypower\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M18 24 L36 8 L44 14 L58 8 L44 26 L36 19 Z" fill="#f97316"/><circle cx="58" cy="19" r="4" fill="#facc15"/></svg>` },
-      { id: "astec", name: "Astec", sub: "Badminton", searchTerm: "Astec", re: /\bastec\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><polygon points="40,6 22,28 31,28 40,16 49,28 58,28" fill="#38bdf8"/><rect x="31" y="21" width="18" height="4" fill="#f5b700"/></svg>` },
-      { id: "butterfly", name: "Butterfly", sub: "Tenis Meja", searchTerm: "Butterfly", re: /\bbutterfly\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M38 17 C28 6, 16 9, 20 20 C22 25, 32 25, 38 19 Z" fill="#ec4899"/><path d="M42 17 C52 6, 64 9, 60 20 C58 25, 48 25, 42 19 Z" fill="#f43f5e"/><rect x="38.5" y="10" width="3" height="15" rx="1.5" fill="#facc15"/></svg>` },
-      { id: "dhs", name: "DHS", sub: "Double Happiness", searchTerm: "DHS", re: /\b(dhs|double\s*happiness)\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><circle cx="33" cy="17" r="9" stroke="#ef4444" stroke-width="3.5" fill="none"/><circle cx="47" cy="17" r="9" stroke="#facc15" stroke-width="3.5" fill="none"/></svg>` },
-      { id: "nitaku", name: "Nitaku", sub: "Nittaku Pingpong", searchTerm: "Nitaku", re: /\b(nitaku|nittaku)\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><polygon points="24,26 24,8 32,8 48,20 48,8 56,8 56,26 48,26 32,14 32,26" fill="#38bdf8"/></svg>` },
-      { id: "donics", name: "Donics", sub: "Donic Pingpong", searchTerm: "Donic", re: /\b(donics?|donic)\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M24 8 H42 C52 8, 56 12, 56 17 C56 22, 52 26, 42 26 H24 Z" stroke="#10b981" stroke-width="4" fill="none"/><circle cx="40" cy="17" r="4" fill="#facc15"/></svg>` },
-      { id: "doublefish", name: "Double Fish", sub: "Tenis Meja", searchTerm: "Double Fish", re: /\bdouble\s*fish\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M22 14 C30 8, 42 8, 50 14 L58 9 L55 14 L58 19 L50 14 C42 20, 30 20, 22 14 Z" fill="#ef4444"/><path d="M58 22 C50 16, 38 16, 30 22 L22 17 L25 22 L22 27 L30 22 C38 28, 50 28, 58 22 Z" fill="#38bdf8"/></svg>` },
-      { id: "specs", name: "Specs", sub: "Futsal & Bola", searchTerm: "Specs", re: /\bspecs\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M20 22 L38 10 L58 10 L44 18 L60 18 L38 27 L24 27 Z" fill="#f5b700"/></svg>` },
-      { id: "ortuseight", name: "Ortuseight", sub: "Futsal & Running", searchTerm: "Ortuseight", re: /\b(ortuseight|ortus)\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><circle cx="40" cy="17" r="10" stroke="#f97316" stroke-width="4" fill="none"/><path d="M28 24 L52 10" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/></svg>` },
-      { id: "adidas", name: "Adidas", sub: "Sport & Futsal", searchTerm: "Adidas", re: /\badidas\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><polygon points="22,26 27,26 24,20 19,20" fill="#ffffff"/><polygon points="32,26 37,26 31,14 26,14" fill="#ffffff"/><polygon points="42,26 47,26 38,8 33,8" fill="#ffffff"/></svg>` },
-      { id: "nike", name: "Nike", sub: "Sport & Futsal", searchTerm: "Nike", re: /\bnike\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M22 21 C19 18, 22 12, 27 10 C25 14, 27 17, 33 16 L62 9 L31 23 C26 25, 23 23, 22 21 Z" fill="#ffffff"/></svg>` },
-      { id: "molten", name: "Molten", sub: "Bola Basket & Voli", searchTerm: "Molten", re: /\bmolten\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M22 22 C28 10, 44 8, 58 14 C48 16, 38 20, 32 26 Z" fill="#ef4444"/><path d="M28 12 C38 12, 48 16, 54 24" stroke="#facc15" stroke-width="3" fill="none"/></svg>` },
-      { id: "mikasa", name: "Mikasa", sub: "Bola Voli & Sepak", searchTerm: "Mikasa", re: /\bmikasa\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><circle cx="40" cy="17" r="10" fill="#2563eb"/><path d="M31 14 Q40 9 49 14 Q44 22 36 22 Z" fill="#facc15"/></svg>` },
-      { id: "mizuno", name: "Mizuno", sub: "Badminton & Voli", searchTerm: "Mizuno", re: /\bmizuno\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M18 23 C28 11, 44 9, 62 11 C46 15, 36 20, 28 26 Z" fill="#38bdf8"/></svg>` },
-      { id: "asics", name: "Asics", sub: "Sepatu & Voli", searchTerm: "Asics", re: /\basics\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M46 9 C32 9, 24 16, 26 23 C28 27, 36 26, 44 20 L48 25 H54 L47 9 Z M34 21 C31 21, 31 16, 37 14 L41 14 L38 20 C36 21, 35 21, 34 21 Z" fill="#60a5fa"/></svg>` }
+      { id: "yonex", name: "Yonex", sub: "Badminton", searchTerm: "Yonex", re: /\byonex\b/i, badge: "YNX", cls: "bg-sky-50 text-sky-900 border-sky-200" },
+      { id: "lining", name: "Li-Ning", sub: "Badminton & Sport", searchTerm: "Li-Ning", re: /\b(li-?ning|lining)\b/i, badge: "LN", cls: "bg-rose-50 text-rose-900 border-rose-200" },
+      { id: "victor", name: "Victor", sub: "Badminton", searchTerm: "Victor", re: /\bvictor\b/i, badge: "VTR", cls: "bg-blue-50 text-blue-900 border-blue-200" },
+      { id: "hiqua", name: "Hiqua", sub: "Badminton", searchTerm: "Hiqua", re: /\b(hi-?qua|hiqua)\b/i, badge: "HQ", cls: "bg-amber-50 text-amber-900 border-amber-200" },
+      { id: "rs", name: "RS", sub: "Reinforce Speed", searchTerm: "RS", re: /\b(rs|reinforce(\s*speed)?)\b/i, badge: "RS", cls: "bg-red-50 text-red-900 border-red-200" },
+      { id: "flypower", name: "Flypower", sub: "Badminton", searchTerm: "Flypower", re: /\bflypower\b/i, badge: "FP", cls: "bg-orange-50 text-orange-900 border-orange-200" },
+      { id: "astec", name: "Astec", sub: "Badminton", searchTerm: "Astec", re: /\bastec\b/i, badge: "AST", cls: "bg-cyan-50 text-cyan-900 border-cyan-200" },
+      { id: "butterfly", name: "Butterfly", sub: "Tenis Meja", searchTerm: "Butterfly", re: /\bbutterfly\b/i, badge: "BFY", cls: "bg-pink-50 text-pink-900 border-pink-200" },
+      { id: "dhs", name: "DHS", sub: "Double Happiness", searchTerm: "DHS", re: /\b(dhs|double\s*happiness)\b/i, badge: "DHS", cls: "bg-rose-50 text-rose-900 border-rose-200" },
+      { id: "nitaku", name: "Nitaku", sub: "Nittaku Pingpong", searchTerm: "Nitaku", re: /\b(nitaku|nittaku)\b/i, badge: "NTK", cls: "bg-sky-50 text-sky-900 border-sky-200" },
+      { id: "donics", name: "Donics", sub: "Donic Pingpong", searchTerm: "Donic", re: /\b(donics?|donic)\b/i, badge: "DNC", cls: "bg-emerald-50 text-emerald-900 border-emerald-200" },
+      { id: "doublefish", name: "Double Fish", sub: "Tenis Meja", searchTerm: "Double Fish", re: /\bdouble\s*fish\b/i, badge: "DF", cls: "bg-indigo-50 text-indigo-900 border-indigo-200" },
+      { id: "specs", name: "Specs", sub: "Futsal & Bola", searchTerm: "Specs", re: /\bspecs\b/i, badge: "SPC", cls: "bg-yellow-50 text-yellow-900 border-yellow-200" },
+      { id: "ortuseight", name: "Ortuseight", sub: "Futsal & Running", searchTerm: "Ortuseight", re: /\b(ortuseight|ortus)\b/i, badge: "ORT", cls: "bg-orange-50 text-orange-900 border-orange-200" },
+      { id: "adidas", name: "Adidas", sub: "Sport & Futsal", searchTerm: "Adidas", re: /\badidas\b/i, badge: "ADI", cls: "bg-slate-100 text-slate-900 border-slate-300" },
+      { id: "nike", name: "Nike", sub: "Sport & Futsal", searchTerm: "Nike", re: /\bnike\b/i, badge: "NKE", cls: "bg-slate-100 text-slate-900 border-slate-300" },
+      { id: "molten", name: "Molten", sub: "Bola Basket & Voli", searchTerm: "Molten", re: /\bmolten\b/i, badge: "MLT", cls: "bg-red-50 text-red-900 border-red-200" },
+      { id: "mikasa", name: "Mikasa", sub: "Bola Voli & Sepak", searchTerm: "Mikasa", re: /\bmikasa\b/i, badge: "MKS", cls: "bg-blue-50 text-blue-900 border-blue-200" },
+      { id: "mizuno", name: "Mizuno", sub: "Badminton & Voli", searchTerm: "Mizuno", re: /\bmizuno\b/i, badge: "MIZ", cls: "bg-sky-50 text-sky-900 border-sky-200" },
+      { id: "asics", name: "Asics", sub: "Sepatu & Voli", searchTerm: "Asics", re: /\basics\b/i, badge: "ASC", cls: "bg-indigo-50 text-indigo-900 border-indigo-200" }
     ];
     let activeBrandId = "";
-    function itemHaystack(item) {
+    function itemBrandHaystack(item) {
       return [item.name, item.code, item.size, item.color, item.description].filter(Boolean).join(" ");
     }
-    function matchesBrand(item, brandObj) {
-      return !brandObj || brandObj.re.test(itemHaystack(item));
+    function matchesBrandFilter(item, brandObj) {
+      return !brandObj || brandObj.re.test(itemBrandHaystack(item));
     }
     function renderBrandShowcase() {
       const grid = document.getElementById("brandLogoGrid");
@@ -2605,20 +2559,14 @@
       if (resetBtn) resetBtn.classList.toggle("hidden", !activeBrandId);
       const inStockItems = publicCatalog.filter(it => Number(it.stock || 0) > 0);
       grid.innerHTML = CATALOG_BRANDS.map(b => {
-        const count = inStockItems.filter(it => matchesBrand(it, b)).length;
-        const isActive = activeBrandId === b.id;
-        return `<button type="button" data-brand-id="${esc(b.id)}" class="brand-logo-card ${isActive ? "is-active" : ""} ${count === 0 ? "is-empty-stock" : ""}" aria-pressed="${isActive}">
-          <span class="brand-count-pill ${count > 0 ? "has-stock" : ""}">${count}</span>
-          <div class="brand-emblem-box">${b.svg}</div>
-          <span class="brand-wordmark">${esc(b.name)}</span>
-          <span class="brand-sub-label">${esc(b.sub)}</span>
+        const count = inStockItems.filter(it => matchesBrandFilter(it, b)).length;
+        const active = activeBrandId === b.id;
+        return `<button type="button" data-brand-id="${esc(b.id)}" aria-pressed="${active}" class="flex flex-col items-center justify-center gap-1 rounded-2xl border p-3 text-center transition ${active ? "border-blue-700 bg-blue-50 ring-2 ring-blue-300" : "border-slate-200 bg-slate-50/70 hover:border-blue-400 hover:bg-white"}">
+          <span class="inline-flex items-center justify-center rounded-xl border px-2.5 py-1 text-xs font-black tracking-wider ${b.cls}">${esc(b.badge)}</span>
+          <span class="text-sm font-extrabold text-slate-900 leading-tight">${esc(b.name)}</span>
+          <span class="text-[11px] font-semibold text-slate-500 leading-tight">${esc(b.sub)} · ${count}</span>
         </button>`;
       }).join("");
-    }
-
-    const DEFAULT_FEATURED_RE = /powermax|hundred|magnite|avo/i;
-    function isAdminCatalogFeatured(item) {
-      return Boolean(item?.featured) || DEFAULT_FEATURED_RE.test(String(item?.name || ""));
     }
 
     function renderProductCatalog() {
@@ -2628,11 +2576,6 @@
       const q = search.value.trim().toLocaleLowerCase("id");
       document.getElementById("btnClearCatalogSearch").classList.toggle("hidden", !search.value);
       const category = document.querySelector("#catalogCategory input:checked")?.value || "all";
-      const brandObj = CATALOG_BRANDS.find(b => b.id === activeBrandId) || null;
-      const titleEl = document.getElementById("productCatalogTitle");
-      if (titleEl) {
-        titleEl.textContent = brandObj ? `Produk Brand: ${brandObj.name}` : "Katalog produk";
-      }
       if (catalogLoadState !== "ready") {
         grid.innerHTML = `<p class="catalog-empty" role="status">${catalogLoadState === "error" ? "Katalog gagal dimuat. Muat ulang halaman." : "Katalog sedang dimuat…"}</p>`;
         return;
@@ -2642,22 +2585,18 @@
       }
       const sortMode = document.getElementById("catalogSort")?.value || "default";
       const items = publicCatalog.filter(item => Number(item.stock) > 0);
+      const brandObj = CATALOG_BRANDS.find(b => b.id === activeBrandId) || null;
       const filtered = items.filter(item => {
-        const hay = itemHaystack(item).toLocaleLowerCase("id");
-        const matchQuery = brandObj
-          ? (matchesBrand(item, brandObj) || (q && hay.includes(q)))
+        const hay = itemBrandHaystack(item).toLocaleLowerCase("id");
+        const matchBrandOrSearch = brandObj
+          ? (matchesBrandFilter(item, brandObj) || (q && hay.includes(q)))
           : (!q || hay.includes(q));
-        return matchQuery && matchesCatalogCategory(item, category);
+        return matchBrandOrSearch && matchesCatalogCategory(item, category);
       });
       if (sortMode === "price-asc") filtered.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
       else if (sortMode === "price-desc") filtered.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
       else if (sortMode === "name-asc") filtered.sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "id"));
-      else filtered.sort((a, b) => Number(isAdminCatalogFeatured(b)) - Number(isAdminCatalogFeatured(a)));
-
-      document.getElementById("catalogResultCount").textContent = brandObj
-        ? `${filtered.length} produk ${brandObj.name}`
-        : `${filtered.length} produk`;
-      updateCustomerPreviewStats();
+      document.getElementById("catalogResultCount").textContent = `${filtered.length} produk`;
       if (!filtered.length) {
         grid.innerHTML = `<p class="catalog-empty" role="status">Produk tidak ditemukan. Coba kata kunci lain atau pilih kategori "Semua".</p>`;
         return;
@@ -2665,29 +2604,16 @@
       grid.innerHTML = filtered.map((item, index) => {
         const stockNum = Number(item.stock || 0);
         const limited = stockNum < LOW_STOCK_LIMIT;
-        const featured = isAdminCatalogFeatured(item);
-        const badgeLabel = featured ? "⭐ Unggulan" : (limited ? "Stok terbatas" : "Tersedia");
-        const badgeCls = featured ? "bg-amber-400 !text-slate-950" : (limited ? "is-limited" : "");
         const msg = `Halo Surya Jaya Sport, saya ingin bertanya tentang ${item.name}${item.code ? ` (${item.code})` : ""} dengan harga ${rp(item.price)}. Apakah stoknya tersedia?`;
-        const eid = esc(item.id);
-        const adminHoverBar = isAdmin ? `
-          <div class="admin-card-hover-bar" aria-label="Aksi cepat admin">
-            <button type="button" data-admin-card-act="edit" data-item-id="${eid}" title="Edit produk">✏ Edit</button>
-            <button type="button" data-admin-card-act="stock" data-item-id="${eid}" title="Restok / ubah stok">📦 Stok</button>
-            <button type="button" data-admin-card-act="photo" data-item-id="${eid}" title="Ganti foto">📷 Foto</button>
-            <button type="button" data-admin-card-act="price" data-item-id="${eid}" title="Ubah harga">💰 Harga</button>
-          </div>` : "";
         return `
-        <article class="catalog-card ${featured ? "!border-amber-400/60" : ""}">
-          ${adminHoverBar}
-          <div class="catalog-card-photo-wrap" data-view-product="${eid}" role="button" tabindex="0" aria-label="Lihat detail ${esc(item.name)}">
-            <span class="catalog-card-badge ${badgeCls}">${badgeLabel}</span>
+        <article class="catalog-card">
+          <div class="catalog-card-photo-wrap" data-view-product="${esc(item.id)}" role="button" tabindex="0" aria-label="Lihat detail ${esc(item.name)}">
+            <span class="catalog-card-badge ${limited ? "is-limited" : ""}">${limited ? "Stok terbatas" : "Tersedia"}</span>
             ${productImageMarkup(item, "catalog-card-photo", 560, index < 2)}
           </div>
           <div class="catalog-card-body">
             <p class="catalog-card-meta">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
-            <h3 class="font-extrabold cursor-pointer hover:text-blue-700" data-view-product="${eid}">${esc(item.name)}</h3>
-            <p class="text-[11px] font-bold text-emerald-400">📍 Tersedia di Toko Berau · Bisa Kirim</p>
+            <h3 class="font-extrabold cursor-pointer hover:text-blue-700" data-view-product="${esc(item.id)}">${esc(item.name)}</h3>
             ${item.description ? `<p class="catalog-card-description line-clamp-2">${esc(item.description)}</p>` : ""}
             ${isSenarItem(item) ? `<p class="senar-service-note"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>${SENAR_SERVICE_NOTE}</span></p>` : ""}
             <div class="catalog-card-facts">
@@ -2695,7 +2621,7 @@
               <span class="catalog-stock">Stok ${stockNum} pcs</span>
             </div>
             <div class="catalog-card-actions">
-              <button type="button" data-add-cart="${eid}" class="shop-button shop-button-primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Keranjang</button>
+              <button type="button" data-add-cart="${esc(item.id)}" class="shop-button shop-button-primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Keranjang</button>
               <a href="${CATALOG_WA}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener noreferrer" class="shop-button shop-button-secondary"><i class="fa-brands fa-whatsapp text-emerald-600" aria-hidden="true"></i> Tanya stok</a>
             </div>
           </div>
@@ -2724,7 +2650,6 @@
     function updateCartSummary() {
       const lines = cartProducts();
       document.getElementById("catalogCartCount").textContent = lines.length;
-      updateCustomerPreviewStats();
       const total = lines.reduce((s, { item, line }) => s + (Number(item?.price) || 0) * line.qty, 0);
       document.getElementById("catalogCartTotal").textContent = lines.length ? `Perkiraan total: ${rp(total)}` : "";
       const link = document.getElementById("catalogCartWhatsApp");
@@ -4337,6 +4262,110 @@
         <text x="261" y="${Math.max(14, Math.min(baseZero - 10, yExp) - 7).toFixed(1)}" text-anchor="middle" fill="#b45309" font-size="10" font-weight="800">−${esc(shortRpTick(spending))}</text>
         <text x="261" y="${H - 8}" text-anchor="middle" fill="#b45309" font-size="10" font-weight="800">Biaya</text>
 
-        <rect x="334" y="${yNet.toFixed(1)}" width="54" height="${netAbsH.toFixed(1)}" rx="6" fill="${netColor}"
+        <rect x="334" y="${yNet.toFixed(1)}" width="54" height="${netAbsH.toFixed(1)}" rx="6" fill="${netColor}"/>
+        <text x="361" y="${Math.max(14, yNet - 7).toFixed(1)}" text-anchor="middle" fill="${netColor}" font-size="10" font-weight="900">${isLoss ? "−" : "+"}${esc(shortRpTick(Math.abs(netProfit)))}</text>
+        <text x="361" y="${H - 8}" text-anchor="middle" fill="${netColor}" font-size="10" font-weight="900">${isLoss ? "Rugi" : "Laba Bersih"}</text>
+      </svg>`;
+    }
 
-Displaying admin-varian-v4.js.
+    function renderCharts() {
+      if (!isAdmin) return;
+      const month = document.getElementById("bookMonth").value || todayStr().slice(0, 7);
+      const yearNum = Number(month.slice(0, 4));
+      const monthNum = Number(month.slice(5, 7));
+
+      const monthSales = transactions.filter(t => String(t.date || "").startsWith(month + "-"));
+      const monthExpAll = books.expenses.filter(e => String(e.date || "").startsWith(month + "-"));
+      const monthExp = monthExpAll.filter(e => !isNonExpenseTransfer(e));
+      const monthTransfers = monthExpAll.filter(e => isNonExpenseTransfer(e));
+      const monthPurch = purchases.filter(p => String(p.date || "").startsWith(month + "-"));
+      const { revenue, cost, spending, bankDepositTotal, profit: netProfit } = monthlyTotals(month);
+      const gross = revenue - cost;
+      const beliBulanIni = monthPurch.reduce((s, p) => s + Number(p.totalCost || 0), 0);
+
+      // Baris 2 Kiri: Waterfall Omzet -> Modal -> Biaya -> Laba Bersih + Ringkasan Keuangan (Margin & BEP)
+      const badgeGauge = document.getElementById("badgeBookGauge");
+      if (badgeGauge) badgeGauge.textContent = month;
+      const gaugeWrap = document.getElementById("svgBookGaugeWrap");
+      if (gaugeWrap) {
+        const grossMarginFrac = revenue > 0 ? (gross / revenue) : 0;
+        const grossMargin = Math.round(grossMarginFrac * 100);
+        const netMargin = revenue > 0 ? Math.round((netProfit / revenue) * 100) : 0;
+        const bepOmzet = grossMarginFrac > 0 ? Math.round(spending / grossMarginFrac) : 0;
+        const bepReached = revenue > 0 && revenue >= bepOmzet && gross > 0;
+        const bepDiff = revenue - bepOmzet;
+        const bepStatus = revenue <= 0
+          ? "Belum ada penjualan"
+          : grossMarginFrac <= 0
+            ? "Margin kotor 0% (belum bisa hitung BEP)"
+            : (bepReached ? `Tercapai (+${rp(bepDiff)} di atas BEP)` : `Kurang omzet ${rp(Math.abs(bepDiff))} lagi`);
+        gaugeWrap.innerHTML = buildBookWaterfallSvg(revenue, cost, spending, netProfit) + `
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pt-2 border-t border-slate-100">
+            <div class="uikit-row"><div class="uikit-row-head"><span class="uikit-row-label">Margin Kotor</span><span class="uikit-row-val text-blue-800">${grossMargin}%</span></div><span class="text-[10px] text-slate-500 font-semibold">Laba Kotor &divide; Omzet</span></div>
+            <div class="uikit-row"><div class="uikit-row-head"><span class="uikit-row-label">Margin Bersih</span><span class="uikit-row-val ${netProfit < 0 ? "text-rose-700" : "text-emerald-700"}">${netMargin}%</span></div><span class="text-[10px] text-slate-500 font-semibold">Laba Bersih &divide; Omzet</span></div>
+            <div class="uikit-row"><div class="uikit-row-head"><span class="uikit-row-label">Titik Impas (BEP)</span><span class="text-xs font-extrabold ${bepReached ? "text-emerald-700" : "text-rose-700"}">${bepOmzet > 0 ? rp(bepOmzet) : "-"}</span></div><span class="text-[10px] font-bold ${bepReached ? "text-emerald-700" : "text-rose-700"}">${esc(bepStatus)}</span></div>
+          </div>
+          <p class="text-[11px] font-semibold text-slate-500 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">Rumus BEP: <strong>Pengeluaran Operasional (${rp(spending)}) &divide; Margin Kotor (${grossMargin}%) = ${bepOmzet > 0 ? rp(bepOmzet) : "Rp 0"}</strong></p>`;
+      }
+
+      // Baris 3 Kanan: Komposisi Pembayaran (%)
+      const pay = { Cash: 0, QRIS: 0, Kartu: 0, Transfer: 0 };
+      for (const t of monthSales) {
+        const m = t.paymentMethod || "Cash";
+        if (m in pay) pay[m] += Number(t.totalOmset || 0);
+      }
+      const payTotal = Object.values(pay).reduce((a, b) => a + b, 0);
+      const badgePay = document.getElementById("badgeBookPay");
+      if (badgePay) badgePay.textContent = rp(payTotal);
+      const payWrap = document.getElementById("svgBookPayWrap");
+      if (payWrap) {
+        payWrap.innerHTML = buildSvgDonut([
+          { label: "Tunai", value: pay.Cash, color: "#1d4ed8", display: rp(pay.Cash) },
+          { label: "Transfer", value: pay.Transfer, color: "#0f2557", display: rp(pay.Transfer) },
+          { label: "QRIS", value: pay.QRIS, color: "#38bdf8", display: rp(pay.QRIS) },
+          { label: "Kartu", value: pay.Kartu, color: "#facc15", display: rp(pay.Kartu) }
+        ], "OMZET", shortRpTick(payTotal));
+      }
+
+      // Baris 4 Kanan: Tren Laba Penjualan 6 Bulan
+      const months = [];
+      for (let i = 5; i >= 0; i--) {
+        const d = new Date(yearNum, monthNum - 1 - i, 1);
+        months.push(d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0"));
+      }
+      const profitPts = months.map(m => ({
+        label: m.slice(2),
+        value: transactions.filter(t => String(t.date || "").startsWith(m + "-")).reduce((s, t) => s + Number(t.totalProfit || 0), 0)
+      }));
+      const badgeProf = document.getElementById("badgeBookProfit");
+      if (badgeProf) badgeProf.textContent = rp(profitPts[profitPts.length - 1]?.value || 0);
+      const profWrap = document.getElementById("svgBookProfitWrap");
+      if (profWrap) profWrap.innerHTML = renderProfitTrendHtml(profitPts);
+
+      // Baris 2 Kanan: Produk Paling Menguntungkan (Omzet & Laba)
+      const prodMap = new Map();
+      for (const tx of monthSales) {
+        for (const it of (tx.items || [])) {
+          const key = String(it.name || "Barang").trim();
+          const q = Number(it.qty || 0);
+          const itemOmzet = Number(it.subtotal ?? Number(it.price || 0) * q);
+          const itemCost = Number(it.cost || 0) * q;
+          const cur = prodMap.get(key) || { omset: 0, profit: 0, qty: 0 };
+          cur.omset += itemOmzet;
+          cur.profit += (itemOmzet - itemCost);
+          cur.qty += q;
+          prodMap.set(key, cur);
+        }
+      }
+      const topProfitable = [...prodMap.entries()].sort((a, b) => b[1].profit - a[1].profit).slice(0, 6);
+      const trendBox = document.getElementById("bentoBookTrendingWrap");
+      if (trendBox) {
+        if (!topProfitable.length) {
+          trendBox.innerHTML = `<p class="text-sm text-slate-500 py-8 text-center">Belum ada penjualan pada bulan ini.</p>`;
+        } else {
+          trendBox.innerHTML = `<table class="w-full text-left border-collapse text-xs">
+            <thead><tr class="border-b border-slate-200 text-[10px] font-extrabold uppercase text-slate-500"><th class="py-2 pr-1">Produk</th><th class="py-2 px-1 text-right">Omzet</th><th class="py-2 px-1 text-right">Laba</th><th class="py-2 pl-1 text-right">Margin</th></tr></thead>
+            <tbody class="divide-y divide-slate-100">${topProfitable.map(([n, v], i) => {
+              const mPct = v.omset > 0 ? Math.round((v.
+
+Displaying admin-v5.js.
