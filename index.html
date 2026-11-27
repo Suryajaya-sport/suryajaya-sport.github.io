@@ -5,8 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Surya Jaya Sport | Toko Olahraga &amp; Alat Musik Tanjung Redeb, Berau</title>
-  <meta name="description" content="Surya Jaya Sport — toko raket badminton Berau, jual bola futsal Tanjung Redeb, perlengkapan olahraga &amp; toko alat musik Berau. Jl. Ahmad Yani 37, Tanjung Redeb, Berau. Buka setiap hari 08.00–21.00 WITA.">
-  <meta name="keywords" content="toko olahraga Berau, toko raket badminton Berau, jual bola futsal Tanjung Redeb, toko alat musik Berau, senar badminton Berau, Surya Jaya Sport Tanjung Redeb">
+  <meta name="description" content="Toko raket badminton, bola futsal, catur & alat musik di Tanjung Redeb, Berau. Jl. Ahmad Yani 37. Buka setiap hari 08.00–21.00 WITA.">
   <link rel="canonical" href="https://suryajaya-sport.github.io/">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -475,6 +474,17 @@
     .sk-btn { height: 2.5rem; border-radius: var(--r-ctl); }
     @keyframes sk-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
     @media (prefers-reduced-motion: reduce) { .sk { animation: none; } .catalog-card, .catalog-card-photo img { transition: none; } }
+
+    /* Perbaikan kontras: jam buka, kotak pembayaran, footer */
+    .text-blue-900, .text-blue-600 { color: #FCD34D; }
+    .text-blue-950 { color: var(--soft); }
+    .text-amber-700 { color: var(--gold); }
+    .text-emerald-600 { color: #34D399; }
+    .bg-blue-50, .bg-sky-50, .bg-slate-50, .bg-slate-100 { background-color: #0F1624; }
+    .border-blue-100, .border-blue-200, .border-slate-200, .border-slate-300 { border-color: var(--line2); }
+    .shop-location .rounded-2xl, .shop-location .rounded-xl { color: var(--soft); }
+    footer.bg-white { background-color: #0F1624; border-color: var(--line); color: var(--muted); }
+    footer .text-slate-500 { color: var(--muted); }
   </style>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZS9T9ZJXBK"></script>
   <script>
@@ -534,7 +544,7 @@
       <div class="shop-hero-content">
         <p class="shop-eyebrow"><i class="fa-solid fa-clock" aria-hidden="true"></i> Jl. Ahmad Yani 37, Tanjung Redeb, Berau · Buka Setiap Hari 08.00–21.00 WITA</p>
         <h2 id="catalogPageTitle">Perlengkapan Olahraga<br><span class="shop-hero-accent">&amp; Alat Musik Berau</span></h2>
-        <p class="text-[15px] text-slate-200 leading-relaxed">Toko raket badminton Berau, bola futsal Tanjung Redeb, catur, hingga senar dan aksesori gitar dengan harga jelas dan stok langsung dari toko kami.</p>
+        <p class="text-[15px] text-slate-200 leading-relaxed">Toko raket badminton Berau, bola futsal Tanjung Redeb, catur, hingga senar dan aksesori gitar dengan stok langsung dari toko kami. Harga & stok dikonfirmasi lewat WhatsApp.</p>
         <div class="hero-trust-row">
           <span class="hero-trust-pill"><i class="fa-solid fa-circle-check text-amber-300" aria-hidden="true"></i> Harga &amp; stok dikonfirmasi toko</span>
           <span class="hero-trust-pill"><i class="fa-solid fa-store text-amber-300" aria-hidden="true"></i> Ambil di toko · Bisa pesan/DP via WA</span>
@@ -1026,7 +1036,7 @@
         <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-start">
           <div class="md:col-span-6 rounded-2xl border border-slate-700/70 bg-[#0B0F17] overflow-hidden">${productImageMarkup(item, "aspect-square w-full", 800, true)}</div>
           <div class="md:col-span-6 space-y-3.5">
-            <p class="text-xs font-mono font-bold text-slate-400">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
+            <p class="text-xs font-mono font-bold text-slate-400">${esc([item.code, item.size, item.color].filter(v => v && !/^(all|semua( warna| ukuran)?)$/i.test(String(v).trim())).join(" · "))}</p>
             ${variantPickerHtml}
             ${item.description ? `<p class="text-sm text-slate-300 leading-relaxed">${esc(item.description)}</p>` : ""}
             ${showSenarNote ? `<p class="senar-service-note !text-xs !py-2 !px-3"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>${SENAR_SERVICE_NOTE}</span></p>` : ""}
@@ -1133,8 +1143,8 @@
           </div>
           <div class="catalog-card-body">
             <div class="flex items-center justify-between gap-2">
-              <p class="catalog-card-meta truncate">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
-              <span class="catalog-status-dot ${outOfStock ? "is-out" : limited ? "is-low" : "is-ok"}">${outOfStock ? "Habis" : limited ? "Stok terbatas" : "Tersedia"}</span>
+              <p class="catalog-card-meta truncate">${esc([item.code, item.size, item.color].filter(v => v && !/^(all|semua( warna| ukuran)?)$/i.test(String(v).trim())).join(" · "))}</p>
+              ${outOfStock || limited ? `<span class="catalog-status-dot ${outOfStock ? "is-out" : "is-low"}">${outOfStock ? "Habis" : "Stok terbatas"}</span>` : ""}
             </div>
             <h3 class="font-extrabold cursor-pointer hover:text-blue-700" data-view-product="${esc(item.id)}">${esc(item.name)}</h3>
             ${(() => {
@@ -1148,7 +1158,7 @@
             ${showSenarNote ? `<p class="senar-service-note"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>${SENAR_SERVICE_NOTE}</span></p>` : ""}
             <div class="catalog-card-facts">
               <p class="catalog-card-price">${rp(item.price)}</p>
-              <span class="catalog-stock ${outOfStock ? "is-out" : ""}">${outOfStock ? "Stok habis" : `Stok ${stockNum} pcs`}</span>
+              ${outOfStock ? "" : `<span class="catalog-stock">Stok ${stockNum} pcs</span>`}
             </div>
             <div class="catalog-card-actions">
               <button type="button" data-add-cart="${esc(item.id)}" ${outOfStock ? "disabled" : ""} class="shop-button shop-button-primary"><i class="fa-solid ${outOfStock ? "fa-ban" : "fa-cart-plus"}" aria-hidden="true"></i> ${outOfStock ? "Habis" : "Keranjang"}</button>
