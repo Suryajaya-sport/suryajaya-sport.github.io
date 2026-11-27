@@ -30,7 +30,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Barlow+Condensed:wght@700;800&amp;display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Barlow+Condensed:wght@700;800&amp;display=swap" rel="stylesheet">
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
   <script>
@@ -534,16 +534,16 @@
     }
     .pos-exact-fav-pill:hover { background: #e0ecff; border-color: #93c5fd; color: #0f2557; }
     #posCashChangeBox.is-change {
-      background: #00a86b !important;
+      background: #15803d !important;
       border: none !important;
       border-radius: 12px !important;
       padding: .75rem 1rem !important;
       text-align: center;
     }
-    #posCashChangeBox.is-change span { color: #d1fae5 !important; display: inline !important; font-size: .95rem !important; font-weight: 800 !important; letter-spacing: .04em; margin-right: .35rem; }
+    #posCashChangeBox.is-change span { color: #dcfce7 !important; display: inline !important; font-size: .95rem !important; font-weight: 800 !important; letter-spacing: .04em; margin-right: .35rem; }
     #posCashChangeBox.is-change strong { color: #ffffff !important; display: inline !important; font-size: 1.65rem !important; font-weight: 900 !important; letter-spacing: -.01em; }
     #posCashChangeBox.is-short {
-      background: #e11d48 !important;
+      background: #be123c !important;
       border: none !important;
       border-radius: 16px !important;
       padding: .75rem 1rem !important;
@@ -1565,8 +1565,8 @@
       --sjs-navy-deep: #0F172A;
       --sjs-navy: #142850;
       --sjs-gold: #F5B700;
-      --sjs-gold-text: #C58F00;
-      --sjs-success: #16A34A;
+      --sjs-gold-text: #8a6100;
+      --sjs-success: #15803d;
       --sjs-success-bg: #DCFCE7;
       --sjs-danger: #DC2626;
       --sjs-bg: #F4F6F8;
@@ -1644,7 +1644,7 @@
     .pos-fav-pro-price {
       font-size: 12px;
       font-weight: 700;
-      color: #C58F00;
+      color: #8a6100;
       letter-spacing: -.01em;
     }
     /* Panel Pembayaran Kanan */
@@ -1668,10 +1668,10 @@
       font-weight: 800 !important;
       letter-spacing: -.025em !important;
     }
-    /* 2. Kotak Kembalian: #DCFCE7 + border #16A34A */
+    /* 2. Kotak Kembalian: #DCFCE7 + border #15803d */
     body.sjs-admin #posCashChangeBox.is-change {
       background: #DCFCE7 !important;
-      border: 1.5px solid #16A34A !important;
+      border: 1.5px solid #15803d !important;
       border-radius: 14px !important;
       padding: .7rem 1rem !important;
       text-align: center !important;
@@ -1810,9 +1810,9 @@
       border-color: #E0A800 !important;
       color: #0F172A !important;
     }
-    /* 5. Tombol Simpan & Cetak: Success Green #16A34A */
+    /* 5. Tombol Simpan & Cetak: Success Green #15803d */
     body.sjs-admin #btnSaveAndPrintTx {
-      background: #16A34A !important;
+      background: #15803d !important;
       border: 1px solid #15803D !important;
       color: #FFFFFF !important;
       border-radius: 12px !important;
@@ -1930,7 +1930,7 @@
     /* 5. Kembalian: Stripe Success Panel */
     body.sjs-admin #posCashChangeBox.is-change {
       background: #DCFCE7 !important;
-      border: 1.5px solid #16A34A !important;
+      border: 1.5px solid #15803d !important;
       border-radius: 14px !important;
       padding: .85rem 1rem !important;
       box-shadow: 0 4px 14px rgba(22, 163, 74, .12) !important;
@@ -2407,95 +2407,14 @@
       border-color: #FFD029 !important;
     }
 
-  
-    /* === DARK STUDIO THEME FOR CUSTOMER VIEW IN ADMIN.HTML === */
-    #viewCatalog {
-      background: radial-gradient(circle at 20% 0%, rgba(220, 38, 38, 0.10), transparent 36%),
-                  radial-gradient(circle at 85% 15%, rgba(56, 189, 248, 0.11), transparent 36%),
-                  #080a0f;
-      color: #f8fafc;
-      padding: 1.35rem;
-      border-radius: 2rem;
-      border: 1.5px solid rgba(255, 255, 255, 0.10);
-    }
-    #viewCatalog .shop-hero {
-      background: linear-gradient(95deg, rgba(8, 10, 15, 0.96) 0%, rgba(15, 20, 32, 0.88) 54%, rgba(15, 20, 32, 0.42) 100%),
-                  url('hero-surya-jaya-sport.webp') right center / cover no-repeat, #080a0f !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
-    }
-    #viewCatalog .hero-feature-card {
-      background: rgba(20, 25, 38, 0.80) !important;
-      border-color: rgba(255, 255, 255, 0.14) !important;
-    }
-    #viewCatalog .hero-feature-card:hover { border-color: #facc15 !important; }
-    #viewCatalog .catalog-heading h2 { color: #ffffff !important; }
-    #viewCatalog .catalog-heading span { color: #94a3b8 !important; }
-    #viewCatalog .quick-cat-btn {
-      background: #141926 !important;
-      border-color: rgba(255, 255, 255, 0.12) !important;
-      color: #ffffff !important;
-    }
-    #viewCatalog .quick-cat-btn strong { color: #ffffff !important; }
-    #viewCatalog .quick-cat-btn span:not(.quick-cat-icon) { color: #94a3b8 !important; }
-    #viewCatalog .quick-cat-btn .quick-cat-icon { background: rgba(56, 189, 248, 0.15) !important; color: #38bdf8 !important; }
-    #viewCatalog .quick-cat-btn.is-active {
-      background: linear-gradient(135deg, #1b2438, #0f172a) !important;
-      border-color: #facc15 !important;
-    }
-    #viewCatalog .quick-cat-btn.is-active .quick-cat-icon { background: rgba(250, 204, 21, 0.2) !important; color: #facc15 !important; }
-    #viewCatalog .catalog-toolbar,
-    #viewCatalog .howto-card,
-    #viewCatalog .shop-location {
-      background: #141926 !important;
-      border-color: rgba(255, 255, 255, 0.12) !important;
-      color: #f8fafc !important;
-    }
-    #viewCatalog .howto-card h3, #viewCatalog .shop-location h2 { color: #ffffff !important; }
-    #viewCatalog .howto-card p, #viewCatalog .shop-location address { color: #94a3b8 !important; }
-    #viewCatalog .catalog-search-form input, #viewCatalog #catalogSort {
-      background: #0b0e16 !important;
-      border-color: rgba(255, 255, 255, 0.16) !important;
-      color: #ffffff !important;
-    }
-    #viewCatalog .catalog-categories label span {
-      background: #0b0e16 !important;
-      color: #cbd5e1 !important;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-    }
-    #viewCatalog .catalog-categories label input:checked + span {
-      background: linear-gradient(135deg, #facc15, #eab308) !important;
-      color: #090d16 !important;
-    }
-    #viewCatalog .catalog-card {
-      background: #141926 !important;
-      border-color: rgba(255, 255, 255, 0.12) !important;
-    }
-    #viewCatalog .catalog-card:hover { border-color: #facc15 !important; }
-    #viewCatalog .catalog-card-photo {
-      aspect-ratio: 1 / 1 !important;
-      background: #0b0e16 !important;
-      border-bottom-color: rgba(255, 255, 255, 0.08) !important;
-    }
-    #viewCatalog .catalog-card-body h3 { color: #ffffff !important; }
-    #viewCatalog .catalog-card-description { color: #94a3b8 !important; }
-    #viewCatalog .catalog-card-facts { border-top-color: rgba(255, 255, 255, 0.09) !important; }
-    #viewCatalog .catalog-card-price {
-      background: rgba(250, 204, 21, 0.14) !important;
-      color: #facc15 !important;
-      padding: .2rem .6rem;
-      border-radius: .65rem;
-      border: 1px solid rgba(250, 204, 21, 0.4);
-    }
-    #viewCatalog .catalog-stock {
-      background: rgba(16, 185, 129, 0.16) !important;
-      color: #6ee7b7 !important;
-    }
-    #viewCatalog .shop-button-secondary {
-      background: #1b2234 !important;
-      border-color: rgba(255, 255, 255, 0.16) !important;
-      color: #f1f5f9 !important;
-    }
-
+    #salesEntryCard button, #saleExtraDetails summary { min-height: 44px !important; }
+    #salesEntryCard :is([data-drop-hold], .btn-inline-minus, .btn-inline-plus, .btn-drawer-minus, .btn-drawer-plus, .btn-toggle-row-edit, .btn-remove-row) { min-width: 44px; }
+    #salesEntryCard :is(.item-inline-qty, .item-drawer-qty, .item-summary-title, .pos-fav-pro-name, .pay-option-btn) { font-size: 14px !important; }
+    #salesEntryCard :is(.pos-received-legend, .pos-fav-pro-price, .pos-hdr-badge, .pos-svc-chip, .f-warn, .f-info, .opt, #posCashChangeBox span) { font-size: 12px !important; }
+    #posDigitalPayment { background: #fffbeb; border-color: #d97706; color: #78350f; }
+    #posDigitalPayment.is-paid { background: #ecfdf5; border-color: #059669; color: #065f46; }
+    #posDigitalPayment[hidden], #btnConfirmFunds[hidden] { display: none !important; }
+    #btnConfirmFunds:disabled { opacity: .6; }
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -3184,7 +3103,7 @@
             <div class="flex flex-wrap items-center gap-1.5">
               <button type="button" id="btnToggleStaffPrivacy" aria-pressed="false" class="min-h-[32px] px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-amber-50 border border-slate-200 text-xs font-bold text-slate-700"><i class="fa-regular fa-eye-slash mr-1" aria-hidden="true"></i><span>Sembunyi Omzet</span></button>
               <button type="button" id="btnPosQuickClosing" class="min-h-[32px] px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-blue-50 border border-slate-200 text-xs font-bold text-slate-800"><i class="fa-solid fa-vault text-slate-700 mr-1" aria-hidden="true"></i>Tutup Kas</button>
-              <button type="button" id="btnPosShortcutHelp" class="hidden xl:inline-flex items-center gap-1 min-h-[32px] px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-[11.5px] font-semibold text-slate-600">F2 Scan · F3 Hold · Enter Cetak · F4 Simpan</button>
+              <button type="button" id="btnPosShortcutHelp" class="hidden xl:inline-flex items-center gap-1 min-h-[32px] px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-600">F2 Scan · F3 Hold · Enter Cetak · F4 Simpan</button>
             </div>
           </div>
 
@@ -3196,7 +3115,7 @@
               <div class="flex flex-wrap sm:flex-nowrap items-center gap-2.5">
                 <button type="button" id="btnOpenScanner" class="shrink-0 px-4 inline-flex items-center gap-2 text-xs sm:text-sm font-bold"><i class="fa-solid fa-qrcode text-base" aria-hidden="true"></i><span>Scan QR (F2)</span></button>
                 <div class="relative flex-1 min-w-[160px]">
-                  <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-base pointer-events-none" aria-hidden="true"></i>
+                  <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-600 text-base pointer-events-none" aria-hidden="true"></i>
                   <input type="search" id="posInstantSearch" placeholder="Cari nama, kode, barcode..." autocomplete="off" class="pos-shopify-search w-full">
                   <div id="posInstantDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 z-30 bg-white border border-slate-200 rounded-2xl shadow-xl max-h-64 overflow-y-auto divide-y divide-slate-100"></div>
                 </div>
@@ -3214,7 +3133,7 @@
                 <div class="flex items-center justify-between gap-2 pb-2 border-b border-slate-200">
                   <div class="flex items-center gap-2">
                     <h3 class="text-base font-bold uppercase tracking-wider text-slate-900">Keranjang Belanja</h3>
-                    <span id="posCartCountMeta" class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-[11px] font-bold">0 Item · 0 Pcs</span>
+                    <span id="posCartCountMeta" class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 text-xs font-bold">0 Item · 0 Pcs</span>
                   </div>
                   <button type="button" id="btnResetForm" title="Kosongkan keranjang" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-rose-50 text-slate-500 hover:text-rose-700 text-xs font-bold">Kosongkan</button>
                 </div>
@@ -3237,7 +3156,7 @@
                   <div class="flex items-center gap-2.5">
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Total</span>
                     <strong id="previewTotalOmset" class="text-base font-extrabold text-slate-900 tabular-nums">Rp 0</strong>
-                    <span id="previewSubtotalLine" class="text-[11px] font-medium text-slate-400 tabular-nums">Subtotal Rp 0</span>
+                    <span id="previewSubtotalLine" class="text-xs font-medium text-slate-600 tabular-nums">Subtotal Rp 0</span>
                   </div>
                   <button type="button" id="btnHoldSale" class="min-h-[36px] px-3 py-1.5 rounded-xl bg-white hover:bg-amber-50 border border-slate-300 hover:border-amber-400 text-slate-700 font-bold text-xs transition shrink-0"><span id="btnHoldSaleLabel">Tangguhkan (F3)</span></button>
                   <div class="hidden"><span id="previewTotalProfit">Rp 0</span></div>
@@ -3247,7 +3166,7 @@
                 <details id="saleExtraDetails" class="pt-2 border-t border-slate-100">
                   <summary class="text-xs font-bold text-slate-500 cursor-pointer flex items-center justify-between">
                     <span>Pelanggan, Diskon, Catatan &amp; Tanggal <span id="saleDateSummary" class="text-blue-800"></span></span>
-                    <span id="posCustomerStatusBadges" class="inline-flex items-center gap-1 text-[10px]"></span>
+                    <span id="posCustomerStatusBadges" class="inline-flex items-center gap-1 text-xs"></span>
                   </summary>
                   <div class="space-y-2.5 mt-3">
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
@@ -3264,7 +3183,7 @@
                         </div>
                       </div>
                     </div>
-                    <div id="posRecentCustomersBar" class="flex flex-wrap items-center gap-1 text-[11px]" hidden></div>
+                    <div id="posRecentCustomersBar" class="flex flex-wrap items-center gap-1 text-xs" hidden></div>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
                       <label class="text-xs font-bold text-slate-700">Catatan / Garansi <input type="text" id="inputSaleNote" maxlength="160" placeholder="Mis. Pasang 24 lbs" class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-2.5 py-1.5 !text-sm"></label>
                       <label class="text-xs font-bold text-slate-700">Tanggal <input type="date" id="inputDate" class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-2.5 py-1.5 !text-sm"></label>
@@ -3278,7 +3197,7 @@
               <div id="posRecentTxCard" class="bg-white rounded-2xl border border-slate-200 px-4 py-3 space-y-1.5">
                 <div class="flex items-center justify-between gap-2">
                   <h4 class="text-xs font-extrabold uppercase tracking-wider text-slate-600"><i class="fa-solid fa-clock-rotate-left text-blue-700 mr-1.5" aria-hidden="true"></i>Transaksi Terakhir Hari Ini</h4>
-                  <button type="button" id="btnPosOpenHistory" class="text-[11px] font-extrabold text-blue-700 hover:underline">Lihat semua →</button>
+                  <button type="button" id="btnPosOpenHistory" class="text-xs font-extrabold text-blue-700 hover:underline">Lihat semua →</button>
                 </div>
                 <div id="posRecentTxList" class="divide-y divide-slate-100 text-xs"></div>
               </div>
@@ -3289,8 +3208,8 @@
               <!-- 1. TOTAL BAYAR (KARTU KHUSUS NAVY DOMINAN) -->
               <div id="posTotalPayHeroBox" class="text-white shadow-sm !py-3 !px-4">
                 <div class="flex items-center justify-between gap-2">
-                  <span class="text-[11px] font-bold uppercase tracking-widest" style="color:#F5B700">Total Bayar</span>
-                  <span id="posTotalSubtotalHint" class="text-[11px] font-semibold text-blue-200 tabular-nums"></span>
+                  <span class="text-xs font-bold uppercase tracking-widest" style="color:#F5B700">Total Bayar</span>
+                  <span id="posTotalSubtotalHint" class="text-xs font-semibold text-blue-200 tabular-nums"></span>
                 </div>
                 <strong id="previewTotalOmsetRight" class="block text-3xl sm:text-4xl font-black text-white tabular-nums mt-0.5 leading-tight">Rp 0</strong>
               </div>
@@ -3307,7 +3226,7 @@
                   <div class="flex items-center gap-1.5">
                     <button type="button" data-pay="Split" aria-pressed="false" class="pay-option-btn min-h-[40px] px-3.5 rounded-xl border border-slate-200 bg-slate-50 font-bold text-slate-700 text-xs">Split</button>
                     <button type="button" data-pay="Bon" aria-pressed="false" class="pay-option-btn min-h-[40px] px-3.5 rounded-xl border border-slate-200 bg-slate-50 font-bold text-slate-700 text-xs">Bon</button>
-                    <span id="salePaymentTopBadge" class="hidden px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 text-[10px] font-extrabold">Tunai</span>
+                    <span id="salePaymentTopBadge" class="hidden px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 text-xs font-extrabold">Tunai</span>
                   </div>
                   <button type="button" id="btnShowQrisPay" class="min-h-[40px] px-3.5 rounded-xl bg-slate-100 hover:bg-blue-50 border border-slate-200 text-slate-800 font-bold text-xs inline-flex items-center gap-1.5"><i class="fa-solid fa-qrcode text-red-600 text-sm" aria-hidden="true"></i> Tampilkan QR</button>
                 </div>
@@ -3316,10 +3235,15 @@
                     <input type="number" id="inputSplitCash" min="0" step="1000" value="0" inputmode="numeric" class="mt-1 w-full rounded-xl border border-slate-300 bg-white px-2 py-1.5 font-extrabold tabular-nums">
                   </label>
                   <div class="rounded-xl bg-slate-50 border border-slate-200 px-2.5 py-1.5 flex flex-col justify-center">
-                    <span id="posSplitRemainLbl" class="text-[10px] font-bold text-slate-500 uppercase">Sisa QRIS/Transfer</span>
+                    <span id="posSplitRemainLbl" class="text-xs font-bold text-slate-500 uppercase">Sisa QRIS/Transfer</span>
                     <strong id="posSplitRemainVal" class="text-sm font-extrabold text-blue-900 tabular-nums">Rp 0</strong>
                   </div>
                 </div>
+              </div>
+
+              <div id="posDigitalPayment" class="rounded-xl border p-3 space-y-2" hidden>
+                <strong id="posDigitalStatus" role="status">Menunggu pembayaran</strong>
+                <button type="button" id="btnConfirmFunds" class="block w-full rounded-lg bg-white border border-slate-500 px-3 font-bold text-sm text-slate-900" disabled>Konfirmasi dana masuk</button>
               </div>
 
               <!-- 3. BLOK KHUSUS TUNAI (OTOMATIS DISEMBUNYIKAN SAAT QRIS/KARTU/TRANSFER/SPLIT/BON) -->
@@ -3329,7 +3253,7 @@
                   <span class="pos-received-legend">Uang Diterima</span>
                   <div class="flex items-center justify-center gap-1.5">
                     <input type="text" id="posCashReceivedInput" inputmode="numeric" autocomplete="off" placeholder="Rp 0" aria-label="Uang diterima" class="w-full bg-transparent border-0 focus:outline-none focus:ring-0 text-2xl sm:text-3xl font-extrabold text-center text-slate-950 tabular-nums p-0">
-                    <span id="posCashFeedbackPill" class="hidden shrink-0 px-2 py-0.5 rounded-full bg-amber-200 text-amber-950 text-[10px] font-extrabold"></span>
+                    <span id="posCashFeedbackPill" class="hidden shrink-0 px-2 py-0.5 rounded-full bg-amber-200 text-amber-950 text-xs font-extrabold"></span>
                   </div>
                   <strong id="posCashReceivedText" class="hidden">Rp 0</strong>
                 </div>
@@ -4308,6 +4232,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261126-28"></script>
+  <script type="module" src="./admin.js?v=20261127-kasir1"></script>
 </body>
 </html>

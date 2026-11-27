@@ -47,6 +47,7 @@
     let selectedDateStr = todayStr();
     let currentViewMode = "day";
     let selectedPaymentMethod = "Cash";
+    let fundsConfirmed = false;
     let saleFormSaving = false;
     let saleSaveInProgress = false;
     let deleteTargetId = null;
@@ -59,8 +60,9 @@
     let toastTimer = null;
     let adminUnsubscribers = [];
     let saleItemRowNumber = 0;
-    let activeWorkspace = "kasir";
     let pendingPosterBlob = null;
+      if (document.getElementById("invCropTop")) { document.getElementById("invCropTop").value = "0"; document.getElementById("invCropTopVal").textContent = "0%"; }
+      if (document.getElementById("invCropBottom")) { document.getElementById("invCropBottom").value = "0"; document.getElementById("invCropBottomVal").textContent = "0%"; }
     const catalogCart = new Map();
     const CART_KEY = "sjs-catalog-cart-v1";
     const salePaymentMethods = new Set(["Cash", "QRIS", "Kartu", "Transfer", "Split", "Bon"]);
@@ -219,7 +221,7 @@
       }
       const cat = typeof detectProductCategoryLabel === "function" ? detectProductCategoryLabel(item || {}) : { label: "Olahraga" };
       const shortName = esc(String(item?.name || "Surya Jaya Sport").slice(0, 34));
-      return `<div class="${extraClass} relative overflow-hidden flex flex-col items-center justify-center p-2.5 text-center text-white" style="background:radial-gradient(circle at 50% 35%, #1e2638 0%, #0b0e16 100%);border-bottom:2px solid #dc2626">
+      return `<div class="${extraClass} relative overflow-hidden flex flex-col items-center justify-center p-2.5 text-center text-white" style="background:linear-gradient(135deg,#0b2566 0%,#1d5fd6 62%,#38bdf8 100%)">
         <span class="px-2 py-0.5 rounded-full bg-white/90 text-slate-900 text-[9px] font-extrabold tracking-wide uppercase">${esc(cat.label)}</span>
         <span class="mt-1.5 font-extrabold text-xs leading-tight drop-shadow">${shortName}</span>
         ${item?.code ? `<span class="mt-1 font-mono text-[9px] text-amber-300 font-bold">${esc(item.code)}</span>` : ""}
@@ -320,80 +322,134 @@
       const ctx = c.getContext("2d");
       const withTouch = opts.withTouch !== false;
 
-      // Choose brand accent color (Crimson Red for badminton/general, Sky Blue for socks/apparel/futsal)
-      const catKey = typeof detectProductCategoryLabel === "function" ? detectProductCategoryLabel(itemMeta || {}).key : "sport";
-      const accentHex = (catKey === "ball" || catKey === "sport") ? "#0ea5e9" : "#dc2626";
-      const accentGlow = (catKey === "ball" || catKey === "sport") ? "rgba(14, 165, 233, 0.24)" : "rgba(220, 38, 38, 0.24)";
-
-      // 1. Dark charcoal studio background with overhead spotlight & floor reflection
-      const bg = ctx.createRadialGradient(400, 260, 40, 400, 420, 620);
-      bg.addColorStop(0, "#232733");
-      bg.addColorStop(0.55, "#12151d");
-      bg.addColorStop(1, "#08090d");
+      // 1. Vibrant stadium-sky studio background
+      const bg = ctx.createLinearGradient(0, 0, 0, 800);
+      bg.addColorStop(0, "#0b3ba8");
+      bg.addColorStop(0.28, "#2563eb");
+      bg.addColorStop(0.58, "#dbeafe");
+      bg.addColorStop(0.76, "#f8fafc");
+      bg.addColorStop(1, "#cbd5e1");
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, 800, 800);
 
-      // Subtle studio floor horizon & spotlight pool
-      const floorGrad = ctx.createLinearGradient(0, 560, 0, 800);
-      floorGrad.addColorStop(0, "rgba(255,255,255,0.03)");
-      floorGrad.addColorStop(0.35, "rgba(255,255,255,0.07)");
-      floorGrad.addColorStop(1, "#06070a");
-      ctx.fillStyle = floorGrad;
-      ctx.fillRect(0, 560, 800, 240);
+      // Stadium bokeh lights along upper arena
+      if (withTouch) {
+        const lights = [[80, 215, 42], [175, 228, 34], [320, 225, 28], [670, 220, 38], [745, 232, 30], [580, 200, 22]];
+        for (const [lx, ly, lr] of lights) {
+          const lg = ctx.createRadialGradient(lx, ly, 2, lx, ly, lr);
+          lg.addColorStop(0, "rgba(255,255,255,0.92)");
+          lg.addColorStop(0.45, "rgba(186,230,253,0.45)");
+          lg.addColorStop(1, "rgba(255,255,255,0)");
+          ctx.fillStyle = lg;
+          ctx.beginPath(); ctx.arc(lx, ly, lr, 0, Math.PI * 2); ctx.fill();
+        }
+      }
 
-      // Outer rounded neon/metallic border frame matching reference posters
-      drawRoundedRect(ctx, 16, 16, 768, 768, 28);
-      ctx.lineWidth = 2.5;
-      ctx.strokeStyle = accentHex;
-      ctx.stroke();
-
-      // Contact shadow under product
-      const shadow = ctx.createRadialGradient(410, 650, 20, 410, 650, 210);
-      shadow.addColorStop(0, "rgba(0, 0, 0, 0.85)");
-      shadow.addColorStop(0.6, "rgba(0, 0, 0, 0.35)");
-      shadow.addColorStop(1, "rgba(0, 0, 0, 0)");
-      ctx.fillStyle = shadow;
+      // Glossy floor shadow ellipse under product
+      const floorY = withTouch ? 612 : 665;
+      const floor = ctx.createRadialGradient(400, floorY, 25, 400, floorY, 320);
+      floor.addColorStop(0, "rgba(15, 23, 42, 0.22)");
+      floor.addColorStop(0.65, "rgba(30, 58, 138, 0.08)");
+      floor.addColorStop(1, "rgba(30, 58, 138, 0)");
+      ctx.fillStyle = floor;
       ctx.beginPath();
-      ctx.ellipse(410, 650, 210, 26, 0, 0, Math.PI * 2);
+      ctx.ellipse(400, floorY, 320, 40, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // 2. Top-left Surya Jaya Sport dark header branding (icon | divider | white title + gold swoosh)
+      // 2. Top-left signature wave: royal blue + yellow accent + white wave
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(0, 0); ctx.lineTo(435, 0);
+      ctx.bezierCurveTo(360, 115, 200, 195, 0, 235);
+      ctx.closePath();
+      const blueWave = ctx.createLinearGradient(0, 0, 435, 220);
+      blueWave.addColorStop(0, "#1d4ed8");
+      blueWave.addColorStop(1, "#2563eb");
+      ctx.fillStyle = blueWave;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(355, 0); ctx.lineTo(410, 0);
+      ctx.bezierCurveTo(345, 95, 235, 165, 105, 198);
+      ctx.lineTo(80, 185);
+      ctx.bezierCurveTo(210, 150, 310, 85, 355, 0);
+      ctx.closePath();
+      ctx.fillStyle = "#facc15";
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(0, 0); ctx.lineTo(372, 0);
+      ctx.bezierCurveTo(315, 98, 185, 175, 0, 198);
+      ctx.closePath();
+      ctx.fillStyle = "#ffffff";
+      ctx.fill();
+      ctx.restore();
+
+      // Brand mark (uses real sjs-mark.png from same origin, with vector fallback)
       let drewMark = false;
       try {
         const markImg = await loadImageCors("sjs-mark.png");
-        ctx.drawImage(markImg, 36, 32, 54, 62);
+        ctx.drawImage(markImg, 18, 22, 74, 88);
         drewMark = true;
       } catch {}
       if (!drewMark) {
         ctx.save();
         ctx.fillStyle = "#1d4ed8";
-        ctx.beginPath(); ctx.arc(64, 46, 8, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = "#1d4ed8"; ctx.lineWidth = 6; ctx.lineCap = "round";
-        ctx.beginPath(); ctx.moveTo(42, 88); ctx.quadraticCurveTo(74, 70, 62, 54); ctx.stroke();
-        ctx.strokeStyle = "#dc2626"; ctx.lineWidth = 5;
-        ctx.beginPath(); ctx.moveTo(38, 58); ctx.quadraticCurveTo(54, 55, 60, 64); ctx.stroke();
+        ctx.beginPath(); ctx.arc(64, 44, 11, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = "#1d4ed8"; ctx.lineWidth = 8; ctx.lineCap = "round";
+        ctx.beginPath(); ctx.moveTo(28, 116); ctx.quadraticCurveTo(78, 86, 62, 58); ctx.stroke();
+        ctx.strokeStyle = "#dc2626"; ctx.lineWidth = 6.5;
+        ctx.beginPath(); ctx.moveTo(24, 64); ctx.quadraticCurveTo(48, 60, 56, 72); ctx.stroke();
         ctx.restore();
       }
-      ctx.strokeStyle = "rgba(255,255,255,0.28)";
-      ctx.lineWidth = 1.5;
-      ctx.beginPath(); ctx.moveTo(104, 34); ctx.lineTo(104, 92); ctx.stroke();
-
       ctx.save();
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "italic 800 22px Arial, sans-serif";
-      ctx.fillText("SURYA JAYA SPORT", 118, 58);
-      ctx.fillStyle = "#cbd5e1";
-      ctx.font = "italic 600 14px Arial, sans-serif";
-      ctx.fillText("Sport for a Better Life", 136, 80);
-      // Gold accent wedge next to tagline
-      ctx.fillStyle = "#facc15";
-      ctx.beginPath();
-      ctx.moveTo(278, 72); ctx.lineTo(318, 74); ctx.lineTo(274, 83);
-      ctx.closePath();
-      ctx.fill();
+      ctx.font = "italic 900 33px Arial, sans-serif";
+      ctx.fillStyle = "#1d4ed8";
+      ctx.fillText("SURYA JAYA", 98, 66);
+      ctx.font = "italic 900 33px Arial, sans-serif";
+      ctx.fillStyle = "#dc2626";
+      ctx.fillText("SPORT", 142, 102);
+      ctx.font = "italic 700 15.5px Arial, sans-serif";
+      ctx.fillStyle = "#1e40af";
+      ctx.fillText("Sport for a Better Life", 84, 130);
       ctx.restore();
 
-      // 3. Center product cutout
+      // 3. Top-right slanted crimson banner (Grip Biasa style) + yellow underline
+      const rawName = String(itemMeta?.name || "Produk").trim();
+      ctx.save();
+      ctx.translate(580, 96);
+      ctx.rotate(-0.045);
+      drawRoundedRect(ctx, -190, -36, 380, 74, 24);
+      const rGrad = ctx.createLinearGradient(-190, -36, 190, 38);
+      rGrad.addColorStop(0, "#b91c1c");
+      rGrad.addColorStop(0.5, "#dc2626");
+      rGrad.addColorStop(1, "#991b1b");
+      ctx.fillStyle = rGrad;
+      ctx.shadowColor = "rgba(15,23,42,0.34)";
+      ctx.shadowBlur = 14;
+      ctx.shadowOffsetY = 5;
+      ctx.fill();
+      ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = "#ffffff";
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(-145, 50);
+      ctx.quadraticCurveTo(0, 38, 150, 48);
+      ctx.lineWidth = 5;
+      ctx.strokeStyle = "#facc15";
+      ctx.stroke();
+
+      ctx.textAlign = "center";
+      ctx.fillStyle = "#ffffff";
+      const bannerText = rawName.slice(0, 24);
+      const bFont = bannerText.length > 18 ? 28 : (bannerText.length > 13 ? 35 : 44);
+      ctx.font = `italic 900 ${bFont}px Arial, sans-serif`;
+      ctx.fillText(bannerText, 0, Math.round(bFont * 0.34));
+      ctx.restore();
+
+      // 4. Center product photo (cutout floating or framed)
       let photoImg = null;
       if (sourceFileOrUrl instanceof Blob) {
         photoImg = await createImageBitmap(sourceFileOrUrl);
@@ -401,36 +457,68 @@
         try { photoImg = await loadImageCors(sourceFileOrUrl); } catch {}
       }
 
-      const rawName = String(itemMeta?.name || "Produk Olahraga").trim();
-      let cutCanvas = null;
       if (photoImg) {
         const removeWhite = opts.removeWhiteBg !== false;
         const cropTop = Number(opts.cropTopPct || 0);
         const cropBottom = Number(opts.cropBottomPct || 0);
-        const centerX = withTouch ? 415 : 400;
-        const centerY = 475;
-        const maxW = withTouch ? 330 : 480;
-        const maxH = 350;
+        const centerY = withTouch ? 452 : 462;
+        const maxH = withTouch ? 365 : 445;
 
         if (removeWhite) {
-          cutCanvas = cutoutWhiteBg(photoImg, cropTop, cropBottom);
-          const sc = Math.min(maxW / cutCanvas.width, maxH / cutCanvas.height);
-          const dw = Math.round(cutCanvas.width * sc), dh = Math.round(cutCanvas.height * sc);
-          const dx = Math.round(centerX - dw / 2), dy = Math.round(centerY - dh / 2);
+          const cut = cutoutWhiteBg(photoImg, cropTop, cropBottom);
+          const maxW = 680;
+          const sc = Math.min(maxW / cut.width, maxH / cut.height);
+          const dw = Math.round(cut.width * sc), dh = Math.round(cut.height * sc);
+          const dx = Math.round(400 - dw / 2), dy = Math.round(centerY - dh / 2);
           ctx.save();
-          ctx.shadowColor = "rgba(0, 0, 0, 0.72)";
-          ctx.shadowBlur = 28;
-          ctx.shadowOffsetY = 18;
-          ctx.drawImage(cutCanvas, dx, dy, dw, dh);
+          ctx.shadowColor = "rgba(15, 23, 42, 0.30)";
+          ctx.shadowBlur = 22;
+          ctx.shadowOffsetY = 14;
+          ctx.drawImage(cut, dx, dy, dw, dh);
           ctx.restore();
+
+          // 5. Zoom-in detail callout circle + pointer line (Grip Biasa style)
+          if (withTouch && cut.width >= 60 && cut.height >= 60) {
+            const zoomCx = 582, zoomCy = 258, zoomR = 72;
+            const srcPtX = dx + Math.round(dw * 0.32), srcPtY = dy + Math.round(dh * 0.28);
+            ctx.save();
+            ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(srcPtX, srcPtY); ctx.lineTo(srcPtX + 48, zoomCy); ctx.lineTo(zoomCx - zoomR, zoomCy); ctx.stroke();
+            ctx.strokeStyle = "#1d4ed8"; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(srcPtX, srcPtY); ctx.lineTo(srcPtX + 48, zoomCy); ctx.lineTo(zoomCx - zoomR, zoomCy); ctx.stroke();
+            ctx.fillStyle = "#1d4ed8"; ctx.beginPath(); ctx.arc(srcPtX, srcPtY, 7, 0, Math.PI * 2); ctx.fill();
+            ctx.lineWidth = 3; ctx.strokeStyle = "#ffffff"; ctx.stroke();
+
+            ctx.save();
+            ctx.beginPath(); ctx.arc(zoomCx, zoomCy, zoomR, 0, Math.PI * 2); ctx.clip();
+            ctx.fillStyle = "#ffffff"; ctx.fillRect(zoomCx - zoomR, zoomCy - zoomR, zoomR * 2, zoomR * 2);
+            const cropSide = Math.min(cut.width, cut.height) * 0.44;
+            ctx.drawImage(cut, Math.max(0, cut.width * 0.12), Math.max(0, cut.height * 0.08), cropSide, cropSide, zoomCx - zoomR, zoomCy - zoomR, zoomR * 2, zoomR * 2);
+            ctx.restore();
+
+            ctx.beginPath(); ctx.arc(zoomCx, zoomCy, zoomR, 0, Math.PI * 2);
+            ctx.lineWidth = 6; ctx.strokeStyle = "#facc15"; ctx.stroke();
+            ctx.beginPath(); ctx.arc(zoomCx, zoomCy, zoomR + 4, 0, Math.PI * 2);
+            ctx.lineWidth = 2.5; ctx.strokeStyle = "#ffffff"; ctx.stroke();
+            ctx.restore();
+          }
         } else {
           const iw = photoImg.width || photoImg.naturalWidth || 1;
           const ih = photoImg.height || photoImg.naturalHeight || 1;
+          const maxW = 500;
           const sc = Math.min(maxW / iw, maxH / ih);
           const dw = Math.round(iw * sc), dh = Math.round(ih * sc);
-          const dx = Math.round(centerX - dw / 2), dy = Math.round(centerY - dh / 2);
+          const dx = Math.round(400 - dw / 2), dy = Math.round(centerY - dh / 2);
           ctx.save();
-          drawRoundedRect(ctx, dx, dy, dw, dh, 20);
+          drawRoundedRect(ctx, dx - 12, dy - 12, dw + 24, dh + 24, 26);
+          ctx.fillStyle = "#ffffff";
+          ctx.shadowColor = "rgba(15, 23, 42, 0.2)";
+          ctx.shadowBlur = 26;
+          ctx.shadowOffsetY = 12;
+          ctx.fill();
+          ctx.restore();
+          ctx.save();
+          drawRoundedRect(ctx, dx, dy, dw, dh, 18);
           ctx.clip();
           ctx.drawImage(photoImg, dx, dy, dw, dh);
           ctx.restore();
@@ -438,98 +526,89 @@
         photoImg.close?.();
       } else {
         ctx.save();
-        drawRoundedRect(ctx, 250, 310, 320, 320, 24);
-        ctx.fillStyle = "rgba(255,255,255,0.06)";
-        ctx.fill();
-        ctx.strokeStyle = "rgba(255,255,255,0.16)";
-        ctx.lineWidth = 2;
-        ctx.stroke();
+        drawRoundedRect(ctx, 185, 245, 430, 380, 28);
         ctx.fillStyle = "#ffffff";
-        ctx.font = "800 28px Arial, sans-serif";
-        ctx.textAlign = "center";
-        wrapText(ctx, rawName, 410, 455, 280, 36, 3);
-        ctx.textAlign = "left";
+        ctx.shadowColor = "rgba(15, 23, 42, 0.18)";
+        ctx.shadowBlur = 24;
+        ctx.shadowOffsetY = 10;
+        ctx.fill();
         ctx.restore();
+        ctx.fillStyle = "#1e3a8a";
+        ctx.font = "900 34px Arial, sans-serif";
+        ctx.textAlign = "center";
+        wrapText(ctx, rawName, 400, 400, 360, 44, 3);
+        ctx.fillStyle = "#047857";
+        ctx.font = "900 30px Arial, sans-serif";
+        if (Number(itemMeta?.price) > 0) ctx.fillText(rp(itemMeta.price), 400, 550);
+        ctx.textAlign = "left";
       }
 
-      // 4. Left-side stacked product title (White line 1 + Colored bold line 2 + accent bar) & 3 clean outline feature rows
-      const words = rawName.split(/\s+/).filter(Boolean);
-      const line1 = words.length > 2 ? words.slice(0, 2).join(" ") : (words[0] || "Produk");
-      const line2 = words.length > 2 ? words.slice(2).join(" ") : (words.slice(1).join(" ") || (itemMeta?.code || "SJS"));
-
-      ctx.save();
-      ctx.textAlign = "left";
-      ctx.fillStyle = "#ffffff";
-      ctx.font = "600 28px Arial, sans-serif";
-      ctx.fillText(line1.slice(0, 20), 38, 445);
-
-      ctx.fillStyle = accentHex;
-      const l2Text = line2.slice(0, 20);
-      ctx.font = l2Text.length > 15 ? "800 26px Arial, sans-serif" : "800 31px Arial, sans-serif";
-      ctx.fillText(l2Text, 38, 480);
-
-      // Accent underline bar
-      drawRoundedRect(ctx, 38, 494, 54, 4, 2);
-      ctx.fillStyle = accentHex;
-      ctx.fill();
-
-      // 3 minimal white-outline icon rows on bottom-left
-      const badges = categoryFeatureBadges(itemMeta);
-      badges.forEach(([ico, l1, l2], idx) => {
-        const ry = 532 + idx * 54;
-        ctx.strokeStyle = "rgba(255,255,255,0.75)";
-        ctx.lineWidth = 1.8;
-        ctx.beginPath();
-        ctx.arc(54, ry + 12, 16, 0, Math.PI * 2);
-        ctx.stroke();
-
-        ctx.fillStyle = "#ffffff";
-        ctx.font = "700 14px Arial, sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText(ico, 54, ry + 17);
-
-        ctx.textAlign = "left";
-        ctx.fillStyle = "#f1f5f9";
-        ctx.font = "500 17px Arial, sans-serif";
-        ctx.fillText(`${l1} ${l2}`.trim(), 84, ry + 18);
-      });
-      ctx.restore();
-
-      // 5. Right-side 3 rounded-square detail callout boxes (matching reference layout)
-      if (withTouch && cutCanvas && cutCanvas.width >= 40 && cutCanvas.height >= 40) {
-        const boxSize = 136, boxX = 626;
-        const crops = [
-          [0.15, 0.05, 0.55],
-          [0.20, 0.32, 0.55],
-          [0.25, 0.52, 0.50]
-        ];
-        crops.forEach(([rx, ry, rFrac], idx) => {
-          const by = 166 + idx * 154;
-          ctx.save();
-          drawRoundedRect(ctx, boxX, by, boxSize, boxSize, 20);
-          ctx.fillStyle = "#161a24";
+      // 6. Three bottom feature badges (Grip Biasa style)
+      if (withTouch) {
+        const badges = categoryFeatureBadges(itemMeta);
+        const pillW = 228, pillH = 62, gap = 22, startX = 36, pillY = 666;
+        badges.forEach(([ico, l1, l2], idx) => {
+          const px = startX + idx * (pillW + gap);
+          drawRoundedRect(ctx, px + 18, pillY + 4, pillW - 18, pillH - 8, 27);
+          const pGrad = ctx.createLinearGradient(px, pillY, px, pillY + pillH);
+          pGrad.addColorStop(0, "#1e3a8a");
+          pGrad.addColorStop(1, "#0f172a");
+          ctx.fillStyle = pGrad;
+          ctx.shadowColor = "rgba(15,23,42,0.28)";
+          ctx.shadowBlur = 10;
+          ctx.shadowOffsetY = 4;
           ctx.fill();
-          ctx.clip();
-
-          // Subtle tinted radial glow inside detail box
-          const cg = ctx.createRadialGradient(boxX + boxSize / 2, by + boxSize / 2, 10, boxX + boxSize / 2, by + boxSize / 2, boxSize);
-          cg.addColorStop(0, accentGlow);
-          cg.addColorStop(1, "rgba(10,12,18,0.95)");
-          ctx.fillStyle = cg;
-          ctx.fillRect(boxX, by, boxSize, boxSize);
-
-          const side = Math.min(cutCanvas.width, cutCanvas.height) * rFrac;
-          const sx = Math.max(0, Math.min(cutCanvas.width - side, cutCanvas.width * rx));
-          const sy = Math.max(0, Math.min(cutCanvas.height - side, cutCanvas.height * ry));
-          ctx.drawImage(cutCanvas, sx, sy, side, side, boxX + 8, by + 8, boxSize - 16, boxSize - 16);
-          ctx.restore();
-
-          drawRoundedRect(ctx, boxX, by, boxSize, boxSize, 20);
-          ctx.lineWidth = 2;
-          ctx.strokeStyle = accentHex;
+          ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = "#ffffff";
           ctx.stroke();
+
+          ctx.beginPath();
+          ctx.arc(px + 32, pillY + pillH / 2, 27, 0, Math.PI * 2);
+          ctx.fillStyle = "#facc15";
+          ctx.fill();
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = "#ffffff";
+          ctx.stroke();
+          ctx.fillStyle = "#0f172a";
+          ctx.font = "900 22px Arial, sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText(ico, px + 32, pillY + pillH / 2 + 8);
+
+          ctx.textAlign = "left";
+          ctx.fillStyle = "#ffffff";
+          ctx.font = "italic 800 18px Arial, sans-serif";
+          ctx.fillText(l1, px + 68, pillY + 28);
+          ctx.fillText(l2, px + 68, pillY + 49);
         });
       }
+
+      // 7. Bottom blue & red curved swoosh ribbons
+      ctx.beginPath();
+      ctx.moveTo(0, 752);
+      ctx.quadraticCurveTo(250, 796, 580, 784);
+      ctx.lineTo(800, 768);
+      ctx.lineTo(800, 800);
+      ctx.lineTo(0, 800);
+      ctx.closePath();
+      ctx.fillStyle = "#1d4ed8";
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(220, 800);
+      ctx.quadraticCurveTo(540, 786, 800, 744);
+      ctx.lineTo(800, 774);
+      ctx.quadraticCurveTo(560, 802, 300, 800);
+      ctx.closePath();
+      ctx.fillStyle = "#dc2626";
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.moveTo(220, 797);
+      ctx.quadraticCurveTo(540, 783, 800, 741);
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = "#ffffff";
+      ctx.stroke();
 
       return c;
     }
@@ -596,13 +675,14 @@
         prodPart
           ? `Use the exact product from the first reference image: cleanly isolate the product with NO white box, NO supplier/marketplace watermarks or logos, and NO extra supplier text. Re-light it with crisp 3D studio lighting and realistic soft glossy floor reflection.`
           : `Create a crisp, realistic 3D studio product illustration of "${name}" centered on a glossy reflective floor.`,
-        `Exact visual layout to match our dark studio catalog style:`,
-        `1) Background & Frame: sleek dark charcoal/black athletic studio background with subtle overhead spotlight, reflective dark studio floor, and a thin rounded border frame in crimson red or electric blue.`,
-        `2) Top-left corner: Surya Jaya Sport logo mark on the left, thin vertical white divider line, italic white bold "SURYA JAYA SPORT", italic light-gray "Sport for a Better Life" with a small gold accent wedge.`,
-        `3) Center hero: crisp 3D studio-lit product isolated cleanly on the dark studio floor with realistic contact shadow (no white box, no supplier watermarks).`,
-        `4) Left side (lower-mid): stacked product title (clean white top line + bold crimson-red or electric-blue second line + short accent bar), followed by 3 clean white-outline minimalist circular icons with white Indonesian feature labels.`,
-        `5) Right side: 3 vertically stacked rounded-square macro detail zoom boxes with thin colored borders showing close-up textures/details of the product.`,
-        `6) Output ONLY a crisp, clean, spelling-accurate 1:1 square dark-studio poster image.`
+        `Exact visual layout to match our catalog style:`,
+        `1) Top-left corner: curved white wave with a vibrant yellow and royal-blue swoosh border containing the Surya Jaya Sport logo mark (from the second reference image if provided), bold italic blue "SURYA JAYA", bold italic red "SPORT", and small blue italic "Sport for a Better Life".`,
+        `2) Top-right corner: dynamic slightly slanted bold crimson-red capsule banner with crisp white border and subtle yellow underline showing the product title "${name}" in bold white italic lettering (or stacked bold navy outlined text + red capsule for long names).`,
+        `3) Background: vibrant sky-blue athletic stadium/arena studio background with soft glowing bokeh stadium lights at upper mid-height and a bright clean light-blue reflective floor below.`,
+        `4) Right-side upper detail callout: a circular yellow-and-white-bordered zoom-in detail loupe with a thin white-and-blue pointer line pointing to the product's key texture/detail.`,
+        `5) Bottom row (above the bottom stripe): three clean horizontal dark-navy capsule pills with white borders, each with a yellow circular custom icon on the left and short 2-line white italic Indonesian benefit text specific to "${name}" (no prices, no phone numbers).`,
+        `6) Very bottom edge: sleek curved royal-blue and crimson-red swoosh accent ribbons.`,
+        `Output ONLY a crisp, clean, spelling-accurate 1:1 square poster image.`
       ].join(" ");
       parts.push({ text: prompt });
 
@@ -737,15 +817,19 @@
           tx.set(invRef, patch, { merge: true });
           if (published.exists()) tx.set(publicRef, publicProductData(patch));
         });
-        // Simpan varian tambahan (jika ada, khusus mode Tambah barang baru)
+        // Simpan varian tambahan (jika ada), baik saat Tambah barang baru maupun Ubah barang
         let savedVariants = 0;
-        if (!editId) {
+        {
+          const vctx = editId ? variantCodeContext() : null;
+          const vBase = editId ? vctx.base : code;
+          const vOffset = editId ? vctx.offset : 0;
+          const groupId = editId ? vctx.groupId : itemId;
           const vRows = [...document.querySelectorAll("#invVariantsList .inv-variant-row")];
           const usedCodes = new Set(inventory.map(i => String(i.code || "").trim().toLowerCase()));
           usedCodes.add(code.toLowerCase());
           const allocCode = (idx) => {
-            const suffix = idx < 26 ? String.fromCharCode(65 + idx) : String(idx + 1);
-            let cand = `${code}-${suffix}`;
+            const suffix = variantSuffix(idx + vOffset);
+            let cand = `${vBase}-${suffix}`;
             let seq = 2;
             while (usedCodes.has(cand.toLowerCase())) { cand = `${code}-${suffix}${seq++}`; }
             usedCodes.add(cand.toLowerCase());
@@ -753,7 +837,7 @@
           };
           const validVarRows = vRows.filter(vr => (vr.querySelector(".var-size")?.value.trim() || vr.querySelector(".var-color")?.value.trim()));
           if (validVarRows.length > 0) {
-            await setDoc(doc(db, ...paths("inventory", itemId)), { variantGroup: itemId }, { merge: true });
+            await setDoc(doc(db, ...paths("inventory", groupId)), { variantGroup: groupId }, { merge: true });
           }
           for (let vi = 0; vi < validVarRows.length; vi++) {
             const vr = validVarRows[vi];
@@ -782,7 +866,7 @@
               description: autoDesc,
               imageUrl: vImgUrl,
               imagePath: vImgPath,
-              variantGroup: itemId,
+              variantGroup: groupId,
               updatedAt: new Date().toISOString()
             };
             await setDoc(doc(db, ...paths("inventory", vId)), vData, { merge: true });
@@ -843,11 +927,25 @@
       a.download = `label-${itemObj.code || "SJS"}.png`;
       a.click();
     }
+    function variantSuffix(n) { return n < 26 ? String.fromCharCode(65 + n) : String(n + 1); }
+    // Kode dasar, nomor lanjutan, dan grup untuk varian baru (mode tambah maupun ubah barang)
+    function variantCodeContext() {
+      const editId = document.getElementById("editInvId")?.value || "";
+      const typed = document.getElementById("invCode")?.value.trim() || "";
+      if (!editId) return { base: typed || nextAutoCode(), offset: 0, groupId: "" };
+      const cur = inventory.find(i => i.id === editId);
+      const groupId = cur?.variantGroup || editId;
+      const main = inventory.find(i => i.id === groupId);
+      const base = String(main?.code || typed || cur?.code || "").trim() || nextAutoCode();
+      const offset = inventory.filter(i => i.variantGroup === groupId && i.id !== groupId).length;
+      return { base, offset, groupId };
+    }
     function updateInvVariantCodes() {
-      const base = document.getElementById("invCode")?.value.trim() || nextAutoCode();
+      const vctx = variantCodeContext();
+      const base = vctx.base;
       const rows = [...document.querySelectorAll("#invVariantsList .inv-variant-row")];
       rows.forEach((row, idx) => {
-        const suffix = idx < 26 ? String.fromCharCode(65 + idx) : String(idx + 1);
+        const suffix = variantSuffix(idx + vctx.offset);
         const vCode = `${base}-${suffix}`;
         row.dataset.varCode = vCode;
         const badge = row.querySelector(".var-code-badge");
@@ -862,7 +960,7 @@
       if (hintEl) hintEl.textContent = nextAutoCode();
       if (txtEl) txtEl.textContent = code;
       const exEl = document.getElementById("invVariantExampleCode");
-      if (exEl) exEl.textContent = `${code}-A`;
+      if (exEl) { const vc = variantCodeContext(); exEl.textContent = `${vc.base}-${variantSuffix(vc.offset)}`; }
       updateInvVariantCodes();
       if (!box) return;
       try {
@@ -1037,6 +1135,7 @@
       if (vSec) vSec.hidden = false;
       const vList = document.getElementById("invVariantsList");
       if (vList) vList.innerHTML = "";
+      document.getElementById("invExistingVariants")?.remove();
       refreshInvOptionDatalists();
       setInvFieldError("invName", "invErrName", false);
       setInvFieldError("invStock", "invErrStock", false);
@@ -1044,6 +1143,46 @@
       updateInvQrPreview();
       updateInvProfitPreview();
       updateInvVariantSummary();
+    }
+    function renderExistingVariants(item) {
+      document.getElementById("invExistingVariants")?.remove();
+      const vSec = document.getElementById("invVariantsSection");
+      if (!vSec || !isAdmin) return;
+      const groupId = item.variantGroup || item.id;
+      const sibs = activeInventory().filter(i => i.id !== item.id && (i.variantGroup === groupId || i.id === groupId));
+      if (!sibs.length) return;
+      const box = document.createElement("section");
+      box.id = "invExistingVariants";
+      box.className = "rounded-2xl border border-slate-200 bg-white p-3.5 shadow-2xs space-y-2.5";
+      const head = document.createElement("h3");
+      head.className = "text-xs font-extrabold uppercase tracking-wider text-slate-500";
+      const list = document.createElement("div");
+      list.className = "space-y-2";
+      const setHead = () => { head.textContent = `Varian lain dari barang ini (${list.children.length})`; };
+      sibs.forEach(v => {
+        const label = [v.size, v.color].filter(Boolean).join(" / ") || "Tanpa ukuran/warna";
+        const row = document.createElement("div");
+        row.className = "flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2.5";
+        row.innerHTML = `<div class="min-w-0 flex-1"><div class="text-sm font-bold text-slate-800 truncate">${esc(v.name || "")} · ${esc(label)}</div><div class="text-xs text-slate-600">Kode ${esc(v.code || "-")} · Stok ${Number(v.stock) || 0} pcs</div></div><button type="button" class="h-10 px-3 rounded-lg bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 text-xs font-bold">Hapus varian</button>`;
+        row.querySelector("button").addEventListener("click", async ev => {
+          const btn = ev.currentTarget;
+          const stokTxt = Number(v.stock) > 0 ? ` Sisa stok ${Number(v.stock)} pcs tidak akan bisa dijual dari kasir.` : "";
+          if (!(await sjsConfirm(`Hapus varian "${label}"? Varian akan diarsipkan (hilang dari kasir dan katalog, riwayat penjualan tetap aman) dan bisa dipulihkan lewat filter Diarsipkan.${stokTxt}`, "Hapus Varian"))) return;
+          btn.disabled = true;
+          try {
+            await archiveOrRestore(v.id, true);
+            row.remove();
+            if (!list.children.length) box.remove(); else setHead();
+          } catch (err) {
+            btn.disabled = false;
+            showToast("Gagal menghapus varian: " + (err && err.message ? err.message : err));
+          }
+        });
+        list.appendChild(row);
+      });
+      setHead();
+      box.append(head, list);
+      vSec.parentNode.insertBefore(box, vSec);
     }
     function editInventoryItem(id) {
       if (!isAdmin) return;
@@ -1064,7 +1203,8 @@
       document.getElementById("btnSaveInvText").textContent = "Simpan perubahan";
       document.getElementById("inventoryEntryTitle").textContent = "Ubah barang";
       const vSec = document.getElementById("invVariantsSection");
-      if (vSec) vSec.hidden = true;
+      if (vSec) vSec.hidden = false;
+      renderExistingVariants(item);
       updateInvQrPreview();
       updateInvProfitPreview();
       updateInvVariantSummary();
@@ -1234,18 +1374,18 @@
               <p class="item-summary-title font-bold text-sm text-slate-900 truncate">${esc(cleanDisplayItemName(prefillLabel || "Barang baru"))}</p>
             </div>
             <div class="flex items-center gap-1 shrink-0">
-              <button type="button" class="btn-toggle-row-edit w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 inline-flex items-center justify-center transition" title="Ubah harga, satuan, atau catatan"><i class="fa-solid fa-pen text-[11px]" aria-hidden="true"></i></button>
+              <button type="button" class="btn-toggle-row-edit w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 inline-flex items-center justify-center transition" title="Ubah harga, satuan, atau catatan"><i class="fa-solid fa-pen text-xs" aria-hidden="true"></i></button>
               <button type="button" class="btn-remove-row w-8 h-8 rounded-lg bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-500 hover:text-red-600 inline-flex items-center justify-center transition" title="Hapus barang"><i class="fa-regular fa-trash-can text-xs" aria-hidden="true"></i></button>
             </div>
           </div>
           <div class="flex items-center justify-between gap-2 pt-0.5">
             <div class="min-w-0 leading-snug">
               <p class="item-summary-sub text-xs font-medium text-slate-500 tabular-nums">1x @ ${rp(prefill?.price || 0)}</p>
-              <span class="item-mode-badge block text-[11px] font-semibold mt-0.5 ${prefill?.id ? "text-emerald-700" : "text-amber-700"}">${prefill?.id ? `Stok ${Number(prefill.stock || 0)}` : "Di luar stok"}</span>
+              <span class="item-mode-badge block text-xs font-semibold mt-0.5 ${prefill?.id ? "text-emerald-700" : "text-amber-700"}">${prefill?.id ? `Stok ${Number(prefill.stock || 0)}` : "Di luar stok"}</span>
             </div>
             <div class="flex items-center gap-2.5 shrink-0">
               <div class="item-top-qty-wrap inline-flex items-center gap-2" ${isPrefilled ? "" : "hidden"}>
-                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide hidden sm:inline">Qty</span>
+                <span class="text-xs font-semibold text-slate-600 uppercase tracking-wide hidden sm:inline">Qty</span>
                 <div class="inline-flex items-center rounded-xl border border-slate-300 bg-white overflow-hidden shadow-2xs">
                   <button type="button" class="btn-inline-minus w-9 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Kurangi jumlah">−</button>
                   <span class="item-inline-qty px-2.5 text-xs font-bold text-slate-900 tabular-nums border-x border-slate-200 leading-9">1</span>
@@ -1264,17 +1404,17 @@
           </div>
           <div class="grid grid-cols-2 gap-2 items-start">
             <div>
-              <label class="block text-[11px] font-bold text-slate-600 mb-0.5">Harga Jual</label>
+              <label class="block text-xs font-bold text-slate-600 mb-0.5">Harga Jual</label>
               <input type="text" inputmode="numeric" autocomplete="off" class="item-price-input w-full h-9 px-2.5 border border-slate-300 rounded-lg bg-white font-bold tabular-nums !text-sm text-slate-900" placeholder="0" value="${esc(fmtIdrInput(prefill?.price))}">
             </div>
             <div class="item-cost-wrap sjs-owner-only-stat" ${prefill?.id ? "hidden" : ""}>
-              <label class="block text-[11px] font-medium text-slate-400 mb-0.5">Modal <span class="opt">(opsional)</span></label>
-              <input type="text" inputmode="numeric" autocomplete="off" class="item-cost-input w-full h-9 px-2.5 border border-slate-200 rounded-lg bg-slate-100/70 focus:bg-white font-medium tabular-nums !text-sm text-slate-600 placeholder:text-slate-400" placeholder="Kosongkan jika tidak tahu" value="${esc(fmtIdrInput(prefill?.cost))}">
+              <label class="block text-xs font-medium text-slate-600 mb-0.5">Modal <span class="opt">(opsional)</span></label>
+              <input type="text" inputmode="numeric" autocomplete="off" class="item-cost-input w-full h-9 px-2.5 border border-slate-200 rounded-lg bg-slate-100/70 focus:bg-white font-medium tabular-nums !text-sm text-slate-600 placeholder:text-slate-600" placeholder="Kosongkan jika tidak tahu" value="${esc(fmtIdrInput(prefill?.cost))}">
             </div>
           </div>
           <div class="flex flex-wrap sm:flex-nowrap items-end gap-2">
             <div class="shrink-0">
-              <label class="block text-[11px] font-bold text-slate-600 mb-0.5">Jumlah</label>
+              <label class="block text-xs font-bold text-slate-600 mb-0.5">Jumlah</label>
               <div class="flex items-center gap-1.5">
                 <div class="inline-flex items-center rounded-lg border border-slate-300 bg-white overflow-hidden">
                   <button type="button" class="btn-drawer-minus w-8 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Kurangi jumlah">−</button>
@@ -1290,7 +1430,7 @@
               </div>
             </div>
             <div class="flex-1 min-w-[150px]">
-              <label class="block text-[11px] font-bold text-slate-600 mb-0.5">Catatan <span class="opt">(opsional)</span></label>
+              <label class="block text-xs font-bold text-slate-600 mb-0.5">Catatan <span class="opt">(opsional)</span></label>
               <input type="text" class="item-note-input w-full h-9 px-2.5 rounded-lg border border-slate-300 bg-white text-xs font-medium text-slate-800" placeholder="Layanan / varian..." maxlength="80">
             </div>
           </div>
@@ -1475,10 +1615,10 @@
               badge.className = "item-mode-badge font-extrabold text-rose-700";
             } else if (st < LOW_STOCK_LIMIT) {
               badge.textContent = `Stok ${st} ⚠`;
-              badge.className = "item-mode-badge block text-[11px] font-bold mt-0.5 text-amber-700";
+              badge.className = "item-mode-badge block text-xs font-bold mt-0.5 text-amber-700";
             } else {
               badge.textContent = `Stok ${st}`;
-              badge.className = "item-mode-badge block text-[11px] font-semibold mt-0.5 text-emerald-700";
+              badge.className = "item-mode-badge block text-xs font-semibold mt-0.5 text-emerald-700";
             }
           } else {
             badge.textContent = "Di luar stok";
@@ -1492,6 +1632,7 @@
       const discount = Math.min(total, calcDisc);
       const netTotal = Math.max(0, total - discount);
       const netProfit = profit - discount;
+      if (currentSaleTotalAmount !== netTotal) fundsConfirmed = false;
       currentSaleTotalAmount = netTotal;
       document.getElementById("previewTotalOmset").textContent = rp(netTotal);
       const rightTotEl = document.getElementById("previewTotalOmsetRight");
@@ -1600,7 +1741,7 @@
         .sort((a, b) => (Number(b.stock || 0) > 0) - (Number(a.stock || 0) > 0) || (freq.get(b.id) || 0) - (freq.get(a.id) || 0) || String(a.name || "").localeCompare(String(b.name || ""), "id"));
       if (cntEl) cntEl.textContent = `${items.length} item`;
       if (!items.length) {
-        listEl.innerHTML = `<p class="text-xs text-slate-400 py-6 text-center">Belum ada barang di kategori ini.</p>`;
+        listEl.innerHTML = `<p class="text-xs text-slate-600 py-6 text-center">Belum ada barang di kategori ini.</p>`;
         return;
       }
       listEl.innerHTML = items.map(it => {
@@ -1614,9 +1755,9 @@
             <span class="text-xs font-extrabold text-slate-900 leading-snug line-clamp-2">${icon} ${esc(it.name)}</span>
             <span class="text-xs font-extrabold text-blue-900 tabular-nums shrink-0">${esc(shortRpTick(it.price).replace("Rp ", ""))}</span>
           </div>
-          <div class="flex items-center justify-between gap-1.5 w-full text-[10px] font-bold">
+          <div class="flex items-center justify-between gap-1.5 w-full text-xs font-bold">
             <span class="${stCls}">${stDot}</span>
-            <span class="font-mono text-slate-400">${esc(it.code || "")}</span>
+            <span class="font-mono text-slate-600">${esc(it.code || "")}</span>
           </div>
         </button>`;
       }).join("");
@@ -1686,7 +1827,7 @@
         .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")))
         .slice(0, 5);
       if (!recent.length) {
-        wrap.innerHTML = `<p class="py-2 text-slate-400 font-semibold">Belum ada transaksi hari ini.</p>`;
+        wrap.innerHTML = `<p class="py-2 text-slate-600 font-semibold">Belum ada transaksi hari ini.</p>`;
         return;
       }
       wrap.innerHTML = recent.map(tx => {
@@ -1698,18 +1839,22 @@
           <div class="min-w-0">
             <span class="font-extrabold text-slate-800">✅ ${esc(firstName)}</span>
             <span class="ml-1.5 font-extrabold text-blue-900 tabular-nums">${esc(shortRpTick(tx.totalOmset))}</span>
-            <span class="ml-1 text-[10px] font-semibold text-slate-400">${esc(receiptNumber(tx))}${tm ? " · " + esc(tm) : ""} · ${esc(paymentMethodLabel(tx.paymentMethod || "Cash"))}</span>
+            <span class="ml-1 text-xs font-semibold text-slate-600">${esc(receiptNumber(tx))}${tm ? " · " + esc(tm) : ""} · ${esc(paymentMethodLabel(tx.paymentMethod || "Cash"))}</span>
           </div>
           <div class="flex items-center gap-1 shrink-0">
-            <button type="button" data-pos-reprint="${id}" class="px-2 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 font-extrabold text-[11px]"><i class="fa-solid fa-print mr-1" aria-hidden="true"></i>Nota</button>
-            <button type="button" data-pos-wa-rcpt="${id}" class="px-2 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-extrabold text-[11px]"><i class="fa-brands fa-whatsapp mr-1" aria-hidden="true"></i>WA</button>
-            <button type="button" data-pos-void="${id}" title="Hapus / Batalkan transaksi ini (stok otomatis kembali)" class="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-extrabold text-[11px] inline-flex items-center gap-1"><i class="fa-regular fa-trash-can" aria-hidden="true"></i>Hapus</button>
+            <button type="button" data-pos-reprint="${id}" class="px-2 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 font-extrabold text-xs"><i class="fa-solid fa-print mr-1" aria-hidden="true"></i>Nota</button>
+            <button type="button" data-pos-wa-rcpt="${id}" class="px-2 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-extrabold text-xs"><i class="fa-brands fa-whatsapp mr-1" aria-hidden="true"></i>WA</button>
+            <button type="button" data-pos-void="${id}" title="Hapus / Batalkan transaksi ini (stok otomatis kembali)" class="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-extrabold text-xs inline-flex items-center gap-1"><i class="fa-regular fa-trash-can" aria-hidden="true"></i>Hapus</button>
           </div>
         </div>`;
       }).join("");
     }
 
+    function needsFundsConfirmation() {
+      return selectedPaymentMethod === "QRIS" || selectedPaymentMethod === "Transfer";
+    }
     function selectSalePayment(method) {
+      if (method !== selectedPaymentMethod) fundsConfirmed = false;
       selectedPaymentMethod = salePaymentMethods.has(method) ? method : "";
       renderSalePayment();
     }
@@ -1752,6 +1897,15 @@
         b.setAttribute("aria-pressed", String(b.dataset.pay === selectedPaymentMethod));
       }
       const saveState = getPosSaveState();
+      const digital = needsFundsConfirmation();
+      const pending = digital && !fundsConfirmed;
+      const digitalPanel = document.getElementById("posDigitalPayment");
+      digitalPanel.hidden = !digital;
+      digitalPanel.classList.toggle("is-paid", digital && fundsConfirmed);
+      document.getElementById("posDigitalStatus").textContent = digital && fundsConfirmed ? "Lunas" : "Menunggu pembayaran";
+      const confirmButton = document.getElementById("btnConfirmFunds");
+      confirmButton.hidden = !pending;
+      confirmButton.disabled = !saveState.enabled || saleFormSaving;
       const hintEl = document.getElementById("salePaymentHint");
       if (hintEl) {
         hintEl.textContent = saveState.message;
@@ -1762,8 +1916,8 @@
       const payBox = document.getElementById("posPaySectionBox");
       if (payBox) payBox.classList.toggle("border-amber-300", !okPay);
       const hasAnyRow = document.querySelectorAll("#saleItemsContainer > div").length > 0;
-      const canSave = saveState.enabled && !saleFormSaving;
-      const hardDisabled = saleFormSaving || !hasAnyRow;
+      const canSave = saveState.enabled && !pending && !saleFormSaving;
+      const hardDisabled = saleFormSaving || !hasAnyRow || pending;
       const btnSave = document.getElementById("btnSaveTx");
       const btnSavePrint = document.getElementById("btnSaveAndPrintTx");
       if (btnSave) {
@@ -1809,12 +1963,12 @@
       if (!heldSales.length) { bar.hidden = true; bar.innerHTML = ""; return; }
       bar.hidden = false;
       const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-      bar.innerHTML = `<span class="text-[11px] font-extrabold text-amber-900 mr-1"><i class="fa-solid fa-pause mr-1" aria-hidden="true"></i>Tertunda (${heldSales.length}):</span>` + heldSales.map((h, idx) => {
+      bar.innerHTML = `<span class="text-xs font-extrabold text-amber-900 mr-1"><i class="fa-solid fa-pause mr-1" aria-hidden="true"></i>Tertunda (${heldSales.length}):</span>` + heldSales.map((h, idx) => {
         const draftLbl = `Draft ${letters[idx] || (idx + 1)}`;
         const custTag = h.customer ? ` (${esc(h.customer)})` : "";
         return `<span class="inline-flex items-center rounded-full bg-white border border-amber-300 overflow-hidden shadow-xs">
-          <button type="button" data-resume-hold="${idx}" class="px-2.5 py-1 text-[11px] font-extrabold text-amber-950 hover:bg-amber-100">${draftLbl}${custTag} · ${h.items.length} item (${esc(shortRpTick(h.total))})</button>
-          <button type="button" data-drop-hold="${idx}" title="Hapus ${draftLbl}" class="px-1.5 py-1 text-[11px] font-extrabold text-rose-600 hover:bg-rose-50 border-l border-amber-200">&times;</button>
+          <button type="button" data-resume-hold="${idx}" class="px-2.5 py-1 text-xs font-extrabold text-amber-950 hover:bg-amber-100">${draftLbl}${custTag} · ${h.items.length} item (${esc(shortRpTick(h.total))})</button>
+          <button type="button" data-drop-hold="${idx}" title="Hapus ${draftLbl}" class="px-1.5 py-1 text-xs font-extrabold text-rose-600 hover:bg-rose-50 border-l border-amber-200">&times;</button>
         </span>`;
       }).join("");
     }
@@ -1846,6 +2000,7 @@
     function resumeHeldSale(idx) {
       const h = heldSales[idx];
       if (!h) return;
+      fundsConfirmed = false;
       heldSales.splice(idx, 1);
       saveHeldSalesStorage();
       document.getElementById("saleItemsContainer").replaceChildren();
@@ -1889,6 +2044,8 @@
     }
 
     async function saveSale(printAfterSave) {
+      if (saleFormSaving) return;
+      if (needsFundsConfirmation() && !fundsConfirmed) return showToast("Konfirmasi dana masuk sebelum menyimpan penjualan.");
       if (!isAdmin) return showToast("Masuk ke akun pemilik terlebih dahulu.");
       if (!salePaymentMethods.has(selectedPaymentMethod)) return showToast("Pilih cara bayar sebelum menyimpan.");
       if (selectedPaymentMethod === "Cash" && cashReceivedAmount > 0 && cashReceivedAmount < currentSaleTotalAmount) {
@@ -5560,7 +5717,6 @@
       catalog: { btn: "tabBtnCatalog", panel: "viewCatalog" }
     };
     function switchWorkspace(name) {
-      activeWorkspace = name;
       const target = isAdmin ? (WORKSPACES[name] ? name : "kasir") : "catalog";
       for (const [key, cfg] of Object.entries(WORKSPACES)) {
         document.getElementById(cfg.btn).setAttribute("aria-current", key === target ? "page" : "false");
@@ -5894,11 +6050,11 @@
           return `<button type="button" data-instant-pick="${esc(it.id)}" class="w-full px-3.5 py-2.5 text-left hover:bg-blue-50 flex items-center justify-between gap-2 transition">
             <div class="min-w-0">
               <span class="block text-xs font-extrabold text-slate-900 truncate">${esc(it.name)}${varMeta ? ` <span class="text-slate-500 font-semibold">(${esc(varMeta)})</span>` : ""}</span>
-              <span class="text-[11px] font-mono font-bold text-blue-700">${esc(it.code || "-")}</span>
+              <span class="text-xs font-mono font-bold text-blue-700">${esc(it.code || "-")}</span>
             </div>
             <div class="text-right shrink-0">
               <span class="block text-xs font-extrabold text-emerald-700 tabular-nums">${rp(it.price)}</span>
-              <span class="text-[10px] font-extrabold ${st <= 0 ? "text-rose-700" : st < 5 ? "text-amber-700" : "text-slate-500"}">${st <= 0 ? "🔴 Habis" : `${dot} Stok ${st}`}</span>
+              <span class="text-xs font-extrabold ${st <= 0 ? "text-rose-700" : st < 5 ? "text-amber-700" : "text-slate-500"}">${st <= 0 ? "🔴 Habis" : `${dot} Stok ${st}`}</span>
             </div>
           </button>`;
         }).join("");
@@ -6088,6 +6244,7 @@
           e.preventDefault();
           const saveBtn = document.getElementById("btnSaveTx");
           if (saveBtn && !saveBtn.disabled) saveSale(false);
+          else if (needsFundsConfirmation() && !fundsConfirmed) showToast("Konfirmasi dana masuk sebelum menyimpan penjualan.");
           else showToast("Pilih barang & cara bayar dulu (F8 untuk Tunai).");
         } else if (e.key === "Enter" && !e.shiftKey && !e.ctrlKey && !e.altKey) {
           const tag = (document.activeElement?.tagName || "").toUpperCase();
@@ -6105,6 +6262,12 @@
         const firstId = selectedQrQty.keys().next().value;
         if (!firstId) return showToast("Pilih minimal 1 barang terlebih dahulu.");
         openProductQrModal(firstId);
+      });
+      document.getElementById("btnConfirmFunds").addEventListener("click", () => {
+        if (!needsFundsConfirmation() || !getPosSaveState().enabled || saleFormSaving) return;
+        fundsConfirmed = true;
+        renderSalePayment();
+        document.getElementById("btnSaveAndPrintTx").focus();
       });
       for (const b of document.querySelectorAll(".pay-option-btn")) b.addEventListener("click", () => selectSalePayment(b.dataset.pay));
       document.getElementById("btnSaveTx").addEventListener("click", () => saveSale(false));
