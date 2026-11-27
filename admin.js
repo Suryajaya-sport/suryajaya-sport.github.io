@@ -219,7 +219,7 @@
       }
       const cat = typeof detectProductCategoryLabel === "function" ? detectProductCategoryLabel(item || {}) : { label: "Olahraga" };
       const shortName = esc(String(item?.name || "Surya Jaya Sport").slice(0, 34));
-      return `<div class="${extraClass} relative overflow-hidden flex flex-col items-center justify-center p-2.5 text-center text-white" style="background:linear-gradient(135deg,#0b2566 0%,#1d5fd6 62%,#38bdf8 100%)">
+      return `<div class="${extraClass} relative overflow-hidden flex flex-col items-center justify-center p-2.5 text-center text-white" style="background:radial-gradient(circle at 50% 35%, #1e2638 0%, #0b0e16 100%);border-bottom:2px solid #dc2626">
         <span class="px-2 py-0.5 rounded-full bg-white/90 text-slate-900 text-[9px] font-extrabold tracking-wide uppercase">${esc(cat.label)}</span>
         <span class="mt-1.5 font-extrabold text-xs leading-tight drop-shadow">${shortName}</span>
         ${item?.code ? `<span class="mt-1 font-mono text-[9px] text-amber-300 font-bold">${esc(item.code)}</span>` : ""}
@@ -320,134 +320,80 @@
       const ctx = c.getContext("2d");
       const withTouch = opts.withTouch !== false;
 
-      // 1. Vibrant stadium-sky studio background
-      const bg = ctx.createLinearGradient(0, 0, 0, 800);
-      bg.addColorStop(0, "#0b3ba8");
-      bg.addColorStop(0.28, "#2563eb");
-      bg.addColorStop(0.58, "#dbeafe");
-      bg.addColorStop(0.76, "#f8fafc");
-      bg.addColorStop(1, "#cbd5e1");
+      // Choose brand accent color (Crimson Red for badminton/general, Sky Blue for socks/apparel/futsal)
+      const catKey = typeof detectProductCategoryLabel === "function" ? detectProductCategoryLabel(itemMeta || {}).key : "sport";
+      const accentHex = (catKey === "ball" || catKey === "sport") ? "#0ea5e9" : "#dc2626";
+      const accentGlow = (catKey === "ball" || catKey === "sport") ? "rgba(14, 165, 233, 0.24)" : "rgba(220, 38, 38, 0.24)";
+
+      // 1. Dark charcoal studio background with overhead spotlight & floor reflection
+      const bg = ctx.createRadialGradient(400, 260, 40, 400, 420, 620);
+      bg.addColorStop(0, "#232733");
+      bg.addColorStop(0.55, "#12151d");
+      bg.addColorStop(1, "#08090d");
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, 800, 800);
 
-      // Stadium bokeh lights along upper arena
-      if (withTouch) {
-        const lights = [[80, 215, 42], [175, 228, 34], [320, 225, 28], [670, 220, 38], [745, 232, 30], [580, 200, 22]];
-        for (const [lx, ly, lr] of lights) {
-          const lg = ctx.createRadialGradient(lx, ly, 2, lx, ly, lr);
-          lg.addColorStop(0, "rgba(255,255,255,0.92)");
-          lg.addColorStop(0.45, "rgba(186,230,253,0.45)");
-          lg.addColorStop(1, "rgba(255,255,255,0)");
-          ctx.fillStyle = lg;
-          ctx.beginPath(); ctx.arc(lx, ly, lr, 0, Math.PI * 2); ctx.fill();
-        }
-      }
+      // Subtle studio floor horizon & spotlight pool
+      const floorGrad = ctx.createLinearGradient(0, 560, 0, 800);
+      floorGrad.addColorStop(0, "rgba(255,255,255,0.03)");
+      floorGrad.addColorStop(0.35, "rgba(255,255,255,0.07)");
+      floorGrad.addColorStop(1, "#06070a");
+      ctx.fillStyle = floorGrad;
+      ctx.fillRect(0, 560, 800, 240);
 
-      // Glossy floor shadow ellipse under product
-      const floorY = withTouch ? 612 : 665;
-      const floor = ctx.createRadialGradient(400, floorY, 25, 400, floorY, 320);
-      floor.addColorStop(0, "rgba(15, 23, 42, 0.22)");
-      floor.addColorStop(0.65, "rgba(30, 58, 138, 0.08)");
-      floor.addColorStop(1, "rgba(30, 58, 138, 0)");
-      ctx.fillStyle = floor;
+      // Outer rounded neon/metallic border frame matching reference posters
+      drawRoundedRect(ctx, 16, 16, 768, 768, 28);
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = accentHex;
+      ctx.stroke();
+
+      // Contact shadow under product
+      const shadow = ctx.createRadialGradient(410, 650, 20, 410, 650, 210);
+      shadow.addColorStop(0, "rgba(0, 0, 0, 0.85)");
+      shadow.addColorStop(0.6, "rgba(0, 0, 0, 0.35)");
+      shadow.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = shadow;
       ctx.beginPath();
-      ctx.ellipse(400, floorY, 320, 40, 0, 0, Math.PI * 2);
+      ctx.ellipse(410, 650, 210, 26, 0, 0, Math.PI * 2);
       ctx.fill();
 
-      // 2. Top-left signature wave: royal blue + yellow accent + white wave
-      ctx.save();
-      ctx.beginPath();
-      ctx.moveTo(0, 0); ctx.lineTo(435, 0);
-      ctx.bezierCurveTo(360, 115, 200, 195, 0, 235);
-      ctx.closePath();
-      const blueWave = ctx.createLinearGradient(0, 0, 435, 220);
-      blueWave.addColorStop(0, "#1d4ed8");
-      blueWave.addColorStop(1, "#2563eb");
-      ctx.fillStyle = blueWave;
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.moveTo(355, 0); ctx.lineTo(410, 0);
-      ctx.bezierCurveTo(345, 95, 235, 165, 105, 198);
-      ctx.lineTo(80, 185);
-      ctx.bezierCurveTo(210, 150, 310, 85, 355, 0);
-      ctx.closePath();
-      ctx.fillStyle = "#facc15";
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.moveTo(0, 0); ctx.lineTo(372, 0);
-      ctx.bezierCurveTo(315, 98, 185, 175, 0, 198);
-      ctx.closePath();
-      ctx.fillStyle = "#ffffff";
-      ctx.fill();
-      ctx.restore();
-
-      // Brand mark (uses real sjs-mark.png from same origin, with vector fallback)
+      // 2. Top-left Surya Jaya Sport dark header branding (icon | divider | white title + gold swoosh)
       let drewMark = false;
       try {
         const markImg = await loadImageCors("sjs-mark.png");
-        ctx.drawImage(markImg, 18, 22, 74, 88);
+        ctx.drawImage(markImg, 36, 32, 54, 62);
         drewMark = true;
       } catch {}
       if (!drewMark) {
         ctx.save();
         ctx.fillStyle = "#1d4ed8";
-        ctx.beginPath(); ctx.arc(64, 44, 11, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = "#1d4ed8"; ctx.lineWidth = 8; ctx.lineCap = "round";
-        ctx.beginPath(); ctx.moveTo(28, 116); ctx.quadraticCurveTo(78, 86, 62, 58); ctx.stroke();
-        ctx.strokeStyle = "#dc2626"; ctx.lineWidth = 6.5;
-        ctx.beginPath(); ctx.moveTo(24, 64); ctx.quadraticCurveTo(48, 60, 56, 72); ctx.stroke();
+        ctx.beginPath(); ctx.arc(64, 46, 8, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = "#1d4ed8"; ctx.lineWidth = 6; ctx.lineCap = "round";
+        ctx.beginPath(); ctx.moveTo(42, 88); ctx.quadraticCurveTo(74, 70, 62, 54); ctx.stroke();
+        ctx.strokeStyle = "#dc2626"; ctx.lineWidth = 5;
+        ctx.beginPath(); ctx.moveTo(38, 58); ctx.quadraticCurveTo(54, 55, 60, 64); ctx.stroke();
         ctx.restore();
       }
+      ctx.strokeStyle = "rgba(255,255,255,0.28)";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(104, 34); ctx.lineTo(104, 92); ctx.stroke();
+
       ctx.save();
-      ctx.font = "italic 900 33px Arial, sans-serif";
-      ctx.fillStyle = "#1d4ed8";
-      ctx.fillText("SURYA JAYA", 98, 66);
-      ctx.font = "italic 900 33px Arial, sans-serif";
-      ctx.fillStyle = "#dc2626";
-      ctx.fillText("SPORT", 142, 102);
-      ctx.font = "italic 700 15.5px Arial, sans-serif";
-      ctx.fillStyle = "#1e40af";
-      ctx.fillText("Sport for a Better Life", 84, 130);
-      ctx.restore();
-
-      // 3. Top-right slanted crimson banner (Grip Biasa style) + yellow underline
-      const rawName = String(itemMeta?.name || "Produk").trim();
-      ctx.save();
-      ctx.translate(580, 96);
-      ctx.rotate(-0.045);
-      drawRoundedRect(ctx, -190, -36, 380, 74, 24);
-      const rGrad = ctx.createLinearGradient(-190, -36, 190, 38);
-      rGrad.addColorStop(0, "#b91c1c");
-      rGrad.addColorStop(0.5, "#dc2626");
-      rGrad.addColorStop(1, "#991b1b");
-      ctx.fillStyle = rGrad;
-      ctx.shadowColor = "rgba(15,23,42,0.34)";
-      ctx.shadowBlur = 14;
-      ctx.shadowOffsetY = 5;
-      ctx.fill();
-      ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-      ctx.lineWidth = 4;
-      ctx.strokeStyle = "#ffffff";
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(-145, 50);
-      ctx.quadraticCurveTo(0, 38, 150, 48);
-      ctx.lineWidth = 5;
-      ctx.strokeStyle = "#facc15";
-      ctx.stroke();
-
-      ctx.textAlign = "center";
       ctx.fillStyle = "#ffffff";
-      const bannerText = rawName.slice(0, 24);
-      const bFont = bannerText.length > 18 ? 28 : (bannerText.length > 13 ? 35 : 44);
-      ctx.font = `italic 900 ${bFont}px Arial, sans-serif`;
-      ctx.fillText(bannerText, 0, Math.round(bFont * 0.34));
+      ctx.font = "italic 800 22px Arial, sans-serif";
+      ctx.fillText("SURYA JAYA SPORT", 118, 58);
+      ctx.fillStyle = "#cbd5e1";
+      ctx.font = "italic 600 14px Arial, sans-serif";
+      ctx.fillText("Sport for a Better Life", 136, 80);
+      // Gold accent wedge next to tagline
+      ctx.fillStyle = "#facc15";
+      ctx.beginPath();
+      ctx.moveTo(278, 72); ctx.lineTo(318, 74); ctx.lineTo(274, 83);
+      ctx.closePath();
+      ctx.fill();
       ctx.restore();
 
-      // 4. Center product photo (cutout floating or framed)
+      // 3. Center product cutout
       let photoImg = null;
       if (sourceFileOrUrl instanceof Blob) {
         photoImg = await createImageBitmap(sourceFileOrUrl);
@@ -455,68 +401,36 @@
         try { photoImg = await loadImageCors(sourceFileOrUrl); } catch {}
       }
 
+      const rawName = String(itemMeta?.name || "Produk Olahraga").trim();
+      let cutCanvas = null;
       if (photoImg) {
         const removeWhite = opts.removeWhiteBg !== false;
         const cropTop = Number(opts.cropTopPct || 0);
         const cropBottom = Number(opts.cropBottomPct || 0);
-        const centerY = withTouch ? 452 : 462;
-        const maxH = withTouch ? 365 : 445;
+        const centerX = withTouch ? 415 : 400;
+        const centerY = 475;
+        const maxW = withTouch ? 330 : 480;
+        const maxH = 350;
 
         if (removeWhite) {
-          const cut = cutoutWhiteBg(photoImg, cropTop, cropBottom);
-          const maxW = 680;
-          const sc = Math.min(maxW / cut.width, maxH / cut.height);
-          const dw = Math.round(cut.width * sc), dh = Math.round(cut.height * sc);
-          const dx = Math.round(400 - dw / 2), dy = Math.round(centerY - dh / 2);
+          cutCanvas = cutoutWhiteBg(photoImg, cropTop, cropBottom);
+          const sc = Math.min(maxW / cutCanvas.width, maxH / cutCanvas.height);
+          const dw = Math.round(cutCanvas.width * sc), dh = Math.round(cutCanvas.height * sc);
+          const dx = Math.round(centerX - dw / 2), dy = Math.round(centerY - dh / 2);
           ctx.save();
-          ctx.shadowColor = "rgba(15, 23, 42, 0.30)";
-          ctx.shadowBlur = 22;
-          ctx.shadowOffsetY = 14;
-          ctx.drawImage(cut, dx, dy, dw, dh);
+          ctx.shadowColor = "rgba(0, 0, 0, 0.72)";
+          ctx.shadowBlur = 28;
+          ctx.shadowOffsetY = 18;
+          ctx.drawImage(cutCanvas, dx, dy, dw, dh);
           ctx.restore();
-
-          // 5. Zoom-in detail callout circle + pointer line (Grip Biasa style)
-          if (withTouch && cut.width >= 60 && cut.height >= 60) {
-            const zoomCx = 582, zoomCy = 258, zoomR = 72;
-            const srcPtX = dx + Math.round(dw * 0.32), srcPtY = dy + Math.round(dh * 0.28);
-            ctx.save();
-            ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 4;
-            ctx.beginPath(); ctx.moveTo(srcPtX, srcPtY); ctx.lineTo(srcPtX + 48, zoomCy); ctx.lineTo(zoomCx - zoomR, zoomCy); ctx.stroke();
-            ctx.strokeStyle = "#1d4ed8"; ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.moveTo(srcPtX, srcPtY); ctx.lineTo(srcPtX + 48, zoomCy); ctx.lineTo(zoomCx - zoomR, zoomCy); ctx.stroke();
-            ctx.fillStyle = "#1d4ed8"; ctx.beginPath(); ctx.arc(srcPtX, srcPtY, 7, 0, Math.PI * 2); ctx.fill();
-            ctx.lineWidth = 3; ctx.strokeStyle = "#ffffff"; ctx.stroke();
-
-            ctx.save();
-            ctx.beginPath(); ctx.arc(zoomCx, zoomCy, zoomR, 0, Math.PI * 2); ctx.clip();
-            ctx.fillStyle = "#ffffff"; ctx.fillRect(zoomCx - zoomR, zoomCy - zoomR, zoomR * 2, zoomR * 2);
-            const cropSide = Math.min(cut.width, cut.height) * 0.44;
-            ctx.drawImage(cut, Math.max(0, cut.width * 0.12), Math.max(0, cut.height * 0.08), cropSide, cropSide, zoomCx - zoomR, zoomCy - zoomR, zoomR * 2, zoomR * 2);
-            ctx.restore();
-
-            ctx.beginPath(); ctx.arc(zoomCx, zoomCy, zoomR, 0, Math.PI * 2);
-            ctx.lineWidth = 6; ctx.strokeStyle = "#facc15"; ctx.stroke();
-            ctx.beginPath(); ctx.arc(zoomCx, zoomCy, zoomR + 4, 0, Math.PI * 2);
-            ctx.lineWidth = 2.5; ctx.strokeStyle = "#ffffff"; ctx.stroke();
-            ctx.restore();
-          }
         } else {
           const iw = photoImg.width || photoImg.naturalWidth || 1;
           const ih = photoImg.height || photoImg.naturalHeight || 1;
-          const maxW = 500;
           const sc = Math.min(maxW / iw, maxH / ih);
           const dw = Math.round(iw * sc), dh = Math.round(ih * sc);
-          const dx = Math.round(400 - dw / 2), dy = Math.round(centerY - dh / 2);
+          const dx = Math.round(centerX - dw / 2), dy = Math.round(centerY - dh / 2);
           ctx.save();
-          drawRoundedRect(ctx, dx - 12, dy - 12, dw + 24, dh + 24, 26);
-          ctx.fillStyle = "#ffffff";
-          ctx.shadowColor = "rgba(15, 23, 42, 0.2)";
-          ctx.shadowBlur = 26;
-          ctx.shadowOffsetY = 12;
-          ctx.fill();
-          ctx.restore();
-          ctx.save();
-          drawRoundedRect(ctx, dx, dy, dw, dh, 18);
+          drawRoundedRect(ctx, dx, dy, dw, dh, 20);
           ctx.clip();
           ctx.drawImage(photoImg, dx, dy, dw, dh);
           ctx.restore();
@@ -524,89 +438,98 @@
         photoImg.close?.();
       } else {
         ctx.save();
-        drawRoundedRect(ctx, 185, 245, 430, 380, 28);
-        ctx.fillStyle = "#ffffff";
-        ctx.shadowColor = "rgba(15, 23, 42, 0.18)";
-        ctx.shadowBlur = 24;
-        ctx.shadowOffsetY = 10;
+        drawRoundedRect(ctx, 250, 310, 320, 320, 24);
+        ctx.fillStyle = "rgba(255,255,255,0.06)";
         ctx.fill();
-        ctx.restore();
-        ctx.fillStyle = "#1e3a8a";
-        ctx.font = "900 34px Arial, sans-serif";
+        ctx.strokeStyle = "rgba(255,255,255,0.16)";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "800 28px Arial, sans-serif";
         ctx.textAlign = "center";
-        wrapText(ctx, rawName, 400, 400, 360, 44, 3);
-        ctx.fillStyle = "#047857";
-        ctx.font = "900 30px Arial, sans-serif";
-        if (Number(itemMeta?.price) > 0) ctx.fillText(rp(itemMeta.price), 400, 550);
+        wrapText(ctx, rawName, 410, 455, 280, 36, 3);
         ctx.textAlign = "left";
+        ctx.restore();
       }
 
-      // 6. Three bottom feature badges (Grip Biasa style)
-      if (withTouch) {
-        const badges = categoryFeatureBadges(itemMeta);
-        const pillW = 228, pillH = 62, gap = 22, startX = 36, pillY = 666;
-        badges.forEach(([ico, l1, l2], idx) => {
-          const px = startX + idx * (pillW + gap);
-          drawRoundedRect(ctx, px + 18, pillY + 4, pillW - 18, pillH - 8, 27);
-          const pGrad = ctx.createLinearGradient(px, pillY, px, pillY + pillH);
-          pGrad.addColorStop(0, "#1e3a8a");
-          pGrad.addColorStop(1, "#0f172a");
-          ctx.fillStyle = pGrad;
-          ctx.shadowColor = "rgba(15,23,42,0.28)";
-          ctx.shadowBlur = 10;
-          ctx.shadowOffsetY = 4;
-          ctx.fill();
-          ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
-          ctx.lineWidth = 3;
-          ctx.strokeStyle = "#ffffff";
-          ctx.stroke();
+      // 4. Left-side stacked product title (White line 1 + Colored bold line 2 + accent bar) & 3 clean outline feature rows
+      const words = rawName.split(/\s+/).filter(Boolean);
+      const line1 = words.length > 2 ? words.slice(0, 2).join(" ") : (words[0] || "Produk");
+      const line2 = words.length > 2 ? words.slice(2).join(" ") : (words.slice(1).join(" ") || (itemMeta?.code || "SJS"));
 
-          ctx.beginPath();
-          ctx.arc(px + 32, pillY + pillH / 2, 27, 0, Math.PI * 2);
-          ctx.fillStyle = "#facc15";
-          ctx.fill();
-          ctx.lineWidth = 3;
-          ctx.strokeStyle = "#ffffff";
-          ctx.stroke();
-          ctx.fillStyle = "#0f172a";
-          ctx.font = "900 22px Arial, sans-serif";
-          ctx.textAlign = "center";
-          ctx.fillText(ico, px + 32, pillY + pillH / 2 + 8);
+      ctx.save();
+      ctx.textAlign = "left";
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "600 28px Arial, sans-serif";
+      ctx.fillText(line1.slice(0, 20), 38, 445);
 
-          ctx.textAlign = "left";
-          ctx.fillStyle = "#ffffff";
-          ctx.font = "italic 800 18px Arial, sans-serif";
-          ctx.fillText(l1, px + 68, pillY + 28);
-          ctx.fillText(l2, px + 68, pillY + 49);
+      ctx.fillStyle = accentHex;
+      const l2Text = line2.slice(0, 20);
+      ctx.font = l2Text.length > 15 ? "800 26px Arial, sans-serif" : "800 31px Arial, sans-serif";
+      ctx.fillText(l2Text, 38, 480);
+
+      // Accent underline bar
+      drawRoundedRect(ctx, 38, 494, 54, 4, 2);
+      ctx.fillStyle = accentHex;
+      ctx.fill();
+
+      // 3 minimal white-outline icon rows on bottom-left
+      const badges = categoryFeatureBadges(itemMeta);
+      badges.forEach(([ico, l1, l2], idx) => {
+        const ry = 532 + idx * 54;
+        ctx.strokeStyle = "rgba(255,255,255,0.75)";
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        ctx.arc(54, ry + 12, 16, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "700 14px Arial, sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText(ico, 54, ry + 17);
+
+        ctx.textAlign = "left";
+        ctx.fillStyle = "#f1f5f9";
+        ctx.font = "500 17px Arial, sans-serif";
+        ctx.fillText(`${l1} ${l2}`.trim(), 84, ry + 18);
+      });
+      ctx.restore();
+
+      // 5. Right-side 3 rounded-square detail callout boxes (matching reference layout)
+      if (withTouch && cutCanvas && cutCanvas.width >= 40 && cutCanvas.height >= 40) {
+        const boxSize = 136, boxX = 626;
+        const crops = [
+          [0.15, 0.05, 0.55],
+          [0.20, 0.32, 0.55],
+          [0.25, 0.52, 0.50]
+        ];
+        crops.forEach(([rx, ry, rFrac], idx) => {
+          const by = 166 + idx * 154;
+          ctx.save();
+          drawRoundedRect(ctx, boxX, by, boxSize, boxSize, 20);
+          ctx.fillStyle = "#161a24";
+          ctx.fill();
+          ctx.clip();
+
+          // Subtle tinted radial glow inside detail box
+          const cg = ctx.createRadialGradient(boxX + boxSize / 2, by + boxSize / 2, 10, boxX + boxSize / 2, by + boxSize / 2, boxSize);
+          cg.addColorStop(0, accentGlow);
+          cg.addColorStop(1, "rgba(10,12,18,0.95)");
+          ctx.fillStyle = cg;
+          ctx.fillRect(boxX, by, boxSize, boxSize);
+
+          const side = Math.min(cutCanvas.width, cutCanvas.height) * rFrac;
+          const sx = Math.max(0, Math.min(cutCanvas.width - side, cutCanvas.width * rx));
+          const sy = Math.max(0, Math.min(cutCanvas.height - side, cutCanvas.height * ry));
+          ctx.drawImage(cutCanvas, sx, sy, side, side, boxX + 8, by + 8, boxSize - 16, boxSize - 16);
+          ctx.restore();
+
+          drawRoundedRect(ctx, boxX, by, boxSize, boxSize, 20);
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = accentHex;
+          ctx.stroke();
         });
       }
-
-      // 7. Bottom blue & red curved swoosh ribbons
-      ctx.beginPath();
-      ctx.moveTo(0, 752);
-      ctx.quadraticCurveTo(250, 796, 580, 784);
-      ctx.lineTo(800, 768);
-      ctx.lineTo(800, 800);
-      ctx.lineTo(0, 800);
-      ctx.closePath();
-      ctx.fillStyle = "#1d4ed8";
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.moveTo(220, 800);
-      ctx.quadraticCurveTo(540, 786, 800, 744);
-      ctx.lineTo(800, 774);
-      ctx.quadraticCurveTo(560, 802, 300, 800);
-      ctx.closePath();
-      ctx.fillStyle = "#dc2626";
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.moveTo(220, 797);
-      ctx.quadraticCurveTo(540, 783, 800, 741);
-      ctx.lineWidth = 2.5;
-      ctx.strokeStyle = "#ffffff";
-      ctx.stroke();
 
       return c;
     }
@@ -673,14 +596,13 @@
         prodPart
           ? `Use the exact product from the first reference image: cleanly isolate the product with NO white box, NO supplier/marketplace watermarks or logos, and NO extra supplier text. Re-light it with crisp 3D studio lighting and realistic soft glossy floor reflection.`
           : `Create a crisp, realistic 3D studio product illustration of "${name}" centered on a glossy reflective floor.`,
-        `Exact visual layout to match our catalog style:`,
-        `1) Top-left corner: curved white wave with a vibrant yellow and royal-blue swoosh border containing the Surya Jaya Sport logo mark (from the second reference image if provided), bold italic blue "SURYA JAYA", bold italic red "SPORT", and small blue italic "Sport for a Better Life".`,
-        `2) Top-right corner: dynamic slightly slanted bold crimson-red capsule banner with crisp white border and subtle yellow underline showing the product title "${name}" in bold white italic lettering (or stacked bold navy outlined text + red capsule for long names).`,
-        `3) Background: vibrant sky-blue athletic stadium/arena studio background with soft glowing bokeh stadium lights at upper mid-height and a bright clean light-blue reflective floor below.`,
-        `4) Right-side upper detail callout: a circular yellow-and-white-bordered zoom-in detail loupe with a thin white-and-blue pointer line pointing to the product's key texture/detail.`,
-        `5) Bottom row (above the bottom stripe): three clean horizontal dark-navy capsule pills with white borders, each with a yellow circular custom icon on the left and short 2-line white italic Indonesian benefit text specific to "${name}" (no prices, no phone numbers).`,
-        `6) Very bottom edge: sleek curved royal-blue and crimson-red swoosh accent ribbons.`,
-        `Output ONLY a crisp, clean, spelling-accurate 1:1 square poster image.`
+        `Exact visual layout to match our dark studio catalog style:`,
+        `1) Background & Frame: sleek dark charcoal/black athletic studio background with subtle overhead spotlight, reflective dark studio floor, and a thin rounded border frame in crimson red or electric blue.`,
+        `2) Top-left corner: Surya Jaya Sport logo mark on the left, thin vertical white divider line, italic white bold "SURYA JAYA SPORT", italic light-gray "Sport for a Better Life" with a small gold accent wedge.`,
+        `3) Center hero: crisp 3D studio-lit product isolated cleanly on the dark studio floor with realistic contact shadow (no white box, no supplier watermarks).`,
+        `4) Left side (lower-mid): stacked product title (clean white top line + bold crimson-red or electric-blue second line + short accent bar), followed by 3 clean white-outline minimalist circular icons with white Indonesian feature labels.`,
+        `5) Right side: 3 vertically stacked rounded-square macro detail zoom boxes with thin colored borders showing close-up textures/details of the product.`,
+        `6) Output ONLY a crisp, clean, spelling-accurate 1:1 square dark-studio poster image.`
       ].join(" ");
       parts.push({ text: prompt });
 
