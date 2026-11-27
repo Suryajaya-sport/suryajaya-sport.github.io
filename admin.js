@@ -59,9 +59,8 @@
     let toastTimer = null;
     let adminUnsubscribers = [];
     let saleItemRowNumber = 0;
+    let activeWorkspace = "kasir";
     let pendingPosterBlob = null;
-      if (document.getElementById("invCropTop")) { document.getElementById("invCropTop").value = "0"; document.getElementById("invCropTopVal").textContent = "0%"; }
-      if (document.getElementById("invCropBottom")) { document.getElementById("invCropBottom").value = "0"; document.getElementById("invCropBottomVal").textContent = "0%"; }
     const catalogCart = new Map();
     const CART_KEY = "sjs-catalog-cart-v1";
     const salePaymentMethods = new Set(["Cash", "QRIS", "Kartu", "Transfer", "Split", "Bon"]);
@@ -816,31 +815,23 @@
           tx.set(invRef, patch, { merge: true });
           if (published.exists()) tx.set(publicRef, publicProductData(patch));
         });
-        // Simpan varian tambahan (berlaku untuk Tambah barang baru MAUPUN Ubah barang yang sudah ada)
+        // Simpan varian tambahan (jika ada, khusus mode Tambah barang baru)
         let savedVariants = 0;
-        const vRows = [...document.querySelectorAll("#invVariantsList .inv-variant-row")];
-        const validVarRows = vRows.filter(vr => (vr.querySelector(".var-size")?.value.trim() || vr.querySelector(".var-color")?.value.trim()));
-        if (validVarRows.length > 0) {
-          const groupId = oldItem?.variantGroup || itemId;
+        if (!editId) {
+          const vRows = [...document.querySelectorAll("#invVariantsList .inv-variant-row")];
           const usedCodes = new Set(inventory.map(i => String(i.code || "").trim().toLowerCase()));
           usedCodes.add(code.toLowerCase());
-          const baseCodeClean = code.replace(/-[A-Z0-9]+$/i, "");
           const allocCode = (idx) => {
-            let offset = idx;
-            let cand = "";
-            while (offset < 200) {
-              const suffix = offset < 26 ? String.fromCharCode(65 + offset) : String(offset + 1);
-              cand = `${baseCodeClean}-${suffix}`;
-              if (!usedCodes.has(cand.toLowerCase())) break;
-              offset++;
-            }
+            const suffix = idx < 26 ? String.fromCharCode(65 + idx) : String(idx + 1);
+            let cand = `${code}-${suffix}`;
+            let seq = 2;
+            while (usedCodes.has(cand.toLowerCase())) { cand = `${code}-${suffix}${seq++}`; }
             usedCodes.add(cand.toLowerCase());
             return cand;
           };
-          await setDoc(doc(db, ...paths("inventory", itemId)), { variantGroup: groupId }, { merge: true });
-          const isMainPublished = publicCatalog.some(p => p.id === itemId);
-          if (isMainPublished) {
-            await setDoc(doc(db, "publicCatalog", itemId), { variantGroup: groupId }, { merge: true });
+          const validVarRows = vRows.filter(vr => (vr.querySelector(".var-size")?.value.trim() || vr.querySelector(".var-color")?.value.trim()));
+          if (validVarRows.length > 0) {
+            await setDoc(doc(db, ...paths("inventory", itemId)), { variantGroup: itemId }, { merge: true });
           }
           for (let vi = 0; vi < validVarRows.length; vi++) {
             const vr = validVarRows[vi];
@@ -869,13 +860,10 @@
               description: autoDesc,
               imageUrl: vImgUrl,
               imagePath: vImgPath,
-              variantGroup: groupId,
+              variantGroup: itemId,
               updatedAt: new Date().toISOString()
             };
             await setDoc(doc(db, ...paths("inventory", vId)), vData, { merge: true });
-            if (isMainPublished) {
-              await setDoc(doc(db, "publicCatalog", vId), publicProductData(vData), { merge: true });
-            }
             savedVariants++;
           }
         }
@@ -933,51 +921,12 @@
       a.download = `label-${itemObj.code || "SJS"}.png`;
       a.click();
     }
-    function renderExistingInvVariants(item) {
-      const box = document.getElementById("invExistingVariantsBox");
-      if (!box) return;
-      if (!item) { box.innerHTML = ""; box.classList.add("hidden"); return; }
-      const gKey = item.variantGroup ? ("g:" + item.variantGroup) : ("n:" + String(item.name || "").trim().toLowerCase());
-      const siblings = activeInventory().filter(i => i.id !== item.id && (
-        (item.variantGroup && i.variantGroup === item.variantGroup) ||
-        (!item.variantGroup && String(i.name || "").trim().toLowerCase() === String(item.name || "").trim().toLowerCase())
-      ));
-      if (!siblings.length) { box.innerHTML = ""; box.classList.add("hidden"); return; }
-      box.classList.remove("hidden");
-      box.innerHTML = `<p class="text-[11px] font-bold text-slate-600 mb-1.5">Varian yang sudah ada (${siblings.length}):</p>` +
-        `<div class="space-y-1.5">` + siblings.map(s => {
-          const spec = [s.size, s.color].filter(Boolean).join(" · ") || "Standar";
-          return `<div class="flex items-center justify-between gap-2 rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs">
-            <div class="flex items-center gap-2 min-w-0">
-              ${s.imageUrl ? `<img src="${esc(s.imageUrl)}" alt="" class="w-8 h-8 rounded-lg object-contain bg-white border border-slate-200 shrink-0">` : `<span class="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-400 text-[10px] shrink-0"><i class="fa-regular fa-image"></i></span>`}
-              <div class="min-w-0">
-                <span class="block font-bold text-slate-900 truncate">${esc(spec)} <span class="text-[10px] font-mono text-slate-500">(${esc(s.code || "-")})</span></span>
-                <span class="block text-[11px] text-slate-600 tabular-nums">Stok ${Number(s.stock || 0)} · ${rp(s.price)}</span>
-              </div>
-            </div>
-            <button type="button" data-edit-sibling="${esc(s.id)}" class="shrink-0 px-2.5 py-1 rounded-lg bg-white hover:bg-slate-900 hover:text-white border border-slate-300 text-[11px] font-bold text-slate-700 transition">Ubah</button>
-          </div>`;
-        }).join("") + `</div>`;
-      box.querySelectorAll("[data-edit-sibling]").forEach(btn => {
-        btn.addEventListener("click", () => editInventoryItem(btn.dataset.editSibling));
-      });
-    }
     function updateInvVariantCodes() {
-      const rawBase = document.getElementById("invCode")?.value.trim() || nextAutoCode();
-      const base = rawBase.replace(/-[A-Z0-9]+$/i, "");
-      const used = new Set(inventory.map(i => String(i.code || "").trim().toLowerCase()));
-      used.add(rawBase.toLowerCase());
+      const base = document.getElementById("invCode")?.value.trim() || nextAutoCode();
       const rows = [...document.querySelectorAll("#invVariantsList .inv-variant-row")];
-      let offset = 0;
-      rows.forEach((row) => {
-        let vCode = "";
-        while (offset < 200) {
-          const suffix = offset < 26 ? String.fromCharCode(65 + offset) : String(offset + 1);
-          vCode = `${base}-${suffix}`;
-          offset++;
-          if (!used.has(vCode.toLowerCase())) break;
-        }
-        used.add(vCode.toLowerCase());
+      rows.forEach((row, idx) => {
+        const suffix = idx < 26 ? String.fromCharCode(65 + idx) : String(idx + 1);
+        const vCode = `${base}-${suffix}`;
         row.dataset.varCode = vCode;
         const badge = row.querySelector(".var-code-badge");
         if (badge) badge.textContent = vCode;
@@ -1166,7 +1115,6 @@
       if (vSec) vSec.hidden = false;
       const vList = document.getElementById("invVariantsList");
       if (vList) vList.innerHTML = "";
-      renderExistingInvVariants(null);
       refreshInvOptionDatalists();
       setInvFieldError("invName", "invErrName", false);
       setInvFieldError("invStock", "invErrStock", false);
@@ -1194,8 +1142,7 @@
       document.getElementById("btnSaveInvText").textContent = "Simpan perubahan";
       document.getElementById("inventoryEntryTitle").textContent = "Ubah barang";
       const vSec = document.getElementById("invVariantsSection");
-      if (vSec) vSec.hidden = false;
-      renderExistingInvVariants(item);
+      if (vSec) vSec.hidden = true;
       updateInvQrPreview();
       updateInvProfitPreview();
       updateInvVariantSummary();
@@ -5691,6 +5638,7 @@
       catalog: { btn: "tabBtnCatalog", panel: "viewCatalog" }
     };
     function switchWorkspace(name) {
+      activeWorkspace = name;
       const target = isAdmin ? (WORKSPACES[name] ? name : "kasir") : "catalog";
       for (const [key, cfg] of Object.entries(WORKSPACES)) {
         document.getElementById(cfg.btn).setAttribute("aria-current", key === target ? "page" : "false");
