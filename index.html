@@ -757,7 +757,6 @@
   <div id="toastMsg" role="status" aria-live="polite" class="pointer-events-none fixed bottom-20 left-1/2 z-50 -translate-x-1/2 rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white opacity-0 shadow-lg transition-opacity"></div>
 
   <script type="module">
-    import { catalogImageUrl } from "./produk/katalog.js";
     const EMBEDDED_FIREBASE_CONFIG = {
       apiKey: "AIzaSyBFtI_lwLU7cDcioDE1GpgC0AjKPZ1mHag",
       authDomain: "suryajayasport-3fd5e.firebaseapp.com",
@@ -839,7 +838,16 @@
       clearTimeout(toastTimer);
       toastTimer = setTimeout(() => el.classList.add("opacity-0"), 2400);
     }
-
+    function safeHttpsUrl(url) {
+      const raw = String(url || "").trim();
+      if (!raw) return "";
+      try {
+        const parsed = new URL(raw);
+        return parsed.protocol === "https:" ? parsed.href : "";
+      } catch {
+        return "";
+      }
+    }
     function thumbnailUrl(url, width = 360) {
       if (!url || !url.includes("/image/upload/")) return url;
       return url.replace("/image/upload/", `/image/upload/c_limit,w_${width},q_auto:eco,f_auto/`);
@@ -882,7 +890,7 @@
       return false;
     }
     function productImageMarkup(item, extraClass = "", width = 360, eager = false) {
-      const url = catalogImageUrl(item);
+      const url = safeHttpsUrl(item?.imageUrl);
       if (url) {
         return `<div class="${extraClass} relative overflow-hidden bg-white"><img src="${esc(thumbnailUrl(url, width))}" width="${width}" height="${Math.round(width * 0.75)}" alt="${esc(item?.name ? `${item.name} - Surya Jaya Sport Berau` : "Foto produk Surya Jaya Sport Berau")}" loading="${eager ? "eager" : "lazy"}" decoding="async" class="h-full w-full object-contain bg-white"></div>`;
       }
@@ -952,18 +960,53 @@
       updateCartSummary();
       showToast(`${item.name} masuk ke keranjang.`);
     }
+    function variantGroupKey(item) {
+      if (item.variantGroup) return "g:" + String(item.variantGroup).trim();
+      return "n:" + String(item.name || "").trim().toLowerCase();
+    }
+    function variantShortLabel(item) {
+      return [item.size, item.color].map(v => String(v || "").trim()).filter(Boolean).join(" · ") || item.code || "Standar";
+    }
+    function getProductVariants(item) {
+      const key = variantGroupKey(item);
+      const list = publicCatalog.filter(p => variantGroupKey(p) === key);
+      return list.length > 1 ? list : [item];
+    }
     function openProductDetail(id) {
       const item = publicCatalog.find(p => p.id === id);
       if (!item) return;
-      const msg = `Halo Surya Jaya Sport, saya ingin bertanya tentang ${item.name}${item.code ? ` (${item.code})` : ""} dengan harga ${rp(item.price)}. Apakah stoknya tersedia?`;
+      const variants = getProductVariants(item);
+      const specLabel = [item.size, item.color].filter(Boolean).join(" / ");
+      const msg = `Halo Surya Jaya Sport, saya ingin bertanya tentang ${item.name}${specLabel ? ` (${specLabel})` : ""}${item.code ? ` [${item.code}]` : ""} dengan harga ${rp(item.price)}. Apakah stoknya tersedia?`;
       document.getElementById("catalogDetailTitle").textContent = item.name;
       if (typeof window.gtag === "function") {
         window.gtag("event", "view_item", { currency: "IDR", value: Number(item.price || 0), items: [{ item_id: item.code || item.id, item_name: item.name, price: Number(item.price || 0) }] });
       }
       const showSenarNote = isSenarBadminton(item);
+      const variantPickerHtml = variants.length > 1 ? `
+        <div class="space-y-2 pt-1">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-extrabold uppercase tracking-wider text-slate-600">Pilih Varian (${variants.length})</span>
+            <span class="text-xs font-bold text-blue-800">${esc(variantShortLabel(item))}</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            ${variants.map(v => {
+              const active = v.id === item.id;
+              const vOut = Number(v.stock || 0) <= 0;
+              return `<button type="button" data-pick-variant="${esc(v.id)}" class="flex items-center gap-2 p-1.5 rounded-xl border-2 text-left transition ${active ? "border-slate-900 bg-slate-50 shadow-xs" : "border-slate-200 bg-white hover:border-blue-400"} ${vOut ? "opacity-55" : ""}">
+                <div class="w-11 h-11 rounded-lg border border-slate-200 bg-white overflow-hidden shrink-0">${productImageMarkup(v, "w-full h-full object-contain", 140, true)}</div>
+                <div class="min-w-0 flex-1">
+                  <span class="block text-xs font-extrabold text-slate-900 truncate">${esc(variantShortLabel(v))}</span>
+                  <span class="block text-[11px] font-bold ${vOut ? "text-rose-600" : "text-slate-600"}">${vOut ? "Habis" : rp(v.price)}</span>
+                </div>
+              </button>`;
+            }).join("")}
+          </div>
+        </div>` : "";
       document.getElementById("catalogDetailBody").innerHTML = `
         <div class="rounded-2xl border border-slate-100 bg-white overflow-hidden">${productImageMarkup(item, "aspect-[4/3] w-full", 720, true)}</div>
         <p class="text-xs font-mono font-bold text-blue-700">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
+        ${variantPickerHtml}
         ${item.description ? `<p class="text-sm text-slate-600 leading-relaxed">${esc(item.description)}</p>` : ""}
         ${showSenarNote ? `<p class="senar-service-note !text-xs !py-2 !px-3"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>${SENAR_SERVICE_NOTE}</span></p>` : ""}
         <div class="flex items-center justify-between pt-2 border-t border-slate-100">
@@ -976,6 +1019,9 @@
           <button type="button" data-copy-link="${esc(item.id)}" class="shop-button shop-button-secondary col-span-2"><i class="fa-solid fa-link text-blue-700" aria-hidden="true"></i> Salin Link Produk</button>
         </div>`;
       const dlg = document.getElementById("catalogProductModal");
+      dlg.querySelectorAll("[data-pick-variant]").forEach(btn => {
+        btn.addEventListener("click", () => openProductDetail(btn.dataset.pickVariant));
+      });
       dlg.querySelector("[data-detail-add]").addEventListener("click", () => {
         addToCatalogCart(item.id);
         dlg.close();
@@ -1045,6 +1091,14 @@
           <div class="catalog-card-body">
             <p class="catalog-card-meta">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
             <h3 class="font-extrabold cursor-pointer hover:text-blue-700" data-view-product="${esc(item.id)}">${esc(item.name)}</h3>
+            ${(() => {
+              const vs = getProductVariants(item);
+              if (vs.length <= 1) return "";
+              return `<div class="flex items-center gap-1.5 pt-1 overflow-x-auto" aria-label="Pilihan varian">
+                ${vs.slice(0, 5).map(v => `<button type="button" data-view-product="${esc(v.id)}" title="${esc(variantShortLabel(v))} · ${rp(v.price)}" class="w-8 h-8 rounded-lg border ${v.id === item.id ? "border-slate-900 ring-1 ring-slate-900" : "border-slate-200 hover:border-blue-500"} bg-white overflow-hidden shrink-0">${productImageMarkup(v, "w-full h-full object-contain", 96, false)}</button>`).join("")}
+                ${vs.length > 5 ? `<span class="text-[10px] font-bold text-slate-500 shrink-0">+${vs.length - 5}</span>` : ""}
+              </div>`;
+            })()}
             ${item.description ? `<p class="catalog-card-description line-clamp-2">${esc(item.description)}</p>` : ""}
             ${showSenarNote ? `<p class="senar-service-note"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>${SENAR_SERVICE_NOTE}</span></p>` : ""}
             <div class="catalog-card-facts">

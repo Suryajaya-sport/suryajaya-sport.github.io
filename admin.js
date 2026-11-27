@@ -830,14 +830,26 @@
             usedCodes.add(cand.toLowerCase());
             return cand;
           };
-          for (let vi = 0; vi < vRows.length; vi++) {
-            const vr = vRows[vi];
+          const validVarRows = vRows.filter(vr => (vr.querySelector(".var-size")?.value.trim() || vr.querySelector(".var-color")?.value.trim()));
+          if (validVarRows.length > 0) {
+            await setDoc(doc(db, ...paths("inventory", itemId)), { variantGroup: itemId }, { merge: true });
+          }
+          for (let vi = 0; vi < validVarRows.length; vi++) {
+            const vr = validVarRows[vi];
             const vSize = vr.querySelector(".var-size")?.value.trim() || "";
             const vColor = vr.querySelector(".var-color")?.value.trim() || "";
-            if (!vSize && !vColor) continue;
             const vStock = Math.max(0, Math.trunc(Number(vr.querySelector(".var-stock")?.value) || 0));
             const vPrice = parseIdrNum(vr.querySelector(".var-price")?.value) || price;
             const vId = doc(collection(db, ...paths("inventory"))).id;
+            let vImgUrl = itemData.imageUrl || "";
+            let vImgPath = itemData.imagePath || "";
+            const vFile = vr.querySelector(".var-photo-input")?.files?.[0] || null;
+            if (vFile) {
+              showToast(`Mengunggah foto varian ${vi + 1}/${validVarRows.length}...`);
+              const upVar = await uploadProductImage(vFile, vId);
+              vImgUrl = upVar.imageUrl;
+              vImgPath = upVar.imagePath;
+            }
             const vData = {
               code: allocCode(vi),
               name,
@@ -847,8 +859,9 @@
               cost,
               price: vPrice,
               description: autoDesc,
-              imageUrl: itemData.imageUrl || "",
-              imagePath: itemData.imagePath || "",
+              imageUrl: vImgUrl,
+              imagePath: vImgPath,
+              variantGroup: itemId,
               updatedAt: new Date().toISOString()
             };
             await setDoc(doc(db, ...paths("inventory", vId)), vData, { merge: true });
@@ -883,7 +896,8 @@
         price: Math.max(0, Number(item.price) || 0),
         stock: Math.max(0, Math.trunc(Number(item.stock) || 0)),
         imageUrl: productImageUrl(item).slice(0, 2048),
-        description: String(item.description || "").slice(0, 400)
+        description: String(item.description || "").slice(0, 400),
+        variantGroup: String(item.variantGroup || "").slice(0, 120)
       };
     }
 
@@ -1015,7 +1029,46 @@
           <input type="number" min="0" step="1" inputmode="numeric" value="0" placeholder="Stok" class="var-stock sm:col-span-2 px-2 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-bold text-center tabular-nums">
           <input type="text" inputmode="numeric" autocomplete="off" placeholder="Harga" class="var-price sm:col-span-4 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-bold tabular-nums">
         </div>
+        <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-200/70">
+          <div class="flex items-center gap-2 min-w-0">
+            <img class="var-photo-thumb hidden w-9 h-9 object-contain rounded-lg border border-slate-200 bg-white shrink-0" alt="Foto varian">
+            <span class="var-photo-label text-[11px] text-slate-500 truncate">Foto varian (opsional, ikut foto utama jika kosong)</span>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <label class="cursor-pointer px-2.5 py-1 rounded-lg bg-white hover:bg-slate-900 hover:text-white border border-slate-300 text-[11px] font-bold text-slate-700 transition inline-flex items-center gap-1">
+              <i class="fa-solid fa-camera text-[10px]" aria-hidden="true"></i><span class="var-photo-btn-txt">Foto Varian</span>
+              <input type="file" accept="image/jpeg,image/png,image/webp" class="var-photo-input sr-only">
+            </label>
+            <button type="button" class="btn-var-photo-clear hidden px-2 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-[11px] font-bold" title="Hapus foto varian">×</button>
+          </div>
+        </div>
       `;
+      const varPhotoInp = row.querySelector(".var-photo-input");
+      const varPhotoThumb = row.querySelector(".var-photo-thumb");
+      const varPhotoLbl = row.querySelector(".var-photo-label");
+      const varPhotoBtnTxt = row.querySelector(".var-photo-btn-txt");
+      const varPhotoClear = row.querySelector(".btn-var-photo-clear");
+      varPhotoInp?.addEventListener("change", e => {
+        const f = e.target.files?.[0];
+        if (f) {
+          if (varPhotoThumb) { varPhotoThumb.src = URL.createObjectURL(f); varPhotoThumb.classList.remove("hidden"); }
+          if (varPhotoLbl) varPhotoLbl.textContent = f.name;
+          if (varPhotoBtnTxt) varPhotoBtnTxt.textContent = "Ganti";
+          varPhotoClear?.classList.remove("hidden");
+        } else {
+          if (varPhotoThumb) { varPhotoThumb.src = ""; varPhotoThumb.classList.add("hidden"); }
+          if (varPhotoLbl) varPhotoLbl.textContent = "Foto varian (opsional, ikut foto utama jika kosong)";
+          if (varPhotoBtnTxt) varPhotoBtnTxt.textContent = "Foto Varian";
+          varPhotoClear?.classList.add("hidden");
+        }
+      });
+      varPhotoClear?.addEventListener("click", () => {
+        if (varPhotoInp) varPhotoInp.value = "";
+        if (varPhotoThumb) { varPhotoThumb.src = ""; varPhotoThumb.classList.add("hidden"); }
+        if (varPhotoLbl) varPhotoLbl.textContent = "Foto varian (opsional, ikut foto utama jika kosong)";
+        if (varPhotoBtnTxt) varPhotoBtnTxt.textContent = "Foto Varian";
+        varPhotoClear.classList.add("hidden");
+      });
       row.querySelector(".var-price")?.addEventListener("input", e => { e.target.value = fmtIdrInput(e.target.value); });
       row.querySelector(".var-stock")?.addEventListener("input", updateInvVariantSummary);
       row.querySelector(".btn-var-qr")?.addEventListener("click", () => {
