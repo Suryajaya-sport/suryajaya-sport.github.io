@@ -1,8 +1,8 @@
 const posters = new Map([
   ["SJS-017", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795672883/products/xTSULFT9eCVZn5suPAYz-1795672883153.webp", "sjs-017-v1795672883.webp"]],
-  ["SJS-021", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795672851/products/TtL3JseAQq3Db9SADZPE-1795672849303.webp", "sjs-021-v1795672851.webp"]],
+  ["SJS-021", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795744724/products/TtL3JseAQq3Db9SADZPE-1795744724563.webp", "sjs-021-v1795744724.webp"]],
   ["SJS-028", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795672600/products/fwdC91xEbu01ZQjGWAnn-1795672598266.webp", "sjs-028-v1795672600.webp"]],
-  ["SJS-029", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795683542/products/YYvx1Wp6PGoHyZDm7KSS-1795683542642.webp", "sjs-029-v1795683542.webp"]],
+  ["SJS-029", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795744734/products/YYvx1Wp6PGoHyZDm7KSS-1795744735355.webp", "sjs-029-v1795744734.webp"]],
   ["SJS-034", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795673836/products/oumzGv5oDdXUGiZ2juEc-1795673836419.webp", "sjs-034-v1795673836.webp"]],
   ["SJS-040", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795673794/products/Fi82RWwN3GFos4p4vrO9-1795673793359.webp", "sjs-040-v1795673794.webp"]],
   ["SJS-046", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795673812/products/Rlzw9xjWePPKrFXQdP6D-1795673812621.webp", "sjs-046-v1795673812.webp"]],
@@ -19,7 +19,12 @@ const posters = new Map([
   ["SJS-057", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795571626/products/ZGyZ2tPsIt62JV02D7Mu-1795571625602.webp", "sjs-057-v1795571626.webp"]],
   ["SJS-058", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795580145/products/EK7fzUSE84bs9J061Yc1-1795580144699.webp", "sjs-058-v1795580145.webp"]],
   ["SJS-059", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795683473/products/ehwsc24ifgaOf53CP5Hm-1795683473684.webp", "sjs-059-v1795683473.webp"]],
-  ["SJS-060", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795683443/products/xEAsNLeLUYezAzf24btX-1795683443564.webp", "sjs-060-v1795683443.webp"]]
+  ["SJS-060", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795683443/products/xEAsNLeLUYezAzf24btX-1795683443564.webp", "sjs-060-v1795683443.webp"]],
+  ["SJS-020", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795744764/products/wkGM3jE8ZQ0lTb4T4qZy-1795744765376.webp", "sjs-020-v1795744764.webp"]],
+  ["SJS-026", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795744744/products/pVarrt0Lg9UN6JYQumDW-1795744745687.webp", "sjs-026-v1795744744.webp"]],
+  ["SJS-A", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795741585/products/ZW0Q41xgLnxFq7uyGo8d-1795741584617.webp", "sjs-a-d-e-v1795741585.webp"]],
+  ["SJS-D", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795741585/products/ZW0Q41xgLnxFq7uyGo8d-1795741584617.webp", "sjs-a-d-e-v1795741585.webp"]],
+  ["SJS-E", ["https://res.cloudinary.com/mhfuwzby/image/upload/v1795741585/products/ZW0Q41xgLnxFq7uyGo8d-1795741584617.webp", "sjs-a-d-e-v1795741585.webp"]]
 ]);
 
 export function catalogImageUrl(item) {
