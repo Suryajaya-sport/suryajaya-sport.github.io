@@ -759,6 +759,14 @@
     .catalog-reset { display:block; margin:.85rem auto 0; }
     .hero-search button:focus-visible, .catalog-reset:focus-visible { outline:2px solid white; outline-offset:2px; }
   </style>
+  <style id="sjs-dark-contrast-fix">
+    /* Perbaikan kontras tema gelap: teks abu redup pada latar gelap */
+    footer.border-t { color: #94a3b8 !important; }
+    .catalog-search-form input::placeholder { color: #94a3b8 !important; }
+    #catalogCart .text-slate-500, #catalogCart .text-slate-600,
+    #catalogProductModal .text-slate-500 { color: #94a3b8 !important; }
+    #catalogCart .text-slate-900:not(#catalogCartTotal) { color: #ffffff !important; }
+  </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
 

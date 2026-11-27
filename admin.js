@@ -1612,10 +1612,10 @@
             const st = Number(inv.stock || 0);
             if (qty > st) {
               badge.textContent = `⚠ Melebihi stok (tersisa ${st})`;
-              badge.className = "item-mode-badge font-extrabold text-rose-700";
+              badge.className = "item-mode-badge inline-block font-extrabold text-white bg-rose-700 px-2 py-0.5 rounded-full";
             } else if (st < LOW_STOCK_LIMIT) {
-              badge.textContent = `Stok ${st} ⚠`;
-              badge.className = "item-mode-badge block text-xs font-bold mt-0.5 text-amber-700";
+              badge.textContent = `⚠ Stok ${st}`;
+              badge.className = "item-mode-badge inline-block text-xs font-bold mt-0.5 text-white bg-rose-600 px-2 py-0.5 rounded-full";
             } else {
               badge.textContent = `Stok ${st}`;
               badge.className = "item-mode-badge block text-xs font-semibold mt-0.5 text-emerald-700";
