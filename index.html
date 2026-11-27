@@ -60,7 +60,7 @@
     "hasMap": "https://www.google.com/maps/search/?api=1&query=Surya+Jaya+Sport&query_place_id=ChIJPwiXPaT1DTIR4E2dU8PQWpI"
   }
   </script>
-  <link rel="preload" as="image" href="hero-surya-jaya-sport.webp" fetchpriority="high">
+  <link rel="preload" as="image" href="assets/badminton-banner.webp" fetchpriority="high">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
@@ -254,7 +254,7 @@
     .shop-button-accent { background: linear-gradient(135deg,#facc15,#eab308); color: #0f172a; font-weight: 800; }
     .shop-button-outline { background: rgba(255,255,255,.14); color: #fff; border: 1.5px solid rgba(255,255,255,.35); }
 
-    .shop-hero { position: relative; border-radius: 2rem; overflow: hidden; min-height: 350px; background: linear-gradient(95deg, rgba(7,20,51,.94) 0%, rgba(15,37,87,.84) 52%, rgba(15,37,87,.22) 100%), url('hero-surya-jaya-sport.webp') right center / cover no-repeat, #071433; color: #fff; display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,.8fr); gap: 1.5rem; align-items: center; padding: 2.35rem 2rem; }
+    .shop-hero { position: relative; border-radius: 2rem; overflow: hidden; min-height: 350px; background: linear-gradient(95deg, rgba(7,20,51,.94) 0%, rgba(15,37,87,.84) 52%, rgba(15,37,87,.22) 100%), url('assets/badminton-banner.webp') right center / cover no-repeat, #071433; color: #fff; display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,.8fr); gap: 1.5rem; align-items: center; padding: 2.35rem 2rem; }
     .shop-button-wa { background: linear-gradient(135deg,#16a34a,#15803d); color: #fff; border: 1.5px solid #22c55e; box-shadow: 0 4px 12px rgba(22,163,74,.25); }
     .shop-button-wa:hover { background: #15803d; }
     .quick-cat-thumb { width: 76px; height: 76px; border-radius: 1rem; object-fit: cover; border: 1.5px solid #dbeafe; background: #eff6ff; }
@@ -508,7 +508,7 @@
     .shop-hero {
       background:
         linear-gradient(95deg, rgba(8, 10, 15, 0.96) 0%, rgba(15, 20, 32, 0.88) 54%, rgba(15, 20, 32, 0.42) 100%),
-        url('hero-surya-jaya-sport.webp') right center / cover no-repeat, #080a0f !important;
+        url('assets/badminton-banner.webp') right center / cover no-repeat, #080a0f !important;
       border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
       box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65) !important;
     }
@@ -767,6 +767,26 @@
     #catalogCart .text-slate-500, #catalogCart .text-slate-600,
     #catalogProductModal .text-slate-500 { color: #94a3b8 !important; }
     #catalogCart .text-slate-900:not(#catalogCartTotal) { color: #ffffff !important; }
+      .shop-hero {
+      background: linear-gradient(90deg, #0a0b0d 0%, rgba(10, 11, 13, .95) 34%, rgba(10, 11, 13, .60) 66%, rgba(10, 11, 13, .20) 100%),
+        url('assets/badminton-banner.webp') right center / cover no-repeat, #0a0b0d !important;
+    }
+    .catalog-brand-strip { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin: 1rem 0; color: #f8fafc; }
+    .catalog-brand-strip strong { margin-right: .35rem; }
+    .catalog-brand-strip button { min-height: 44px; padding: .45rem .85rem; border: 1px solid #475569; border-radius: 999px; background: #171a20; color: #fff; font-weight: 700; }
+    .catalog-brand-strip button:hover, .catalog-brand-strip button[aria-pressed="true"] { border-color: #d9f261; color: #d9f261; }
+    .catalog-brand-strip button:focus-visible { outline: 2px solid #d9f261; outline-offset: 3px; }
+    .catalog-card-photo-wrap { border-bottom-color: #66723b !important; }
+    .catalog-card-photo, .catalog-card-photo > div, .catalog-card-photo img { background: #151616 !important; }
+    .catalog-card-badge.is-sold-out { background: #b91c1c !important; color: #fff !important; }
+    .floating-wa-btn { bottom: max(1rem, env(safe-area-inset-bottom)); }
+    @media (max-width: 640px) {
+      .shop-hero {
+        background: linear-gradient(90deg, rgba(10, 11, 13, .96), rgba(10, 11, 13, .72)),
+          url('assets/badminton-banner.webp') right center / cover no-repeat, #0a0b0d !important;
+      }
+      .catalog-filter-row > div { flex-wrap: wrap; }
+    }
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -810,7 +830,7 @@
         <h2 id="catalogPageTitle">Perlengkapan Olahraga<br><span class="shop-hero-accent">&amp; Alat Musik Berau</span></h2>
         <p class="text-[15px] text-slate-200 leading-relaxed">Toko raket badminton Berau, bola futsal Tanjung Redeb, catur, hingga senar dan aksesori gitar dengan harga jelas dan stok langsung dari toko kami.</p>
         <div class="hero-trust-row">
-          <span class="hero-trust-pill"><i class="fa-solid fa-circle-check text-amber-300" aria-hidden="true"></i> Harga &amp; stok dikonfirmasi toko</span>
+          <span class="hero-trust-pill"><i class="fa-solid fa-circle-check text-amber-300" aria-hidden="true"></i> Pilihan raket, shuttlecock &amp; senar badminton</span>
           <span class="hero-trust-pill"><i class="fa-solid fa-store text-amber-300" aria-hidden="true"></i> Ambil di toko · Bisa pesan/DP via WA</span>
           <span class="hero-trust-pill"><i class="fa-solid fa-qrcode text-amber-300" aria-hidden="true"></i> Tunai, Kartu Kredit, Kartu Debit, Transfer &amp; QRIS</span>
         </div>
@@ -850,6 +870,15 @@
       </div>
     </section>
 
+    <section class="catalog-brand-strip" aria-label="Jelajahi merek">
+      <strong>Jelajahi merek</strong>
+      <button type="button" data-catalog-brand="Yonex" aria-pressed="false">Yonex</button>
+      <button type="button" data-catalog-brand="Victor" aria-pressed="false">Victor</button>
+      <button type="button" data-catalog-brand="Li-Ning" aria-pressed="false">Li-Ning</button>
+      <button type="button" data-catalog-brand="Astec" aria-pressed="false">Astec</button>
+      <button type="button" data-catalog-brand="Molten" aria-pressed="false">Molten</button>
+      <button type="button" data-catalog-brand="Specs" aria-pressed="false">Specs</button>
+    </section>
     <section class="fun-highlights-strip" aria-label="Keunggulan belanja di Surya Jaya Sport">
       <div class="fun-highlight-pill">
         <span class="fun-highlight-icon is-yellow"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
@@ -861,8 +890,8 @@
       <div class="fun-highlight-pill">
         <span class="fun-highlight-icon is-blue"><i class="fa-solid fa-feather-pointed" aria-hidden="true"></i></span>
         <div>
-          <strong class="block text-sm font-extrabold text-slate-900">Gratis Pasang Senar</strong>
-          <span class="text-xs font-semibold text-slate-600">Khusus semua senar badminton</span>
+          <strong class="block text-sm font-extrabold text-slate-900">Pasang Ulang Senar Badminton</strong>
+          <span class="text-xs font-semibold text-slate-600">Gratis pemasangan untuk pembelian senar badminton</span>
         </div>
       </div>
       <div class="fun-highlight-pill">
@@ -942,6 +971,15 @@
             <label><input type="radio" name="catalogCategory" value="sport" class="sr-only"><span>Olahraga Lainnya</span></label>
           </div>
           <div class="flex items-center gap-2.5">
+            <select id="catalogBrand" aria-label="Filter merek" class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700">
+              <option value="">Semua merek</option>
+              <option>Yonex</option>
+              <option>Victor</option>
+              <option>Li-Ning</option>
+              <option>Astec</option>
+              <option>Molten</option>
+              <option>Specs</option>
+            </select>
             <select id="catalogSort" aria-label="Urutkan produk" class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700">
               <option value="default">Urutan default</option>
               <option value="price-asc">Harga: termurah</option>
@@ -1010,7 +1048,7 @@
         </div>
         <div class="flex flex-wrap gap-2.5">
           <a class="shop-button shop-button-wa" href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Chat WhatsApp</a>
-          <a class="shop-button shop-button-accent" href="https://www.google.com/maps/search/?api=1&amp;query=Surya+Jaya+Sport+Jl.+Ahmad+Yani+37+Tanjung+Redeb+Berau" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Buka di Google Maps</a>
+          <a class="shop-button shop-button-accent" href="https://www.google.com/maps/search/?api=1&amp;query=Surya+Jaya+Sport+Jl.+Ahmad+Yani+37+Tanjung+Redeb+Berau" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Baca ulasan di Google Maps</a>
         </div>
       </div>
       <div class="shop-map-frame">
@@ -1028,6 +1066,7 @@
   <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
     <p class="font-bold text-slate-700">&copy; 2026 Surya Jaya Sport · Toko Olahraga &amp; Alat Musik</p>
     <p class="mt-1">Jl. Ahmad Yani 37, Tanjung Redeb, Berau · Senin–Minggu 08.00–21.00 WITA · WA 0823-200-33333</p>
+    <p class="mx-auto mt-2 max-w-2xl px-4">Surya Jaya Sport adalah toko olahraga dan alat musik di Tanjung Redeb, Berau. Temukan raket badminton, shuttlecock, perlengkapan futsal, catur, gitar, dan aksesorinya. Kami juga melayani pasang ulang senar badminton.</p>
     <p class="mt-1.5"><a href="kebijakan-privasi.html" class="font-bold text-blue-700 underline">Kebijakan Privasi</a></p>
   </footer>
 
@@ -1375,11 +1414,19 @@
       for (const btn of document.querySelectorAll("#quickCatGrid .quick-cat-btn")) {
         btn.classList.toggle("is-active", btn.dataset.quickCat === category);
       }
+      const brand = document.getElementById("catalogBrand").value;
+      for (const button of document.querySelectorAll("[data-catalog-brand]")) {
+        button.setAttribute("aria-pressed", String(button.dataset.catalogBrand === brand));
+      }
       const sortMode = document.getElementById("catalogSort")?.value || "default";
       const items = publicCatalog.slice().sort((a, b) => (Number(b.stock || 0) > 0) - (Number(a.stock || 0) > 0));
       const filtered = items.filter(item => {
         const hay = [item.name, displayProductName(item.name), item.code, item.size, item.color, item.description].filter(Boolean).join(" ").toLocaleLowerCase("id");
-        return (!q || hay.includes(q)) && matchesCatalogCategory(item, category);
+        const brandText = " " + [item.brand, item.name].filter(Boolean).join(" ").toLowerCase().replace(/[^a-z0-9]+/g, " ") + " ";
+        const brandName = brand.toLowerCase().replace(/-/g, " ");
+        const matchesBrand = !brand || brandText.includes(" " + brandName + " ")
+          || (brand === "Li-Ning" && brandText.includes(" lining "));
+        return matchesBrand && (!q || hay.includes(q)) && matchesCatalogCategory(item, category);
       });
       if (sortMode === "price-asc") filtered.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
       else if (sortMode === "price-desc") filtered.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
@@ -1395,7 +1442,7 @@
       }
       document.getElementById("catalogResultCount").textContent = `${shown.length} produk`;
       if (!shown.length) {
-        grid.innerHTML = `<div class="catalog-empty"><p role="status">Produk tidak ditemukan. Coba kata kunci lain.</p>${q || category !== "all" ? '<button type="button" class="catalog-reset" data-reset-filters>Lihat semua produk</button>' : ""}</div>`;
+        grid.innerHTML = `<div class="catalog-empty"><p role="status">Produk tidak ditemukan. Coba kata kunci lain.</p>${q || brand || category !== "all" ? '<button type="button" class="catalog-reset" data-reset-filters>Lihat semua produk</button>' : ""}</div>`;
         return;
       }
       grid.innerHTML = shown.map((item, index) => {
@@ -1409,7 +1456,7 @@
         return `
         <article class="catalog-card ${outOfStock ? "opacity-85" : ""}">
           <div class="catalog-card-photo-wrap" data-view-product="${esc(item.id)}" role="button" tabindex="0" aria-label="Lihat detail ${esc(displayProductName(item.name))}">
-            <span class="catalog-card-badge ${outOfStock ? "!bg-rose-600" : limited ? "is-limited" : ""}">${outOfStock ? "Habis" : limited ? "Stok terbatas" : "Tersedia"}</span>
+            <span class="catalog-card-badge ${outOfStock ? "is-sold-out" : limited ? "is-limited" : ""}">${outOfStock ? "STOK HABIS" : limited ? "Stok terbatas" : "Tersedia"}</span>
             ${productImageMarkup(item, "catalog-card-photo", 360, index < 2)}
           </div>
           <div class="catalog-card-body">
@@ -1492,6 +1539,16 @@
     });
     document.getElementById("catalogCategory").addEventListener("change", renderProductCatalog);
     document.getElementById("catalogSort").addEventListener("change", renderProductCatalog);
+    const catalogBrand = document.getElementById("catalogBrand");
+    catalogBrand.addEventListener("change", renderProductCatalog);
+    for (const button of document.querySelectorAll("[data-catalog-brand]")) {
+      button.addEventListener("click", () => {
+        catalogBrand.value = catalogBrand.value === button.dataset.catalogBrand ? "" : button.dataset.catalogBrand;
+        renderProductCatalog();
+        document.getElementById("publicProductCatalog").scrollIntoView({ block: "start" });
+        catalogBrand.focus({ preventScroll: true });
+      });
+    }
     for (const btn of document.querySelectorAll("[data-quick-cat]")) {
       btn.addEventListener("click", () => {
         const val = btn.dataset.quickCat;
@@ -1505,6 +1562,7 @@
       if (e.target.closest("[data-reset-filters]")) {
         heroSearch.value = catalogSearch.value = "";
         allCategories.checked = true;
+        catalogBrand.value = "";
         renderProductCatalog();
         catalogSearch.focus({ preventScroll: true });
         return;
