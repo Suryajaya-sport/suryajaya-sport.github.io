@@ -2521,7 +2521,89 @@
       return base ? `${base} · ${SENAR_SERVICE_NOTE}` : SENAR_SERVICE_NOTE;
     }
 
+    const CATALOG_BRANDS = [
+      { id: "yonex", name: "Yonex", sub: "Badminton", searchTerm: "Yonex", re: /\byonex\b/i, badge: "YNX", cls: "bg-sky-50 text-sky-900 border-sky-200" },
+      { id: "lining", name: "Li-Ning", sub: "Badminton & Sport", searchTerm: "Li-Ning", re: /\b(li-?ning|lining)\b/i, badge: "LN", cls: "bg-rose-50 text-rose-900 border-rose-200" },
+      { id: "victor", name: "Victor", sub: "Badminton", searchTerm: "Victor", re: /\bvictor\b/i, badge: "VTR", cls: "bg-blue-50 text-blue-900 border-blue-200" },
+      { id: "hiqua", name: "Hiqua", sub: "Badminton", searchTerm: "Hiqua", re: /\b(hi-?qua|hiqua)\b/i, badge: "HQ", cls: "bg-amber-50 text-amber-900 border-amber-200" },
+      { id: "rs", name: "RS", sub: "Reinforce Speed", searchTerm: "RS", re: /\b(rs|reinforce(\s*speed)?)\b/i, badge: "RS", cls: "bg-red-50 text-red-900 border-red-200" },
+      { id: "flypower", name: "Flypower", sub: "Badminton", searchTerm: "Flypower", re: /\bflypower\b/i, badge: "FP", cls: "bg-orange-50 text-orange-900 border-orange-200" },
+      { id: "astec", name: "Astec", sub: "Badminton", searchTerm: "Astec", re: /\bastec\b/i, badge: "AST", cls: "bg-cyan-50 text-cyan-900 border-cyan-200" },
+      { id: "butterfly", name: "Butterfly", sub: "Tenis Meja", searchTerm: "Butterfly", re: /\bbutterfly\b/i, badge: "BFY", cls: "bg-pink-50 text-pink-900 border-pink-200" },
+      { id: "dhs", name: "DHS", sub: "Double Happiness", searchTerm: "DHS", re: /\b(dhs|double\s*happiness)\b/i, badge: "DHS", cls: "bg-rose-50 text-rose-900 border-rose-200" },
+      { id: "nitaku", name: "Nitaku", sub: "Nittaku Pingpong", searchTerm: "Nitaku", re: /\b(nitaku|nittaku)\b/i, badge: "NTK", cls: "bg-sky-50 text-sky-900 border-sky-200" },
+      { id: "donics", name: "Donics", sub: "Donic Pingpong", searchTerm: "Donic", re: /\b(donics?|donic)\b/i, badge: "DNC", cls: "bg-emerald-50 text-emerald-900 border-emerald-200" },
+      { id: "doublefish", name: "Double Fish", sub: "Tenis Meja", searchTerm: "Double Fish", re: /\bdouble\s*fish\b/i, badge: "DF", cls: "bg-indigo-50 text-indigo-900 border-indigo-200" },
+      { id: "specs", name: "Specs", sub: "Futsal & Bola", searchTerm: "Specs", re: /\bspecs\b/i, badge: "SPC", cls: "bg-yellow-50 text-yellow-900 border-yellow-200" },
+      { id: "ortuseight", name: "Ortuseight", sub: "Futsal & Running", searchTerm: "Ortuseight", re: /\b(ortuseight|ortus)\b/i, badge: "ORT", cls: "bg-orange-50 text-orange-900 border-orange-200" },
+      { id: "adidas", name: "Adidas", sub: "Sport & Futsal", searchTerm: "Adidas", re: /\badidas\b/i, badge: "ADI", cls: "bg-slate-100 text-slate-900 border-slate-300" },
+      { id: "nike", name: "Nike", sub: "Sport & Futsal", searchTerm: "Nike", re: /\bnike\b/i, badge: "NKE", cls: "bg-slate-100 text-slate-900 border-slate-300" },
+      { id: "molten", name: "Molten", sub: "Bola Basket & Voli", searchTerm: "Molten", re: /\bmolten\b/i, badge: "MLT", cls: "bg-red-50 text-red-900 border-red-200" },
+      { id: "mikasa", name: "Mikasa", sub: "Bola Voli & Sepak", searchTerm: "Mikasa", re: /\bmikasa\b/i, badge: "MKS", cls: "bg-blue-50 text-blue-900 border-blue-200" },
+      { id: "mizuno", name: "Mizuno", sub: "Badminton & Voli", searchTerm: "Mizuno", re: /\bmizuno\b/i, badge: "MIZ", cls: "bg-sky-50 text-sky-900 border-sky-200" },
+      { id: "asics", name: "Asics", sub: "Sepatu & Voli", searchTerm: "Asics", re: /\basics\b/i, badge: "ASC", cls: "bg-indigo-50 text-indigo-900 border-indigo-200" }
+    ];
+    let activeBrandId = "";
+    function itemBrandHaystack(item) {
+      return [item.name, item.code, item.size, item.color, item.description].filter(Boolean).join(" ");
+    }
+    function matchesBrandFilter(item, brandObj) {
+      return !brandObj || brandObj.re.test(itemBrandHaystack(item));
+    }
+    function renderBrandShowcase() {
+      const grid = document.getElementById("brandLogoGrid");
+      const resetBtn = document.getElementById("btnResetBrandFilter");
+      if (!grid) return;
+      if (resetBtn) resetBtn.classList.toggle("hidden", !activeBrandId);
+      const inStockItems = publicCatalog.filter(it => Number(it.stock || 0) > 0);
+      grid.innerHTML = CATALOG_BRANDS.map(b => {
+        const count = inStockItems.filter(it => matchesBrandFilter(it, b)).length;
+        const active = activeBrandId === b.id;
+        return `<button type="button" data-brand-id="${esc(b.id)}" aria-pressed="${active}" class="flex flex-col items-center justify-center gap-1 rounded-2xl border p-3 text-center transition ${active ? "border-blue-700 bg-blue-50 ring-2 ring-blue-300" : "border-slate-200 bg-slate-50/70 hover:border-blue-400 hover:bg-white"}">
+          <span class="inline-flex items-center justify-center rounded-xl border px-2.5 py-1 text-xs font-black tracking-wider ${b.cls}">${esc(b.badge)}</span>
+          <span class="text-sm font-extrabold text-slate-900 leading-tight">${esc(b.name)}</span>
+          <span class="text-[11px] font-semibold text-slate-500 leading-tight">${esc(b.sub)} · ${count}</span>
+        </button>`;
+      }).join("");
+    }
+
+    const FEATURED_KEY = "sjs-featured-products-v1";
+    let featuredProductIds = new Set();
+    try {
+      const savedFeat = JSON.parse(localStorage.getItem(FEATURED_KEY) || "[]");
+      if (Array.isArray(savedFeat)) featuredProductIds = new Set(savedFeat.map(String));
+    } catch {}
+    function saveFeaturedProducts() {
+      try { localStorage.setItem(FEATURED_KEY, JSON.stringify([...featuredProductIds])); } catch {}
+    }
+    function isFeaturedProduct(item) {
+      return Boolean(item?.featured) || featuredProductIds.has(String(item?.id || ""));
+    }
+    async function toggleFeaturedProduct(id) {
+      if (!isAdmin || !id) return;
+      const key = String(id);
+      if (featuredProductIds.has(key)) featuredProductIds.delete(key);
+      else featuredProductIds.add(key);
+      saveFeaturedProducts();
+      renderProductCatalog();
+      showToast(featuredProductIds.has(key) ? "⭐ Ditandai sebagai Produk Unggulan (tampil di atas)." : "Status Produk Unggulan dilepas.");
+    }
+    function syncCustomerPreviewUI() {
+      const inStockCount = publicCatalog.filter(p => Number(p.stock || 0) > 0).length;
+      const cartCount = [...catalogCart.values()].reduce((s, l) => s + Number(l?.qty || 1), 0);
+      const pEl = document.getElementById("previewStatProducts");
+      const cEl = document.getElementById("previewStatCart");
+      const sEl = document.getElementById("stickyCatalogCartCount");
+      if (pEl) pEl.textContent = `${inStockCount} Produk`;
+      if (cEl) cEl.textContent = `${cartCount} Keranjang`;
+      if (sEl) sEl.textContent = String(cartCount);
+      const isPreview = isAdmin && activeWorkspace === "catalog";
+      document.body.classList.toggle("sjs-customer-preview", isPreview);
+      if (!isPreview) document.getElementById("adminQuickDrawer")?.classList.add("hidden");
+    }
+
     function renderProductCatalog() {
+      renderBrandShowcase();
       const grid = document.getElementById("productCatalogGrid");
       const search = document.getElementById("catalogSearch");
       const q = search.value.trim().toLocaleLowerCase("id");
@@ -2536,13 +2618,18 @@
       }
       const sortMode = document.getElementById("catalogSort")?.value || "default";
       const items = publicCatalog.filter(item => Number(item.stock) > 0);
+      const brandObj = CATALOG_BRANDS.find(b => b.id === activeBrandId) || null;
       const filtered = items.filter(item => {
-        const hay = [item.name, item.code, item.size, item.color, item.description].filter(Boolean).join(" ").toLocaleLowerCase("id");
-        return (!q || hay.includes(q)) && matchesCatalogCategory(item, category);
+        const hay = itemBrandHaystack(item).toLocaleLowerCase("id");
+        const matchBrandOrSearch = brandObj
+          ? (matchesBrandFilter(item, brandObj) || (q && hay.includes(q)))
+          : (!q || hay.includes(q));
+        return matchBrandOrSearch && matchesCatalogCategory(item, category);
       });
       if (sortMode === "price-asc") filtered.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
       else if (sortMode === "price-desc") filtered.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
       else if (sortMode === "name-asc") filtered.sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "id"));
+      filtered.sort((a, b) => (isFeaturedProduct(b) ? 1 : 0) - (isFeaturedProduct(a) ? 1 : 0));
       document.getElementById("catalogResultCount").textContent = `${filtered.length} produk`;
       if (!filtered.length) {
         grid.innerHTML = `<p class="catalog-empty" role="status">Produk tidak ditemukan. Coba kata kunci lain atau pilih kategori "Semua".</p>`;
@@ -2555,11 +2642,20 @@
         return `
         <article class="catalog-card">
           <div class="catalog-card-photo-wrap" data-view-product="${esc(item.id)}" role="button" tabindex="0" aria-label="Lihat detail ${esc(item.name)}">
-            <span class="catalog-card-badge ${limited ? "is-limited" : ""}">${limited ? "Stok terbatas" : "Tersedia"}</span>
+            <span class="catalog-card-badge ${limited ? "is-limited" : ""}">${isFeaturedProduct(item) ? "⭐ Unggulan · " : ""}${limited ? "Stok terbatas" : "Tersedia"}</span>
             ${productImageMarkup(item, "catalog-card-photo", 560, index < 2)}
+            ${isAdmin ? `<div class="catalog-card-admin-hover" onclick="event.stopPropagation()">
+              <button type="button" data-hover-edit="${esc(item.id)}">✏ Edit</button>
+              <button type="button" data-hover-stock="${esc(item.id)}">📦 Stok</button>
+              <button type="button" data-hover-price="${esc(item.id)}">💰 Harga</button>
+              <button type="button" data-hover-star="${esc(item.id)}" class="${isFeaturedProduct(item) ? "is-featured" : ""}">${isFeaturedProduct(item) ? "★ Unggulan" : "☆ Unggulan"}</button>
+            </div>` : ""}
           </div>
           <div class="catalog-card-body">
-            <p class="catalog-card-meta">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
+            <div class="flex flex-wrap items-center justify-between gap-1.5">
+              <p class="catalog-card-meta">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
+              <span class="sjs-local-store-badge">📍 Tersedia di Toko Berau</span>
+            </div>
             <h3 class="font-extrabold cursor-pointer hover:text-blue-700" data-view-product="${esc(item.id)}">${esc(item.name)}</h3>
             ${item.description ? `<p class="catalog-card-description line-clamp-2">${esc(item.description)}</p>` : ""}
             ${isSenarItem(item) ? `<p class="senar-service-note"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>${SENAR_SERVICE_NOTE}</span></p>` : ""}
@@ -2597,6 +2693,7 @@
     function updateCartSummary() {
       const lines = cartProducts();
       document.getElementById("catalogCartCount").textContent = lines.length;
+      syncCustomerPreviewUI();
       const total = lines.reduce((s, { item, line }) => s + (Number(item?.price) || 0) * line.qty, 0);
       document.getElementById("catalogCartTotal").textContent = lines.length ? `Perkiraan total: ${rp(total)}` : "";
       const link = document.getElementById("catalogCartWhatsApp");
@@ -5691,6 +5788,7 @@
       if (target === "reports") renderAllReportsView();
       if (target === "backup") renderBackupVolumeChart();
       if (target === "inventory") { renderInventory(); requestAnimationFrame(() => Object.values(charts).forEach(c => c.resize())); }
+      syncCustomerPreviewUI();
     }
     function openDialog(id) {
       const d = document.getElementById(id);
@@ -6754,10 +6852,42 @@
       document.getElementById("syncStatusBadge").addEventListener("click", () => document.getElementById("cloudConfigModal").classList.remove("hidden"));
       document.getElementById("btnCloseCloudModal").addEventListener("click", () => document.getElementById("cloudConfigModal").classList.add("hidden"));
 
-      document.getElementById("catalogSearch").addEventListener("input", renderProductCatalog);
+      document.getElementById("catalogSearch").addEventListener("input", e => {
+        const val = e.target.value.trim().toLowerCase();
+        const m = CATALOG_BRANDS.find(b => b.searchTerm.toLowerCase() === val || b.name.toLowerCase() === val);
+        activeBrandId = m ? m.id : "";
+        renderProductCatalog();
+      });
       document.getElementById("catalogSearchForm").addEventListener("submit", e => e.preventDefault());
       document.getElementById("btnClearCatalogSearch").addEventListener("click", () => {
         document.getElementById("catalogSearch").value = "";
+        activeBrandId = "";
+        renderProductCatalog();
+      });
+      document.getElementById("brandLogoGrid")?.addEventListener("click", e => {
+        const btn = e.target.closest("[data-brand-id]");
+        if (!btn) return;
+        const bId = btn.dataset.brandId;
+        const brandObj = CATALOG_BRANDS.find(b => b.id === bId);
+        if (!brandObj) return;
+        const inp = document.getElementById("catalogSearch");
+        if (activeBrandId === bId) {
+          activeBrandId = "";
+          if (inp) inp.value = "";
+          renderProductCatalog();
+          return;
+        }
+        activeBrandId = bId;
+        if (inp) inp.value = brandObj.searchTerm;
+        const allR = document.querySelector('#catalogCategory input[value="all"]');
+        if (allR) allR.checked = true;
+        renderProductCatalog();
+        document.getElementById("publicProductCatalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      document.getElementById("btnResetBrandFilter")?.addEventListener("click", () => {
+        activeBrandId = "";
+        const inp = document.getElementById("catalogSearch");
+        if (inp) inp.value = "";
         renderProductCatalog();
       });
       document.getElementById("catalogCategory").addEventListener("change", renderProductCatalog);
@@ -7424,6 +7554,49 @@
         }
         document.getElementById("inventoryToolDialog").showModal();
       });
+    
+      document.getElementById("btnBackToAdminFromPreview")?.addEventListener("click", () => {
+        switchWorkspace("kasir");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+      document.getElementById("btnToggleAdminDrawer")?.addEventListener("click", () => {
+        document.getElementById("adminQuickDrawer")?.classList.toggle("hidden");
+      });
+      document.querySelectorAll("[data-preview-jump]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.getElementById("adminQuickDrawer")?.classList.add("hidden");
+          switchWorkspace(btn.dataset.previewJump);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+      });
+      document.getElementById("btnStickyCatalogCart")?.addEventListener("click", () => {
+        document.getElementById("openCatalogCart")?.click();
+      });
+      document.getElementById("productCatalogGrid")?.addEventListener("click", async e => {
+        const he = e.target.closest("[data-hover-edit]");
+        if (he) {
+          switchWorkspace("inventory");
+          requestAnimationFrame(() => editInventoryItem(he.dataset.hoverEdit));
+          return;
+        }
+        const hs = e.target.closest("[data-hover-stock]");
+        if (hs) {
+          switchWorkspace("inventory");
+          requestAnimationFrame(() => openRestockFor(hs.dataset.hoverStock));
+          return;
+        }
+        const hp = e.target.closest("[data-hover-price]");
+        if (hp) {
+          switchWorkspace("inventory");
+          requestAnimationFrame(() => editInventoryItem(hp.dataset.hoverPrice));
+          return;
+        }
+        const hst = e.target.closest("[data-hover-star]");
+        if (hst) {
+          await toggleFeaturedProduct(hst.dataset.hoverStar);
+        }
+      });
+
     }
 
     async function confirmDelete() {
