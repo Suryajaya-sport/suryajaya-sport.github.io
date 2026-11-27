@@ -2409,7 +2409,7 @@
 
   </style>
   <style id="sjs-admin-dark-showroom">
-    /* === TEMA FULL DARK PRO SHOWROOM UNTUK ADMIN POS & SEMUA AREA === */
+    /* === TEMA FULL DARK PRO SHOWROOM UNTUK ADMIN POS & MODE PELANGGAN FULLSCREEN === */
     @media screen {
       :root {
         --dark-bg: #0b0e14;
@@ -2500,6 +2500,145 @@
       body.sjs-admin #mainNavigation button[data-workspace][aria-current="page"] i {
         color: #0b0e14 !important;
       }
+
+      /* === MODE PELANGGAN FULLSCREEN (90%+ LAYAR UNTUK KATALOG, SIDEBAR COLLAPSE) === */
+      body.sjs-admin.sjs-customer-preview #mainNavigation,
+      body.sjs-admin.sjs-customer-preview #adminPastelMenu,
+      body.sjs-admin.sjs-customer-preview #sjsAiFab,
+      body.sjs-admin.sjs-customer-preview #sjsAiBox {
+        display: none !important;
+      }
+      body.sjs-admin.sjs-customer-preview .shop-main {
+        max-width: 82rem !important;
+        margin: 0 auto !important;
+        padding: 1.15rem 1.15rem 5.5rem !important;
+      }
+      body.sjs-admin.sjs-customer-preview .shop-links {
+        display: flex !important;
+      }
+      @media (max-width: 640px) {
+        body.sjs-admin.sjs-customer-preview .shop-links {
+          display: none !important;
+        }
+      }
+
+      /* Indikator Atas: 👁 Preview Pelanggan + Statistik Mini */
+      .customer-preview-banner {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: .65rem;
+        padding: .65rem 1rem;
+        border-radius: 1.15rem;
+        background: linear-gradient(135deg, rgba(21, 25, 34, 0.96), rgba(30, 36, 51, 0.96));
+        border: 1.5px solid rgba(245, 183, 0, 0.45);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.42);
+      }
+      .preview-stat-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        padding: .26rem .68rem;
+        border-radius: 9999px;
+        background: var(--dark-bg);
+        border: 1px solid var(--dark-border-strong);
+        font-size: .75rem;
+        font-weight: 700;
+        color: #e2e8f0;
+        font-variant-numeric: tabular-nums;
+      }
+      .preview-stat-pill strong { color: var(--gold); }
+
+      /* Floating Button Pojok Kiri Bawah: ⚙ Admin + Drawer Pintasan 1-Klik */
+      #adminQuickDock {
+        position: fixed;
+        bottom: 18px;
+        left: 18px;
+        z-index: 46;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: .5rem;
+      }
+      #adminQuickDock[hidden] { display: none !important; }
+      #adminQuickMenu {
+        background: var(--dark-card);
+        border: 1.5px solid var(--gold);
+        border-radius: 1.25rem;
+        padding: .45rem;
+        min-width: 205px;
+        box-shadow: 0 18px 42px rgba(0, 0, 0, 0.65);
+        display: flex;
+        flex-direction: column;
+        gap: .28rem;
+      }
+      #adminQuickMenu[hidden] { display: none !important; }
+      #adminQuickMenu button {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        padding: .58rem .85rem;
+        border-radius: .85rem;
+        font-size: .82rem;
+        font-weight: 800;
+        color: var(--dark-text);
+        text-align: left;
+        cursor: pointer;
+        transition: background .14s ease, color .14s ease;
+      }
+      #adminQuickMenu button:hover {
+        background: var(--dark-elev);
+        color: var(--gold);
+      }
+      #adminQuickMenu button.is-return-admin {
+        background: var(--gold);
+        color: #0b0e14;
+        margin-top: .15rem;
+      }
+      #adminQuickMenu button.is-return-admin:hover {
+        background: #ffd029;
+        color: #0b0e14;
+      }
+      .admin-fab-pill {
+        height: 44px;
+        padding: 0 15px;
+        border-radius: 9999px;
+        background: linear-gradient(135deg, #0b0e14 0%, #1e2433 100%);
+        border: 1.5px solid var(--gold);
+        color: #ffffff;
+        font-size: 13px;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        box-shadow: 0 10px 26px rgba(0, 0, 0, 0.52);
+        cursor: pointer;
+        transition: transform .12s ease, background .14s ease;
+      }
+      .admin-fab-pill:hover {
+        background: #1e2433;
+        transform: translateY(-1px);
+      }
+      .admin-fab-pill:active { transform: scale(.97); }
+      .admin-fab-back {
+        height: 44px;
+        padding: 0 14px;
+        border-radius: 9999px;
+        background: var(--gold);
+        border: none;
+        color: #0b0e14;
+        font-size: 12.5px;
+        font-weight: 800;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 10px 26px rgba(245, 183, 0, 0.32);
+        cursor: pointer;
+        transition: transform .12s ease, filter .14s ease;
+      }
+      .admin-fab-back:hover { filter: brightness(1.06); transform: translateY(-1px); }
 
       /* Permukaan Kartu, Panel & Workspace Umum */
       .workspace-heading,
@@ -2734,7 +2873,7 @@
       }
       #posCashReceivedInput::placeholder { color: var(--dark-muted) !important; }
 
-      /* Tabel (Kasir, Penjualan, Stok, Kartu Stok) */
+      /* Tabel */
       #viewKasir table thead th,
       #viewInventory table thead th,
       #viewBooks table thead th,
@@ -2954,7 +3093,7 @@
         fill: #1e2433 !important;
       }
 
-      /* Mode Pelanggan di dalam Admin (Serasi dengan index.html Dark Pro Showroom) */
+      /* Mode Pelanggan di dalam Admin (1:1 Full-Bleed Dark Showroom) */
       #viewCatalog .catalog-card-photo-wrap {
         padding: 0 !important;
         background: var(--dark-bg) !important;
@@ -3049,7 +3188,7 @@
       }
       .shop-footer strong { color: var(--dark-text) !important; }
 
-      /* PENTING: Pertahankan Latar Putih Bersih pada QR, QRIS, Stiker & Pratinjau Nota agar mudah di-scan */
+      /* Pertahankan Latar Putih Bersih pada QR, QRIS, Stiker agar mudah di-scan */
       #qrisCodeCanvas,
       #invCodeQrPreview,
       #niimbotPreviewCanvas {
@@ -3283,6 +3422,17 @@
 
     <!-- KATALOG PUBLIK -->
     <section id="viewCatalog" class="flex flex-col gap-7">
+      <div id="customerPreviewBanner" hidden class="customer-preview-banner no-print" role="region" aria-label="Indikator Pratinjau Pelanggan">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-extrabold">👁 Preview Pelanggan</span>
+          <span class="preview-stat-pill"><strong id="previewStatProducts">0</strong> Produk</span>
+          <span class="preview-stat-pill"><strong id="previewStatCart">0</strong> Keranjang</span>
+          <span class="preview-stat-pill text-amber-300">Admin View</span>
+        </div>
+        <button type="button" id="btnBannerBackToAdmin" class="shop-button shop-button-primary !min-h-9 !py-1.5 !px-3.5 !text-xs">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Kembali ke Admin
+        </button>
+      </div>
       <div class="shop-hero">
         <div class="shop-hero-content">
           <p class="shop-eyebrow"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Tanjung Redeb, Berau · Stok Real-Time</p>
@@ -4827,6 +4977,25 @@
     <i class="fa-brands fa-whatsapp text-lg" aria-hidden="true"></i><span>Chat WhatsApp</span>
   </a>
 
+  <!-- FLOATING ADMIN DOCK (SAAT MODE PELANGGAN AKTIF) -->
+  <div id="adminQuickDock" hidden class="no-print" aria-label="Menu cepat kembali ke admin">
+    <div id="adminQuickMenu" hidden role="menu">
+      <button type="button" data-quick-admin="kasir"><i class="fa-solid fa-cash-register text-amber-400 w-4 text-center" aria-hidden="true"></i><span>Kasir</span></button>
+      <button type="button" data-quick-admin="sales"><i class="fa-solid fa-chart-column text-amber-400 w-4 text-center" aria-hidden="true"></i><span>Penjualan</span></button>
+      <button type="button" data-quick-admin="inventory"><i class="fa-solid fa-boxes-stacked text-amber-400 w-4 text-center" aria-hidden="true"></i><span>Stok</span></button>
+      <button type="button" data-quick-admin="books"><i class="fa-solid fa-book text-amber-400 w-4 text-center" aria-hidden="true"></i><span>Pembukuan</span></button>
+      <button type="button" data-quick-admin="kasir" class="is-return-admin"><i class="fa-solid fa-arrow-left w-4 text-center" aria-hidden="true"></i><span>Kembali ke Admin</span></button>
+    </div>
+    <div class="flex items-center gap-2">
+      <button type="button" id="btnToggleAdminQuickDock" class="admin-fab-pill" aria-expanded="false" aria-controls="adminQuickMenu">
+        <span>⚙ Admin</span>
+      </button>
+      <button type="button" id="btnQuickBackToAdmin" class="admin-fab-back" title="Kembali ke Kasir Admin">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Kembali ke Admin</span>
+      </button>
+    </div>
+  </div>
+
   <!-- ASISTEN TOKO (LOKAL) -->
   <div id="sjsAiFab" class="no-print hidden">
     <button type="button" id="sjsAiToggleBtn" aria-label="Buka Asisten Toko" aria-expanded="false" aria-controls="sjsAiBox">
@@ -4868,6 +5037,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261127-2"></script>
+  <script type="module" src="./admin.js?v=20261127-3"></script>
 </body>
 </html>
