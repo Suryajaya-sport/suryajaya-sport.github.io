@@ -94,18 +94,18 @@
     .workspace-nav-title { font-size: .7rem; font-weight: 800; text-transform: uppercase; color: #1d4ed8; padding: 0 .75rem; }
     #mainNavigation button[data-workspace] { display: inline-flex; align-items: center; gap: .5rem; padding: .65rem 1.05rem; border-radius: .95rem; font-size: .875rem; font-weight: 700; color: #1e293b; cursor: pointer; }
     #mainNavigation button[data-workspace]:hover { background: #eff6ff; color: #1d4ed8; }
-    #mainNavigation button[data-workspace][aria-current="page"] { background: linear-gradient(135deg,#1e3a8a,#2563eb); color: #fff; }
+    #mainNavigation button[data-workspace][aria-current="page"] { background: linear-gradient(135deg,#05070c,#18181b); color: #fff; }
     #navStockBadge { padding: .12rem .52rem; border-radius: 9999px; font-size: .75rem; font-weight: 800; background: #dbeafe; color: #1e3a8a; }
 
     .shop-button { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 2.75rem; padding: .62rem 1.2rem; border-radius: .9rem; font-size: .875rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: all .16s; }
     .shop-button:disabled { opacity: .48; cursor: not-allowed; }
-    .shop-button-primary { background: linear-gradient(135deg,#1d4ed8,#2563eb); color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,.24); }
+    .shop-button-primary { background: linear-gradient(135deg,#090d16,#18181b); color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,.24); }
     .shop-button-secondary { background: #fff; color: #1e293b; border: 1.5px solid #cbd5e1; }
     .shop-button-secondary:hover:not(:disabled) { background: #f8fafc; }
     .shop-button-accent { background: linear-gradient(135deg,#f59e0b,#fbbf24); color: #0f172a; font-weight: 800; }
     .shop-button-outline { background: rgba(255,255,255,.14); color: #fff; border: 1.5px solid rgba(255,255,255,.35); }
 
-    .shop-hero { position: relative; border-radius: 2rem; overflow: hidden; min-height: 300px; background: linear-gradient(125deg,#091124 0%,#172f73 52%,#2563eb 100%); color: #fff; display: flex; align-items: center; }
+    .shop-hero { position: relative; border-radius: 2rem; overflow: hidden; min-height: 300px; background: linear-gradient(125deg,#05070c 0%,#0f131a 52%,#1c1f26 100%); border: 1.5px solid rgba(250,204,21,.35); color: #fff; display: flex; align-items: center; }
     .shop-hero-media { position: absolute; inset: 0; opacity: .42; pointer-events: none; }
     .shop-hero-media img { width: 100%; height: 100%; object-fit: cover; }
     .shop-hero-content { position: relative; z-index: 2; padding: 2.35rem 2rem; max-width: 40rem; display: flex; flex-direction: column; gap: .9rem; }
@@ -171,7 +171,7 @@
     .shop-footer { border-top: 1px solid #dbeafe; background: #fff; padding: 1.35rem 1rem; text-align: center; font-size: .8125rem; color: #64748b; }
 
     #sjsAiFab { position: fixed !important; bottom: 18px !important; left: 82px !important; right: auto !important; z-index: 40; }
-    #sjsAiFab button { background: linear-gradient(135deg,#1e3a8a,#2563eb); color: #fff; height: 44px; padding: 0 15px; border-radius: 9999px; border: 2px solid #fff; box-shadow: 0 10px 26px rgba(29,78,216,.35); display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; cursor: pointer; }
+    #sjsAiFab button { background: linear-gradient(135deg,#05070c,#18181b); color: #fff; height: 44px; padding: 0 15px; border-radius: 9999px; border: 2px solid #fff; box-shadow: 0 10px 26px rgba(29,78,216,.35); display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; cursor: pointer; }
     #sjsAiBox { position: fixed !important; bottom: 72px !important; left: 82px !important; right: auto !important; width: 400px; max-width: calc(100vw - 28px); height: 540px; max-height: calc(100vh - 108px); background: #fff; border-radius: 1.6rem; border: 1.5px solid #cbd5e1; box-shadow: 0 24px 55px rgba(15,23,42,.28); display: flex; flex-direction: column; overflow: hidden; z-index: 40; }
     #sjsAiBox.hidden { display: none !important; }
     #sjsAssistantSaleActions[hidden] { display: none !important; }
@@ -299,9 +299,10 @@
     /* Storefront Customer UI Polish */
     .shop-hero {
       background:
-        radial-gradient(circle at 85% 20%, rgba(251,191,36,.28), transparent 42%),
-        radial-gradient(circle at 15% 85%, rgba(56,189,248,.22), transparent 45%),
-        linear-gradient(125deg,#071024 0%,#132968 52%,#1d4ed8 100%);
+        radial-gradient(circle at 85% 20%, rgba(250,204,21,.22), transparent 42%),
+        radial-gradient(circle at 15% 85%, rgba(245,158,11,.12), transparent 45%),
+        linear-gradient(125deg,#05070c 0%,#0f1218 52%,#181b22 100%);
+      border: 1.5px solid rgba(250,204,21,.35);
       box-shadow: 0 18px 40px -16px rgba(15,23,42,.38);
       padding: 2.2rem 2rem;
       display: grid;
@@ -377,7 +378,7 @@
     }
     .howto-step {
       width: 2.1rem; height: 2.1rem; border-radius: .75rem;
-      background: linear-gradient(135deg,#1d4ed8,#2563eb); color: #fff;
+      background: linear-gradient(135deg,#090d16,#18181b); color: #fff;
       font-weight: 800; font-size: .9rem; display: inline-flex; align-items: center; justify-content: center;
     }
     .howto-card h3 { font-size: .95rem; font-weight: 800; color: #0f172a; }
@@ -715,7 +716,7 @@
       background: #fef3c7; color: #92400e; border: 1.5px solid #fcd34d; cursor: pointer;
     }
     body.sjs-tablet-mode .tablet-toggle-btn {
-      background: #1d4ed8; color: #fff; border-color: #1d4ed8;
+      background: #090d16; color: #facc15; border-color: #facc15;
     }
     body.sjs-tablet-mode { font-size: 17px; }
     body.sjs-tablet-mode #mainNavigation { gap: .55rem; padding: .65rem; }
@@ -750,9 +751,9 @@
 
     /* === POS TABLET PRO: GABUNGAN CLICKNSELL + SIGMA POS + PURRWEB (BIRU • PUTIH • KUNING) === */
     :root {
-      --sjs-bpk-navy: #0f2557;
-      --sjs-bpk-blue: #1d4ed8;
-      --sjs-bpk-blue-soft: #eff6ff;
+      --sjs-bpk-navy: #05070c;
+      --sjs-bpk-blue: #111827;
+      --sjs-bpk-blue-soft: #f4f4f5;
       --sjs-bpk-yellow: #facc15;
       --sjs-bpk-yellow-deep: #eab308;
       --sjs-bpk-yellow-soft: #fef9c3;
@@ -834,7 +835,7 @@
     #posCashChangeBox.is-short span { color: #9f1239 !important; font-size: .7rem !important; letter-spacing: .08em; }
     #posCashChangeBox.is-short strong { color: #be123c !important; font-size: 1.45rem !important; line-height: 1.15 !important; }
     #posTotalPayHeroBox {
-      background: linear-gradient(135deg, #0b1938 0%, #12285a 100%);
+      background: linear-gradient(135deg, #05070c 0%, #18181b 100%);
       border: 2px solid #facc15;
       border-radius: 16px;
       padding: .95rem 1.1rem;
@@ -960,7 +961,7 @@
       background: #f1f5f9;
     }
     body.sjs-admin .shop-header {
-      background: linear-gradient(90deg, #0f2557 0%, #1d4ed8 100%);
+      background: linear-gradient(90deg, #05070c 0%, #111827 100%);
       border-bottom: 3px solid #facc15;
     }
     body.sjs-admin .shop-brand h1,
@@ -996,7 +997,7 @@
         border-radius: 0 1.25rem 0 0 !important;
         border: none !important;
         border-right: 3px solid #facc15 !important;
-        background: linear-gradient(180deg, #0f2557 0%, #1e3a8a 60%, #1d4ed8 100%) !important;
+        background: linear-gradient(180deg, #05070c 0%, #0d1117 60%, #161b22 100%) !important;
         box-shadow: 6px 0 24px rgba(15, 37, 87, .22) !important;
         display: flex !important;
         flex-direction: column !important;
@@ -1122,7 +1123,7 @@
       background: #eff6ff; color: #1e3a8a; border: 1.5px solid #bfdbfe; font-weight: 800;
     }
     body.sjs-admin .pos-cat-tab.is-active {
-      background: #1d4ed8; color: #ffffff; border-color: #1d4ed8;
+      background: #090d16; color: #facc15; border-color: #facc15;
       box-shadow: 0 4px 12px rgba(29, 78, 216, .28);
     }
     body.sjs-admin .pos-card {
@@ -1158,7 +1159,7 @@
       color: #0f2557 !important;
     }
     body.sjs-admin .pay-option-btn[aria-pressed="true"] {
-      background: linear-gradient(135deg, #0f2557, #1d4ed8) !important;
+      background: linear-gradient(135deg, #05070c, #18181b) !important;
       border: 2.5px solid #facc15 !important;
       color: #ffffff !important;
       box-shadow: 0 6px 16px rgba(29, 78, 216, .32) !important;
@@ -1194,7 +1195,7 @@
       font-size: 1rem !important;
     }
     body.sjs-admin #sjsAiFab button {
-      background: linear-gradient(135deg, #0f2557, #1d4ed8) !important;
+      background: linear-gradient(135deg, #05070c, #18181b) !important;
       border: 2px solid #facc15 !important;
       color: #ffffff !important;
     }
@@ -1248,8 +1249,8 @@
       display: inline-flex; align-items: center; justify-content: center;
       font-size: 1rem; flex-shrink: 0;
     }
-    .sjs-chart-badge-icon.is-blue { background: linear-gradient(135deg, #1d4ed8, #2563eb); color: #ffffff; }
-    .sjs-chart-badge-icon.is-navy { background: linear-gradient(135deg, #0f2557, #1e3a8a); color: #facc15; }
+    .sjs-chart-badge-icon.is-blue { background: linear-gradient(135deg, #090d16, #18181b); color: #ffffff; }
+    .sjs-chart-badge-icon.is-navy { background: linear-gradient(135deg, #05070c, #18181b); color: #facc15; }
     .sjs-chart-badge-icon.is-yellow { background: linear-gradient(135deg, #facc15, #eab308); color: #0f172a; }
     .sjs-chart-sub { font-size: .74rem; font-weight: 600; color: #64748b; margin-top: .08rem; }
     .sjs-chart-pill {
@@ -1296,7 +1297,7 @@
       color: #1d4ed8;
     }
     .pos-mini-chart-details {
-      background: linear-gradient(135deg, #071433 0%, #0f2557 65%, #1d4ed8 100%);
+      background: linear-gradient(135deg, #05070c 0%, #111827 65%, #1f2937 100%);
       border: 1.5px solid #2563eb;
       border-radius: 1.35rem;
       padding: .75rem 1rem;
@@ -1388,7 +1389,7 @@
         #f1f5f9 !important;
     }
     body.sjs-admin .shop-header {
-      background: linear-gradient(90deg, rgba(15, 37, 87, 0.96) 0%, rgba(29, 78, 216, 0.95) 100%) !important;
+      background: linear-gradient(90deg, rgba(5, 7, 12, 0.97) 0%, rgba(17, 24, 39, 0.96) 100%) !important;
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
       box-shadow: 0 10px 30px -10px rgba(7, 20, 51, 0.42) !important;
@@ -1580,8 +1581,8 @@
 
     /* === TEMA POS EXECUTIVE MASKULIN: NAVY DEEP + NAVY + GOLD + WHITE === */
     :root {
-      --sjs-navy-deep: #0F172A;
-      --sjs-navy: #142850;
+      --sjs-navy-deep: #05070C;
+      --sjs-navy: #111827;
       --sjs-gold: #F5B700;
       --sjs-gold-text: #C58F00;
       --sjs-success: #16A34A;
@@ -1609,12 +1610,12 @@
     }
     /* Header & Sidebar: Navy Deep -> Navy dengan aksen emas tipis */
     body.sjs-admin .shop-header {
-      background: linear-gradient(90deg, #0F172A 0%, #142850 100%) !important;
+      background: linear-gradient(90deg, #05070C 0%, #111827 100%) !important;
       border-bottom: 2px solid #F5B700 !important;
     }
     @media (min-width: 768px) {
       body.sjs-admin #mainNavigation:not([hidden]) {
-        background: linear-gradient(180deg, #0F172A 0%, #142850 100%) !important;
+        background: linear-gradient(180deg, #05070C 0%, #111827 100%) !important;
         border-right: 2px solid #F5B700 !important;
       }
     }
@@ -1674,7 +1675,7 @@
     }
     /* 1. Header TOTAL BAYAR: Navy gelap, teks putih, garis emas tipis */
     body.sjs-admin #posTotalPayHeroBox {
-      background: linear-gradient(135deg, #0F172A 0%, #142850 100%) !important;
+      background: linear-gradient(135deg, #05070C 0%, #18181B 100%) !important;
       border: 1px solid rgba(245, 183, 0, .35) !important;
       border-top: 3px solid #F5B700 !important;
       border-radius: 14px !important;
@@ -1755,12 +1756,12 @@
       transition: all .14s ease !important;
     }
     body.sjs-admin .pos-exact-seg .pay-option-btn:hover {
-      border-color: #142850 !important;
+      border-color: #F5B700 !important;
       background: #F8FAFC !important;
-      color: #142850 !important;
+      color: #090D16 !important;
     }
     body.sjs-admin .pos-exact-seg .pay-option-btn[aria-pressed="true"] {
-      background: #142850 !important;
+      background: #090D16 !important;
       color: #FFFFFF !important;
       border: 2px solid #F5B700 !important;
       box-shadow: 0 4px 12px rgba(20, 40, 80, .24) !important;
@@ -1779,8 +1780,8 @@
       transition: background-color .12s ease, color .12s ease, border-color .12s ease, transform .08s ease !important;
     }
     body.sjs-admin .pos-exact-numpad .pos-num-btn:hover {
-      background: #142850 !important;
-      border-color: #142850 !important;
+      background: #090D16 !important;
+      border-color: #F5B700 !important;
       color: #FFFFFF !important;
     }
     body.sjs-admin .pos-exact-numpad .pos-num-btn:active {
@@ -1803,15 +1804,15 @@
       border: 1px solid #CBD5E1 !important;
       border-bottom: 1px solid #CBD5E1 !important;
       background: #FFFFFF !important;
-      color: #142850 !important;
+      color: #090D16 !important;
       font-size: 12.5px !important;
       font-weight: 700 !important;
       box-shadow: 0 1px 3px rgba(15, 23, 42, .06) !important;
       transition: background-color .12s ease, color .12s ease, border-color .12s ease, transform .08s ease !important;
     }
     body.sjs-admin .pos-exact-numpad .pos-cash-pill:hover {
-      background: #142850 !important;
-      border-color: #142850 !important;
+      background: #090D16 !important;
+      border-color: #F5B700 !important;
       color: #FFFFFF !important;
     }
     body.sjs-admin .pos-exact-numpad .pos-cash-pill:active {
@@ -1842,7 +1843,7 @@
     }
     /* 6. Floating Asisten Toko: Navy Gelap (bukan biru terang) */
     body.sjs-admin #sjsAiFab button {
-      background: linear-gradient(135deg, #0F172A 0%, #142850 100%) !important;
+      background: linear-gradient(135deg, #05070C 0%, #18181B 100%) !important;
       border: 1.5px solid #F5B700 !important;
       color: #FFFFFF !important;
       box-shadow: 0 8px 22px rgba(15, 23, 42, .32) !important;
@@ -1899,7 +1900,7 @@
       transition: background-color .14s ease, transform .08s ease !important;
     }
     body.sjs-admin #btnOpenScanner:hover {
-      background: #142850 !important;
+      background: #090D16 !important;
     }
     body.sjs-admin #btnOpenScanner:active {
       transform: scale(.98) !important;
@@ -2026,7 +2027,7 @@
     }
     /* Tombol Simpan & Cetak: Navy Gelap + Aksen Emas (Hierarki Maskulin POS) */
     body.sjs-admin #btnSaveAndPrintTx {
-      background: linear-gradient(135deg, #0F172A 0%, #142850 100%) !important;
+      background: linear-gradient(135deg, #05070C 0%, #18181B 100%) !important;
       border: 1.5px solid #F5B700 !important;
       color: #FFFFFF !important;
       min-height: 52px !important;
@@ -2066,8 +2067,8 @@
     }
     .pos-svc-chip:hover {
       background: #F1F5F9 !important;
-      border-color: #142850 !important;
-      color: #142850 !important;
+      border-color: #F5B700 !important;
+      color: #090D16 !important;
     }
 
 
@@ -2195,13 +2196,13 @@
     body.sjs-admin #btnSaveTx {
       background: #FFFFFF !important;
       border: 1.5px solid #142850 !important;
-      color: #142850 !important;
+      color: #090D16 !important;
       font-weight: 700 !important;
       border-radius: 12px !important;
     }
     body.sjs-admin #btnSaveTx:hover:not(:disabled) {
-      background: #142850 !important;
-      border-color: #142850 !important;
+      background: #090D16 !important;
+      border-color: #F5B700 !important;
       color: #FFFFFF !important;
     }
     body.sjs-admin #btnSaveTx:disabled {
@@ -2256,10 +2257,10 @@
     }
     body.sjs-admin #btnAddItemRow {
       border: 1.5px solid #142850 !important;
-      color: #142850 !important;
+      color: #090D16 !important;
     }
     body.sjs-admin #btnAddItemRow:hover {
-      background: #142850 !important;
+      background: #090D16 !important;
       color: #FFFFFF !important;
     }
 
@@ -2412,7 +2413,7 @@
 
     /* === TOMBOL SIMPAN BARANG & BUAT QR: NAVY + GOLD SERAGAM === */
     body.sjs-admin #btnSaveInventory {
-      background: linear-gradient(135deg, #0F172A 0%, #142850 100%) !important;
+      background: linear-gradient(135deg, #05070C 0%, #18181B 100%) !important;
       border: 1.5px solid #F5B700 !important;
       color: #FFFFFF !important;
       font-weight: 800 !important;
@@ -2541,6 +2542,77 @@
       border: 1px solid #a7f3d0;
       border-radius: 9999px;
       padding: .18rem .55rem;
+    }
+
+
+    /* === TEMA HITAM PEKAT & EMAS SENADA FRONTPAGE (ADMIN) === */
+    body.sjs-admin {
+      background:
+        radial-gradient(circle at 15% 0%, rgba(24, 24, 27, 0.14), transparent 40%),
+        radial-gradient(circle at 92% 8%, rgba(250, 204, 21, 0.14), transparent 30%),
+        #f4f4f5 !important;
+      color: #090d16;
+    }
+    body.sjs-admin .shop-header {
+      background: linear-gradient(90deg, #05070c 0%, #111318 100%) !important;
+      border-bottom: 2px solid #facc15 !important;
+    }
+    body.sjs-admin .shop-owner-button {
+      background: #111827 !important;
+      color: #facc15 !important;
+      border: 1.5px solid #facc15 !important;
+    }
+    body.sjs-admin .shop-status,
+    body.sjs-admin .shop-date {
+      background: #18181b !important;
+      color: #f4f4f5 !important;
+      border: 1.5px solid #3f3f46 !important;
+    }
+    @media (min-width: 768px) {
+      body.sjs-admin #mainNavigation:not([hidden]) {
+        background: linear-gradient(180deg, #05070c 0%, #0e1015 55%, #16181d 100%) !important;
+        border-right: 2px solid #facc15 !important;
+      }
+    }
+    body.sjs-admin #mainNavigation button[data-workspace][aria-current="page"] {
+      background: linear-gradient(135deg, #facc15, #eab308) !important;
+      color: #05070c !important;
+      border-color: #fef08a !important;
+    }
+    body.sjs-admin #mainNavigation button[data-workspace][aria-current="page"] i {
+      color: #05070c !important;
+    }
+    body.sjs-admin .pos-cat-tab.is-active {
+      background: #090d16 !important;
+      color: #facc15 !important;
+      border-color: #090d16 !important;
+    }
+    body.sjs-admin .pos-card-price {
+      color: #090d16 !important;
+    }
+    body.sjs-admin #posTotalPayHeroBox {
+      background: linear-gradient(135deg, #05070c 0%, #111318 100%) !important;
+      border: 1.5px solid #facc15 !important;
+    }
+    body.sjs-admin #btnSaveAndPrintTx {
+      background: linear-gradient(135deg, #05070c 0%, #18181b 100%) !important;
+      border: 1.5px solid #facc15 !important;
+      color: #facc15 !important;
+    }
+    body.sjs-admin #btnSaveAndPrintTx i {
+      color: #facc15 !important;
+    }
+
+
+    /* === FRONTPAGE HERO & KATALOG HITAM-EMAS === */
+    .quick-cat-btn.is-active {
+      background: linear-gradient(135deg,#05070c,#18181b) !important;
+      border-color: #facc15 !important;
+      color: #facc15 !important;
+    }
+    .catalog-categories label input:checked + span {
+      background: linear-gradient(135deg,#05070c,#18181b) !important;
+      color: #facc15 !important;
     }
 
   </style>
@@ -4378,6 +4450,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261128-5"></script>
+  <script type="module" src="./admin.js?v=20261128-6"></script>
 </body>
 </html>
