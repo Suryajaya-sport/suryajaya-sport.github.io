@@ -847,6 +847,89 @@
     .text-slate-700, .text-slate-600 { color: #CBD5E1 !important; }
     .text-slate-500 { color: #94A3B8 !important; }
 
+
+    /* === OFFICIAL ITALIC WORDMARK + HEADER SEARCH + RED STOK TERBATAS === */
+    .sjs-wordmark {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+    .shop-brand h1.sjs-brand-title {
+      font-family: "Inter", "Plus Jakarta Sans", sans-serif !important;
+      font-style: italic !important;
+      font-weight: 800 !important;
+      font-size: 1.25rem !important;
+      letter-spacing: .025em !important;
+      line-height: 1.08 !important;
+      color: #FFFFFF !important;
+      text-transform: uppercase !important;
+      margin: 0 !important;
+    }
+    .shop-brand p.sjs-brand-tagline {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      font-family: "Inter", "Plus Jakarta Sans", sans-serif !important;
+      font-style: italic !important;
+      font-weight: 400 !important;
+      font-size: 11.5px !important;
+      color: #CBD5E1 !important;
+      line-height: 1.1 !important;
+      margin: 0 !important;
+    }
+    .sjs-brand-wing { display: inline-block; flex-shrink: 0; }
+    .shop-brand img {
+      width: 42px !important;
+      height: 42px !important;
+      background: #0F172A !important;
+      border: 1.5px solid rgba(245, 183, 0, .55) !important;
+    }
+    .header-search-wrap {
+      flex: 1 1 280px;
+      max-width: 460px;
+      min-width: 180px;
+    }
+    .header-search-form {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+    }
+    .header-search-form input#catalogSearch {
+      width: 100%;
+      height: 42px;
+      padding: 0 36px 0 38px !important;
+      font-size: 13.5px !important;
+      border-radius: 12px !important;
+      background: #141B29 !important;
+      border: 1px solid #2A3854 !important;
+    }
+    .header-search-form > i {
+      position: absolute;
+      left: 13px;
+      color: #94A3B8;
+      font-size: 14px;
+      pointer-events: none;
+    }
+    .header-search-form #btnClearCatalogSearch {
+      position: absolute;
+      right: 10px;
+      color: #94A3B8;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+    }
+    /* Stok terbatas berwarna merah tegas */
+    .catalog-status-dot.is-low {
+      background: rgba(239, 68, 68, .18) !important;
+      color: #F87171 !important;
+      border: 1px solid rgba(248, 113, 113, .42) !important;
+    }
+    .catalog-stock {
+      font-size: 11px !important;
+      padding: 2px 8px !important;
+    }
+
   </style>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZS9T9ZJXBK"></script>
   <script>
@@ -860,23 +943,33 @@
 
   <header class="shop-header">
     <div class="shop-header-inner">
-      <a href="#top" class="shop-brand">
-        <img src="sjs-mark-192.png" alt="Logo Surya Jaya Sport" width="48" height="48">
-        <div>
-          <h1>Surya Jaya Sport</h1>
-          <p class="text-[11px] font-semibold text-slate-600">Jl. Ahmad Yani 37, Tanjung Redeb, Berau · Buka setiap hari 08.00–21.00 WITA</p>
+      <a href="#top" class="shop-brand shrink-0">
+        <img src="sjs-mark-192.png" alt="Logo Surya Jaya Sport" width="44" height="44">
+        <div class="sjs-wordmark">
+          <h1 class="sjs-brand-title">SURYA JAYA SPORT</h1>
+          <p class="sjs-brand-tagline">
+            <span>Sport for a Better Life</span>
+            <svg class="sjs-brand-wing" viewBox="0 0 38 12" width="32" height="10" aria-hidden="true"><polygon points="8,2 38,2 0,11" fill="#F5B700"/></svg>
+          </p>
         </div>
       </a>
-      <nav class="shop-links" aria-label="Navigasi toko">
-        <a href="#kategori-unggulan">Kategori</a>
-        <a href="#publicProductCatalog">Katalog</a>
-        <a href="#cara-pesan">Cara pesan</a>
-        <a href="#lokasi-toko">Lokasi toko</a>
-      </nav>
-      <div class="shop-header-actions">
+      <div class="header-search-wrap">
+        <div class="catalog-search-form header-search-form">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <label for="catalogSearch" class="sr-only">Cari barang di katalog</label>
+          <input type="search" id="catalogSearch" placeholder="Cari produk, merek, ukuran, atau kode..." autocomplete="off">
+          <button type="button" id="btnClearCatalogSearch" class="hidden" aria-label="Hapus pencarian"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+        </div>
+      </div>
+      <div class="shop-header-actions shrink-0">
+        <nav class="shop-links hidden xl:flex" aria-label="Navigasi toko">
+          <a href="#publicProductCatalog">Katalog</a>
+          <a href="#cara-pesan">Cara pesan</a>
+          <a href="#lokasi-toko">Lokasi</a>
+        </nav>
         <a href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer" class="shop-button shop-button-wa !min-h-10 !py-2 !px-3.5 !text-xs">
           <i class="fa-brands fa-whatsapp text-base" aria-hidden="true"></i>
-          <span>0823-200-33333</span>
+          <span class="hidden sm:inline">0823-200-33333</span>
         </a>
       </div>
     </div>
@@ -1008,12 +1101,6 @@
         <span class="text-xs font-bold text-slate-500">Harga dan stok dikonfirmasi oleh toko · Ketuk foto untuk melihat detail</span>
       </div>
       <div class="catalog-toolbar">
-        <div class="catalog-search-form">
-          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-          <label for="catalogSearch" class="sr-only">Cari barang di katalog</label>
-          <input type="search" id="catalogSearch" placeholder="Cari nama produk, merek, ukuran, atau kode (mis. senar, raket, futsal)..." autocomplete="off">
-          <button type="button" id="btnClearCatalogSearch" class="hidden" aria-label="Hapus pencarian"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
-        </div>
         <div class="catalog-filter-row">
           <div id="catalogCategory" class="catalog-categories" role="radiogroup" aria-label="Kategori produk">
             <label><input type="radio" name="catalogCategory" value="all" checked class="sr-only"><span>Semua</span></label>
@@ -1144,7 +1231,6 @@
   <div id="toastMsg" role="status" aria-live="polite" class="pointer-events-none fixed bottom-20 left-1/2 z-50 -translate-x-1/2 rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white opacity-0 shadow-lg transition-opacity"></div>
 
   <script type="module">
-    import { catalogImageUrl } from "./produk/katalog.js";
     const EMBEDDED_FIREBASE_CONFIG = {
       apiKey: "AIzaSyBFtI_lwLU7cDcioDE1GpgC0AjKPZ1mHag",
       authDomain: "suryajayasport-3fd5e.firebaseapp.com",
@@ -1278,7 +1364,7 @@
       return false;
     }
     function productImageMarkup(item, extraClass = "", width = 360, eager = false) {
-      const url = catalogImageUrl(item);
+      const url = safeHttpsUrl(item?.imageUrl);
       if (url) {
         return `<div class="${extraClass} relative overflow-hidden bg-white"><img src="${esc(thumbnailUrl(url, width))}" width="${width}" height="${Math.round(width * 0.75)}" alt="${esc(item?.name ? `${item.name} - Surya Jaya Sport Berau` : "Foto produk Surya Jaya Sport Berau")}" loading="${eager ? "eager" : "lazy"}" decoding="async" class="h-full w-full object-contain bg-white"></div>`;
       }
@@ -1500,14 +1586,14 @@
           <div class="catalog-card-body">
             <div class="flex items-center justify-between gap-2">
               <p class="catalog-card-meta truncate">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
-              <span class="catalog-status-dot ${outOfStock ? "is-out" : limited ? "is-low" : "is-ok"}">${outOfStock ? "Habis" : limited ? "Terbatas" : "Tersedia"}</span>
+              <span class="catalog-status-dot ${outOfStock ? "is-out" : limited ? "is-low" : "is-ok"}">${outOfStock ? "Habis" : limited ? "Stok terbatas" : "Tersedia"}</span>
             </div>
             <h3 class="font-extrabold cursor-pointer hover:text-blue-700" data-view-product="${esc(item.id)}">${esc(item.name)}</h3>
             ${(() => {
               const vs = getProductVariants(item);
               if (vs.length <= 1) return "";
               return `<div class="flex items-center gap-1.5 pt-1 overflow-x-auto" aria-label="Pilihan varian">
-                ${vs.slice(0, 5).map(v => `<button type="button" data-view-product="${esc(v.id)}" title="${esc(variantShortLabel(v))} · ${rp(v.price)}" class="w-8 h-8 rounded-lg border ${v.id === item.id ? "border-slate-900 ring-1 ring-slate-900" : "border-slate-200 hover:border-blue-500"} bg-white overflow-hidden shrink-0">${productImageMarkup(v, "w-full h-full object-contain", 96, false)}</button>`).join("")}
+                ${vs.slice(0, 5).map(v => `<button type="button" data-view-product="${esc(v.id)}" title="${esc(variantShortLabel(v))} · ${rp(v.price)}" class="w-9 h-9 rounded-lg border-2 ${v.id === item.id ? "border-[#F5B700] ring-1 ring-[#F5B700]/45" : "border-slate-700 hover:border-amber-400"} bg-[#0B0F17] overflow-hidden shrink-0 transition">${productImageMarkup(v, "w-full h-full object-contain", 96, false)}</button>`).join("")}
                 ${vs.length > 5 ? `<span class="text-[10px] font-bold text-slate-500 shrink-0">+${vs.length - 5}</span>` : ""}
               </div>`;
             })()}
@@ -1557,6 +1643,12 @@
 
     restoreCart();
     document.getElementById("catalogSearch").addEventListener("input", renderProductCatalog);
+    document.getElementById("catalogSearch").addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        document.getElementById("publicProductCatalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
     document.getElementById("btnClearCatalogSearch").addEventListener("click", () => {
       document.getElementById("catalogSearch").value = "";
       renderProductCatalog();
