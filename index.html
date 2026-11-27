@@ -468,8 +468,8 @@
     gtag('js', new Date());
     gtag('config', 'G-ZS9T9ZJXBK');
   </script>
-  <style id="sjs-dark-cro-v5">
-    /* === TEMA FULL DARK PRO SHOWROOM + BRAND SHOWCASE + ONLINE & TOKO BERAU === */
+  <style id="sjs-dark-cro-v3">
+    /* === TEMA FULL DARK PRO SHOWROOM + OPTIMASI KONVERSI (CRO) === */
     :root {
       --dark-bg: #0b0e14;
       --dark-card: #151922;
@@ -488,7 +488,7 @@
       color: var(--dark-text) !important;
     }
 
-    /* Sticky Header */
+    /* 8. Sticky Header yang tetap menempel & lengkap di desktop maupun mobile */
     .shop-header {
       position: sticky !important;
       top: 0 !important;
@@ -521,166 +521,23 @@
       .shop-brand p { display: none; }
     }
 
-    /* Compact Hero Banner */
+    /* 1. Hero Banner Lebih Ramping (-20% Desktop, -30% Mobile) agar produk cepat terlihat */
     .shop-hero {
-      min-height: 260px !important;
-      padding: 1.5rem 1.75rem !important;
+      min-height: 275px !important;
+      padding: 1.65rem 1.75rem !important;
       border: 1.5px solid var(--dark-border) !important;
       box-shadow: 0 24px 54px -18px rgba(0, 0, 0, 0.7) !important;
     }
-    .shop-hero h2 { font-size: clamp(1.95rem, 4.1vw, 2.9rem) !important; }
+    .shop-hero h2 { font-size: clamp(2rem, 4.2vw, 3rem) !important; }
     @media (max-width: 900px) {
       .shop-hero {
-        min-height: 205px !important;
-        padding: 1.2rem 1.15rem !important;
+        min-height: 215px !important;
+        padding: 1.25rem 1.15rem !important;
         gap: 1rem !important;
       }
-      .shop-hero h2 { font-size: 1.8rem !important; }
+      .shop-hero h2 { font-size: 1.85rem !important; }
       .hero-feature-grid { gap: .5rem !important; }
       .hero-feature-card { padding: .7rem .75rem !important; }
-    }
-
-    /* Search Bar Utama */
-    .hero-search-spotlight {
-      background: linear-gradient(135deg, rgba(21, 25, 34, 0.98), rgba(30, 36, 51, 0.98));
-      border: 1.5px solid rgba(245, 183, 0, 0.45);
-      border-radius: 1.45rem;
-      padding: .85rem 1rem;
-      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.48);
-    }
-    .hero-search-spotlight .catalog-search-form input {
-      min-height: 54px !important;
-      font-size: 16px !important;
-      padding-left: 3rem !important;
-      padding-right: 3rem !important;
-      border-radius: 1.05rem !important;
-      background: var(--dark-bg) !important;
-      border: 2px solid var(--dark-border) !important;
-      color: #ffffff !important;
-    }
-    .hero-search-spotlight .catalog-search-form input:focus {
-      outline: none;
-      border-color: var(--gold) !important;
-      box-shadow: 0 0 0 4px rgba(245, 183, 0, 0.18);
-    }
-    .hero-search-spotlight .catalog-search-form > i {
-      font-size: 1.1rem;
-      color: var(--gold) !important;
-    }
-    .quick-search-chips {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: .4rem;
-      margin-top: .6rem;
-    }
-    .quick-search-chip {
-      padding: .25rem .68rem;
-      border-radius: 9999px;
-      background: var(--dark-bg);
-      border: 1px solid var(--dark-border);
-      color: #cbd5e1;
-      font-size: .74rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all .14s ease;
-    }
-    .quick-search-chip:hover {
-      border-color: var(--gold);
-      color: var(--gold);
-    }
-
-    /* === BRAND SHOWCASE LOGO SECTION === */
-    .brand-showcase-section {
-      background: linear-gradient(180deg, rgba(21, 25, 34, 0.96), rgba(14, 18, 27, 0.96));
-      border: 1.5px solid var(--dark-border);
-      border-radius: 1.55rem;
-      padding: 1.15rem 1.2rem;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.36);
-    }
-    .brand-logo-grid {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: .65rem;
-    }
-    @media (max-width: 1024px) { .brand-logo-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-    @media (max-width: 640px) { .brand-logo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; } }
-
-    .brand-logo-card {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: .38rem;
-      padding: .75rem .55rem .65rem;
-      border-radius: 1.1rem;
-      background: var(--dark-bg);
-      border: 1.5px solid var(--dark-border);
-      color: #f8fafc;
-      cursor: pointer;
-      text-align: center;
-      transition: transform .15s ease, border-color .15s ease, background .15s ease, box-shadow .15s ease;
-    }
-    .brand-logo-card:hover {
-      transform: translateY(-2px);
-      border-color: var(--gold);
-      background: var(--dark-elev);
-      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.45);
-    }
-    .brand-logo-card.is-active {
-      background: linear-gradient(135deg, rgba(245, 183, 0, 0.16), rgba(30, 36, 51, 0.98));
-      border: 2px solid var(--gold);
-      box-shadow: 0 10px 24px rgba(245, 183, 0, 0.22);
-    }
-    .brand-logo-card.is-empty-stock {
-      opacity: .68;
-    }
-    .brand-logo-card.is-empty-stock:hover {
-      opacity: 1;
-    }
-    .brand-emblem-box {
-      height: 36px;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .brand-wordmark {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 1.05rem;
-      font-weight: 800;
-      letter-spacing: .04em;
-      text-transform: uppercase;
-      line-height: 1;
-      color: #ffffff;
-    }
-    .brand-logo-card.is-active .brand-wordmark {
-      color: var(--gold);
-    }
-    .brand-sub-label {
-      font-size: .64rem;
-      font-weight: 700;
-      color: var(--dark-muted);
-      line-height: 1.15;
-    }
-    .brand-count-pill {
-      position: absolute;
-      top: .4rem;
-      right: .45rem;
-      padding: .1rem .42rem;
-      border-radius: 9999px;
-      font-size: .64rem;
-      font-weight: 800;
-      background: var(--dark-elev);
-      border: 1px solid var(--dark-border);
-      color: #cbd5e1;
-      font-variant-numeric: tabular-nums;
-    }
-    .brand-count-pill.has-stock {
-      background: rgba(245, 183, 0, 0.16);
-      border-color: rgba(245, 183, 0, 0.42);
-      color: var(--gold);
     }
 
     /* Strip Keunggulan */
@@ -692,7 +549,7 @@
     .fun-highlight-pill strong { color: var(--dark-text) !important; }
     .fun-highlight-pill span { color: var(--dark-muted) !important; }
 
-    /* Kategori Unggulan & Filter Produk */
+    /* 2. Kategori Cepat */
     .catalog-heading h2 { color: #ffffff !important; }
     .catalog-heading span { color: var(--dark-muted) !important; }
     .quick-cat-btn {
@@ -710,16 +567,24 @@
     }
     .quick-cat-btn.is-active strong { color: var(--gold) !important; }
 
+    /* 3. Toolbar Pencarian & Filter */
     .catalog-toolbar {
       background: var(--dark-card) !important;
       border: 1.5px solid var(--dark-border) !important;
       box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35) !important;
     }
+    .catalog-search-form input,
     #catalogSort {
       background: var(--dark-bg) !important;
       border: 1.5px solid var(--dark-border) !important;
       color: var(--dark-text) !important;
     }
+    .catalog-search-form input:focus {
+      outline: none;
+      border-color: var(--gold) !important;
+      box-shadow: 0 0 0 3px rgba(245, 183, 0, 0.16);
+    }
+    .catalog-search-form input::placeholder { color: #64748b; }
     #btnClearCatalogSearch { background: var(--dark-elev) !important; color: var(--dark-text) !important; }
     .catalog-categories label span {
       background: var(--dark-elev) !important;
@@ -733,10 +598,10 @@
     }
     #catalogResultCount { color: var(--dark-muted) !important; }
 
-    /* Produk Unggulan & Terlaris */
+    /* 4. Produk Terlaris Minggu Ini */
     .bestseller-section {
       background: linear-gradient(180deg, rgba(21, 25, 34, 0.96), rgba(15, 19, 28, 0.96));
-      border: 1.5px solid rgba(245, 183, 0, 0.32);
+      border: 1.5px solid rgba(245, 183, 0, 0.28);
       border-radius: 1.65rem;
       padding: 1.25rem;
       box-shadow: 0 14px 34px rgba(0, 0, 0, 0.42);
@@ -749,7 +614,7 @@
     @media (max-width: 1024px) { .bestseller-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 520px) { .bestseller-grid { grid-template-columns: 1fr; } }
 
-    /* Kartu Produk */
+    /* 5 & 7. Kartu Produk, Badge Variatif, Poin Keunggulan & Foto 1:1 Full-Bleed */
     .catalog-empty {
       background: var(--dark-card) !important;
       border-color: var(--dark-border) !important;
@@ -763,9 +628,6 @@
     .catalog-card:hover {
       border-color: var(--gold) !important;
       box-shadow: 0 18px 36px rgba(0, 0, 0, 0.55) !important;
-    }
-    .catalog-card.is-featured-card {
-      border-color: rgba(245, 183, 0, 0.5) !important;
     }
     .catalog-card-photo-wrap {
       padding: 0 !important;
@@ -789,7 +651,6 @@
       font-size: .72rem !important;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
     }
-    .badge-featured { background: linear-gradient(135deg, #f5b700, #fbbf24) !important; color: #0b0e14 !important; }
     .badge-bestseller { background: rgba(245, 183, 0, 0.95) !important; color: #0b0e14 !important; }
     .badge-recommended { background: rgba(16, 185, 129, 0.92) !important; color: #052e16 !important; }
     .badge-new { background: rgba(37, 99, 235, 0.94) !important; color: #ffffff !important; }
@@ -805,20 +666,7 @@
     .catalog-card-body h3:hover { color: var(--gold) !important; }
     .catalog-card-description { color: var(--dark-muted) !important; }
 
-    .local-store-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: .35rem;
-      padding: .22rem .55rem;
-      border-radius: .55rem;
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(52, 211, 153, 0.32);
-      color: #6ee7b7;
-      font-size: .71rem;
-      font-weight: 700;
-      width: fit-content;
-    }
-
+    /* Poin Keunggulan Singkat di Kartu Produk */
     .product-bullets {
       list-style: none;
       margin: 0;
@@ -831,14 +679,14 @@
       display: flex;
       align-items: center;
       gap: .4rem;
-      font-size: .75rem;
+      font-size: .76rem;
       font-weight: 600;
       color: #cbd5e1;
       line-height: 1.3;
     }
     .product-bullets li i {
       color: var(--gold);
-      font-size: .66rem;
+      font-size: .68rem;
       flex-shrink: 0;
     }
 
@@ -861,6 +709,7 @@
       color: #34d399 !important;
     }
 
+    /* Tombol Modern Datar */
     .shop-button-primary {
       background: var(--gold) !important;
       color: #0b0e14 !important;
@@ -884,7 +733,7 @@
       border-bottom: none !important;
     }
 
-    /* Testimoni, Cara Pesan, Ongkir, Lokasi & Footer */
+    /* 10. Testimoni Pelanggan Berau */
     .testimonials-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -902,14 +751,28 @@
       gap: .75rem;
       box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35);
     }
-    .testimonial-stars { color: var(--gold); font-size: .85rem; letter-spacing: .08em; }
-    .testimonial-quote { font-size: .9rem; font-weight: 600; color: var(--dark-text); line-height: 1.5; }
+    .testimonial-stars {
+      color: var(--gold);
+      font-size: .85rem;
+      letter-spacing: .08em;
+    }
+    .testimonial-quote {
+      font-size: .9rem;
+      font-weight: 600;
+      color: var(--dark-text);
+      line-height: 1.5;
+    }
     .testimonial-author {
-      display: flex; align-items: center; justify-content: space-between;
-      font-size: .76rem; color: var(--dark-muted);
-      border-top: 1px solid var(--dark-border); padding-top: .6rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: .76rem;
+      color: var(--dark-muted);
+      border-top: 1px solid var(--dark-border);
+      padding-top: .6rem;
     }
 
+    /* Cara Pesan, Lokasi & Footer */
     .howto-card,
     .shop-location {
       background: var(--dark-card) !important;
@@ -932,22 +795,6 @@
       border-color: var(--dark-border) !important;
       color: var(--gold) !important;
     }
-    .shipping-info-box {
-      background: var(--dark-card);
-      border: 1.5px solid var(--dark-border);
-      border-radius: 1.4rem;
-      padding: 1.25rem;
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 1rem;
-    }
-    @media (max-width: 768px) { .shipping-info-box { grid-template-columns: 1fr; } }
-    .shipping-subcard {
-      background: var(--dark-bg);
-      border: 1px solid var(--dark-border);
-      border-radius: 1.05rem;
-      padding: 1rem;
-    }
     .shop-map-frame { border-color: var(--dark-border) !important; background: var(--dark-bg) !important; }
     footer {
       background: #07090e !important;
@@ -957,50 +804,46 @@
     footer .text-slate-700 { color: var(--dark-text) !important; }
     footer a { color: var(--gold) !important; }
 
-    /* Floating Stack Kanan Bawah: Keranjang (0) + Chat WA */
-    .floating-bottom-right-stack {
-      position: fixed;
-      right: 1.15rem;
-      bottom: 1.15rem;
-      z-index: 44;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: .6rem;
+    /* 6 & 9. Sticky WhatsApp + Area Keranjang Menonjol (Jumlah + Total Rp) */
+    .floating-cart-bar {
+      left: 1.15rem !important;
+      right: auto !important;
+      transform: none !important;
+      bottom: 1.15rem !important;
+      z-index: 42 !important;
     }
-    .floating-cart-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-      padding: .75rem 1.2rem;
-      border-radius: 9999px;
-      background: var(--gold);
-      color: #0b0e14;
-      font-weight: 800;
-      font-size: .88rem;
-      box-shadow: 0 14px 32px rgba(245, 183, 0, 0.35);
-      cursor: pointer;
-      transition: transform .14s ease, filter .14s ease;
+    .floating-cart-bar .shop-button-primary {
+      padding: .72rem 1.15rem !important;
+      font-size: .85rem !important;
+      box-shadow: 0 14px 30px rgba(245, 183, 0, 0.32) !important;
     }
-    .floating-cart-pill:hover { filter: brightness(1.06); transform: translateY(-2px); }
-    .floating-cart-pill:active { transform: scale(.97); }
-    .floating-wa-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: .5rem;
-      padding: .72rem 1.15rem;
-      border-radius: 9999px;
-      background: #16a34a;
-      color: #ffffff;
-      font-weight: 800;
-      font-size: .85rem;
-      text-decoration: none;
-      box-shadow: 0 14px 30px rgba(22, 163, 74, 0.42);
-      transition: transform .14s ease, background .14s ease;
+    .floating-cart-bar #catalogCartCount {
+      background: #0b0e14 !important;
+      color: var(--gold) !important;
     }
-    .floating-wa-pill:hover { background: #15803d; transform: translateY(-2px); }
+    .floating-wa-btn {
+      right: 1.15rem !important;
+      bottom: 1.15rem !important;
+      z-index: 42 !important;
+      border-bottom: none !important;
+      padding: .78rem 1.2rem !important;
+      box-shadow: 0 14px 30px rgba(22, 163, 74, 0.42) !important;
+    }
+    @media (max-width: 640px) {
+      .floating-wa-btn span { display: inline !important; font-size: .8rem !important; }
+      .floating-wa-btn {
+        width: auto !important;
+        height: auto !important;
+        padding: .7rem 1rem !important;
+        font-size: .82rem !important;
+      }
+      .floating-cart-bar .shop-button-primary {
+        padding: .68rem .95rem !important;
+        font-size: .78rem !important;
+      }
+    }
 
-    /* Modal Detail & Checkout */
+    /* Modal Detail Varian & Keranjang WhatsApp */
     #catalogProductModal,
     #catalogCart {
       background: var(--dark-card) !important;
@@ -1036,35 +879,14 @@
       background: #232a3b !important;
     }
     #catalogDetailBody [data-pick-variant] .text-slate-900 { color: var(--dark-text) !important; }
-    #catalogCartLines > div,
-    .checkout-delivery-box {
+    #catalogCartLines > div {
       background: var(--dark-bg) !important;
       border-color: var(--dark-border) !important;
     }
-    #catalogCartLines input,
-    .checkout-delivery-box input,
-    .checkout-delivery-box select,
-    .checkout-delivery-box textarea {
+    #catalogCartLines input {
       background: var(--dark-card) !important;
       border-color: var(--dark-border) !important;
       color: var(--dark-text) !important;
-    }
-    .delivery-mode-btn {
-      padding: .55rem .75rem;
-      border-radius: .85rem;
-      border: 1.5px solid var(--dark-border);
-      background: var(--dark-card);
-      color: #cbd5e1;
-      font-size: .78rem;
-      font-weight: 800;
-      cursor: pointer;
-      text-align: center;
-      transition: all .14s ease;
-    }
-    .delivery-mode-btn.is-active {
-      border-color: var(--gold);
-      background: rgba(245, 183, 0, 0.14);
-      color: var(--gold);
     }
     .text-blue-900, .text-blue-800, .text-blue-700 { color: #93c5fd !important; }
     .text-amber-700 { color: var(--gold) !important; }
@@ -1120,9 +942,9 @@
         <h2 id="catalogPageTitle">Perlengkapan Olahraga<br><span class="shop-hero-accent">&amp; Alat Musik Berau</span></h2>
         <p class="text-[15px] text-slate-200 leading-relaxed">Toko raket badminton Berau, bola futsal Tanjung Redeb, catur, hingga senar dan aksesori gitar dengan harga jelas dan stok langsung dari toko kami.</p>
         <div class="hero-trust-row">
-          <span class="hero-trust-pill"><i class="fa-solid fa-location-dot text-amber-300" aria-hidden="true"></i> Siap Ambil di Toko Berau</span>
-          <span class="hero-trust-pill"><i class="fa-solid fa-truck-fast text-amber-300" aria-hidden="true"></i> Melayani Pembelian Online &amp; Kirim</span>
-          <span class="hero-trust-pill"><i class="fa-solid fa-qrcode text-amber-300" aria-hidden="true"></i> QRIS, Transfer Bank &amp; Tunai</span>
+          <span class="hero-trust-pill"><i class="fa-solid fa-circle-check text-amber-300" aria-hidden="true"></i> Harga &amp; stok dikonfirmasi toko</span>
+          <span class="hero-trust-pill"><i class="fa-solid fa-store text-amber-300" aria-hidden="true"></i> Ambil di toko · Bisa pesan/DP via WA</span>
+          <span class="hero-trust-pill"><i class="fa-solid fa-qrcode text-amber-300" aria-hidden="true"></i> Tunai, QRIS, Kartu &amp; Transfer</span>
         </div>
         <div class="shop-hero-actions pt-1">
           <a class="shop-button shop-button-accent" href="#publicProductCatalog">Jelajahi katalog <i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a>
@@ -1154,50 +976,21 @@
       </div>
     </section>
 
-    <section class="hero-search-spotlight" aria-label="Pencarian cepat produk">
-      <div class="catalog-search-form">
-        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-        <label for="catalogSearch" class="sr-only">Cari raket, senar, gitar, bola futsal, merek</label>
-        <input type="search" id="catalogSearch" placeholder="🔍 Cari raket, senar, gitar, bola futsal, atau klik logo brand..." autocomplete="off">
-        <button type="button" id="btnClearCatalogSearch" class="hidden" aria-label="Hapus pencarian"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
-      </div>
-      <div class="quick-search-chips">
-        <span class="text-[11px] font-bold text-slate-400 mr-1">Pencarian populer:</span>
-        <button type="button" class="quick-search-chip" data-quick-term="Senar Powermax">Senar Powermax</button>
-        <button type="button" class="quick-search-chip" data-quick-term="Hundred">Hundred</button>
-        <button type="button" class="quick-search-chip" data-quick-term="AVO">Kaos Kaki AVO</button>
-        <button type="button" class="quick-search-chip" data-quick-term="Yonex">Yonex</button>
-        <button type="button" class="quick-search-chip" data-quick-term="Li-Ning">Li-Ning</button>
-        <button type="button" class="quick-search-chip" data-quick-term="Ortuseight">Ortuseight</button>
-      </div>
-    </section>
-
-    <section id="brand-pilihan" class="brand-showcase-section flex flex-col gap-3.5" aria-labelledby="brandShowcaseTitle">
-      <div class="catalog-heading">
-        <div>
-          <h2 id="brandShowcaseTitle">🏷️ Cari Berdasarkan Brand Resmi</h2>
-          <span class="text-xs font-bold text-slate-400">Klik logo brand di bawah untuk langsung menampilkan semua produk merek tersebut</span>
-        </div>
-        <button type="button" id="btnResetBrandFilter" class="hidden text-xs font-extrabold text-amber-300 hover:underline">✕ Tampilkan semua brand</button>
-      </div>
-      <div id="brandLogoGrid" class="brand-logo-grid"></div>
-    </section>
-
     <section id="produk-terlaris" class="bestseller-section flex flex-col gap-4" aria-labelledby="bestsellerTitle">
       <div class="catalog-heading">
         <div>
-          <h2 id="bestsellerTitle">⭐ Produk Unggulan &amp; Terlaris</h2>
-          <span class="text-xs font-bold text-slate-400">Pilihan utama toko — siap ambil hari ini di Berau atau kirim online</span>
+          <h2 id="bestsellerTitle">🔥 Produk Terlaris Minggu Ini</h2>
+          <span class="text-xs font-bold text-slate-400">Pilihan favorit pelanggan Surya Jaya Sport Berau — siap ambil di toko</span>
         </div>
         <a href="#publicProductCatalog" class="text-xs font-extrabold text-amber-300 hover:underline">Lihat semua produk &rarr;</a>
       </div>
-      <div id="bestsellerGrid" class="bestseller-grid"><p class="catalog-empty col-span-full" role="status">Memuat produk unggulan…</p></div>
+      <div id="bestsellerGrid" class="bestseller-grid"><p class="catalog-empty col-span-full" role="status">Memuat produk terlaris…</p></div>
     </section>
 
     <section id="kategori-unggulan" class="flex flex-col gap-3" aria-label="Menu kategori cepat">
       <div class="catalog-heading">
-        <h2>Kategori Unggulan</h2>
-        <span class="text-xs font-bold text-slate-400">Pilih bidang olahraga atau alat musik favorit Anda</span>
+        <h2>Kategori Pilihan</h2>
+        <span class="text-xs font-bold text-slate-500">Klik kategori untuk menyaring katalog di bawah</span>
       </div>
       <div id="quickCatGrid" class="quick-cat-grid">
         <button type="button" class="quick-cat-btn is-active" data-quick-cat="all">
@@ -1235,10 +1028,16 @@
 
     <section id="publicProductCatalog" class="flex flex-col gap-5" aria-labelledby="productCatalogTitle">
       <div class="catalog-heading">
-        <h2 id="productCatalogTitle">Filter Produk &amp; Katalog Lengkap</h2>
+        <h2 id="productCatalogTitle">Katalog Produk</h2>
         <span class="text-xs font-bold text-slate-500">Harga dan stok dikonfirmasi oleh toko · Ketuk foto untuk melihat detail</span>
       </div>
       <div class="catalog-toolbar">
+        <div class="catalog-search-form">
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <label for="catalogSearch" class="sr-only">Cari barang di katalog</label>
+          <input type="search" id="catalogSearch" placeholder="🔍 Cari produk... (mis. raket Yonex, senar Powermax, bola futsal)" autocomplete="off">
+          <button type="button" id="btnClearCatalogSearch" class="hidden" aria-label="Hapus pencarian"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+        </div>
         <div class="catalog-filter-row">
           <div id="catalogCategory" class="catalog-categories" role="radiogroup" aria-label="Kategori produk">
             <label><input type="radio" name="catalogCategory" value="all" checked class="sr-only"><span>Semua</span></label>
@@ -1320,7 +1119,7 @@
         </article>
         <article class="testimonial-card">
           <div class="testimonial-stars" aria-label="5 dari 5 bintang">★★★★★</div>
-          <p class="testimonial-quote">“Pesan online dikirim ke luar Tanjung Redeb juga aman, admin fast response cek ongkir dan packing rapi.”</p>
+          <p class="testimonial-quote">“Cari sepatu futsal, bola, sampai senar gitar semuanya ada di satu tempat. Pelayanannya ramah dan responsif.”</p>
           <div class="testimonial-author">
             <strong class="text-slate-200">Dimas Saputra</strong>
             <span>Pelanggan Futsal &amp; Musik · Berau</span>
@@ -1331,37 +1130,25 @@
 
     <section id="cara-pesan" class="flex flex-col gap-4" aria-labelledby="howToOrderTitle">
       <div class="catalog-heading">
-        <div>
-          <h2 id="howToOrderTitle">Cara Pesan, Pembayaran &amp; Ongkos Kirim</h2>
-          <span class="text-xs font-bold text-slate-400">Melayani pengambilan langsung di toko Berau maupun pengiriman online</span>
-        </div>
+        <h2 id="howToOrderTitle">Cara Pesan &amp; Pembayaran</h2>
+        <span class="text-xs font-bold text-slate-500">Pengambilan barang di toko · Belum melayani pengiriman atau pembayaran otomatis di website</span>
       </div>
       <div class="howto-grid">
         <article class="howto-card">
-          <div class="howto-icon-row"><span class="howto-step">1</span><span class="howto-icon-badge"><i class="fa-solid fa-cart-plus" aria-hidden="true"></i></span></div>
-          <h3>Pilih Produk &amp; Masukkan Keranjang</h3>
-          <p>Cari produk lewat kotak pencarian, klik logo brand, atau filter kategori, lalu klik <strong>+ Keranjang</strong>.</p>
+          <div class="howto-icon-row"><span class="howto-step">1</span><span class="howto-icon-badge"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></span></div>
+          <h3>Cek produk &amp; masukkan keranjang</h3>
+          <p>Pilih barang yang Anda butuhkan lalu klik <strong>+ Keranjang</strong>, atau klik <strong>Tanya stok</strong> untuk menanyakan langsung 1 produk. Harga dan stok akan dikonfirmasi kembali oleh toko.</p>
         </article>
         <article class="howto-card">
-          <div class="howto-icon-row"><span class="howto-step">2</span><span class="howto-icon-badge"><i class="fa-solid fa-truck-fast" aria-hidden="true"></i></span></div>
-          <h3>Pilih Ambil di Toko atau Kirim Online</h3>
-          <p>Di dalam <strong>Keranjang</strong>, pilih metode pengambilan: <strong>Ambil di Toko Berau</strong> (gratis ongkir, bisa booking/DP) atau <strong>Kirim Online</strong> (kurir lokal Tanjung Redeb / ekspedisi J&amp;T, JNE, Lion Parcel ke seluruh Kaltim &amp; Indonesia).</p>
+          <div class="howto-icon-row"><span class="howto-step">2</span><span class="howto-icon-badge"><i class="fa-solid fa-basket-shopping" aria-hidden="true"></i></span></div>
+          <h3>Pesan lewat WhatsApp (bisa DP / transfer)</h3>
+          <p>Kirim daftar belanja ke WhatsApp <strong>0823-200-33333</strong>. Anda boleh memesan dengan <strong>DP atau transfer</strong> terlebih dahulu—baik untuk pembelian jumlah besar maupun kecil—agar barang kami siapkan.</p>
         </article>
         <article class="howto-card">
-          <div class="howto-icon-row"><span class="howto-step">3</span><span class="howto-icon-badge"><i class="fa-solid fa-wallet" aria-hidden="true"></i></span></div>
-          <h3>Konfirmasi Ongkir &amp; Pembayaran Mudah</h3>
-          <p>Klik <strong>Kirim Pesanan ke WhatsApp</strong>. Admin akan mengonfirmasi total barang + ongkos kirim (jika kirim online), lalu Anda dapat membayar lewat <strong>QRIS, Transfer Bank (BCA/BRI/Mandiri), atau Tunai di Toko</strong>.</p>
+          <div class="howto-icon-row"><span class="howto-step">3</span><span class="howto-icon-badge"><i class="fa-solid fa-store" aria-hidden="true"></i></span></div>
+          <h3>Ambil &amp; bayar di toko</h3>
+          <p>Saat ini kami <strong>tidak melayani pengiriman</strong> maupun checkout online. Pengambilan dilakukan langsung di toko kami, dengan pilihan bayar <strong>Tunai, QRIS, Kartu, atau Transfer Bank</strong>.</p>
         </article>
-      </div>
-      <div class="shipping-info-box">
-        <div class="shipping-subcard space-y-1.5">
-          <h3 class="text-sm font-extrabold text-amber-300 flex items-center gap-2"><i class="fa-solid fa-store" aria-hidden="true"></i> Opsi 1: Ambil di Toko Berau (Gratis Ongkir)</h3>
-          <p class="text-xs text-slate-300 leading-relaxed">Barang langsung disiapkan di <strong>Jl. Ahmad Yani 37, Tanjung Redeb</strong>. Bisa bayar langsung di kasir (Tunai, QRIS, Kartu Debit/Kredit, Transfer) atau DP via WA agar barang tidak kehabisan.</p>
-        </div>
-        <div class="shipping-subcard space-y-1.5">
-          <h3 class="text-sm font-extrabold text-emerald-400 flex items-center gap-2"><i class="fa-solid fa-box-open" aria-hidden="true"></i> Opsi 2: Pengiriman Online (Dalam &amp; Luar Kota)</h3>
-          <p class="text-xs text-slate-300 leading-relaxed"><strong>Area Tanjung Redeb &amp; Sekitarnya:</strong> Kurir instan / ojek lokal (ongkir menyesuaikan jarak, mulai Rp 10.000).<br><strong>Luar Kota / Kabupaten:</strong> J&amp;T Express, JNE, atau Lion Parcel (ongkir dihitung sesuai berat paket &amp; alamat tujuan setelah pesanan masuk WA).</p>
-        </div>
       </div>
     </section>
 
@@ -1383,7 +1170,7 @@
               <img src="pay-kartu.svg" alt="Kartu Debit Kredit" width="120" height="60" loading="lazy">
               <img src="pay-transfer.svg" alt="Transfer Bank" width="120" height="60" loading="lazy">
             </div>
-            <p><i class="fa-brands fa-whatsapp text-emerald-600 mr-1" aria-hidden="true"></i> <strong>Pemesanan Online &amp; Toko:</strong> Bisa ambil langsung di toko Berau atau dikirim via kurir lokal &amp; ekspedisi (bayar via QRIS / Transfer / Tunai).</p>
+            <p><i class="fa-brands fa-whatsapp text-emerald-600 mr-1" aria-hidden="true"></i> <strong>Pemesanan WA:</strong> Bisa DP / transfer untuk pembelian besar maupun kecil, lalu ambil langsung di toko.</p>
           </div>
         </div>
         <div class="flex flex-wrap gap-2.5">
@@ -1409,16 +1196,16 @@
     <p class="mt-1.5"><a href="kebijakan-privasi.html" class="font-bold text-blue-700 underline">Kebijakan Privasi</a></p>
   </footer>
 
-  <div class="floating-bottom-right-stack">
-    <button type="button" id="openCatalogCart" class="floating-cart-pill" aria-label="Buka keranjang belanja">
+  <div class="floating-cart-bar">
+    <button type="button" id="openCatalogCart" class="shop-button shop-button-primary !rounded-full shadow-xl">
       <span>🛒 Keranjang (<strong id="catalogCartCount">0</strong>)</span>
-      <span id="floatingCartTotalText" class="hidden font-extrabold"></span>
+      <span id="floatingCartTotalText" class="hidden sm:inline font-extrabold"></span>
     </button>
-    <a href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer" class="floating-wa-pill" aria-label="Chat WhatsApp Surya Jaya Sport">
-      <i class="fa-brands fa-whatsapp text-lg" aria-hidden="true"></i>
-      <span>💬 Chat WA</span>
-    </a>
   </div>
+  <a href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer" class="floating-wa-btn" aria-label="Chat WhatsApp Surya Jaya Sport">
+    <i class="fa-brands fa-whatsapp text-xl" aria-hidden="true"></i>
+    <span>💬 Chat WA</span>
+  </a>
 
   <dialog id="catalogProductModal" class="m-auto max-h-[88dvh] w-11/12 max-w-lg rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl">
     <div class="mb-3 flex items-center justify-between gap-3">
@@ -1428,45 +1215,18 @@
     <div id="catalogDetailBody" class="space-y-3"></div>
   </dialog>
 
-  <dialog id="catalogCart" class="m-auto max-h-[88dvh] w-11/12 max-w-xl rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl overflow-y-auto">
+  <dialog id="catalogCart" class="m-auto max-h-[85dvh] w-11/12 max-w-xl rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl">
     <div class="mb-3 flex items-center justify-between gap-3">
-      <h2 class="text-lg font-extrabold">🛒 Keranjang &amp; Checkout WhatsApp</h2>
+      <h2 class="text-lg font-extrabold">Keranjang WhatsApp</h2>
       <form method="dialog"><button class="min-h-11 rounded-xl bg-slate-100 px-3.5 text-sm font-bold">Tutup</button></form>
     </div>
     <div id="catalogCartLines" class="space-y-3"></div>
-    <div id="cartCheckoutOptions" class="checkout-delivery-box mt-4 rounded-2xl border p-3.5 space-y-3">
-      <div>
-        <span class="block text-xs font-extrabold uppercase tracking-wider text-amber-300 mb-1.5">1. Metode Pengambilan / Pengiriman</span>
-        <div class="grid grid-cols-2 gap-2">
-          <button type="button" class="delivery-mode-btn is-active" data-delivery-mode="pickup">📍 Ambil di Toko Berau</button>
-          <button type="button" class="delivery-mode-btn" data-delivery-mode="delivery">🚚 Kirim Online (Kurir/Ekspedisi)</button>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-        <label class="text-xs font-bold text-slate-400">Nama Pemesan
-          <input type="text" id="cartBuyerName" maxlength="80" placeholder="Nama Anda..." class="mt-1 w-full rounded-xl border p-2 text-sm font-semibold">
-        </label>
-        <label class="text-xs font-bold text-slate-400">2. Metode Pembayaran
-          <select id="cartPayMethod" class="mt-1 w-full rounded-xl border p-2 text-sm font-bold">
-            <option value="QRIS">QRIS (Scan Instan)</option>
-            <option value="Transfer Bank (BCA / BRI / Mandiri)">Transfer Bank (BCA / BRI / Mandiri)</option>
-            <option value="Tunai di Toko">Tunai di Toko (Khusus Ambil di Toko)</option>
-          </select>
-        </label>
-      </div>
-      <div id="cartShippingAddressWrap" class="hidden space-y-1.5">
-        <label class="block text-xs font-bold text-slate-400">Alamat Lengkap &amp; Kecamatan / Kota Tujuan (untuk cek ongkir)
-          <textarea id="cartBuyerAddress" rows="2" maxlength="220" placeholder="Contoh: Jl. Mangga II No. 12, Tanjung Redeb / Kec. Sambaliung..." class="mt-1 w-full rounded-xl border p-2 text-sm font-semibold"></textarea>
-        </label>
-        <p class="text-[11px] text-emerald-400 font-semibold">ℹ Ongkos kirim dihitung admin sesuai jarak kurir lokal Berau atau tarif ekspedisi (J&amp;T / JNE / Lion Parcel).</p>
-      </div>
-    </div>
     <div class="mt-4 border-t border-slate-200 pt-3 space-y-2.5">
       <p id="catalogCartTotal" class="font-extrabold text-slate-900" aria-live="polite"></p>
-      <p id="catalogCartHint" class="text-xs text-slate-500">Harga &amp; ketersediaan stok akan dikonfirmasi admin Surya Jaya Sport melalui WhatsApp.</p>
+      <p class="text-xs text-slate-500">Harga dan stok akan dikonfirmasi kembali oleh toko. Pengambilan di toko; bisa DP/transfer lewat WhatsApp untuk pembelian besar maupun kecil.</p>
       <a id="catalogCartWhatsApp" target="_blank" rel="noopener noreferrer" class="hidden shop-button shop-button-primary !w-full">
         <i class="fa-brands fa-whatsapp text-lg" aria-hidden="true"></i>
-        <span>Kirim Pesanan ke WhatsApp</span>
+        <span>Kirim daftar ke WhatsApp</span>
       </a>
     </div>
   </dialog>
@@ -1636,7 +1396,6 @@
       const byId = new Map(publicCatalog.map(p => [p.id, p]));
       return [...catalogCart].map(([id, line]) => ({ id, line, item: byId.get(id) }));
     }
-    let cartDeliveryMode = "pickup";
     function updateCartSummary() {
       const lines = cartProducts();
       const totalQty = lines.reduce((s, { line }) => s + Math.max(0, Number(line.qty) || 0), 0);
@@ -1646,7 +1405,7 @@
       const floatTotEl = document.getElementById("floatingCartTotalText");
       if (floatTotEl) {
         if (totalQty > 0 && total > 0) {
-          floatTotEl.textContent = `· ${rp(total)}`;
+          floatTotEl.textContent = `· Total ${rp(total)}`;
           floatTotEl.classList.remove("hidden");
         } else {
           floatTotEl.textContent = "";
@@ -1657,34 +1416,17 @@
       if (hdrLbl) {
         hdrLbl.textContent = totalQty > 0 ? `Keranjang (${totalQty}) · ${rp(total)}` : "Keranjang (0)";
       }
-      const isDelivery = cartDeliveryMode === "delivery";
-      document.getElementById("catalogCartTotal").textContent = lines.length
-        ? `Subtotal barang (${totalQty} pcs): ${rp(total)}${isDelivery ? " + Ongkir (dikonfirmasi admin)" : " (Gratis Ongkir — Ambil di Toko)"}`
-        : "";
+      document.getElementById("catalogCartTotal").textContent = lines.length ? `Perkiraan total (${totalQty} barang): ${rp(total)}` : "";
       const link = document.getElementById("catalogCartWhatsApp");
       const canSend = lines.length > 0 && lines.every(({ item, line }) => item && Number(item.stock) > 0 && line.qty > 0);
       link.classList.toggle("hidden", !canSend);
       if (!canSend) { link.removeAttribute("href"); return; }
-
-      const buyerName = String(document.getElementById("cartBuyerName")?.value || "").trim();
-      const payMethod = String(document.getElementById("cartPayMethod")?.value || "QRIS").trim();
-      const buyerAddr = String(document.getElementById("cartBuyerAddress")?.value || "").trim();
-      const deliveryLabel = isDelivery ? "🚚 Kirim Online (Kurir / Ekspedisi)" : "📍 Ambil di Toko Berau";
-
-      const text = [
-        "Halo Surya Jaya Sport, saya ingin memesan produk berikut:",
+      const text = ["Halo Surya Jaya Sport, saya mau cek stok / pesan untuk ambil di toko:",
         ...lines.map(({ item, line }, i) => {
           const spec = [item.size, item.color].filter(Boolean).join(" / ");
-          return `${i + 1}. ${item.name}${spec ? ` [${spec}]` : ""}${item.code ? ` (${item.code})` : ""} × ${line.qty} = ${rp((Number(item.price) || 0) * line.qty)}${line.note ? ` — Catatan: ${line.note}` : ""}`;
+          return `${i + 1}. ${item.name}${spec ? ` [${spec}]` : ""}${item.code ? ` (${item.code})` : ""} × ${line.qty}${line.note ? ` — ${line.note}` : ""}`;
         }),
-        "",
-        `Subtotal Barang: ${rp(total)}`,
-        `Metode: ${deliveryLabel}`,
-        `Pembayaran: ${payMethod}`,
-        ...(buyerName ? [`Nama Pemesan: ${buyerName}`] : []),
-        ...(isDelivery ? [`Alamat Tujuan: ${buyerAddr || "(Mohon info ongkir ke alamat saya)"}`] : []),
-        isDelivery ? "Mohon konfirmasi stok dan total ongkos kirimnya ya. Terima kasih!" : "Mohon konfirmasi stoknya agar bisa saya ambil di toko. Terima kasih!"
-      ].join("\n");
+        `Perkiraan total: ${rp(total)}. Apakah stoknya tersedia?`].join("\n");
       link.href = CATALOG_WA + "?" + new URLSearchParams({ text });
     }
     function renderCart() {
@@ -1810,202 +1552,6 @@
       if (!dlg.open) dlg.showModal();
     }
 
-    const CATALOG_BRANDS = [
-      {
-        id: "yonex",
-        name: "Yonex",
-        sub: "Badminton",
-        searchTerm: "Yonex",
-        re: /\byonex\b/i,
-        svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><circle cx="24" cy="11" r="4.5" fill="#0066cc"/><circle cx="38" cy="11" r="4.5" fill="#10b981"/><path d="M18 19 L31 29 L44 19 L39 19 L31 24.5 L23 19 Z" fill="#0066cc"/><path d="M26 17 L31 21 L36 17" stroke="#10b981" stroke-width="2.5" fill="none"/></svg>`
-      },
-      {
-        id: "lining",
-        name: "Li-Ning",
-        sub: "Badminton & Sport",
-        searchTerm: "Li-Ning",
-        re: /\b(li-?ning|lining)\b/i,
-        svg: `<svg viewBox="0 0 84 34" class="h-7 w-auto" aria-hidden="true"><path d="M14 25 C28 22, 44 14, 68 7 C52 17, 36 24, 18 28 Z" fill="#ef4444"/><path d="M24 12 L42 18 L28 24 Z" fill="#facc15"/></svg>`
-      },
-      {
-        id: "victor",
-        name: "Victor",
-        sub: "Badminton",
-        searchTerm: "Victor",
-        re: /\bvictor\b/i,
-        svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M22 7 L40 28 L58 7 L49 7 L40 19 L31 7 Z" fill="#2563eb"/><path d="M33 7 L40 15 L47 7 Z" fill="#ef4444"/></svg>`
-      },
-      {
-        id: "hiqua",
-        name: "Hiqua",
-        sub: "Badminton",
-        searchTerm: "Hiqua",
-        re: /\b(hi-?qua|hiqua)\b/i,
-        svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><rect x="20" y="7" width="6" height="20" rx="2" fill="#f5b700"/><rect x="34" y="7" width="6" height="20" rx="2" fill="#f5b700"/><rect x="20" y="14.5" width="20" height="5" fill="#f5b700"/><circle cx="52" cy="17" r="8" stroke="#38bdf8" stroke-width="4" fill="none"/><path d="M55 21 L62 27" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/></svg>`
-      },
-      {
-        id: "rs",
-        name: "RS",
-        sub: "Reinforce Speed",
-        searchTerm: "RS",
-        re: /\b(rs|reinforce(\s*speed)?)\b/i,
-        svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><polygon points="18,26 26,8 42,8 38,16 29,16 25,26" fill="#ef4444"/><polygon points="42,26 46,18 58,18 62,8 46,8 42,16 53,16 49,26" fill="#facc15"/></svg>`
-      },
-      {
-        id: "flypower",
-        name: "Flypower",
-        sub: "Badminton",
-        searchTerm: "Flypower",
-        re: /\bflypower\b/i,
-        svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M18 24 L36 8 L44 14 L58 8 L44 26 L36 19 Z" fill="#f97316"/><circle cx="58" cy="19" r="4" fill="#facc15"/></svg>`
-      },
-      {
-        id: "astec",
-        name: "Astec",
-        sub: "Badminton",
-        searchTerm: "Astec",
-        re: /\bastec\b/i,
-        svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><polygon points="40,6 22,28 31,28 40,16 49,28 58,28" fill="#38bdf8"/><rect x="31" y="21" width="18" height="4" fill="#f5b700"/></svg>`
-      },
-      {
-        id: "butterfly",
-        name: "Butterfly",
-        sub: "Tenis Meja",
-        searchTerm: "Butterfly",
-        re: /\bbutterfly\b/i,
-        svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M38 17 C28 6, 16 9, 20 20 C22 25, 32 25, 38 19 Z" fill="#ec4899"/><path d="M42 17 C52 6, 64 9, 60 20 C58 25, 48 25, 42 19 Z" fill="#f43f5e"/><rect x="38.5" y="10" width="3" height="15" rx="1.5" fill="#facc15"/></svg>`
-      },
-      {
-        id: "dhs",
-        name: "DHS",
-        sub: "Double Happiness",
-        searchTerm: "DHS",
-        re: /\b(dhs|double\s*happiness)\b/i,
-        svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><circle cx="33" cy="17" r="9" stroke="#ef4444" stroke-width="3.5" fill="none"/><circle cx="47" cy="17" r="9" stroke="#facc15" stroke-width="3.5" fill="none"/></svg>`
-      },
-      {
-        id: "nitaku",
-        name: "Nitaku",
-        sub: "Nittaku Pingpong",
-        searchTerm: "Nitaku",
-        re: /\b(nitaku|nittaku)\b/i,
-        svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><polygon points="24,26 24,8 32,8 48,20 48,8 56,8 56,26 48,26 32,14 32,26" fill="#38bdf8"/></svg>`
-      },
-      {
-        id: "donics",
-        name: "Donics",
-        sub: "Donic Pingpong",
-        searchTerm: "Donic",
-        re: /\b(donics?|donic)\b/i,
-        svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M24 8 H42 C52 8, 56 12, 56 17 C56 22, 52 26, 42 26 H24 Z" stroke="#10b981" stroke-width="4" fill="none"/><circle cx="40" cy="17" r="4" fill="#facc15"/></svg>`
-      },
-      {
-        id: "doublefish",
-        name: "Double Fish",
-        sub: "Tenis Meja",
-        searchTerm: "Double Fish",
-        re: /\bdouble\s*fish\b/i,
-        svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M22 14 C30 8, 42 8, 50 14 L58 9 L55 14 L58 19 L50 14 C42 20, 30 20, 22 14 Z" fill="#ef4444"/><path d="M58 22 C50 16, 38 16, 30 22 L22 17 L25 22 L22 27 L30 22 C38 28, 50 28, 58 22 Z" fill="#38bdf8"/></svg>`
-      },
-      {
-        id: "specs",
-        name: "Specs",
-        sub: "Futsal & Bola",
-        searchTerm: "Specs",
-        re: /\bspecs\b/i,
-        svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M20 22 L38 10 L58 10 L44 18 L60 18 L38 27 L24 27 Z" fill="#f5b700"/></svg>`
-      },
-      {
-        id: "ortuseight",
-        name: "Ortuseight",
-        sub: "Futsal & Running",
-        searchTerm: "Ortuseight",
-        re: /\b(ortuseight|ortus)\b/i,
-        svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><circle cx="40" cy="17" r="10" stroke="#f97316" stroke-width="4" fill="none"/><path d="M28 24 L52 10" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/></svg>`
-      },
-      {
-        id: "adidas",
-        name: "Adidas",
-        sub: "Sport & Futsal",
-        searchTerm: "Adidas",
-        re: /\badidas\b/i,
-        svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><polygon points="22,26 27,26 24,20 19,20" fill="#ffffff"/><polygon points="32,26 37,26 31,14 26,14" fill="#ffffff"/><polygon points="42,26 47,26 38,8 33,8" fill="#ffffff"/></svg>`
-      },
-      {
-        id: "nike",
-        name: "Nike",
-        sub: "Sport & Futsal",
-        searchTerm: "Nike",
-        re: /\bnike\b/i,
-        svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M22 21 C19 18, 22 12, 27 10 C25 14, 27 17, 33 16 L62 9 L31 23 C26 25, 23 23, 22 21 Z" fill="#ffffff"/></svg>`
-      },
-      {
-        id: "molten",
-        name: "Molten",
-        sub: "Bola Basket & Voli",
-        searchTerm: "Molten",
-        re: /\bmolten\b/i,
-        svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M22 22 C28 10, 44 8, 58 14 C48 16, 38 20, 32 26 Z" fill="#ef4444"/><path d="M28 12 C38 12, 48 16, 54 24" stroke="#facc15" stroke-width="3" fill="none"/></svg>`
-      },
-      {
-        id: "mikasa",
-        name: "Mikasa",
-        sub: "Bola Voli & Sepak",
-        searchTerm: "Mikasa",
-        re: /\bmikasa\b/i,
-        svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><circle cx="40" cy="17" r="10" fill="#2563eb"/><path d="M31 14 Q40 9 49 14 Q44 22 36 22 Z" fill="#facc15"/></svg>`
-      },
-      {
-        id: "mizuno",
-        name: "Mizuno",
-        sub: "Badminton & Voli",
-        searchTerm: "Mizuno",
-        re: /\bmizuno\b/i,
-        svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M18 23 C28 11, 44 9, 62 11 C46 15, 36 20, 28 26 Z" fill="#38bdf8"/></svg>`
-      },
-      {
-        id: "asics",
-        name: "Asics",
-        sub: "Sepatu & Voli",
-        searchTerm: "Asics",
-        re: /\basics\b/i,
-        svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M46 9 C32 9, 24 16, 26 23 C28 27, 36 26, 44 20 L48 25 H54 L47 9 Z M34 21 C31 21, 31 16, 37 14 L41 14 L38 20 C36 21, 35 21, 34 21 Z" fill="#60a5fa"/></svg>`
-      }
-    ];
-
-    let activeBrandId = "";
-    function itemHaystack(item) {
-      return [item.name, item.code, item.size, item.color, item.description].filter(Boolean).join(" ");
-    }
-    function matchesBrand(item, brandObj) {
-      if (!brandObj) return true;
-      return brandObj.re.test(itemHaystack(item));
-    }
-
-    function renderBrandShowcase() {
-      const grid = document.getElementById("brandLogoGrid");
-      const resetBtn = document.getElementById("btnResetBrandFilter");
-      if (!grid) return;
-      if (resetBtn) resetBtn.classList.toggle("hidden", !activeBrandId);
-
-      const inStockItems = publicCatalog.filter(it => Number(it.stock || 0) > 0);
-      grid.innerHTML = CATALOG_BRANDS.map(b => {
-        const count = inStockItems.filter(it => matchesBrand(it, b)).length;
-        const isActive = activeBrandId === b.id;
-        return `<button type="button" data-brand-id="${esc(b.id)}" class="brand-logo-card ${isActive ? "is-active" : ""} ${count === 0 ? "is-empty-stock" : ""}" aria-pressed="${isActive}" title="Tampilkan produk ${esc(b.name)}">
-          <span class="brand-count-pill ${count > 0 ? "has-stock" : ""}">${count}</span>
-          <div class="brand-emblem-box">${b.svg}</div>
-          <span class="brand-wordmark">${esc(b.name)}</span>
-          <span class="brand-sub-label">${esc(b.sub)}</span>
-        </button>`;
-      }).join("");
-    }
-
-    const DEFAULT_FEATURED_RE = /powermax|hundred|magnite|avo/i;
-    function isGroupFeatured(group) {
-      return group.variants.some(v => Boolean(v.featured) || DEFAULT_FEATURED_RE.test(String(v.name || "")));
-    }
-
     function groupCatalogProducts(list) {
       const groups = new Map();
       for (const item of list) {
@@ -2029,7 +1575,7 @@
       const name = String(item?.name || "");
       const desc = String(item?.description || "").trim();
       if (isSenarBadminton(item)) {
-        return ["Pantulan tinggi & responsif", "Suara pukulan nyaring", "Gratis ongkos pasang senar"];
+        return ["Pantulan tinggi & responsif", "Suara pukulan nyaring", "Sudah termasuk jasa pasang"];
       }
       if (/\b(raket|racket)\b/i.test(name)) {
         return ["Frame ringan & stabil", "Kontrol akurat di lapangan", "Bisa sekalian pasang senar"];
@@ -2046,14 +1592,11 @@
       if (/\b(bola|futsal|basket|voli|volley)\b/i.test(name)) {
         return ["Pantulan & tekanan stabil", "Material luar kuat & awet", "Siap latihan maupun tanding"];
       }
-      if (/\b(kaos\s*kaki|sock|avo)\b/i.test(name)) {
-        return ["Bahan tebal & anti-slip", "Nyaman & menyerap keringat", "Cocok futsal & badminton"];
-      }
       if (/\b(baju|kaos|jersey|celana)\b/i.test(name)) {
         return ["Bahan adem & ringan", "Cepat menyerap keringat", "Nyaman dipakai olahraga"];
       }
       if (MUSIC_RE.test(name)) {
-        return ["Suara jernih & karakter jelas", "Awet & mudah dipasang", "Stok siap di toko & kirim"];
+        return ["Suara jernih & karakter jelas", "Awet & mudah dipasang", "Stok siap ambil di toko"];
       }
       if (/\b(catur|chess)\b/i.test(name)) {
         return ["Papan rapi & praktis dibawa", "Bidak presisi & nyaman", "Cocok latihan & turnamen"];
@@ -2062,14 +1605,13 @@
         const parts = desc.split(/[.,·]/).map(s => s.trim()).filter(s => s.length >= 6 && s.length <= 36).slice(0, 3);
         if (parts.length >= 2) return parts;
       }
-      return ["Kualitas terjamin & siap pakai", "Harga jelas tanpa biaya tersembunyi", "Stok real-time toko Berau"];
+      return ["Kualitas terjamin & siap pakai", "Harga jelas tanpa biaya tersembunyi", "Stok real-time di toko Berau"];
     }
 
-    function getProductBadge(item, totalStock, variants, index, featured = false) {
+    function getProductBadge(item, totalStock, variants, index) {
       const tag = String(item?.badge || item?.tag || "").toLowerCase();
       const name = String(item?.name || "").toLowerCase();
       if (totalStock <= 0) return { label: "Habis", cls: "badge-out" };
-      if (featured) return { label: "⭐ Unggulan", cls: "badge-featured" };
       if (/promo|diskon|sale/.test(tag) || /promo|diskon/.test(name)) return { label: "🔴 Promo", cls: "badge-promo" };
       if (/baru|new|2026/.test(tag) || /2026|terbaru/.test(name)) return { label: "🔵 Baru", cls: "badge-new" };
       if (totalStock < LOW_STOCK_LIMIT) return { label: "Stok terbatas", cls: "badge-limited" };
@@ -2082,13 +1624,9 @@
       const { primary: item, variants, totalStock, minPrice, maxPrice } = group;
       const hasVariants = variants.length > 1;
       const outOfStock = totalStock <= 0;
-      const featured = isGroupFeatured(group);
       const priceLabel = minPrice !== maxPrice ? `Mulai ${rp(minPrice)}` : rp(minPrice);
-      const badge = getProductBadge(item, totalStock, variants, index, featured);
+      const badge = getProductBadge(item, totalStock, variants, index);
       const bullets = getProductHighlights(item);
-      const localPillText = outOfStock
-        ? "⏳ Stok kosong sementara"
-        : (index % 2 === 0 ? "📍 Tersedia di Toko Berau · Bisa Kirim" : "✅ Siap Ambil Hari Ini · Kirim Online");
       const msg = outOfStock
         ? `Halo Surya Jaya Sport, apakah stok ${item.name}${item.code ? ` (${item.code})` : ""} akan tersedia lagi?`
         : `Halo Surya Jaya Sport, saya ingin bertanya tentang ${item.name}${item.code ? ` (${item.code})` : ""} (${priceLabel}). Apakah stoknya tersedia?`;
@@ -2096,7 +1634,7 @@
         ? `<button type="button" data-view-product="${esc(item.id)}" ${outOfStock ? "disabled" : ""} class="shop-button shop-button-primary"><i class="fa-solid ${outOfStock ? "fa-ban" : "fa-layer-group"}" aria-hidden="true"></i> ${outOfStock ? "Habis" : "Pilih Varian"}</button>`
         : `<button type="button" data-add-cart="${esc(item.id)}" ${outOfStock ? "disabled" : ""} class="shop-button shop-button-primary"><i class="fa-solid ${outOfStock ? "fa-ban" : "fa-plus"}" aria-hidden="true"></i> ${outOfStock ? "Habis" : "Keranjang"}</button>`;
       return `
-      <article class="catalog-card ${featured ? "is-featured-card" : ""} ${outOfStock ? "opacity-85" : ""}">
+      <article class="catalog-card ${outOfStock ? "opacity-85" : ""}">
         <div class="catalog-card-photo-wrap" data-view-product="${esc(item.id)}" role="button" tabindex="0" aria-label="Lihat detail ${esc(item.name)}">
           <span class="catalog-card-badge ${badge.cls}">${badge.label}</span>
           ${productImageMarkup(item, "catalog-card-photo", 360, eager)}
@@ -2104,7 +1642,6 @@
         <div class="catalog-card-body">
           <p class="catalog-card-meta">${esc(hasVariants ? `${item.code || ""} · ${variants.length} varian` : [item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
           <h3 class="font-extrabold cursor-pointer hover:text-blue-700" data-view-product="${esc(item.id)}">${esc(item.name)}</h3>
-          <span class="local-store-pill ${outOfStock ? "!border-rose-500/40 !text-rose-300 !bg-rose-950/30" : ""}">${localPillText}</span>
           ${hasVariants ? `
             <div class="flex items-center gap-1.5 pt-0.5 overflow-x-auto" aria-label="Pilihan varian">
               ${variants.slice(0, 5).map(v => `<button type="button" data-view-product="${esc(v.id)}" title="${esc(variantShortLabel(v))} · ${rp(v.price)}" class="w-8 h-8 rounded-lg border ${v.id === item.id ? "border-amber-300 ring-1 ring-amber-300" : "border-slate-600 hover:border-amber-300"} bg-slate-900 overflow-hidden shrink-0">${productImageMarkup(v, "w-full h-full object-contain", 96, false)}</button>`).join("")}
@@ -2138,28 +1675,23 @@
       }
       sec.hidden = false;
       const ranked = grouped.slice().sort((a, b) => {
-        const aFeat = isGroupFeatured(a) ? 10 : 0;
-        const bFeat = isGroupFeatured(b) ? 10 : 0;
-        const aBoost = aFeat + (a.variants.length > 1 ? 2 : 0) + (safeHttpsUrl(a.primary.imageUrl) ? 1 : 0);
-        const bBoost = bFeat + (b.variants.length > 1 ? 2 : 0) + (safeHttpsUrl(b.primary.imageUrl) ? 1 : 0);
+        const aBoost = (a.variants.length > 1 ? 2 : 0) + (safeHttpsUrl(a.primary.imageUrl) ? 1 : 0);
+        const bBoost = (b.variants.length > 1 ? 2 : 0) + (safeHttpsUrl(b.primary.imageUrl) ? 1 : 0);
         return bBoost - aBoost || b.totalStock - a.totalStock;
       }).slice(0, 4);
-      grid.innerHTML = ranked.map((g, idx) => renderProductCardHtml(g, idx, idx < 2)).join("");
+      grid.innerHTML = ranked.map((g, idx) => renderProductCardHtml({
+        ...g,
+        primary: { ...g.primary, badge: "terlaris" }
+      }, idx, idx < 2)).join("");
     }
 
     function renderProductCatalog() {
-      renderBrandShowcase();
       renderBestsellers();
       const grid = document.getElementById("productCatalogGrid");
       const search = document.getElementById("catalogSearch");
       const q = search.value.trim().toLocaleLowerCase("id");
       document.getElementById("btnClearCatalogSearch").classList.toggle("hidden", !search.value);
       const category = document.querySelector("#catalogCategory input:checked")?.value || "all";
-      const brandObj = CATALOG_BRANDS.find(b => b.id === activeBrandId) || null;
-      const titleEl = document.getElementById("productCatalogTitle");
-      if (titleEl) {
-        titleEl.textContent = brandObj ? `Produk Brand: ${brandObj.name}` : "Filter Produk & Katalog Lengkap";
-      }
       if (catalogLoadState !== "ready") {
         grid.innerHTML = `<p class="catalog-empty" role="status">${catalogLoadState === "error" ? "Katalog gagal dimuat. Muat ulang halaman atau hubungi WhatsApp 0823-200-33333." : "Katalog sedang dimuat…"}</p>`;
         return;
@@ -2169,28 +1701,18 @@
       }
       const sortMode = document.getElementById("catalogSort")?.value || "default";
       const filteredRaw = publicCatalog.filter(item => {
-        const hay = itemHaystack(item).toLocaleLowerCase("id");
-        const matchQuery = brandObj
-          ? (matchesBrand(item, brandObj) || (q && hay.includes(q)))
-          : (!q || hay.includes(q));
-        return matchQuery && matchesCatalogCategory(item, category);
+        const hay = [item.name, item.code, item.size, item.color, item.description].filter(Boolean).join(" ").toLocaleLowerCase("id");
+        return (!q || hay.includes(q)) && matchesCatalogCategory(item, category);
       });
       const grouped = groupCatalogProducts(filteredRaw);
       grouped.sort((a, b) => (b.totalStock > 0) - (a.totalStock > 0));
       if (sortMode === "price-asc") grouped.sort((a, b) => a.minPrice - b.minPrice);
       else if (sortMode === "price-desc") grouped.sort((a, b) => b.maxPrice - a.maxPrice);
       else if (sortMode === "name-asc") grouped.sort((a, b) => String(a.primary.name || "").localeCompare(String(b.primary.name || ""), "id"));
-      else {
-        grouped.sort((a, b) => ((b.totalStock > 0) - (a.totalStock > 0)) || (Number(isGroupFeatured(b)) - Number(isGroupFeatured(a))));
-      }
 
-      document.getElementById("catalogResultCount").textContent = brandObj
-        ? `${grouped.length} produk ${brandObj.name}`
-        : `${grouped.length} produk`;
+      document.getElementById("catalogResultCount").textContent = `${grouped.length} produk`;
       if (!grouped.length) {
-        grid.innerHTML = brandObj
-          ? `<p class="catalog-empty" role="status">Belum ada stok produk <strong>${esc(brandObj.name)}</strong> di katalog saat ini. <a href="${CATALOG_WA}?text=${encodeURIComponent(`Halo Surya Jaya Sport, apakah tersedia produk merek ${brandObj.name}?`)}" target="_blank" rel="noopener noreferrer" class="underline text-amber-300 font-bold">Tanyakan via WhatsApp</a> atau klik <strong>Tampilkan semua brand</strong>.</p>`
-          : `<p class="catalog-empty" role="status">Produk tidak ditemukan. Coba kata kunci lain atau pilih kategori "Semua".</p>`;
+        grid.innerHTML = `<p class="catalog-empty" role="status">Produk tidak ditemukan. Coba kata kunci lain atau pilih kategori "Semua".</p>`;
         return;
       }
       grid.innerHTML = grouped.map((g, index) => renderProductCardHtml(g, index, index < 4)).join("");
@@ -2227,42 +1749,9 @@
     window.addEventListener("resize", syncHeaderHeight);
 
     restoreCart();
-    renderBrandShowcase();
-    document.getElementById("catalogSearch").addEventListener("input", e => {
-      const val = e.target.value.trim().toLowerCase();
-      const matchedBrand = CATALOG_BRANDS.find(b => b.searchTerm.toLowerCase() === val || b.name.toLowerCase() === val);
-      activeBrandId = matchedBrand ? matchedBrand.id : "";
-      renderProductCatalog();
-    });
+    document.getElementById("catalogSearch").addEventListener("input", renderProductCatalog);
     document.getElementById("btnClearCatalogSearch").addEventListener("click", () => {
       document.getElementById("catalogSearch").value = "";
-      activeBrandId = "";
-      renderProductCatalog();
-    });
-    document.getElementById("brandLogoGrid")?.addEventListener("click", e => {
-      const btn = e.target.closest("[data-brand-id]");
-      if (!btn) return;
-      const bId = btn.dataset.brandId;
-      const brandObj = CATALOG_BRANDS.find(b => b.id === bId);
-      if (!brandObj) return;
-      const searchInp = document.getElementById("catalogSearch");
-      if (activeBrandId === bId) {
-        activeBrandId = "";
-        if (searchInp) searchInp.value = "";
-        renderProductCatalog();
-        return;
-      }
-      activeBrandId = bId;
-      if (searchInp) searchInp.value = brandObj.searchTerm;
-      const allRadio = document.querySelector('#catalogCategory input[value="all"]');
-      if (allRadio) allRadio.checked = true;
-      renderProductCatalog();
-      document.getElementById("publicProductCatalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-    document.getElementById("btnResetBrandFilter")?.addEventListener("click", () => {
-      activeBrandId = "";
-      const searchInp = document.getElementById("catalogSearch");
-      if (searchInp) searchInp.value = "";
       renderProductCatalog();
     });
     document.getElementById("catalogCategory").addEventListener("change", renderProductCatalog);
@@ -2299,37 +1788,6 @@
       const view = e.target.closest("[data-view-product]");
       if (view) return openProductDetail(view.dataset.viewProduct);
     });
-    for (const chip of document.querySelectorAll("[data-quick-term]")) {
-      chip.addEventListener("click", () => {
-        const inp = document.getElementById("catalogSearch");
-        if (inp) {
-          inp.value = chip.dataset.quickTerm;
-          const val = inp.value.trim().toLowerCase();
-          const matchedBrand = CATALOG_BRANDS.find(b => b.searchTerm.toLowerCase() === val || b.name.toLowerCase() === val);
-          activeBrandId = matchedBrand ? matchedBrand.id : "";
-          renderProductCatalog();
-          document.getElementById("publicProductCatalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      });
-    }
-    for (const dBtn of document.querySelectorAll("[data-delivery-mode]")) {
-      dBtn.addEventListener("click", () => {
-        cartDeliveryMode = dBtn.dataset.deliveryMode === "delivery" ? "delivery" : "pickup";
-        for (const x of document.querySelectorAll("[data-delivery-mode]")) {
-          x.classList.toggle("is-active", x === dBtn);
-        }
-        const addrWrap = document.getElementById("cartShippingAddressWrap");
-        if (addrWrap) addrWrap.classList.toggle("hidden", cartDeliveryMode !== "delivery");
-        const paySel = document.getElementById("cartPayMethod");
-        if (paySel && cartDeliveryMode === "delivery" && paySel.value === "Tunai di Toko") {
-          paySel.value = "QRIS";
-        }
-        updateCartSummary();
-      });
-    }
-    document.getElementById("cartBuyerName")?.addEventListener("input", updateCartSummary);
-    document.getElementById("cartPayMethod")?.addEventListener("change", updateCartSummary);
-    document.getElementById("cartBuyerAddress")?.addEventListener("input", updateCartSummary);
     document.getElementById("openCatalogCart").addEventListener("click", () => {
       renderCart();
       document.getElementById("catalogCart").showModal();
@@ -2409,5 +1867,3 @@
   </script>
 </body>
 </html>
-
-Displaying index-dark-v5.html.
