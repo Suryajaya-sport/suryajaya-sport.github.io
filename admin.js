@@ -47,7 +47,6 @@
     let selectedDateStr = todayStr();
     let currentViewMode = "day";
     let selectedPaymentMethod = "Cash";
-    let fundsConfirmed = false;
     let saleFormSaving = false;
     let saleSaveInProgress = false;
     let deleteTargetId = null;
@@ -817,62 +816,76 @@
           tx.set(invRef, patch, { merge: true });
           if (published.exists()) tx.set(publicRef, publicProductData(patch));
         });
-        // Simpan varian tambahan (jika ada), baik saat Tambah barang baru maupun Ubah barang
+        // Simpan & perbarui varian (berlaku untuk Tambah Baru maupun Ubah Barang)
         let savedVariants = 0;
-        {
-          const vctx = editId ? variantCodeContext() : null;
-          const vBase = editId ? vctx.base : code;
-          const vOffset = editId ? vctx.offset : 0;
-          const groupId = editId ? vctx.groupId : itemId;
-          const vRows = [...document.querySelectorAll("#invVariantsList .inv-variant-row")];
-          const usedCodes = new Set(inventory.map(i => String(i.code || "").trim().toLowerCase()));
-          usedCodes.add(code.toLowerCase());
-          const allocCode = (idx) => {
-            const suffix = variantSuffix(idx + vOffset);
-            let cand = `${vBase}-${suffix}`;
-            let seq = 2;
-            while (usedCodes.has(cand.toLowerCase())) { cand = `${code}-${suffix}${seq++}`; }
-            usedCodes.add(cand.toLowerCase());
-            return cand;
-          };
-          const validVarRows = vRows.filter(vr => (vr.querySelector(".var-size")?.value.trim() || vr.querySelector(".var-color")?.value.trim()));
-          if (validVarRows.length > 0) {
-            await setDoc(doc(db, ...paths("inventory", groupId)), { variantGroup: groupId }, { merge: true });
-          }
-          for (let vi = 0; vi < validVarRows.length; vi++) {
-            const vr = validVarRows[vi];
-            const vSize = vr.querySelector(".var-size")?.value.trim() || "";
-            const vColor = vr.querySelector(".var-color")?.value.trim() || "";
-            const vStock = Math.max(0, Math.trunc(Number(vr.querySelector(".var-stock")?.value) || 0));
-            const vPrice = parseIdrNum(vr.querySelector(".var-price")?.value) || price;
-            const vId = doc(collection(db, ...paths("inventory"))).id;
-            let vImgUrl = itemData.imageUrl || "";
-            let vImgPath = itemData.imagePath || "";
-            const vFile = vr.querySelector(".var-photo-input")?.files?.[0] || null;
-            if (vFile) {
-              showToast(`Mengunggah foto varian ${vi + 1}/${validVarRows.length}...`);
-              const upVar = await uploadProductImage(vFile, vId);
-              vImgUrl = upVar.imageUrl;
-              vImgPath = upVar.imagePath;
-            }
-            const vData = {
-              code: allocCode(vi),
-              name,
-              size: vSize,
-              color: vColor,
-              stock: vStock,
-              cost,
-              price: vPrice,
-              description: autoDesc,
-              imageUrl: vImgUrl,
-              imagePath: vImgPath,
-              variantGroup: groupId,
-              updatedAt: new Date().toISOString()
-            };
-            await setDoc(doc(db, ...paths("inventory", vId)), vData, { merge: true });
-            savedVariants++;
+        const vRows = [...document.querySelectorAll("#invVariantsList .inv-variant-row")];
+        const validVarRows = vRows.filter(vr => (vr.querySelector(".var-size")?.value.trim() || vr.querySelector(".var-color")?.value.trim()));
+        const groupId = oldItem?.variantGroup || itemId;
+        const isMainPublished = publicCatalog.some(p => p.id === itemId);
+
+        if (validVarRows.length > 0 && oldItem?.variantGroup !== groupId) {
+          await setDoc(doc(db, ...paths("inventory", itemId)), { variantGroup: groupId }, { merge: true });
+          if (isMainPublished) {
+            await setDoc(doc(db, "publicCatalog", itemId), publicProductData({ ...itemData, variantGroup: groupId }), { merge: true });
           }
         }
+
+        const usedCodes = new Set(inventory.map(i => String(i.code || "").trim().toLowerCase()));
+        usedCodes.add(code.toLowerCase());
+        const allocCode = (idx) => {
+          const suffix = idx < 26 ? String.fromCharCode(65 + idx) : String(idx + 1);
+          let cand = `${code}-${suffix}`;
+          let seq = 2;
+          while (usedCodes.has(cand.toLowerCase())) { cand = `${code}-${suffix}${seq++}`; }
+          usedCodes.add(cand.toLowerCase());
+          return cand;
+        };
+
+        for (let vi = 0; vi < validVarRows.length; vi++) {
+          const vr = validVarRows[vi];
+          const existingId = vr.dataset.varId || "";
+          const vId = existingId || doc(collection(db, ...paths("inventory"))).id;
+          const vCode = vr.dataset.existingCode || allocCode(vi);
+          const vSize = vr.querySelector(".var-size")?.value.trim() || "";
+          const vColor = vr.querySelector(".var-color")?.value.trim() || "";
+          const vStock = Math.max(0, Math.trunc(Number(vr.querySelector(".var-stock")?.value) || 0));
+          const vPrice = parseIdrNum(vr.querySelector(".var-price")?.value) || price;
+
+          let vImgUrl = vr.dataset.clearPhoto === "1" ? (itemData.imageUrl || "") : (vr.dataset.existingImgUrl || itemData.imageUrl || "");
+          let vImgPath = vr.dataset.clearPhoto === "1" ? (itemData.imagePath || "") : (vr.dataset.existingImgPath || itemData.imagePath || "");
+          const vFile = vr.querySelector(".var-photo-input")?.files?.[0] || null;
+          if (vFile) {
+            showToast(`Mengunggah foto varian ${vi + 1}/${validVarRows.length}...`);
+            const upVar = await uploadProductImage(vFile, vId);
+            vImgUrl = upVar.imageUrl;
+            vImgPath = upVar.imagePath;
+          }
+
+          const vData = {
+            code: vCode,
+            name,
+            size: vSize,
+            color: vColor,
+            stock: vStock,
+            cost,
+            price: vPrice,
+            description: autoDesc,
+            imageUrl: vImgUrl,
+            imagePath: vImgPath,
+            variantGroup: groupId,
+            updatedAt: new Date().toISOString()
+          };
+          await setDoc(doc(db, ...paths("inventory", vId)), vData, { merge: true });
+          if (isMainPublished) {
+            await setDoc(doc(db, "publicCatalog", vId), publicProductData(vData));
+          }
+          savedVariants++;
+        }
+
+        for (const remId of removedVariantIds) {
+          await archiveOrRestore(remId, true);
+        }
+        removedVariantIds = [];
         resetInvForm();
         document.getElementById("invEntryCard").close();
         showToast(savedVariants > 0 ? `Barang & ${savedVariants} varian berhasil disimpan.` : "Barang berhasil disimpan.");
@@ -927,26 +940,14 @@
       a.download = `label-${itemObj.code || "SJS"}.png`;
       a.click();
     }
-    function variantSuffix(n) { return n < 26 ? String.fromCharCode(65 + n) : String(n + 1); }
-    // Kode dasar, nomor lanjutan, dan grup untuk varian baru (mode tambah maupun ubah barang)
-    function variantCodeContext() {
-      const editId = document.getElementById("editInvId")?.value || "";
-      const typed = document.getElementById("invCode")?.value.trim() || "";
-      if (!editId) return { base: typed || nextAutoCode(), offset: 0, groupId: "" };
-      const cur = inventory.find(i => i.id === editId);
-      const groupId = cur?.variantGroup || editId;
-      const main = inventory.find(i => i.id === groupId);
-      const base = String(main?.code || typed || cur?.code || "").trim() || nextAutoCode();
-      const offset = inventory.filter(i => i.variantGroup === groupId && i.id !== groupId).length;
-      return { base, offset, groupId };
-    }
+    let removedVariantIds = [];
     function updateInvVariantCodes() {
-      const vctx = variantCodeContext();
-      const base = vctx.base;
+      const base = document.getElementById("invCode")?.value.trim() || nextAutoCode();
       const rows = [...document.querySelectorAll("#invVariantsList .inv-variant-row")];
       rows.forEach((row, idx) => {
-        const suffix = variantSuffix(idx + vctx.offset);
-        const vCode = `${base}-${suffix}`;
+        const existingCode = row.dataset.existingCode || "";
+        const suffix = idx < 26 ? String.fromCharCode(65 + idx) : String(idx + 1);
+        const vCode = existingCode || `${base}-${suffix}`;
         row.dataset.varCode = vCode;
         const badge = row.querySelector(".var-code-badge");
         if (badge) badge.textContent = vCode;
@@ -960,7 +961,7 @@
       if (hintEl) hintEl.textContent = nextAutoCode();
       if (txtEl) txtEl.textContent = code;
       const exEl = document.getElementById("invVariantExampleCode");
-      if (exEl) { const vc = variantCodeContext(); exEl.textContent = `${vc.base}-${variantSuffix(vc.offset)}`; }
+      if (exEl) exEl.textContent = `${code}-A`;
       updateInvVariantCodes();
       if (!box) return;
       try {
@@ -1025,11 +1026,18 @@
       mergeList("invSizeOptions", ["24 lbs","27 lbs","30 lbs","Size 4","Size 5","38","39","40","41","42","43","44","45","S","M","L","XL","XXL","Isi 6","Isi 12","Standar"], "size");
       mergeList("invColorOptions", ["Hitam","Putih","Biru","Navy","Merah","Kuning","Hijau","Abu-abu","Oranye","Ungu","Emas"], "color");
     }
-    function addInvVariantRow() {
+    function addInvVariantRow(prefill = null) {
+      const data = (prefill && !(prefill instanceof Event)) ? prefill : null;
       const list = document.getElementById("invVariantsList");
       if (!list) return;
       const row = document.createElement("div");
       row.className = "inv-variant-row rounded-xl border border-slate-200 bg-slate-50/70 p-2.5 space-y-2";
+      row.dataset.varId = data?.id || "";
+      row.dataset.existingCode = data?.code || "";
+      row.dataset.existingImgUrl = data?.imageUrl || "";
+      row.dataset.existingImgPath = data?.imagePath || "";
+      row.dataset.clearPhoto = "0";
+      const hasExistingPhoto = Boolean(data?.imageUrl);
       row.innerHTML = `
         <div class="flex items-center justify-between gap-2">
           <span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-700">
@@ -1043,22 +1051,22 @@
           </div>
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-12 gap-2">
-          <input type="text" list="invSizeOptions" maxlength="40" placeholder="Ukuran" class="var-size sm:col-span-3 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-semibold">
-          <input type="text" list="invColorOptions" maxlength="60" placeholder="Warna" class="var-color sm:col-span-3 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-semibold">
-          <input type="number" min="0" step="1" inputmode="numeric" value="0" placeholder="Stok" class="var-stock sm:col-span-2 px-2 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-bold text-center tabular-nums">
-          <input type="text" inputmode="numeric" autocomplete="off" placeholder="Harga" class="var-price sm:col-span-4 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-bold tabular-nums">
+          <input type="text" list="invSizeOptions" maxlength="40" placeholder="Ukuran" value="${esc(data?.size || "")}" class="var-size sm:col-span-3 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-semibold">
+          <input type="text" list="invColorOptions" maxlength="60" placeholder="Warna" value="${esc(data?.color || "")}" class="var-color sm:col-span-3 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-semibold">
+          <input type="number" min="0" step="1" inputmode="numeric" value="${Number(data?.stock ?? 0)}" placeholder="Stok" class="var-stock sm:col-span-2 px-2 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-bold text-center tabular-nums">
+          <input type="text" inputmode="numeric" autocomplete="off" placeholder="Harga" value="${esc(data?.price ? fmtIdrInput(data.price) : "")}" class="var-price sm:col-span-4 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-bold tabular-nums">
         </div>
         <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-200/70">
           <div class="flex items-center gap-2 min-w-0">
-            <img class="var-photo-thumb hidden w-9 h-9 object-contain rounded-lg border border-slate-200 bg-white shrink-0" alt="Foto varian">
-            <span class="var-photo-label text-[11px] text-slate-500 truncate">Foto varian (opsional, ikut foto utama jika kosong)</span>
+            <img class="var-photo-thumb ${hasExistingPhoto ? "" : "hidden"} w-9 h-9 object-contain rounded-lg border border-slate-200 bg-white shrink-0" src="${hasExistingPhoto ? esc(data.imageUrl) : ""}" alt="Foto varian">
+            <span class="var-photo-label text-[11px] text-slate-500 truncate">${hasExistingPhoto ? "Foto varian tersimpan" : "Foto varian (opsional, ikut foto utama jika kosong)"}</span>
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
             <label class="cursor-pointer px-2.5 py-1 rounded-lg bg-white hover:bg-slate-900 hover:text-white border border-slate-300 text-[11px] font-bold text-slate-700 transition inline-flex items-center gap-1">
-              <i class="fa-solid fa-camera text-[10px]" aria-hidden="true"></i><span class="var-photo-btn-txt">Foto Varian</span>
+              <i class="fa-solid fa-camera text-[10px]" aria-hidden="true"></i><span class="var-photo-btn-txt">${hasExistingPhoto ? "Ganti" : "Foto Varian"}</span>
               <input type="file" accept="image/jpeg,image/png,image/webp" class="var-photo-input sr-only">
             </label>
-            <button type="button" class="btn-var-photo-clear hidden px-2 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-[11px] font-bold" title="Hapus foto varian">×</button>
+            <button type="button" class="btn-var-photo-clear ${hasExistingPhoto ? "" : "hidden"} px-2 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-[11px] font-bold" title="Hapus foto varian">×</button>
           </div>
         </div>
       `;
@@ -1070,21 +1078,20 @@
       varPhotoInp?.addEventListener("change", e => {
         const f = e.target.files?.[0];
         if (f) {
+          row.dataset.clearPhoto = "0";
           if (varPhotoThumb) { varPhotoThumb.src = URL.createObjectURL(f); varPhotoThumb.classList.remove("hidden"); }
           if (varPhotoLbl) varPhotoLbl.textContent = f.name;
           if (varPhotoBtnTxt) varPhotoBtnTxt.textContent = "Ganti";
           varPhotoClear?.classList.remove("hidden");
-        } else {
-          if (varPhotoThumb) { varPhotoThumb.src = ""; varPhotoThumb.classList.add("hidden"); }
-          if (varPhotoLbl) varPhotoLbl.textContent = "Foto varian (opsional, ikut foto utama jika kosong)";
-          if (varPhotoBtnTxt) varPhotoBtnTxt.textContent = "Foto Varian";
-          varPhotoClear?.classList.add("hidden");
         }
       });
       varPhotoClear?.addEventListener("click", () => {
+        row.dataset.clearPhoto = "1";
+        row.dataset.existingImgUrl = "";
+        row.dataset.existingImgPath = "";
         if (varPhotoInp) varPhotoInp.value = "";
         if (varPhotoThumb) { varPhotoThumb.src = ""; varPhotoThumb.classList.add("hidden"); }
-        if (varPhotoLbl) varPhotoLbl.textContent = "Foto varian (opsional, ikut foto utama jika kosong)";
+        if (varPhotoLbl) varPhotoLbl.textContent = "Foto varian dihapus (akan ikut foto utama)";
         if (varPhotoBtnTxt) varPhotoBtnTxt.textContent = "Foto Varian";
         varPhotoClear.classList.add("hidden");
       });
@@ -1099,7 +1106,12 @@
         const vCost = parseIdrNum(document.getElementById("invCost")?.value);
         downloadBrandedLabelPng({ code: vCode, name: baseName, price: vPrice, cost: vCost, size: vSize, color: vColor });
       });
-      row.querySelector(".btn-rm-var")?.addEventListener("click", () => { row.remove(); updateInvVariantCodes(); updateInvVariantSummary(); });
+      row.querySelector(".btn-rm-var")?.addEventListener("click", () => {
+        if (row.dataset.varId) removedVariantIds.push(row.dataset.varId);
+        row.remove();
+        updateInvVariantCodes();
+        updateInvVariantSummary();
+      });
       list.appendChild(row);
       updateInvVariantCodes();
       updateInvVariantSummary();
@@ -1123,6 +1135,7 @@
       }
     }
     function resetInvForm() {
+      removedVariantIds = [];
       ["editInvId", "invName", "invCode", "invSize", "invColor", "invStock", "invCost", "invPrice", "invDescription"]
         .forEach(id => document.getElementById(id).value = "");
       document.getElementById("invImageFile").value = "";
@@ -1135,7 +1148,6 @@
       if (vSec) vSec.hidden = false;
       const vList = document.getElementById("invVariantsList");
       if (vList) vList.innerHTML = "";
-      document.getElementById("invExistingVariants")?.remove();
       refreshInvOptionDatalists();
       setInvFieldError("invName", "invErrName", false);
       setInvFieldError("invStock", "invErrStock", false);
@@ -1143,46 +1155,6 @@
       updateInvQrPreview();
       updateInvProfitPreview();
       updateInvVariantSummary();
-    }
-    function renderExistingVariants(item) {
-      document.getElementById("invExistingVariants")?.remove();
-      const vSec = document.getElementById("invVariantsSection");
-      if (!vSec || !isAdmin) return;
-      const groupId = item.variantGroup || item.id;
-      const sibs = activeInventory().filter(i => i.id !== item.id && (i.variantGroup === groupId || i.id === groupId));
-      if (!sibs.length) return;
-      const box = document.createElement("section");
-      box.id = "invExistingVariants";
-      box.className = "rounded-2xl border border-slate-200 bg-white p-3.5 shadow-2xs space-y-2.5";
-      const head = document.createElement("h3");
-      head.className = "text-xs font-extrabold uppercase tracking-wider text-slate-500";
-      const list = document.createElement("div");
-      list.className = "space-y-2";
-      const setHead = () => { head.textContent = `Varian lain dari barang ini (${list.children.length})`; };
-      sibs.forEach(v => {
-        const label = [v.size, v.color].filter(Boolean).join(" / ") || "Tanpa ukuran/warna";
-        const row = document.createElement("div");
-        row.className = "flex items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 p-2.5";
-        row.innerHTML = `<div class="min-w-0 flex-1"><div class="text-sm font-bold text-slate-800 truncate">${esc(v.name || "")} · ${esc(label)}</div><div class="text-xs text-slate-600">Kode ${esc(v.code || "-")} · Stok ${Number(v.stock) || 0} pcs</div></div><button type="button" class="h-10 px-3 rounded-lg bg-red-50 hover:bg-red-100 border border-red-200 text-red-700 text-xs font-bold">Hapus varian</button>`;
-        row.querySelector("button").addEventListener("click", async ev => {
-          const btn = ev.currentTarget;
-          const stokTxt = Number(v.stock) > 0 ? ` Sisa stok ${Number(v.stock)} pcs tidak akan bisa dijual dari kasir.` : "";
-          if (!(await sjsConfirm(`Hapus varian "${label}"? Varian akan diarsipkan (hilang dari kasir dan katalog, riwayat penjualan tetap aman) dan bisa dipulihkan lewat filter Diarsipkan.${stokTxt}`, "Hapus Varian"))) return;
-          btn.disabled = true;
-          try {
-            await archiveOrRestore(v.id, true);
-            row.remove();
-            if (!list.children.length) box.remove(); else setHead();
-          } catch (err) {
-            btn.disabled = false;
-            showToast("Gagal menghapus varian: " + (err && err.message ? err.message : err));
-          }
-        });
-        list.appendChild(row);
-      });
-      setHead();
-      box.append(head, list);
-      vSec.parentNode.insertBefore(box, vSec);
     }
     function editInventoryItem(id) {
       if (!isAdmin) return;
@@ -1204,7 +1176,14 @@
       document.getElementById("inventoryEntryTitle").textContent = "Ubah barang";
       const vSec = document.getElementById("invVariantsSection");
       if (vSec) vSec.hidden = false;
-      renderExistingVariants(item);
+      const siblings = activeInventory().filter(i =>
+        i.id !== item.id && (
+          (item.variantGroup && i.variantGroup === item.variantGroup) ||
+          i.variantGroup === item.id ||
+          (!item.variantGroup && String(i.name || "").trim().toLowerCase() === String(item.name || "").trim().toLowerCase())
+        )
+      );
+      for (const sib of siblings) addInvVariantRow(sib);
       updateInvQrPreview();
       updateInvProfitPreview();
       updateInvVariantSummary();
@@ -1374,18 +1353,18 @@
               <p class="item-summary-title font-bold text-sm text-slate-900 truncate">${esc(cleanDisplayItemName(prefillLabel || "Barang baru"))}</p>
             </div>
             <div class="flex items-center gap-1 shrink-0">
-              <button type="button" class="btn-toggle-row-edit w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 inline-flex items-center justify-center transition" title="Ubah harga, satuan, atau catatan"><i class="fa-solid fa-pen text-xs" aria-hidden="true"></i></button>
+              <button type="button" class="btn-toggle-row-edit w-8 h-8 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-600 hover:text-slate-900 inline-flex items-center justify-center transition" title="Ubah harga, satuan, atau catatan"><i class="fa-solid fa-pen text-[11px]" aria-hidden="true"></i></button>
               <button type="button" class="btn-remove-row w-8 h-8 rounded-lg bg-slate-50 hover:bg-red-50 border border-slate-200 hover:border-red-200 text-slate-500 hover:text-red-600 inline-flex items-center justify-center transition" title="Hapus barang"><i class="fa-regular fa-trash-can text-xs" aria-hidden="true"></i></button>
             </div>
           </div>
           <div class="flex items-center justify-between gap-2 pt-0.5">
             <div class="min-w-0 leading-snug">
               <p class="item-summary-sub text-xs font-medium text-slate-500 tabular-nums">1x @ ${rp(prefill?.price || 0)}</p>
-              <span class="item-mode-badge block text-xs font-semibold mt-0.5 ${prefill?.id ? "text-emerald-700" : "text-amber-700"}">${prefill?.id ? `Stok ${Number(prefill.stock || 0)}` : "Di luar stok"}</span>
+              <span class="item-mode-badge block text-[11px] font-semibold mt-0.5 ${prefill?.id ? "text-emerald-700" : "text-amber-700"}">${prefill?.id ? `Stok ${Number(prefill.stock || 0)}` : "Di luar stok"}</span>
             </div>
             <div class="flex items-center gap-2.5 shrink-0">
               <div class="item-top-qty-wrap inline-flex items-center gap-2" ${isPrefilled ? "" : "hidden"}>
-                <span class="text-xs font-semibold text-slate-600 uppercase tracking-wide hidden sm:inline">Qty</span>
+                <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide hidden sm:inline">Qty</span>
                 <div class="inline-flex items-center rounded-xl border border-slate-300 bg-white overflow-hidden shadow-2xs">
                   <button type="button" class="btn-inline-minus w-9 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Kurangi jumlah">−</button>
                   <span class="item-inline-qty px-2.5 text-xs font-bold text-slate-900 tabular-nums border-x border-slate-200 leading-9">1</span>
@@ -1404,17 +1383,17 @@
           </div>
           <div class="grid grid-cols-2 gap-2 items-start">
             <div>
-              <label class="block text-xs font-bold text-slate-600 mb-0.5">Harga Jual</label>
+              <label class="block text-[11px] font-bold text-slate-600 mb-0.5">Harga Jual</label>
               <input type="text" inputmode="numeric" autocomplete="off" class="item-price-input w-full h-9 px-2.5 border border-slate-300 rounded-lg bg-white font-bold tabular-nums !text-sm text-slate-900" placeholder="0" value="${esc(fmtIdrInput(prefill?.price))}">
             </div>
             <div class="item-cost-wrap sjs-owner-only-stat" ${prefill?.id ? "hidden" : ""}>
-              <label class="block text-xs font-medium text-slate-600 mb-0.5">Modal <span class="opt">(opsional)</span></label>
-              <input type="text" inputmode="numeric" autocomplete="off" class="item-cost-input w-full h-9 px-2.5 border border-slate-200 rounded-lg bg-slate-100/70 focus:bg-white font-medium tabular-nums !text-sm text-slate-600 placeholder:text-slate-600" placeholder="Kosongkan jika tidak tahu" value="${esc(fmtIdrInput(prefill?.cost))}">
+              <label class="block text-[11px] font-medium text-slate-400 mb-0.5">Modal <span class="opt">(opsional)</span></label>
+              <input type="text" inputmode="numeric" autocomplete="off" class="item-cost-input w-full h-9 px-2.5 border border-slate-200 rounded-lg bg-slate-100/70 focus:bg-white font-medium tabular-nums !text-sm text-slate-600 placeholder:text-slate-400" placeholder="Kosongkan jika tidak tahu" value="${esc(fmtIdrInput(prefill?.cost))}">
             </div>
           </div>
           <div class="flex flex-wrap sm:flex-nowrap items-end gap-2">
             <div class="shrink-0">
-              <label class="block text-xs font-bold text-slate-600 mb-0.5">Jumlah</label>
+              <label class="block text-[11px] font-bold text-slate-600 mb-0.5">Jumlah</label>
               <div class="flex items-center gap-1.5">
                 <div class="inline-flex items-center rounded-lg border border-slate-300 bg-white overflow-hidden">
                   <button type="button" class="btn-drawer-minus w-8 h-9 bg-white hover:bg-slate-100 font-bold text-sm text-slate-800 transition" aria-label="Kurangi jumlah">−</button>
@@ -1430,7 +1409,7 @@
               </div>
             </div>
             <div class="flex-1 min-w-[150px]">
-              <label class="block text-xs font-bold text-slate-600 mb-0.5">Catatan <span class="opt">(opsional)</span></label>
+              <label class="block text-[11px] font-bold text-slate-600 mb-0.5">Catatan <span class="opt">(opsional)</span></label>
               <input type="text" class="item-note-input w-full h-9 px-2.5 rounded-lg border border-slate-300 bg-white text-xs font-medium text-slate-800" placeholder="Layanan / varian..." maxlength="80">
             </div>
           </div>
@@ -1612,13 +1591,13 @@
             const st = Number(inv.stock || 0);
             if (qty > st) {
               badge.textContent = `⚠ Melebihi stok (tersisa ${st})`;
-              badge.className = "item-mode-badge inline-block font-extrabold text-white bg-rose-700 px-2 py-0.5 rounded-full";
+              badge.className = "item-mode-badge font-extrabold text-rose-700";
             } else if (st < LOW_STOCK_LIMIT) {
-              badge.textContent = `⚠ Stok ${st}`;
-              badge.className = "item-mode-badge inline-block text-xs font-bold mt-0.5 text-white bg-rose-600 px-2 py-0.5 rounded-full";
+              badge.textContent = `Stok ${st} ⚠`;
+              badge.className = "item-mode-badge block text-[11px] font-bold mt-0.5 text-amber-700";
             } else {
               badge.textContent = `Stok ${st}`;
-              badge.className = "item-mode-badge block text-xs font-semibold mt-0.5 text-emerald-700";
+              badge.className = "item-mode-badge block text-[11px] font-semibold mt-0.5 text-emerald-700";
             }
           } else {
             badge.textContent = "Di luar stok";
@@ -1632,7 +1611,6 @@
       const discount = Math.min(total, calcDisc);
       const netTotal = Math.max(0, total - discount);
       const netProfit = profit - discount;
-      if (currentSaleTotalAmount !== netTotal) fundsConfirmed = false;
       currentSaleTotalAmount = netTotal;
       document.getElementById("previewTotalOmset").textContent = rp(netTotal);
       const rightTotEl = document.getElementById("previewTotalOmsetRight");
@@ -1741,7 +1719,7 @@
         .sort((a, b) => (Number(b.stock || 0) > 0) - (Number(a.stock || 0) > 0) || (freq.get(b.id) || 0) - (freq.get(a.id) || 0) || String(a.name || "").localeCompare(String(b.name || ""), "id"));
       if (cntEl) cntEl.textContent = `${items.length} item`;
       if (!items.length) {
-        listEl.innerHTML = `<p class="text-xs text-slate-600 py-6 text-center">Belum ada barang di kategori ini.</p>`;
+        listEl.innerHTML = `<p class="text-xs text-slate-400 py-6 text-center">Belum ada barang di kategori ini.</p>`;
         return;
       }
       listEl.innerHTML = items.map(it => {
@@ -1755,9 +1733,9 @@
             <span class="text-xs font-extrabold text-slate-900 leading-snug line-clamp-2">${icon} ${esc(it.name)}</span>
             <span class="text-xs font-extrabold text-blue-900 tabular-nums shrink-0">${esc(shortRpTick(it.price).replace("Rp ", ""))}</span>
           </div>
-          <div class="flex items-center justify-between gap-1.5 w-full text-xs font-bold">
+          <div class="flex items-center justify-between gap-1.5 w-full text-[10px] font-bold">
             <span class="${stCls}">${stDot}</span>
-            <span class="font-mono text-slate-600">${esc(it.code || "")}</span>
+            <span class="font-mono text-slate-400">${esc(it.code || "")}</span>
           </div>
         </button>`;
       }).join("");
@@ -1827,7 +1805,7 @@
         .sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || "")))
         .slice(0, 5);
       if (!recent.length) {
-        wrap.innerHTML = `<p class="py-2 text-slate-600 font-semibold">Belum ada transaksi hari ini.</p>`;
+        wrap.innerHTML = `<p class="py-2 text-slate-400 font-semibold">Belum ada transaksi hari ini.</p>`;
         return;
       }
       wrap.innerHTML = recent.map(tx => {
@@ -1839,22 +1817,18 @@
           <div class="min-w-0">
             <span class="font-extrabold text-slate-800">✅ ${esc(firstName)}</span>
             <span class="ml-1.5 font-extrabold text-blue-900 tabular-nums">${esc(shortRpTick(tx.totalOmset))}</span>
-            <span class="ml-1 text-xs font-semibold text-slate-600">${esc(receiptNumber(tx))}${tm ? " · " + esc(tm) : ""} · ${esc(paymentMethodLabel(tx.paymentMethod || "Cash"))}</span>
+            <span class="ml-1 text-[10px] font-semibold text-slate-400">${esc(receiptNumber(tx))}${tm ? " · " + esc(tm) : ""} · ${esc(paymentMethodLabel(tx.paymentMethod || "Cash"))}</span>
           </div>
           <div class="flex items-center gap-1 shrink-0">
-            <button type="button" data-pos-reprint="${id}" class="px-2 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 font-extrabold text-xs"><i class="fa-solid fa-print mr-1" aria-hidden="true"></i>Nota</button>
-            <button type="button" data-pos-wa-rcpt="${id}" class="px-2 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-extrabold text-xs"><i class="fa-brands fa-whatsapp mr-1" aria-hidden="true"></i>WA</button>
-            <button type="button" data-pos-void="${id}" title="Hapus / Batalkan transaksi ini (stok otomatis kembali)" class="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-extrabold text-xs inline-flex items-center gap-1"><i class="fa-regular fa-trash-can" aria-hidden="true"></i>Hapus</button>
+            <button type="button" data-pos-reprint="${id}" class="px-2 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-800 font-extrabold text-[11px]"><i class="fa-solid fa-print mr-1" aria-hidden="true"></i>Nota</button>
+            <button type="button" data-pos-wa-rcpt="${id}" class="px-2 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-extrabold text-[11px]"><i class="fa-brands fa-whatsapp mr-1" aria-hidden="true"></i>WA</button>
+            <button type="button" data-pos-void="${id}" title="Hapus / Batalkan transaksi ini (stok otomatis kembali)" class="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 border border-rose-200 text-rose-700 font-extrabold text-[11px] inline-flex items-center gap-1"><i class="fa-regular fa-trash-can" aria-hidden="true"></i>Hapus</button>
           </div>
         </div>`;
       }).join("");
     }
 
-    function needsFundsConfirmation() {
-      return selectedPaymentMethod === "QRIS" || selectedPaymentMethod === "Transfer";
-    }
     function selectSalePayment(method) {
-      if (method !== selectedPaymentMethod) fundsConfirmed = false;
       selectedPaymentMethod = salePaymentMethods.has(method) ? method : "";
       renderSalePayment();
     }
@@ -1897,15 +1871,6 @@
         b.setAttribute("aria-pressed", String(b.dataset.pay === selectedPaymentMethod));
       }
       const saveState = getPosSaveState();
-      const digital = needsFundsConfirmation();
-      const pending = digital && !fundsConfirmed;
-      const digitalPanel = document.getElementById("posDigitalPayment");
-      digitalPanel.hidden = !digital;
-      digitalPanel.classList.toggle("is-paid", digital && fundsConfirmed);
-      document.getElementById("posDigitalStatus").textContent = digital && fundsConfirmed ? "Lunas" : "Menunggu pembayaran";
-      const confirmButton = document.getElementById("btnConfirmFunds");
-      confirmButton.hidden = !pending;
-      confirmButton.disabled = !saveState.enabled || saleFormSaving;
       const hintEl = document.getElementById("salePaymentHint");
       if (hintEl) {
         hintEl.textContent = saveState.message;
@@ -1916,8 +1881,8 @@
       const payBox = document.getElementById("posPaySectionBox");
       if (payBox) payBox.classList.toggle("border-amber-300", !okPay);
       const hasAnyRow = document.querySelectorAll("#saleItemsContainer > div").length > 0;
-      const canSave = saveState.enabled && !pending && !saleFormSaving;
-      const hardDisabled = saleFormSaving || !hasAnyRow || pending;
+      const canSave = saveState.enabled && !saleFormSaving;
+      const hardDisabled = saleFormSaving || !hasAnyRow;
       const btnSave = document.getElementById("btnSaveTx");
       const btnSavePrint = document.getElementById("btnSaveAndPrintTx");
       if (btnSave) {
@@ -1963,12 +1928,12 @@
       if (!heldSales.length) { bar.hidden = true; bar.innerHTML = ""; return; }
       bar.hidden = false;
       const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-      bar.innerHTML = `<span class="text-xs font-extrabold text-amber-900 mr-1"><i class="fa-solid fa-pause mr-1" aria-hidden="true"></i>Tertunda (${heldSales.length}):</span>` + heldSales.map((h, idx) => {
+      bar.innerHTML = `<span class="text-[11px] font-extrabold text-amber-900 mr-1"><i class="fa-solid fa-pause mr-1" aria-hidden="true"></i>Tertunda (${heldSales.length}):</span>` + heldSales.map((h, idx) => {
         const draftLbl = `Draft ${letters[idx] || (idx + 1)}`;
         const custTag = h.customer ? ` (${esc(h.customer)})` : "";
         return `<span class="inline-flex items-center rounded-full bg-white border border-amber-300 overflow-hidden shadow-xs">
-          <button type="button" data-resume-hold="${idx}" class="px-2.5 py-1 text-xs font-extrabold text-amber-950 hover:bg-amber-100">${draftLbl}${custTag} · ${h.items.length} item (${esc(shortRpTick(h.total))})</button>
-          <button type="button" data-drop-hold="${idx}" title="Hapus ${draftLbl}" class="px-1.5 py-1 text-xs font-extrabold text-rose-600 hover:bg-rose-50 border-l border-amber-200">&times;</button>
+          <button type="button" data-resume-hold="${idx}" class="px-2.5 py-1 text-[11px] font-extrabold text-amber-950 hover:bg-amber-100">${draftLbl}${custTag} · ${h.items.length} item (${esc(shortRpTick(h.total))})</button>
+          <button type="button" data-drop-hold="${idx}" title="Hapus ${draftLbl}" class="px-1.5 py-1 text-[11px] font-extrabold text-rose-600 hover:bg-rose-50 border-l border-amber-200">&times;</button>
         </span>`;
       }).join("");
     }
@@ -2000,7 +1965,6 @@
     function resumeHeldSale(idx) {
       const h = heldSales[idx];
       if (!h) return;
-      fundsConfirmed = false;
       heldSales.splice(idx, 1);
       saveHeldSalesStorage();
       document.getElementById("saleItemsContainer").replaceChildren();
@@ -2044,8 +2008,6 @@
     }
 
     async function saveSale(printAfterSave) {
-      if (saleFormSaving) return;
-      if (needsFundsConfirmation() && !fundsConfirmed) return showToast("Konfirmasi dana masuk sebelum menyimpan penjualan.");
       if (!isAdmin) return showToast("Masuk ke akun pemilik terlebih dahulu.");
       if (!salePaymentMethods.has(selectedPaymentMethod)) return showToast("Pilih cara bayar sebelum menyimpan.");
       if (selectedPaymentMethod === "Cash" && cashReceivedAmount > 0 && cashReceivedAmount < currentSaleTotalAmount) {
@@ -6050,11 +6012,11 @@
           return `<button type="button" data-instant-pick="${esc(it.id)}" class="w-full px-3.5 py-2.5 text-left hover:bg-blue-50 flex items-center justify-between gap-2 transition">
             <div class="min-w-0">
               <span class="block text-xs font-extrabold text-slate-900 truncate">${esc(it.name)}${varMeta ? ` <span class="text-slate-500 font-semibold">(${esc(varMeta)})</span>` : ""}</span>
-              <span class="text-xs font-mono font-bold text-blue-700">${esc(it.code || "-")}</span>
+              <span class="text-[11px] font-mono font-bold text-blue-700">${esc(it.code || "-")}</span>
             </div>
             <div class="text-right shrink-0">
               <span class="block text-xs font-extrabold text-emerald-700 tabular-nums">${rp(it.price)}</span>
-              <span class="text-xs font-extrabold ${st <= 0 ? "text-rose-700" : st < 5 ? "text-amber-700" : "text-slate-500"}">${st <= 0 ? "🔴 Habis" : `${dot} Stok ${st}`}</span>
+              <span class="text-[10px] font-extrabold ${st <= 0 ? "text-rose-700" : st < 5 ? "text-amber-700" : "text-slate-500"}">${st <= 0 ? "🔴 Habis" : `${dot} Stok ${st}`}</span>
             </div>
           </button>`;
         }).join("");
@@ -6244,7 +6206,6 @@
           e.preventDefault();
           const saveBtn = document.getElementById("btnSaveTx");
           if (saveBtn && !saveBtn.disabled) saveSale(false);
-          else if (needsFundsConfirmation() && !fundsConfirmed) showToast("Konfirmasi dana masuk sebelum menyimpan penjualan.");
           else showToast("Pilih barang & cara bayar dulu (F8 untuk Tunai).");
         } else if (e.key === "Enter" && !e.shiftKey && !e.ctrlKey && !e.altKey) {
           const tag = (document.activeElement?.tagName || "").toUpperCase();
@@ -6262,12 +6223,6 @@
         const firstId = selectedQrQty.keys().next().value;
         if (!firstId) return showToast("Pilih minimal 1 barang terlebih dahulu.");
         openProductQrModal(firstId);
-      });
-      document.getElementById("btnConfirmFunds").addEventListener("click", () => {
-        if (!needsFundsConfirmation() || !getPosSaveState().enabled || saleFormSaving) return;
-        fundsConfirmed = true;
-        renderSalePayment();
-        document.getElementById("btnSaveAndPrintTx").focus();
       });
       for (const b of document.querySelectorAll(".pay-option-btn")) b.addEventListener("click", () => selectSalePayment(b.dataset.pay));
       document.getElementById("btnSaveTx").addEventListener("click", () => saveSale(false));

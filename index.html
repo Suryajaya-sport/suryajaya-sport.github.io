@@ -12,7 +12,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="manifest" href="/manifest.webmanifest">
-  <meta name="theme-color" content="#080a0f">
+  <meta name="theme-color" content="#0b0e14">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Surya Jaya Sport">
@@ -37,7 +37,7 @@
     "telephone": "+62-823-200-33333",
     "image": "https://suryajaya-sport.github.io/sjs-mark.png",
     "priceRange": "Rp",
-    "paymentAccepted": "Bank Transfer, QRIS",
+    "paymentAccepted": "Cash, QRIS, Credit Card, Bank Transfer",
     "currenciesAccepted": "IDR",
     "areaServed": ["Tanjung Redeb", "Berau", "Kalimantan Timur"],
     "foundingDate": "1984",
@@ -60,7 +60,7 @@
     "hasMap": "https://www.google.com/maps/search/?api=1&query=Surya+Jaya+Sport&query_place_id=ChIJPwiXPaT1DTIR4E2dU8PQWpI"
   }
   </script>
-  <link rel="preload" as="image" href="assets/badminton-banner.webp" fetchpriority="high">
+  <link rel="preload" as="image" href="hero-surya-jaya-sport.webp" fetchpriority="high">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
@@ -254,14 +254,13 @@
     .shop-button-accent { background: linear-gradient(135deg,#facc15,#eab308); color: #0f172a; font-weight: 800; }
     .shop-button-outline { background: rgba(255,255,255,.14); color: #fff; border: 1.5px solid rgba(255,255,255,.35); }
 
-    .shop-hero { position: relative; border-radius: 2rem; overflow: hidden; min-height: 350px; background: linear-gradient(95deg, rgba(7,20,51,.94) 0%, rgba(15,37,87,.84) 52%, rgba(15,37,87,.22) 100%), url('assets/badminton-banner.webp') right center / cover no-repeat, #071433; color: #fff; display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,.8fr); gap: 1.5rem; align-items: center; padding: 2.35rem 2rem; }
+    .shop-hero { position: relative; border-radius: 2rem; overflow: hidden; min-height: 350px; background: linear-gradient(95deg, rgba(7,20,51,.94) 0%, rgba(15,37,87,.84) 52%, rgba(15,37,87,.22) 100%), url('hero-surya-jaya-sport.webp') right center / cover no-repeat, #071433; color: #fff; display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,.8fr); gap: 1.5rem; align-items: center; padding: 2.35rem 2rem; }
     .shop-button-wa { background: linear-gradient(135deg,#16a34a,#15803d); color: #fff; border: 1.5px solid #22c55e; box-shadow: 0 4px 12px rgba(22,163,74,.25); }
     .shop-button-wa:hover { background: #15803d; }
     .quick-cat-thumb { width: 76px; height: 76px; border-radius: 1rem; object-fit: cover; border: 1.5px solid #dbeafe; background: #eff6ff; }
     .quick-cat-btn.is-active .quick-cat-thumb { border-color: #facc15; }
     .pay-badges-row { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
     .pay-badges-row img { height: 42px; width: auto; border-radius: .55rem; }
-    .pay-chip { display: inline-flex; align-items: center; min-height: 36px; padding: .35rem .8rem; border-radius: 9999px; background: #ffffff; color: #0f172a; border: 1.5px solid #cbd5e1; font-size: .8125rem; font-weight: 800; }
     .howto-icon-row { display: flex; align-items: center; gap: .65rem; }
     .howto-icon-badge { width: 42px; height: 42px; border-radius: .95rem; background: #eff6ff; border: 1.5px solid #bfdbfe; color: #1d4ed8; display: inline-flex; align-items: center; justify-content: center; font-size: 1.15rem; }
 
@@ -452,10 +451,6 @@
     .shop-map-frame iframe { width: 100%; height: 100%; min-height: 260px; border: 0; display: block; }
 
     .floating-cart-bar { position: fixed; bottom: 1.15rem; left: 50%; transform: translateX(-50%); z-index: 40; display: flex; align-items: center; gap: .6rem; }
-    @media (max-width: 767px) {
-      .floating-cart-bar { position: static; transform: none; margin-block: .5rem 1rem; }
-      .floating-cart-bar .shop-button { min-height: 44px; }
-    }
     .floating-wa-btn { position: fixed; right: 1.15rem; bottom: 1.15rem; z-index: 40; display: inline-flex; align-items: center; gap: .5rem; padding: .75rem 1.15rem; border-radius: 9999px; background: #16a34a; color: #fff; font-weight: 800; font-size: .88rem; text-decoration: none; box-shadow: 0 10px 24px rgba(22,163,74,.35); }
     .floating-wa-btn:hover { background: #15803d; }
 
@@ -465,283 +460,6 @@
       .floating-wa-btn span { display: none; }
       .floating-wa-btn { width: 52px; height: 52px; justify-content: center; padding: 0; font-size: 1.35rem; }
     }
-  
-    /* === DARK STUDIO PREMIUM THEME (MATCHING CATALOG POSTERS) === */
-    :root {
-      --sjs-dark-bg: #080a0f;
-      --sjs-dark-surface: #11151f;
-      --sjs-dark-card: #141926;
-      --sjs-dark-border: rgba(255, 255, 255, 0.11);
-      --sjs-gold: #facc15;
-      --sjs-gold-deep: #eab308;
-      --sjs-crimson: #dc2626;
-      --sjs-sky: #38bdf8;
-    }
-    body {
-      background:
-        radial-gradient(circle at 20% 0%, rgba(220, 38, 38, 0.10), transparent 36%),
-        radial-gradient(circle at 85% 15%, rgba(56, 189, 248, 0.11), transparent 36%),
-        radial-gradient(circle at 50% 60%, #141926 0%, #080a0f 100%) !important;
-      color: #f8fafc !important;
-    }
-    .shop-header {
-      background: rgba(10, 13, 20, 0.90) !important;
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1.5px solid rgba(250, 204, 21, 0.28) !important;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55) !important;
-    }
-    .shop-brand h1 { color: #ffffff !important; letter-spacing: 0.02em; }
-    .shop-brand p { color: #94a3b8 !important; }
-    .shop-brand img {
-      background: #0f1420 !important;
-      border: 1.5px solid rgba(250, 204, 21, 0.65) !important;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
-    }
-    .shop-links {
-      background: #141926 !important;
-      border: 1px solid rgba(255, 255, 255, 0.10);
-    }
-    .shop-links a { color: #cbd5e1 !important; }
-    .shop-links a:hover { background: #1e2638 !important; color: #facc15 !important; }
-
-    .shop-hero {
-      background:
-        linear-gradient(95deg, rgba(8, 10, 15, 0.96) 0%, rgba(15, 20, 32, 0.88) 54%, rgba(15, 20, 32, 0.42) 100%),
-        url('assets/badminton-banner.webp') right center / cover no-repeat, #080a0f !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
-      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.65) !important;
-    }
-    .hero-feature-card {
-      background: rgba(20, 25, 38, 0.78) !important;
-      border: 1px solid rgba(255, 255, 255, 0.14) !important;
-    }
-    .hero-feature-card:hover {
-      background: rgba(30, 38, 56, 0.92) !important;
-      border-color: #facc15 !important;
-    }
-    .hero-trust-pill {
-      background: rgba(20, 25, 38, 0.82) !important;
-      border-color: rgba(255, 255, 255, 0.15) !important;
-      color: #e2e8f0 !important;
-    }
-
-    .fun-highlight-pill {
-      background: #141926 !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.10) !important;
-      border-bottom: 3px solid rgba(250, 204, 21, 0.35) !important;
-      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45) !important;
-    }
-    .fun-highlight-pill strong { color: #ffffff !important; }
-    .fun-highlight-pill span.text-slate-600 { color: #94a3b8 !important; }
-    .fun-highlight-icon.is-blue { background: rgba(56, 189, 248, 0.16) !important; color: #38bdf8 !important; }
-    .fun-highlight-icon.is-yellow { background: rgba(250, 204, 21, 0.16) !important; color: #facc15 !important; }
-    .fun-highlight-icon.is-green { background: rgba(34, 197, 94, 0.16) !important; color: #4ade80 !important; }
-    .fun-highlight-icon.is-navy { background: rgba(220, 38, 38, 0.18) !important; color: #f87171 !important; }
-
-    .catalog-heading h2 { color: #ffffff !important; letter-spacing: 0.02em; }
-    .catalog-heading span.text-slate-500 { color: #94a3b8 !important; }
-
-    .quick-cat-btn {
-      background: #141926 !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.11) !important;
-      border-bottom: 3px solid rgba(255, 255, 255, 0.18) !important;
-      color: #f8fafc !important;
-      box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4) !important;
-    }
-    .quick-cat-btn:hover {
-      border-color: #38bdf8 !important;
-      background: #192030 !important;
-    }
-    .quick-cat-btn.is-active {
-      background: linear-gradient(135deg, #1b2438 0%, #0f172a 100%) !important;
-      border-color: #facc15 !important;
-      border-bottom: 3px solid #eab308 !important;
-      box-shadow: 0 10px 26px rgba(250, 204, 21, 0.22) !important;
-    }
-    .quick-cat-btn strong { color: #ffffff !important; }
-    .quick-cat-btn span { color: #94a3b8 !important; }
-    .quick-cat-btn.is-active span { color: #fde68a !important; }
-    .quick-cat-thumb {
-      background: #0d111a !important;
-      border-color: rgba(255, 255, 255, 0.16) !important;
-    }
-
-    .catalog-toolbar {
-      background: #141926 !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.11) !important;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.48) !important;
-    }
-    .catalog-search-form > i { color: #94a3b8 !important; }
-    .catalog-search-form input {
-      background: #0b0e16 !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.16) !important;
-      color: #ffffff !important;
-    }
-    .catalog-search-form input::placeholder { color: #64748b !important; }
-    .catalog-search-form input:focus {
-      outline: none;
-      border-color: #facc15 !important;
-      box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.16) !important;
-    }
-    #btnClearCatalogSearch { background: #1e2638 !important; color: #e2e8f0 !important; }
-    .catalog-categories label span {
-      background: #0b0e16 !important;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #cbd5e1 !important;
-    }
-    .catalog-categories label input:checked + span {
-      background: linear-gradient(135deg, #facc15, #eab308) !important;
-      color: #090d16 !important;
-      font-weight: 800 !important;
-      border-color: #fde047 !important;
-    }
-    #catalogSort {
-      background: #0b0e16 !important;
-      border-color: rgba(255, 255, 255, 0.16) !important;
-      color: #f8fafc !important;
-    }
-    #catalogResultCount { color: #94a3b8 !important; }
-
-    .catalog-empty {
-      background: #141926 !important;
-      border-color: rgba(255, 255, 255, 0.18) !important;
-      color: #cbd5e1 !important;
-    }
-    .catalog-card {
-      background: #141926 !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.11) !important;
-      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5) !important;
-    }
-    .catalog-card:hover {
-      border-color: #facc15 !important;
-      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.72), 0 0 0 1px rgba(250, 204, 21, 0.35) !important;
-    }
-    .catalog-card-photo-wrap {
-      background: radial-gradient(circle at 50% 45%, #1d2436 0%, #0b0e16 100%) !important;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-      padding: 0 !important;
-    }
-    .catalog-card-photo {
-      border-radius: 0 !important;
-      aspect-ratio: 1 / 1 !important;
-      background: #0b0e16 !important;
-    }
-    .catalog-card-photo > div, .catalog-card-photo img {
-      background: #0b0e16 !important;
-    }
-    .catalog-card-body h3 { color: #ffffff !important; }
-    .catalog-card-body h3:hover { color: #facc15 !important; }
-    .catalog-card-meta {
-      background: rgba(56, 189, 248, 0.14) !important;
-      color: #7dd3fc !important;
-      border: 1px solid rgba(56, 189, 248, 0.25);
-    }
-    .catalog-card-description { color: #94a3b8 !important; }
-    .senar-service-note {
-      background: rgba(220, 38, 38, 0.16) !important;
-      border-color: rgba(248, 113, 113, 0.35) !important;
-      color: #fecaca !important;
-    }
-    .senar-service-note i { color: #facc15 !important; }
-    .catalog-card-facts { border-top-color: rgba(255, 255, 255, 0.09) !important; }
-    .catalog-card-price {
-      background: rgba(250, 204, 21, 0.14) !important;
-      color: #facc15 !important;
-      border: 1.5px solid rgba(250, 204, 21, 0.45) !important;
-    }
-    .catalog-stock {
-      background: rgba(16, 185, 129, 0.16) !important;
-      color: #6ee7b7 !important;
-      border: 1px solid rgba(16, 185, 129, 0.3);
-    }
-    .shop-button-primary {
-      background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
-      border-bottom: 4px solid #1e3a8a !important;
-      color: #ffffff !important;
-    }
-    .shop-button-secondary {
-      background: #1b2234 !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.16) !important;
-      border-bottom: 3px solid rgba(255, 255, 255, 0.24) !important;
-      color: #f1f5f9 !important;
-    }
-    .shop-button-secondary:hover:not(:disabled) {
-      background: #232c42 !important;
-      border-color: #facc15 !important;
-    }
-
-    .howto-card {
-      background: #141926 !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.11) !important;
-      border-bottom: 3px solid rgba(56, 189, 248, 0.35) !important;
-    }
-    .howto-card h3 { color: #ffffff !important; }
-    .howto-card p { color: #94a3b8 !important; }
-    .howto-card strong { color: #facc15 !important; }
-    .howto-icon-badge {
-      background: rgba(56, 189, 248, 0.15) !important;
-      border-color: rgba(56, 189, 248, 0.3) !important;
-      color: #38bdf8 !important;
-    }
-
-    .shop-location {
-      background: #141926 !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.11) !important;
-      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.5) !important;
-    }
-    .shop-location h2 { color: #ffffff !important; }
-    .shop-location address { color: #cbd5e1 !important; }
-    .shop-location address strong { color: #ffffff !important; }
-    .shop-location address a { color: #38bdf8 !important; }
-    .shop-location .bg-blue-50 {
-      background: #0d111a !important;
-      border-color: rgba(255, 255, 255, 0.12) !important;
-      color: #e2e8f0 !important;
-    }
-    .shop-map-frame {
-      border-color: rgba(255, 255, 255, 0.16) !important;
-      background: #0b0e16 !important;
-    }
-
-    footer.border-t {
-      background: #0a0d14 !important;
-      border-top-color: rgba(255, 255, 255, 0.10) !important;
-      color: #94a3b8 !important;
-    }
-    footer .text-slate-700 { color: #ffffff !important; }
-    footer .text-blue-700 { color: #facc15 !important; }
-
-    /* Dark Modals (Detail Produk & Keranjang) */
-    #catalogProductModal, #catalogCart {
-      background: #141926 !important;
-      border: 1.5px solid rgba(250, 204, 21, 0.32) !important;
-      color: #f8fafc !important;
-    }
-    #catalogProductModal form button, #catalogCart form button {
-      background: #1e2638 !important;
-      color: #f8fafc !important;
-    }
-    #catalogDetailBody .bg-white, #catalogDetailBody .rounded-2xl {
-      background: #0b0e16 !important;
-      border-color: rgba(255, 255, 255, 0.12) !important;
-    }
-    #catalogDetailBody .text-slate-900 { color: #facc15 !important; }
-    #catalogDetailBody .text-slate-600 { color: #cbd5e1 !important; }
-    #catalogDetailBody .text-blue-700 { color: #38bdf8 !important; }
-    #catalogCartLines .rounded-2xl {
-      background: #0b0e16 !important;
-      border-color: rgba(255, 255, 255, 0.12) !important;
-    }
-    #catalogCartLines .text-slate-600 { color: #94a3b8 !important; }
-    #catalogCartLines input {
-      background: #141926 !important;
-      border-color: rgba(255, 255, 255, 0.18) !important;
-      color: #ffffff !important;
-    }
-    #catalogCartTotal { color: #facc15 !important; }
-    #catalogCart .border-slate-200 { border-color: rgba(255, 255, 255, 0.12) !important; }
-
   </style>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZS9T9ZJXBK"></script>
   <script>
@@ -750,199 +468,255 @@
     gtag('js', new Date());
     gtag('config', 'G-ZS9T9ZJXBK');
   </script>
-<style>
-    .hero-search { display:flex; align-items:center; gap:.65rem; width:100%; max-width:34rem; box-sizing:border-box; padding:.3rem .3rem .3rem .9rem; border:1px solid #657083; border-radius:1rem; background:#101724; color:#f8fafc; }
-    .hero-search:focus-within { outline:2px solid #facc15; outline-offset:2px; }
-    .hero-search i { color:#facc15; }
-    .hero-search input { flex:1; min-width:0; color:inherit; background:transparent; border:0; font:inherit; font-size:1rem; outline:none; }
-    .hero-search input::placeholder { color:#bec6d2; }
-    .hero-search button, .catalog-reset { min-height:44px; padding:0 1.25rem; border:0; border-radius:.75rem; background:#facc15; color:#10141c; font:inherit; font-weight:800; cursor:pointer; }
-    .catalog-reset { display:block; margin:.85rem auto 0; }
-    .hero-search button:focus-visible, .catalog-reset:focus-visible { outline:2px solid white; outline-offset:2px; }
-  </style>
-  <style id="sjs-dark-contrast-fix">
-    /* Perbaikan kontras tema gelap: teks abu redup pada latar gelap */
-    footer.border-t { color: #94a3b8 !important; }
-    .catalog-search-form input::placeholder { color: #94a3b8 !important; }
-    #catalogCart .text-slate-500, #catalogCart .text-slate-600,
-    #catalogProductModal .text-slate-500 { color: #94a3b8 !important; }
-    #catalogCart .text-slate-900:not(#catalogCartTotal) { color: #ffffff !important; }
-      .shop-hero {
-      background: linear-gradient(90deg, #0a0b0d 0%, rgba(10, 11, 13, .95) 34%, rgba(10, 11, 13, .60) 66%, rgba(10, 11, 13, .20) 100%),
-        url('assets/badminton-banner.webp') right center / cover no-repeat, #0a0b0d !important;
-    }
-    .catalog-brand-strip {
-      display: grid;
-      grid-template-columns: repeat(7, minmax(6.5rem, 8rem));
-      gap: .4rem;
-      margin: 1rem 0;
-      padding: 3px;
-      overflow-x: auto;
-      color: #f8fafc;
-    }
-    .catalog-brand-strip strong { grid-column: 1 / -1; margin-bottom: .15rem; }
-    .catalog-brand-strip button {
-      display: grid;
-      place-items: center;
-      min-width: 0;
-      height: 3.9rem;
-      overflow: hidden;
-      padding: .2rem;
-      border: 1px solid #e2e4e7;
-      border-radius: .65rem;
-      background: #fff;
-      color: #172033;
-      font-weight: 800;
-    }
-    .catalog-brand-strip button img {
-      width: 100%;
-      height: 3.45rem;
-      object-fit: contain;
-      font-size: .8rem;
-      mix-blend-mode: multiply;
-    }
-    .catalog-brand-strip button:is([data-catalog-brand="Yonex"], [data-catalog-brand="Victor"], [data-catalog-brand="Specs"], [data-catalog-brand="Mikasa"]) img {
-      transform: scale(1.45);
-    }
-    .catalog-brand-strip button:hover,
-    .catalog-brand-strip button[aria-pressed="true"] { border-color: #a3c32f; box-shadow: 0 0 0 2px #a3c32f; }
-    .catalog-brand-strip button:focus-visible { outline: 2px solid #d9f261; outline-offset: 1px; }
-
-    #publicProductCatalog {
-      --catalog-surface: #f6f5f1;
-      --catalog-card: #fffdfa;
-      --catalog-edge: #deddd6;
-      --catalog-ink: #26323c;
-      --catalog-muted: #52606b;
-      --catalog-accent: #34566c;
-      padding: clamp(.75rem, 2vw, 1.5rem);
-      border-radius: 1.25rem;
-      background: var(--catalog-surface);
-      color: var(--catalog-ink);
-    }
-    #publicProductCatalog :is(.catalog-toolbar, .catalog-card, .catalog-empty) {
-      background: var(--catalog-card) !important;
-      border-color: var(--catalog-edge) !important;
-      color: var(--catalog-ink) !important;
-      box-shadow: none !important;
-    }
-    #publicProductCatalog :is(.catalog-heading h2, .catalog-card-body h3, .catalog-card-price) {
-      color: var(--catalog-ink) !important;
-    }
-    #publicProductCatalog :is(.catalog-heading span, .catalog-card-description, #catalogResultCount, .catalog-search-form > i) {
-      color: var(--catalog-muted) !important;
-    }
-    #publicProductCatalog :is(.catalog-search-form input, #catalogSort, .catalog-categories label span, #btnClearCatalogSearch) {
-      background: #eeeee9 !important;
-      border-color: var(--catalog-edge) !important;
-      color: var(--catalog-ink) !important;
-    }
-    #publicProductCatalog .catalog-search-form input::placeholder { color: var(--catalog-muted) !important; }
-    #publicProductCatalog .catalog-search-form input:focus {
-      border-color: var(--catalog-accent) !important;
-      box-shadow: 0 0 0 3px #34566c33 !important;
-    }
-    #publicProductCatalog :is(.catalog-categories label input:checked + span, .catalog-card-actions .shop-button-primary:not(:disabled)) {
-      background: var(--catalog-accent) !important;
-      border-color: var(--catalog-accent) !important;
-      color: #fff !important;
-      box-shadow: none !important;
-    }
-    #publicProductCatalog .catalog-card-actions .shop-button-primary:not(:disabled):hover { background: #27475b !important; }
-    #publicProductCatalog .catalog-card-actions .shop-button-secondary {
-      background: var(--catalog-card) !important;
-      border: 1px solid var(--catalog-edge) !important;
-      color: var(--catalog-ink) !important;
-    }
-    #publicProductCatalog .catalog-card-actions .shop-button-secondary:hover { border-color: var(--catalog-accent) !important; }
-    #publicProductCatalog :is(.catalog-card-photo-wrap, .catalog-card-photo, .catalog-card-photo img, .catalog-card-photo > div) {
-      background: #efeee8 !important;
-      border-color: var(--catalog-edge) !important;
-    }
-    #publicProductCatalog .catalog-card-facts { border-top-color: var(--catalog-edge) !important; }
-    #publicProductCatalog .catalog-card-price { background: transparent !important; border-color: transparent !important; }
-    #publicProductCatalog .catalog-card-meta { background: #e9eef1 !important; color: #375366 !important; border-color: #dbe3e8; }
-    #publicProductCatalog .senar-service-note { background: #f5efdf !important; color: #625228 !important; border-color: #e8dec2 !important; }
-    #publicProductCatalog .senar-service-note i { color: #826522 !important; }
-    #publicProductCatalog .catalog-stock:not([class*="bg-rose"]) { background: #e8f0e9 !important; color: #2d5b45 !important; border-color: #d7e6da; }
-    #publicProductCatalog .catalog-card-badge.is-limited { background: #8a541f; }
-    .catalog-card-photo-wrap { border-bottom-color: #66723b !important; }
-    .catalog-card-photo, .catalog-card-photo > div, .catalog-card-photo img { background: #151616 !important; }
-    .catalog-card-badge.is-sold-out { background: #b91c1c !important; color: #fff !important; }
-    .floating-wa-btn { bottom: max(1rem, env(safe-area-inset-bottom)); }
-    @media (max-width: 640px) {
-      .shop-hero {
-        background: linear-gradient(90deg, rgba(10, 11, 13, .96), rgba(10, 11, 13, .72)),
-          url('assets/badminton-banner.webp') right center / cover no-repeat, #0a0b0d !important;
-      }
-      .catalog-filter-row > div { flex-wrap: wrap; }
+  <style id="sjs-dark-showroom">
+    /* === TEMA FULL DARK SHOWROOM (SURYA JAYA SPORT) === */
+    :root {
+      --dark-bg: #0b0e14;
+      --dark-card: #151922;
+      --dark-elev: #1e2433;
+      --dark-border: #262d3d;
+      --dark-text: #f8fafc;
+      --dark-muted: #94a3b8;
+      --gold: #f5b700;
     }
 
-    #publicProductCatalog .catalog-card-photo-wrap,
-    .catalog-poster {
-      background: radial-gradient(ellipse at 34% 28%, #38373b, #151618 52%, #08090b) !important;
+    body {
+      background:
+        radial-gradient(circle at 15% 0%, rgba(245, 183, 0, 0.08), transparent 38%),
+        radial-gradient(circle at 85% 20%, rgba(37, 99, 235, 0.09), transparent 36%),
+        var(--dark-bg) !important;
+      color: var(--dark-text) !important;
     }
-    .catalog-poster {
-      --poster-accent: #c7e66d;
-      aspect-ratio: 1;
-      width: 100%;
-      container-type: inline-size;
-      position: relative;
-      isolation: isolate;
-      color: #fff;
-      overflow: hidden;
+
+    /* Header & Navigasi */
+    .shop-header {
+      background: rgba(11, 14, 20, 0.92) !important;
+      border-bottom: 1.5px solid var(--dark-border) !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45) !important;
     }
-    .catalog-poster-frame {
-      position: absolute;
-      inset: 3%;
-      border: 1px solid var(--poster-accent);
-      border-radius: .65rem;
-      opacity: .68;
-      pointer-events: none;
+    .shop-brand h1 { color: #ffffff !important; }
+    .shop-brand p { color: var(--dark-muted) !important; }
+    .shop-links { background: var(--dark-card) !important; border: 1px solid var(--dark-border); }
+    .shop-links a { color: #cbd5e1 !important; }
+    .shop-links a:hover { background: var(--dark-elev) !important; color: var(--gold) !important; }
+
+    /* Hero & Strip Keunggulan */
+    .shop-hero {
+      border: 1.5px solid var(--dark-border) !important;
+      box-shadow: 0 24px 54px -18px rgba(0, 0, 0, 0.7) !important;
     }
-    .catalog-poster-heading {
-      position: absolute;
-      inset: 6% 6% auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: .5em;
-      font-size: clamp(8px, 4cqi, 17px);
-      font-weight: 800;
-      line-height: 1.1;
+    .fun-highlight-pill {
+      background: var(--dark-card) !important;
+      border: 1.5px solid var(--dark-border) !important;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.3) !important;
     }
-    .catalog-poster-store { display: flex; align-items: center; gap: .45em; }
-    .catalog-poster-store img { width: 1.8em; height: 1.8em; object-fit: contain; }
-    .catalog-poster-brand { color: var(--poster-accent); text-align: right; }
-    .catalog-poster-main {
-      position: absolute;
-      inset: 18% 26% 19% 6%;
-      border-radius: .35rem;
-      filter: drop-shadow(0 .45rem .9rem #0008);
+    .fun-highlight-pill strong { color: var(--dark-text) !important; }
+    .fun-highlight-pill span { color: var(--dark-muted) !important; }
+
+    /* Kategori Cepat */
+    .catalog-heading h2 { color: #ffffff !important; }
+    .catalog-heading span { color: var(--dark-muted) !important; }
+    .quick-cat-btn {
+      background: var(--dark-card) !important;
+      border: 1.5px solid var(--dark-border) !important;
     }
-    .catalog-poster-detail {
-      position: absolute;
-      inset: 33% 6% auto auto;
-      width: 18%;
-      aspect-ratio: 1;
-      object-fit: cover;
-      object-position: center;
-      border: 1px solid var(--poster-accent);
-      border-radius: .45rem;
+    .quick-cat-btn:hover { border-color: var(--gold) !important; }
+    .quick-cat-btn strong { color: var(--dark-text) !important; }
+    .quick-cat-btn span { color: var(--dark-muted) !important; }
+    .quick-cat-btn .quick-cat-thumb { border-color: var(--dark-border) !important; background: var(--dark-bg) !important; }
+    .quick-cat-btn.is-active {
+      background: linear-gradient(135deg, #1b2232, #0f172a) !important;
+      border: 1.5px solid var(--gold) !important;
+      box-shadow: 0 10px 24px rgba(245, 183, 0, 0.16) !important;
     }
-    .catalog-poster-name {
-      position: absolute;
-      inset: auto 6% 7%;
-      margin: 0;
-      font-size: clamp(10px, 5.2cqi, 23px);
-      font-weight: 850;
-      line-height: 1.1;
-      display: -webkit-box;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 2;
-      overflow: hidden;
+    .quick-cat-btn.is-active strong { color: var(--gold) !important; }
+
+    /* Toolbar Pencarian & Filter */
+    .catalog-toolbar {
+      background: var(--dark-card) !important;
+      border: 1.5px solid var(--dark-border) !important;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35) !important;
     }
-    .catalog-poster--no-photo .catalog-poster-main { right: 6%; }
+    .catalog-search-form input,
+    #catalogSort {
+      background: var(--dark-bg) !important;
+      border: 1.5px solid var(--dark-border) !important;
+      color: var(--dark-text) !important;
+    }
+    .catalog-search-form input::placeholder { color: #64748b; }
+    #btnClearCatalogSearch { background: var(--dark-elev) !important; color: var(--dark-text) !important; }
+    .catalog-categories label span {
+      background: var(--dark-elev) !important;
+      color: #cbd5e1 !important;
+      border: 1px solid var(--dark-border);
+    }
+    .catalog-categories label input:checked + span {
+      background: var(--gold) !important;
+      color: #0b0e14 !important;
+      border-color: var(--gold) !important;
+    }
+    #catalogResultCount { color: var(--dark-muted) !important; }
+
+    /* Kartu Produk & Foto 1:1 Full-Bleed */
+    .catalog-empty {
+      background: var(--dark-card) !important;
+      border-color: var(--dark-border) !important;
+      color: var(--dark-muted) !important;
+    }
+    .catalog-card {
+      background: var(--dark-card) !important;
+      border: 1.5px solid var(--dark-border) !important;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.35) !important;
+    }
+    .catalog-card:hover {
+      border-color: var(--gold) !important;
+      box-shadow: 0 18px 36px rgba(0, 0, 0, 0.55) !important;
+    }
+    .catalog-card-photo-wrap {
+      padding: 0 !important;
+      background: var(--dark-bg) !important;
+      border-bottom: 1px solid var(--dark-border) !important;
+    }
+    .catalog-card-photo {
+      aspect-ratio: 1 / 1 !important;
+      border-radius: 0 !important;
+      background: var(--dark-bg) !important;
+    }
+    .catalog-card-photo img {
+      background: var(--dark-bg) !important;
+      object-fit: cover !important;
+    }
+    .catalog-card-meta {
+      background: var(--dark-elev) !important;
+      color: var(--dark-muted) !important;
+    }
+    .catalog-card-body h3 { color: var(--dark-text) !important; }
+    .catalog-card-body h3:hover { color: var(--gold) !important; }
+    .catalog-card-description { color: var(--dark-muted) !important; }
+    .senar-service-note {
+      background: rgba(245, 183, 0, 0.12) !important;
+      border-color: rgba(245, 183, 0, 0.35) !important;
+      color: #fde68a !important;
+    }
+    .senar-service-note i { color: var(--gold) !important; }
+    .catalog-card-facts { border-top-color: var(--dark-border) !important; }
+    .catalog-card-price {
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+      color: var(--gold) !important;
+      font-size: 1.18rem !important;
+    }
+    .catalog-stock {
+      background: rgba(16, 185, 129, 0.14) !important;
+      color: #34d399 !important;
+    }
+
+    /* Tombol Modern Datar */
+    .shop-button-primary {
+      background: var(--gold) !important;
+      color: #0b0e14 !important;
+      border: none !important;
+      border-bottom: none !important;
+      font-weight: 800 !important;
+      box-shadow: 0 6px 18px rgba(245, 183, 0, 0.22) !important;
+    }
+    .shop-button-secondary {
+      background: var(--dark-elev) !important;
+      color: var(--dark-text) !important;
+      border: 1px solid #334155 !important;
+      border-bottom: 1px solid #334155 !important;
+    }
+    .shop-button-secondary:hover:not(:disabled) {
+      background: #283044 !important;
+      border-color: var(--gold) !important;
+    }
+    .shop-button-accent,
+    .shop-button-wa {
+      border-bottom: none !important;
+    }
+
+    /* Cara Pesan, Lokasi & Footer */
+    .howto-card,
+    .shop-location {
+      background: var(--dark-card) !important;
+      border: 1.5px solid var(--dark-border) !important;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35) !important;
+    }
+    .howto-card h3,
+    .shop-location h2,
+    .shop-location address strong { color: var(--dark-text) !important; }
+    .howto-card p,
+    .shop-location address { color: var(--dark-muted) !important; }
+    .shop-location address a { color: var(--gold) !important; }
+    .shop-location .bg-blue-50 {
+      background: var(--dark-bg) !important;
+      border-color: var(--dark-border) !important;
+      color: #cbd5e1 !important;
+    }
+    .howto-icon-badge {
+      background: var(--dark-elev) !important;
+      border-color: var(--dark-border) !important;
+      color: var(--gold) !important;
+    }
+    .shop-map-frame { border-color: var(--dark-border) !important; background: var(--dark-bg) !important; }
+    footer {
+      background: #07090e !important;
+      border-top-color: var(--dark-border) !important;
+      color: var(--dark-muted) !important;
+    }
+    footer .text-slate-700 { color: var(--dark-text) !important; }
+    footer a { color: var(--gold) !important; }
+
+    /* Modal Detail Varian & Keranjang WhatsApp */
+    #catalogProductModal,
+    #catalogCart {
+      background: var(--dark-card) !important;
+      border-color: var(--dark-border) !important;
+      color: var(--dark-text) !important;
+    }
+    #catalogProductModal button.bg-slate-100,
+    #catalogCart button.bg-slate-100 {
+      background: var(--dark-elev) !important;
+      color: var(--dark-text) !important;
+    }
+    #catalogDetailBody .border-slate-100,
+    #catalogCart .border-slate-200 { border-color: var(--dark-border) !important; }
+    #catalogDetailBody .aspect-\[4\/3\] {
+      aspect-ratio: 1 / 1 !important;
+      background: var(--dark-bg) !important;
+    }
+    #catalogDetailBody .aspect-\[4\/3\] img {
+      background: var(--dark-bg) !important;
+      object-fit: cover !important;
+    }
+    #catalogDetailBody .text-slate-900,
+    #catalogCartTotal { color: var(--gold) !important; }
+    #catalogDetailBody .text-slate-600,
+    #catalogCart .text-slate-600,
+    #catalogCart .text-slate-500 { color: var(--dark-muted) !important; }
+    #catalogDetailBody [data-pick-variant] {
+      background: var(--dark-elev) !important;
+      border-color: var(--dark-border) !important;
+    }
+    #catalogDetailBody [data-pick-variant].border-slate-900 {
+      border-color: var(--gold) !important;
+      background: #232a3b !important;
+    }
+    #catalogDetailBody [data-pick-variant] .text-slate-900 { color: var(--dark-text) !important; }
+    #catalogCartLines > div {
+      background: var(--dark-bg) !important;
+      border-color: var(--dark-border) !important;
+    }
+    #catalogCartLines input {
+      background: var(--dark-card) !important;
+      border-color: var(--dark-border) !important;
+      color: var(--dark-text) !important;
+    }
+    .floating-cart-bar #catalogCartCount {
+      background: #0b0e14 !important;
+      color: var(--gold) !important;
+    }
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -983,19 +757,14 @@
 
     <section class="shop-hero" aria-labelledby="catalogPageTitle">
       <div class="shop-hero-content">
+        <p class="shop-eyebrow"><i class="fa-solid fa-clock" aria-hidden="true"></i> Jl. Ahmad Yani 37, Tanjung Redeb, Berau · Buka Setiap Hari 08.00–21.00 WITA</p>
         <h2 id="catalogPageTitle">Perlengkapan Olahraga<br><span class="shop-hero-accent">&amp; Alat Musik Berau</span></h2>
         <p class="text-[15px] text-slate-200 leading-relaxed">Toko raket badminton Berau, bola futsal Tanjung Redeb, catur, hingga senar dan aksesori gitar dengan harga jelas dan stok langsung dari toko kami.</p>
         <div class="hero-trust-row">
-          <span class="hero-trust-pill"><i class="fa-solid fa-circle-check text-amber-300" aria-hidden="true"></i> Pilihan raket, shuttlecock &amp; senar badminton</span>
-          <span class="hero-trust-pill"><i class="fa-solid fa-store text-amber-300" aria-hidden="true"></i> Pesan online via WhatsApp</span>
-          <span class="hero-trust-pill"><i class="fa-solid fa-qrcode text-amber-300" aria-hidden="true"></i> Transfer Bank atau QRIS</span>
+          <span class="hero-trust-pill"><i class="fa-solid fa-circle-check text-amber-300" aria-hidden="true"></i> Harga &amp; stok dikonfirmasi toko</span>
+          <span class="hero-trust-pill"><i class="fa-solid fa-store text-amber-300" aria-hidden="true"></i> Ambil di toko · Bisa pesan/DP via WA</span>
+          <span class="hero-trust-pill"><i class="fa-solid fa-qrcode text-amber-300" aria-hidden="true"></i> Tunai, QRIS, Kartu &amp; Transfer</span>
         </div>
-        <form id="heroSearchForm" class="hero-search" role="search" aria-label="Pencarian dari beranda">
-          <label for="heroSearch" class="sr-only">Cari produk dari beranda</label>
-          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-          <input id="heroSearch" type="search" placeholder="Cari produk, misalnya raket Yonex" enterkeyhint="search">
-          <button type="submit">Cari</button>
-        </form>
         <div class="shop-hero-actions pt-1">
           <a class="shop-button shop-button-accent" href="#publicProductCatalog">Jelajahi katalog <i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a>
           <a class="shop-button shop-button-outline" href="#cara-pesan"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> Cara pesan</a>
@@ -1005,7 +774,7 @@
       <div class="hero-feature-grid" aria-label="Pilih kategori cepat">
         <button type="button" class="hero-feature-card" data-quick-cat="badminton">
           <i class="fa-solid fa-feather-pointed" aria-hidden="true"></i>
-          <strong>Bulu Tangkis</strong>
+          <strong>Badminton</strong>
           <span>Raket, kok, senar &amp; grip</span>
         </button>
         <button type="button" class="hero-feature-card" data-quick-cat="ball">
@@ -1026,23 +795,6 @@
       </div>
     </section>
 
-    <section class="catalog-brand-strip" aria-label="Jelajahi merek">
-      <strong>Jelajahi merek</strong>
-      <button type="button" data-catalog-brand="Yonex" aria-label="Yonex" aria-pressed="false"><img src="https://img.ws.mms.shopee.co.id/7b350a88f859bf8c0f3a27d35f561f73" alt="Yonex" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
-      <button type="button" data-catalog-brand="Victor" aria-label="Victor" aria-pressed="false"><img src="https://cdn.shopify.com/s/files/1/0532/4941/files/victor-450x450_large.jpg?v=1519908176" alt="Victor" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
-      <button type="button" data-catalog-brand="Li-Ning" aria-label="Li-Ning" aria-pressed="false"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/Li-Ning-logo.png" alt="Li-Ning" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
-      <button type="button" data-catalog-brand="Astec" aria-label="Astec" aria-pressed="false"><img src="https://www.static-src.com/wcsstore/Indraprastha/images/brandlogo/BR-M036969-03920/astec--logo.jpg" alt="Astec" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
-      <button type="button" data-catalog-brand="Molten" aria-label="Molten" aria-pressed="false"><img src="https://logowik.com/content/uploads/images/molten1323.logowik.com.webp" alt="Molten" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
-      <button type="button" data-catalog-brand="Specs" aria-label="Specs" aria-pressed="false"><img src="https://www.bahankain.com/storage/posts/perjalanan-specs-dari-pelopor-sepatu-futsal-jadi-merek-sportswear-yang-melegenda.png" alt="Specs" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
-      <button type="button" data-catalog-brand="Ortuseight" aria-label="Ortuseight" aria-pressed="false"><img src="https://seeklogo.com/images/O/ortuseight-logo-2EDAC0E5CC-seeklogo.com.png" alt="Ortuseight" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
-      <button type="button" data-catalog-brand="AVO" aria-label="AVO" aria-pressed="false">AVO</button>
-      <button type="button" data-catalog-brand="Butterfly" aria-label="Butterfly" aria-pressed="false"><img src="https://nl.butterfly.tt/media/logo/websites/5/butterfly.png" alt="Butterfly" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
-      <button type="button" data-catalog-brand="DHS" aria-label="DHS" aria-pressed="false"><img src="https://americantabletennis.com/cdn/shop/files/DHS.jpg?v=1724446787&amp;width=240" alt="DHS" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
-      <button type="button" data-catalog-brand="Powermax" aria-label="Powermax" aria-pressed="false"><img src="https://img.ws.mms.shopee.co.id/id-11134216-7r98z-lug6rwuqyo5876" alt="Powermax" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
-      <button type="button" data-catalog-brand="Maxbolt" aria-label="Maxbolt" aria-pressed="false"><img src="https://cdn1.sgliteasset.com/pawasports/images/brand/brand-6756/wUzlp5oN64155b7c22b50_1679121276.png" alt="Maxbolt" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
-      <button type="button" data-catalog-brand="RS" aria-label="RS" aria-pressed="false">RS</button>
-      <button type="button" data-catalog-brand="Mikasa" aria-label="Mikasa" aria-pressed="false"><img src="https://www.logotypes101.com/logos/656/F01CA4B6EBF8D867BE74F1412CCC82A3/Mikasa_Sports.png" alt="Mikasa" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
-    </section>
     <section class="fun-highlights-strip" aria-label="Keunggulan belanja di Surya Jaya Sport">
       <div class="fun-highlight-pill">
         <span class="fun-highlight-icon is-yellow"><i class="fa-solid fa-clock" aria-hidden="true"></i></span>
@@ -1054,22 +806,22 @@
       <div class="fun-highlight-pill">
         <span class="fun-highlight-icon is-blue"><i class="fa-solid fa-feather-pointed" aria-hidden="true"></i></span>
         <div>
-          <strong class="block text-sm font-extrabold text-slate-900">Pasang Ulang Senar Badminton</strong>
-          <span class="text-xs font-semibold text-slate-600">Gratis pemasangan untuk pembelian senar badminton</span>
+          <strong class="block text-sm font-extrabold text-slate-900">Gratis Pasang Senar</strong>
+          <span class="text-xs font-semibold text-slate-600">Khusus semua senar badminton</span>
         </div>
       </div>
       <div class="fun-highlight-pill">
         <span class="fun-highlight-icon is-green"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></span>
         <div>
           <strong class="block text-sm font-extrabold text-slate-900">Pesan Cepat via WA</strong>
-          <span class="text-xs font-semibold text-slate-600">Kirim daftar produk dan tujuan pengiriman</span>
+          <span class="text-xs font-semibold text-slate-600">Bisa DP / transfer, barang disiapkan</span>
         </div>
       </div>
       <div class="fun-highlight-pill">
         <span class="fun-highlight-icon is-navy"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></span>
         <div>
-          <strong class="block text-sm font-extrabold text-slate-900">Ongkir Dikonfirmasi</strong>
-          <span class="text-xs font-semibold text-slate-600">Dihitung sesuai tujuan sebelum pembayaran</span>
+          <strong class="block text-sm font-extrabold text-slate-900">Ambil &amp; Cek di Toko</strong>
+          <span class="text-xs font-semibold text-slate-600">Tunai, QRIS, Kartu &amp; Transfer</span>
         </div>
       </div>
     </section>
@@ -1087,7 +839,7 @@
         </button>
         <button type="button" class="quick-cat-btn" data-quick-cat="badminton">
           <img src="cat-badminton-150.webp" srcset="cat-badminton-150.webp 1x, cat-badminton-150.webp 2x, cat-badminton.webp 3x" alt="" width="76" height="76" class="quick-cat-thumb" loading="lazy" decoding="async">
-          <strong>Bulu Tangkis</strong>
+          <strong>Badminton</strong>
           <span>Raket, kok, senar, grip</span>
         </button>
         <button type="button" class="quick-cat-btn" data-quick-cat="ball">
@@ -1128,30 +880,13 @@
         <div class="catalog-filter-row">
           <div id="catalogCategory" class="catalog-categories" role="radiogroup" aria-label="Kategori produk">
             <label><input type="radio" name="catalogCategory" value="all" checked class="sr-only"><span>Semua</span></label>
-            <label><input type="radio" name="catalogCategory" value="badminton" class="sr-only"><span>Bulu Tangkis</span></label>
+            <label><input type="radio" name="catalogCategory" value="badminton" class="sr-only"><span>Badminton</span></label>
             <label><input type="radio" name="catalogCategory" value="ball" class="sr-only"><span>Futsal &amp; Bola</span></label>
             <label><input type="radio" name="catalogCategory" value="chess" class="sr-only"><span>Catur</span></label>
             <label><input type="radio" name="catalogCategory" value="music" class="sr-only"><span>Musik</span></label>
             <label><input type="radio" name="catalogCategory" value="sport" class="sr-only"><span>Olahraga Lainnya</span></label>
           </div>
           <div class="flex items-center gap-2.5">
-            <select id="catalogBrand" aria-label="Filter merek" class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700">
-              <option value="">Semua merek</option>
-              <option>Yonex</option>
-              <option>Victor</option>
-              <option>Li-Ning</option>
-              <option>Astec</option>
-              <option>Molten</option>
-              <option>Specs</option>
-              <option>Ortuseight</option>
-              <option>AVO</option>
-              <option>Butterfly</option>
-              <option>DHS</option>
-              <option>Powermax</option>
-              <option>Maxbolt</option>
-              <option>RS</option>
-              <option>Mikasa</option>
-            </select>
             <select id="catalogSort" aria-label="Urutkan produk" class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700">
               <option value="default">Urutan default</option>
               <option value="price-asc">Harga: termurah</option>
@@ -1162,20 +897,13 @@
           </div>
         </div>
       </div>
-      <div class="floating-cart-bar">
-        <button type="button" id="openCatalogCart" class="shop-button shop-button-primary !rounded-full !px-5 shadow-xl">
-          <i class="fa-solid fa-basket-shopping" aria-hidden="true"></i>
-          <span>Keranjang</span>
-          <span id="catalogCartCount" class="rounded-full bg-amber-400 px-2 py-0.5 text-xs font-extrabold text-slate-950">0</span>
-        </button>
-      </div>
       <div id="productCatalogGrid" class="catalog-grid"><p class="catalog-empty" role="status">Katalog sedang dimuat…</p></div>
     </section>
 
     <section id="cara-pesan" class="flex flex-col gap-4" aria-labelledby="howToOrderTitle">
       <div class="catalog-heading">
         <h2 id="howToOrderTitle">Cara Pesan &amp; Pembayaran</h2>
-        <span class="text-xs font-bold text-slate-500">Pesan online via WhatsApp · Ongkir dikonfirmasi sebelum pembayaran</span>
+        <span class="text-xs font-bold text-slate-500">Pengambilan barang di toko · Belum melayani pengiriman atau pembayaran otomatis di website</span>
       </div>
       <div class="howto-grid">
         <article class="howto-card">
@@ -1185,13 +913,13 @@
         </article>
         <article class="howto-card">
           <div class="howto-icon-row"><span class="howto-step">2</span><span class="howto-icon-badge"><i class="fa-solid fa-basket-shopping" aria-hidden="true"></i></span></div>
-          <h3>Kirim pesanan dan tujuan pengiriman</h3>
-          <p>Kirim daftar belanja ke WhatsApp <strong>0823-200-33333</strong> dan sertakan kecamatan, kota/kabupaten, serta kode pos. Kami akan mengecek stok, ongkir, dan total pembayaran.</p>
+          <h3>Pesan lewat WhatsApp (bisa DP / transfer)</h3>
+          <p>Kirim daftar belanja ke WhatsApp <strong>0823-200-33333</strong>. Anda boleh memesan dengan <strong>DP atau transfer</strong> terlebih dahulu—baik untuk pembelian jumlah besar maupun kecil—agar barang kami siapkan.</p>
         </article>
         <article class="howto-card">
           <div class="howto-icon-row"><span class="howto-step">3</span><span class="howto-icon-badge"><i class="fa-solid fa-store" aria-hidden="true"></i></span></div>
-          <h3>Bayar setelah total dikonfirmasi</h3>
-          <p>Setelah menyetujui total termasuk ongkir, bayar melalui <strong>Transfer Bank atau QRIS</strong> yang kami kirim lewat WhatsApp. Pesanan dikirim setelah pembayaran terverifikasi. Kami kabari nomor resi jika tersedia.</p>
+          <h3>Ambil &amp; bayar di toko</h3>
+          <p>Saat ini kami <strong>tidak melayani pengiriman</strong> maupun checkout online. Pengambilan dilakukan langsung di toko kami, dengan pilihan bayar <strong>Tunai, QRIS, Kartu, atau Transfer Bank</strong>.</p>
         </article>
       </div>
     </section>
@@ -1207,17 +935,19 @@
             Telp / WhatsApp: <a href="tel:+6282320033333" class="font-bold text-blue-700 underline">0823-200-33333</a>
           </address>
           <div class="rounded-2xl bg-blue-50 border border-blue-200 p-3 text-xs font-semibold text-blue-950 space-y-1">
-            <p><i class="fa-solid fa-wallet text-blue-700 mr-1" aria-hidden="true"></i> <strong>Pembayaran pesanan online:</strong></p>
+            <p><i class="fa-solid fa-wallet text-blue-700 mr-1" aria-hidden="true"></i> <strong>Pembayaran di toko:</strong></p>
             <div class="pay-badges-row pt-1">
-              <span class="pay-chip">Transfer</span>
-              <span class="pay-chip">QRIS</span>
+              <img src="pay-qris.svg" alt="QRIS" width="120" height="60" loading="lazy">
+              <img src="pay-tunai.svg" alt="Tunai" width="120" height="60" loading="lazy">
+              <img src="pay-kartu.svg" alt="Kartu Debit Kredit" width="120" height="60" loading="lazy">
+              <img src="pay-transfer.svg" alt="Transfer Bank" width="120" height="60" loading="lazy">
             </div>
-            <p><i class="fa-brands fa-whatsapp text-emerald-600 mr-1" aria-hidden="true"></i> <strong>Pemesanan WA:</strong> Stok, ongkir, dan total pesanan dikonfirmasi sebelum pembayaran.</p>
+            <p><i class="fa-brands fa-whatsapp text-emerald-600 mr-1" aria-hidden="true"></i> <strong>Pemesanan WA:</strong> Bisa DP / transfer untuk pembelian besar maupun kecil, lalu ambil langsung di toko.</p>
           </div>
         </div>
         <div class="flex flex-wrap gap-2.5">
           <a class="shop-button shop-button-wa" href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Chat WhatsApp</a>
-          <a class="shop-button shop-button-accent" href="https://www.google.com/maps/search/?api=1&amp;query=Surya+Jaya+Sport+Jl.+Ahmad+Yani+37+Tanjung+Redeb+Berau" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Baca ulasan di Google Maps</a>
+          <a class="shop-button shop-button-accent" href="https://www.google.com/maps/search/?api=1&amp;query=Surya+Jaya+Sport+Jl.+Ahmad+Yani+37+Tanjung+Redeb+Berau" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Buka di Google Maps</a>
         </div>
       </div>
       <div class="shop-map-frame">
@@ -1235,10 +965,16 @@
   <footer class="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500">
     <p class="font-bold text-slate-700">&copy; 2026 Surya Jaya Sport · Toko Olahraga &amp; Alat Musik</p>
     <p class="mt-1">Jl. Ahmad Yani 37, Tanjung Redeb, Berau · Senin–Minggu 08.00–21.00 WITA · WA 0823-200-33333</p>
-    <p class="mx-auto mt-2 max-w-2xl px-4">Surya Jaya Sport adalah toko olahraga dan alat musik di Tanjung Redeb, Berau. Temukan raket badminton, shuttlecock, perlengkapan futsal, catur, gitar, dan aksesorinya. Kami juga melayani pasang ulang senar badminton.</p>
     <p class="mt-1.5"><a href="kebijakan-privasi.html" class="font-bold text-blue-700 underline">Kebijakan Privasi</a></p>
   </footer>
 
+  <div class="floating-cart-bar">
+    <button type="button" id="openCatalogCart" class="shop-button shop-button-primary !rounded-full !px-5 shadow-xl">
+      <i class="fa-solid fa-basket-shopping" aria-hidden="true"></i>
+      <span>Keranjang</span>
+      <span id="catalogCartCount" class="rounded-full bg-amber-400 px-2 py-0.5 text-xs font-extrabold text-slate-950">0</span>
+    </button>
+  </div>
   <a href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer" class="floating-wa-btn" aria-label="Chat WhatsApp Surya Jaya Sport">
     <i class="fa-brands fa-whatsapp text-xl" aria-hidden="true"></i>
     <span>WhatsApp</span>
@@ -1260,10 +996,10 @@
     <div id="catalogCartLines" class="space-y-3"></div>
     <div class="mt-4 border-t border-slate-200 pt-3 space-y-2.5">
       <p id="catalogCartTotal" class="font-extrabold text-slate-900" aria-live="polite"></p>
-      <p class="text-xs text-slate-500">Subtotal belum termasuk ongkir. Lengkapi tujuan pengiriman di WhatsApp dan tunggu konfirmasi stok, ongkir, serta total sebelum membayar lewat Transfer Bank atau QRIS.</p>
+      <p class="text-xs text-slate-500">Harga dan stok akan dikonfirmasi kembali oleh toko. Pengambilan di toko; bisa DP/transfer lewat WhatsApp untuk pembelian besar maupun kecil.</p>
       <a id="catalogCartWhatsApp" target="_blank" rel="noopener noreferrer" class="hidden shop-button shop-button-primary !w-full">
         <i class="fa-brands fa-whatsapp text-lg" aria-hidden="true"></i>
-        <span>Kirim pesanan ke WhatsApp</span>
+        <span>Kirim daftar ke WhatsApp</span>
       </a>
     </div>
   </dialog>
@@ -1271,7 +1007,6 @@
   <div id="toastMsg" role="status" aria-live="polite" class="pointer-events-none fixed bottom-20 left-1/2 z-50 -translate-x-1/2 rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white opacity-0 shadow-lg transition-opacity"></div>
 
   <script type="module">
-    import { catalogImageUrl } from "./produk/katalog.js?v=6db68e91";
     const EMBEDDED_FIREBASE_CONFIG = {
       apiKey: "AIzaSyBFtI_lwLU7cDcioDE1GpgC0AjKPZ1mHag",
       authDomain: "suryajayasport-3fd5e.firebaseapp.com",
@@ -1405,35 +1140,15 @@
       return false;
     }
     function productImageMarkup(item, extraClass = "", width = 360, eager = false) {
-      const url = catalogImageUrl(item);
+      const url = safeHttpsUrl(item?.imageUrl);
       if (url) {
-        return `<div class="${extraClass} relative overflow-hidden bg-[#0b0e16]"><img src="${esc(thumbnailUrl(url, width))}" width="${width}" height="${width}" alt="${esc(item?.name ? `${item.name} - Surya Jaya Sport Berau` : "Foto produk Surya Jaya Sport Berau")}" loading="${eager ? "eager" : "lazy"}" decoding="async" class="h-full w-full object-contain bg-[#0b0e16]"></div>`;
+        return `<div class="${extraClass} relative overflow-hidden bg-white"><img src="${esc(thumbnailUrl(url, width))}" width="${width}" height="${Math.round(width * 0.75)}" alt="${esc(item?.name ? `${item.name} - Surya Jaya Sport Berau` : "Foto produk Surya Jaya Sport Berau")}" loading="${eager ? "eager" : "lazy"}" decoding="async" class="h-full w-full object-contain bg-white"></div>`;
       }
       const shortName = esc(String(item?.name || "Surya Jaya Sport").slice(0, 34));
-      return `<div class="${extraClass} relative overflow-hidden flex flex-col items-center justify-center p-3 text-center text-white" style="background:radial-gradient(circle at 50% 35%, #1e2638 0%, #0b0e16 100%);border-bottom:2px solid #dc2626">
+      return `<div class="${extraClass} relative overflow-hidden flex flex-col items-center justify-center p-3 text-center text-white" style="background:linear-gradient(135deg,#0b2566 0%,#1d5fd6 62%,#38bdf8 100%)">
         <span class="px-2 py-0.5 rounded-full bg-white/90 text-slate-900 text-[10px] font-extrabold uppercase">Surya Jaya Sport</span>
         <span class="mt-1.5 font-extrabold text-sm leading-tight drop-shadow">${shortName}</span>
         ${item?.code ? `<span class="mt-1 font-mono text-[10px] text-amber-300 font-bold">${esc(item.code)}</span>` : ""}
-      </div>`;
-    }
-
-
-    function catalogPosterMarkup(item, eager = false) {
-      const name = displayProductName(item.name);
-      const brand = item.brand || name.match(/\b(?:yonex|victor|li[- ]?ning|astec|molten|specs|ortuseight|butterfly|dhs|power\s*maxx?|maxbolt|mikasa|hundred|apacs|felet|mizuno|elixir|tama|avo|hi[- ]?qua)\b/i)?.[0] || "";
-      const url = catalogImageUrl(item);
-      const image = url ? esc(thumbnailUrl(url, 640)) : "";
-      const accent = matchesCatalogCategory(item, "music") ? "#ffd087"
-        : matchesCatalogCategory(item, "ball") ? "#8ed9ff" : "#c7e66d";
-      return `<div class="catalog-poster ${image ? "" : "catalog-poster--no-photo"}" style="--poster-accent:${accent}">
-        <span class="catalog-poster-frame" aria-hidden="true"></span>
-        <div class="catalog-poster-heading">
-          <span class="catalog-poster-store"><img src="sjs-mark-192.png" alt="" width="32" height="32">Surya Jaya Sport</span>
-          ${brand ? `<span class="catalog-poster-brand">${esc(brand.toUpperCase())}</span>` : ""}
-        </div>
-        ${productImageMarkup(item, "catalog-poster-main", 640, eager)}
-        ${image ? `<img class="catalog-poster-detail" src="${image}" alt="" width="96" height="96" loading="${eager ? "eager" : "lazy"}" decoding="async" style="object-fit:none;object-position:center">` : ""}
-        <p class="catalog-poster-name">${esc(name)}</p>
       </div>`;
     }
 
@@ -1458,33 +1173,43 @@
       const lines = cartProducts();
       document.getElementById("catalogCartCount").textContent = lines.length;
       const total = lines.reduce((s, { item, line }) => s + (Number(item?.price) || 0) * line.qty, 0);
-      document.getElementById("catalogCartTotal").textContent = lines.length ? `Subtotal produk: ${rp(total)}` : "";
+      document.getElementById("catalogCartTotal").textContent = lines.length ? `Perkiraan total: ${rp(total)}` : "";
       const link = document.getElementById("catalogCartWhatsApp");
       const canSend = lines.length > 0 && lines.every(({ item, line }) => item && Number(item.stock) > 0 && line.qty > 0);
       link.classList.toggle("hidden", !canSend);
       if (!canSend) { link.removeAttribute("href"); return; }
-      const text = ["Halo Surya Jaya Sport, saya mau pesan online:",
-        ...lines.map(({ item, line }, i) => `${i + 1}. ${item.name}${item.code ? ` (${item.code})` : ""} × ${line.qty}${line.note ? ` — ${line.note}` : ""}`),
-        `Subtotal produk: ${rp(total)} (belum termasuk ongkir)`,
-        "Tujuan pengiriman (kecamatan, kota/kabupaten, kode pos): ...",
-        "Mohon konfirmasi stok, ongkir, dan total pembayaran. Terima kasih!"].join("\n");
+      const text = ["Halo Surya Jaya Sport, saya mau cek stok / pesan untuk ambil di toko:",
+        ...lines.map(({ item, line }, i) => {
+          const spec = [item.size, item.color].filter(Boolean).join(" / ");
+          return `${i + 1}. ${item.name}${spec ? ` [${spec}]` : ""}${item.code ? ` (${item.code})` : ""} × ${line.qty}${line.note ? ` — ${line.note}` : ""}`;
+        }),
+        `Perkiraan total: ${rp(total)}. Apakah stoknya tersedia?`].join("\n");
       link.href = CATALOG_WA + "?" + new URLSearchParams({ text });
     }
     function renderCart() {
       const lines = cartProducts();
       document.getElementById("catalogCartLines").innerHTML = lines.length
-        ? lines.map(({ id, line, item }) => `
+        ? lines.map(({ id, line, item }) => {
+          const spec = item ? [item.size, item.color].filter(Boolean).join(" · ") : "";
+          return `
           <div class="rounded-2xl border border-slate-200 p-3.5" data-cart-line="${esc(id)}">
             <div class="flex items-start justify-between gap-2">
-              <div><p class="font-bold">${esc(item?.name || "Barang tidak tersedia")}</p>
-              <p class="text-sm text-slate-600">${esc(item?.code || "")} ${item ? "· " + rp(item.price) : ""}</p></div>
-              <button type="button" data-remove-cart="${esc(id)}" class="px-2.5 py-1.5 rounded-lg text-sm font-bold text-rose-700 hover:bg-rose-50">Hapus</button>
+              <div class="flex items-center gap-2.5 min-w-0">
+                ${item ? productImageMarkup(item, "w-12 h-12 rounded-xl border border-slate-200 shrink-0", 120, false) : ""}
+                <div class="min-w-0">
+                  <p class="font-bold leading-snug">${esc(item?.name || "Barang tidak tersedia")}</p>
+                  ${spec ? `<p class="text-xs font-bold text-amber-300">${esc(spec)}</p>` : ""}
+                  <p class="text-xs text-slate-600">${esc(item?.code || "")} ${item ? "· " + rp(item.price) : ""}</p>
+                </div>
+              </div>
+              <button type="button" data-remove-cart="${esc(id)}" class="px-2.5 py-1.5 rounded-lg text-sm font-bold text-rose-700 hover:bg-rose-50 shrink-0">Hapus</button>
             </div>
             <div class="mt-2.5 grid grid-cols-[5.5rem_minmax(0,1fr)] gap-2">
               <label class="text-xs font-bold text-slate-600">Jumlah<input data-cart-qty type="number" min="1" max="99" value="${line.qty}" class="mt-1 w-full rounded-xl border border-slate-300 p-2 font-bold"></label>
               <label class="text-xs font-bold text-slate-600">Varian / catatan<input data-cart-note maxlength="100" value="${esc(line.note)}" class="mt-1 w-full rounded-xl border border-slate-300 p-2"></label>
             </div>
-          </div>`).join("")
+          </div>`;
+        }).join("")
         : `<p class="rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">Keranjang masih kosong.</p>`;
       updateCartSummary();
     }
@@ -1515,7 +1240,7 @@
       const variants = getProductVariants(item);
       const specLabel = [item.size, item.color].filter(Boolean).join(" / ");
       const msg = `Halo Surya Jaya Sport, saya ingin bertanya tentang ${item.name}${specLabel ? ` (${specLabel})` : ""}${item.code ? ` [${item.code}]` : ""} dengan harga ${rp(item.price)}. Apakah stoknya tersedia?`;
-      document.getElementById("catalogDetailTitle").textContent = displayProductName(item.name);
+      document.getElementById("catalogDetailTitle").textContent = item.name;
       if (typeof window.gtag === "function") {
         window.gtag("event", "view_item", { currency: "IDR", value: Number(item.price || 0), items: [{ item_id: item.code || item.id, item_name: item.name, price: Number(item.price || 0) }] });
       }
@@ -1541,7 +1266,7 @@
           </div>
         </div>` : "";
       document.getElementById("catalogDetailBody").innerHTML = `
-        <div class="rounded-2xl border border-slate-100 bg-white overflow-hidden">${productImageMarkup(item, "aspect-square w-full max-h-[380px] mx-auto", 720, true)}</div>
+        <div class="rounded-2xl border border-slate-100 bg-white overflow-hidden">${productImageMarkup(item, "aspect-[4/3] w-full", 720, true)}</div>
         <p class="text-xs font-mono font-bold text-blue-700">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
         ${variantPickerHtml}
         ${item.description ? `<p class="text-sm text-slate-600 leading-relaxed">${esc(item.description)}</p>` : ""}
@@ -1584,12 +1309,23 @@
       if (!dlg.open) dlg.showModal();
     }
 
-    function displayProductName(name) {
-      return String(name || "")
-        .replace(/\s+/g, " ").trim()
-        .replace(/\bMusic\b/gi, "Musik")
-        .replace(/\bVolleyball\b/gi, "Voli")
-        .replace(/\bBadminton\b/gi, "Bulu Tangkis");
+    function groupCatalogProducts(list) {
+      const groups = new Map();
+      for (const item of list) {
+        const key = variantGroupKey(item);
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(item);
+      }
+      return [...groups.values()].map(variants => {
+        const primary = variants.find(v => v.id === v.variantGroup && Number(v.stock || 0) > 0)
+          || variants.find(v => Number(v.stock || 0) > 0)
+          || variants[0];
+        const totalStock = variants.reduce((s, v) => s + Math.max(0, Number(v.stock || 0)), 0);
+        const prices = variants.map(v => Number(v.price || 0)).filter(p => p > 0);
+        const minPrice = prices.length ? Math.min(...prices) : Number(primary.price || 0);
+        const maxPrice = prices.length ? Math.max(...prices) : minPrice;
+        return { primary, variants, totalStock, minPrice, maxPrice };
+      });
     }
 
     function renderProductCatalog() {
@@ -1605,79 +1341,62 @@
       for (const btn of document.querySelectorAll("#quickCatGrid .quick-cat-btn")) {
         btn.classList.toggle("is-active", btn.dataset.quickCat === category);
       }
-      const brand = document.getElementById("catalogBrand").value;
-      for (const button of document.querySelectorAll("[data-catalog-brand]")) {
-        button.setAttribute("aria-pressed", String(button.dataset.catalogBrand === brand));
-      }
       const sortMode = document.getElementById("catalogSort")?.value || "default";
-      const items = publicCatalog.slice().sort((a, b) => (Number(b.stock || 0) > 0) - (Number(a.stock || 0) > 0));
-      const filtered = items.filter(item => {
-        const hay = [item.name, displayProductName(item.name), item.code, item.size, item.color, item.description].filter(Boolean).join(" ").toLocaleLowerCase("id");
-        const brandText = " " + [item.brand, item.name].filter(Boolean).join(" ").toLowerCase().replace(/[^a-z0-9]+/g, " ") + " ";
-        const brandName = brand.toLowerCase().replace(/-/g, " ");
-        const matchesBrand = !brand || brandText.includes(" " + brandName + " ")
-          || (brand === "Li-Ning" && brandText.includes(" lining "))
-          || (brand === "Powermax" && brandText.includes(" powermaxx "))
-          || (brand === "Ortuseight" && brandText.includes(" ortus "))
-          || (brand === "RS" && brandText.includes(" reinforce speed "))
-          || (brand === "DHS" && brandText.includes(" double happiness "));
-        return matchesBrand && (!q || hay.includes(q)) && matchesCatalogCategory(item, category);
+      const filteredRaw = publicCatalog.filter(item => {
+        const hay = [item.name, item.code, item.size, item.color, item.description].filter(Boolean).join(" ").toLocaleLowerCase("id");
+        return (!q || hay.includes(q)) && matchesCatalogCategory(item, category);
       });
-      if (sortMode === "price-asc") filtered.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
-      else if (sortMode === "price-desc") filtered.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
-      else if (sortMode === "name-asc") filtered.sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "id"));
-      // Satu kartu per grup varian: varian lain dipilih lewat kotak kecil di dalam kartu
-      const shown = [];
-      const seenVariantGroups = new Set();
-      for (const it of filtered) {
-        const gk = variantGroupKey(it);
-        if (seenVariantGroups.has(gk)) continue;
-        seenVariantGroups.add(gk);
-        shown.push(it);
-      }
-      document.getElementById("catalogResultCount").textContent = `${shown.length} produk`;
-      if (!shown.length) {
-        grid.innerHTML = `<div class="catalog-empty"><p role="status">Produk tidak ditemukan. Coba kata kunci lain.</p>${q || brand || category !== "all" ? '<button type="button" class="catalog-reset" data-reset-filters>Lihat semua produk</button>' : ""}</div>`;
+      const grouped = groupCatalogProducts(filteredRaw);
+      grouped.sort((a, b) => (b.totalStock > 0) - (a.totalStock > 0));
+      if (sortMode === "price-asc") grouped.sort((a, b) => a.minPrice - b.minPrice);
+      else if (sortMode === "price-desc") grouped.sort((a, b) => b.maxPrice - a.maxPrice);
+      else if (sortMode === "name-asc") grouped.sort((a, b) => String(a.primary.name || "").localeCompare(String(b.primary.name || ""), "id"));
+
+      document.getElementById("catalogResultCount").textContent = `${grouped.length} produk`;
+      if (!grouped.length) {
+        grid.innerHTML = `<p class="catalog-empty" role="status">Produk tidak ditemukan. Coba kata kunci lain atau pilih kategori "Semua".</p>`;
         return;
       }
-      grid.innerHTML = shown.map((item, index) => {
-        const stockNum = Number(item.stock || 0);
-        const outOfStock = stockNum <= 0;
-        const limited = !outOfStock && stockNum < LOW_STOCK_LIMIT;
+      grid.innerHTML = grouped.map(({ primary: item, variants, totalStock, minPrice, maxPrice }, index) => {
+        const hasVariants = variants.length > 1;
+        const outOfStock = totalStock <= 0;
+        const limited = !outOfStock && totalStock < LOW_STOCK_LIMIT;
+        const priceLabel = minPrice !== maxPrice ? `Mulai ${rp(minPrice)}` : rp(minPrice);
         const msg = outOfStock
           ? `Halo Surya Jaya Sport, apakah stok ${item.name}${item.code ? ` (${item.code})` : ""} akan tersedia lagi?`
-          : `Halo Surya Jaya Sport, saya ingin bertanya tentang ${item.name}${item.code ? ` (${item.code})` : ""} dengan harga ${rp(item.price)}. Apakah stoknya tersedia?`;
+          : `Halo Surya Jaya Sport, saya ingin bertanya tentang ${item.name}${item.code ? ` (${item.code})` : ""} (${priceLabel}). Apakah stoknya tersedia?`;
         const showSenarNote = isSenarBadminton(item);
+        const primaryActionBtn = hasVariants
+          ? `<button type="button" data-view-product="${esc(item.id)}" ${outOfStock ? "disabled" : ""} class="shop-button shop-button-primary"><i class="fa-solid ${outOfStock ? "fa-ban" : "fa-layer-group"}" aria-hidden="true"></i> ${outOfStock ? "Habis" : "Pilih Varian"}</button>`
+          : `<button type="button" data-add-cart="${esc(item.id)}" ${outOfStock ? "disabled" : ""} class="shop-button shop-button-primary"><i class="fa-solid ${outOfStock ? "fa-ban" : "fa-plus"}" aria-hidden="true"></i> ${outOfStock ? "Habis" : "Keranjang"}</button>`;
         return `
         <article class="catalog-card ${outOfStock ? "opacity-85" : ""}">
-          <div class="catalog-card-photo-wrap" data-view-product="${esc(item.id)}" role="button" tabindex="0" aria-label="Lihat detail ${esc(displayProductName(item.name))}">
-            ${catalogPosterMarkup(item, index < 2)}
+          <div class="catalog-card-photo-wrap" data-view-product="${esc(item.id)}" role="button" tabindex="0" aria-label="Lihat detail ${esc(item.name)}">
+            <span class="catalog-card-badge ${outOfStock ? "!bg-rose-600" : limited ? "is-limited" : ""}">${outOfStock ? "Habis" : limited ? "Stok terbatas" : hasVariants ? `${variants.length} Varian` : "Tersedia"}</span>
+            ${productImageMarkup(item, "catalog-card-photo", 360, index < 2)}
           </div>
           <div class="catalog-card-body">
-            <p class="catalog-card-meta">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
-            <h3 class="font-extrabold cursor-pointer hover:text-blue-700" data-view-product="${esc(item.id)}">${esc(displayProductName(item.name))}</h3>
-            ${(() => {
-              const vs = getProductVariants(item);
-              if (vs.length <= 1) return "";
-              return `<div class="flex items-center gap-1.5 pt-1 overflow-x-auto" aria-label="Pilihan varian">
-                ${vs.slice(0, 5).map(v => `<button type="button" data-view-product="${esc(v.id)}" title="${esc(variantShortLabel(v))} · ${rp(v.price)}" class="w-8 h-8 rounded-lg border ${v.id === item.id ? "border-slate-900 ring-1 ring-slate-900" : "border-slate-200 hover:border-blue-500"} bg-white overflow-hidden shrink-0">${productImageMarkup(v, "w-full h-full object-contain", 96, false)}</button>`).join("")}
-                ${vs.length > 5 ? `<span class="text-[10px] font-bold text-slate-500 shrink-0">+${vs.length - 5}</span>` : ""}
-              </div>`;
-            })()}
+            <p class="catalog-card-meta">${esc(hasVariants ? `${item.code || ""} · ${variants.length} pilihan varian` : [item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
+            <h3 class="font-extrabold cursor-pointer hover:text-blue-700" data-view-product="${esc(item.id)}">${esc(item.name)}</h3>
+            ${hasVariants ? `
+              <div class="flex items-center gap-1.5 pt-1 overflow-x-auto" aria-label="Pilihan varian">
+                ${variants.slice(0, 5).map(v => `<button type="button" data-view-product="${esc(v.id)}" title="${esc(variantShortLabel(v))} · ${rp(v.price)}" class="w-9 h-9 rounded-lg border ${v.id === item.id ? "border-amber-300 ring-1 ring-amber-300" : "border-slate-600 hover:border-amber-300"} bg-slate-900 overflow-hidden shrink-0">${productImageMarkup(v, "w-full h-full object-contain", 96, false)}</button>`).join("")}
+                ${variants.length > 5 ? `<button type="button" data-view-product="${esc(item.id)}" class="text-[11px] font-bold text-amber-300 px-1.5 shrink-0">+${variants.length - 5}</button>` : ""}
+              </div>` : ""}
             ${item.description ? `<p class="catalog-card-description line-clamp-2">${esc(item.description)}</p>` : ""}
             ${showSenarNote ? `<p class="senar-service-note"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>${SENAR_SERVICE_NOTE}</span></p>` : ""}
             <div class="catalog-card-facts">
-              <p class="catalog-card-price text-slate-900">${rp(item.price)}</p>
-              <span class="catalog-stock ${outOfStock ? "!bg-rose-50 !text-rose-700" : ""}">${outOfStock ? "Stok habis" : limited ? `Stok terbatas · ${stockNum} pcs` : `Stok ${stockNum} pcs`}</span>
+              <p class="catalog-card-price text-slate-900">${priceLabel}</p>
+              <span class="catalog-stock ${outOfStock ? "!bg-rose-50 !text-rose-700" : ""}">${outOfStock ? "Stok habis" : `Stok ${totalStock} pcs`}</span>
             </div>
             <div class="catalog-card-actions">
-              <button type="button" data-add-cart="${esc(item.id)}" ${outOfStock ? "disabled" : ""} class="shop-button shop-button-primary"><i class="fa-solid ${outOfStock ? "fa-ban" : "fa-plus"}" aria-hidden="true"></i> ${outOfStock ? "Habis" : "Keranjang"}</button>
+              ${primaryActionBtn}
               <a href="${CATALOG_WA}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener noreferrer" class="shop-button shop-button-secondary"><i class="fa-brands fa-whatsapp text-emerald-600" aria-hidden="true"></i> Tanya stok</a>
             </div>
           </div>
         </article>`;
       }).join("");
-      updateCatalogSchema(publicCatalog);
+      updateCatalogSchema(grouped.map(g => g.primary));
     }
 
     function updateCatalogSchema(items) {
@@ -1710,39 +1429,13 @@
     window.addEventListener("resize", syncHeaderHeight);
 
     restoreCart();
-    const heroSearch = document.getElementById("heroSearch");
-    const catalogSearch = document.getElementById("catalogSearch");
-    const allCategories = document.querySelector('#catalogCategory input[value="all"]');
-    document.getElementById("heroSearchForm").addEventListener("submit", event => {
-      event.preventDefault();
-      catalogSearch.value = heroSearch.value.trim();
-      heroSearch.value = catalogSearch.value;
-      allCategories.checked = true;
-      renderProductCatalog();
-      document.getElementById("publicProductCatalog").scrollIntoView({ block: "start" });
-      catalogSearch.focus({ preventScroll: true });
-    });
-    catalogSearch.addEventListener("input", () => {
-      heroSearch.value = catalogSearch.value;
-      renderProductCatalog();
-    });
+    document.getElementById("catalogSearch").addEventListener("input", renderProductCatalog);
     document.getElementById("btnClearCatalogSearch").addEventListener("click", () => {
-      heroSearch.value = catalogSearch.value = "";
-      catalogSearch.focus({ preventScroll: true });
+      document.getElementById("catalogSearch").value = "";
       renderProductCatalog();
     });
     document.getElementById("catalogCategory").addEventListener("change", renderProductCatalog);
     document.getElementById("catalogSort").addEventListener("change", renderProductCatalog);
-    const catalogBrand = document.getElementById("catalogBrand");
-    catalogBrand.addEventListener("change", renderProductCatalog);
-    for (const button of document.querySelectorAll("[data-catalog-brand]")) {
-      button.addEventListener("click", () => {
-        catalogBrand.value = catalogBrand.value === button.dataset.catalogBrand ? "" : button.dataset.catalogBrand;
-        renderProductCatalog();
-        document.getElementById("publicProductCatalog").scrollIntoView({ block: "start" });
-        catalogBrand.focus({ preventScroll: true });
-      });
-    }
     for (const btn of document.querySelectorAll("[data-quick-cat]")) {
       btn.addEventListener("click", () => {
         const val = btn.dataset.quickCat;
@@ -1753,14 +1446,6 @@
       });
     }
     document.getElementById("productCatalogGrid").addEventListener("click", e => {
-      if (e.target.closest("[data-reset-filters]")) {
-        heroSearch.value = catalogSearch.value = "";
-        allCategories.checked = true;
-        catalogBrand.value = "";
-        renderProductCatalog();
-        catalogSearch.focus({ preventScroll: true });
-        return;
-      }
       const btn = e.target.closest("[data-add-cart]");
       if (btn) return addToCatalogCart(btn.dataset.addCart);
       const view = e.target.closest("[data-view-product]");
@@ -1798,10 +1483,7 @@
     const requestedProductId = new URLSearchParams(location.search).get("id");
     const CATALOG_CACHE_KEY = "sjs-public-catalog-cache-v1";
     function applyLoadedCatalog(items) {
-      publicCatalog = Array.isArray(items) ? items.filter(item => {
-        const name = String(item?.name || "").trim().replace(/^\[?[A-Z]{2,5}-\d+\]?\s*[-·:]?\s*/i, "");
-        return !/^baju\s+voli\s+1\s+set\s+deluxe(?:\s*(?:[-–(]|\d).*)?$/i.test(name);
-      }) : [];
+      publicCatalog = Array.isArray(items) ? items : [];
       catalogLoadState = "ready";
       renderProductCatalog();
       updateCartSummary();
@@ -1838,7 +1520,7 @@
       if (!a || typeof window.gtag !== "function") return;
       const card = a.closest(".catalog-card");
       const modal = a.closest("#catalogProductModal");
-      const cart = a.closest("#catalogCart");
+      const cart = a.closest("#catalogCartDialog");
       const productName = card?.querySelector("h3")?.textContent?.trim()
         || (modal ? document.getElementById("catalogDetailTitle")?.textContent?.trim() : "")
         || (cart ? "Keranjang Belanja" : "Umum / Tanya Toko");
