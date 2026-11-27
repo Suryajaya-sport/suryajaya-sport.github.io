@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -2408,8 +2409,7 @@
     }
 
   </style>
-  <style id="sjs-admin-dark-showroom">
-    /* === TEMA FULL DARK PRO SHOWROOM UNTUK ADMIN POS & MODE PELANGGAN FULLSCREEN === */
+  <style id="sjs-admin-dark-v4">
     @media screen {
       :root {
         --dark-bg: #0b0e14;
@@ -2436,7 +2436,7 @@
         color: var(--dark-text) !important;
       }
 
-      /* Header & Sidebar */
+      /* Header */
       .shop-header,
       body.sjs-admin .shop-header {
         background: rgba(11, 14, 20, 0.94) !important;
@@ -2501,699 +2501,389 @@
         color: #0b0e14 !important;
       }
 
-      /* === MODE PELANGGAN FULLSCREEN (90%+ LAYAR UNTUK KATALOG, SIDEBAR COLLAPSE) === */
+      /* Mode Pelanggan Fullscreen + ⚙ System Bar */
       body.sjs-admin.sjs-customer-preview #mainNavigation,
       body.sjs-admin.sjs-customer-preview #adminPastelMenu,
       body.sjs-admin.sjs-customer-preview #sjsAiFab,
-      body.sjs-admin.sjs-customer-preview #sjsAiBox {
+      body.sjs-admin.sjs-customer-preview #sjsAiBox,
+      body.sjs-admin.sjs-customer-preview #btnToggleTabletMode,
+      body.sjs-admin.sjs-customer-preview #adminModeBadge,
+      body.sjs-admin.sjs-customer-preview #syncStatusBadge,
+      body.sjs-admin.sjs-customer-preview #currentDateBadge {
         display: none !important;
+      }
+      body.sjs-admin.sjs-customer-preview .shop-header {
+        border-bottom: 1.5px solid var(--dark-border) !important;
       }
       body.sjs-admin.sjs-customer-preview .shop-main {
         max-width: 82rem !important;
         margin: 0 auto !important;
         padding: 1.15rem 1.15rem 5.5rem !important;
       }
-      body.sjs-admin.sjs-customer-preview .shop-links {
-        display: flex !important;
-      }
+      body.sjs-admin.sjs-customer-preview .shop-links { display: flex !important; }
       @media (max-width: 640px) {
-        body.sjs-admin.sjs-customer-preview .shop-links {
-          display: none !important;
-        }
+        body.sjs-admin.sjs-customer-preview .shop-links { display: none !important; }
       }
 
-      /* Indikator Atas: 👁 Preview Pelanggan + Statistik Mini */
       .customer-preview-banner {
         display: flex;
         flex-wrap: wrap;
         align-items: center;
         justify-content: space-between;
         gap: .65rem;
-        padding: .65rem 1rem;
+        padding: .6rem 1rem;
         border-radius: 1.15rem;
         background: linear-gradient(135deg, rgba(21, 25, 34, 0.96), rgba(30, 36, 51, 0.96));
-        border: 1.5px solid rgba(245, 183, 0, 0.45);
+        border: 1.5px solid rgba(245, 183, 0, 0.42);
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.42);
       }
       .preview-stat-pill {
         display: inline-flex;
         align-items: center;
         gap: .35rem;
-        padding: .26rem .68rem;
+        padding: .24rem .65rem;
         border-radius: 9999px;
         background: var(--dark-bg);
         border: 1px solid var(--dark-border-strong);
-        font-size: .75rem;
+        font-size: .74rem;
         font-weight: 700;
         color: #e2e8f0;
         font-variant-numeric: tabular-nums;
       }
       .preview-stat-pill strong { color: var(--gold); }
 
-      /* Floating Button Pojok Kiri Bawah: ⚙ Admin + Drawer Pintasan 1-Klik */
-      #adminQuickDock {
-        position: fixed;
-        bottom: 18px;
-        left: 18px;
-        z-index: 46;
+      .system-bar-wrap { position: relative; display: inline-flex; align-items: center; }
+      .system-bar-trigger {
+        padding: .35rem .75rem;
+        border-radius: 9999px;
+        background: var(--dark-bg);
+        border: 1px solid var(--dark-border-strong);
+        color: #cbd5e1;
+        font-size: .74rem;
+        font-weight: 800;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+      }
+      .system-bar-trigger:hover { border-color: var(--gold); color: var(--gold); }
+      .system-bar-popover {
+        position: absolute;
+        right: 0;
+        top: calc(100% + 6px);
+        z-index: 48;
+        min-width: 225px;
+        background: var(--dark-card);
+        border: 1.5px solid var(--gold);
+        border-radius: 1rem;
+        padding: .65rem;
+        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65);
+        display: none;
+        flex-direction: column;
+        gap: .45rem;
+      }
+      .system-bar-wrap:hover .system-bar-popover,
+      .system-bar-wrap.is-open .system-bar-popover { display: flex; }
+
+      /* Brand Showcase Logo Grid in Admin Customer Preview */
+      .brand-showcase-section {
+        background: linear-gradient(180deg, rgba(21, 25, 34, 0.96), rgba(14, 18, 27, 0.96));
+        border: 1.5px solid var(--dark-border);
+        border-radius: 1.45rem;
+        padding: 1.1rem;
+      }
+      .brand-logo-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: .6rem;
+      }
+      @media (max-width: 1024px) { .brand-logo-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+      @media (max-width: 640px) { .brand-logo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+      .brand-logo-card {
+        position: relative;
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
-        gap: .5rem;
+        align-items: center;
+        justify-content: center;
+        gap: .35rem;
+        padding: .7rem .5rem .6rem;
+        border-radius: 1rem;
+        background: var(--dark-bg);
+        border: 1.5px solid var(--dark-border);
+        color: #f8fafc;
+        cursor: pointer;
+        text-align: center;
+        transition: transform .14s ease, border-color .14s ease, background .14s ease;
+      }
+      .brand-logo-card:hover { transform: translateY(-2px); border-color: var(--gold); background: var(--dark-elev); }
+      .brand-logo-card.is-active {
+        background: linear-gradient(135deg, rgba(245, 183, 0, 0.16), rgba(30, 36, 51, 0.98));
+        border: 2px solid var(--gold);
+      }
+      .brand-logo-card.is-empty-stock { opacity: .68; }
+      .brand-emblem-box { height: 34px; width: 100%; display: flex; align-items: center; justify-content: center; }
+      .brand-wordmark {
+        font-family: 'Barlow Condensed', sans-serif;
+        font-size: 1.02rem;
+        font-weight: 800;
+        letter-spacing: .04em;
+        text-transform: uppercase;
+        line-height: 1;
+        color: #ffffff;
+      }
+      .brand-logo-card.is-active .brand-wordmark { color: var(--gold); }
+      .brand-sub-label { font-size: .63rem; font-weight: 700; color: var(--dark-muted); }
+      .brand-count-pill {
+        position: absolute;
+        top: .38rem;
+        right: .42rem;
+        padding: .08rem .4rem;
+        border-radius: 9999px;
+        font-size: .63rem;
+        font-weight: 800;
+        background: var(--dark-elev);
+        border: 1px solid var(--dark-border);
+        color: #cbd5e1;
+      }
+      .brand-count-pill.has-stock {
+        background: rgba(245, 183, 0, 0.16);
+        border-color: rgba(245, 183, 0, 0.42);
+        color: var(--gold);
+      }
+
+      /* Floating Dock & Right Stack */
+      #adminQuickDock {
+        position: fixed; bottom: 18px; left: 18px; z-index: 46;
+        display: flex; flex-direction: column; align-items: flex-start; gap: .5rem;
       }
       #adminQuickDock[hidden] { display: none !important; }
       #adminQuickMenu {
-        background: var(--dark-card);
-        border: 1.5px solid var(--gold);
-        border-radius: 1.25rem;
-        padding: .45rem;
-        min-width: 205px;
-        box-shadow: 0 18px 42px rgba(0, 0, 0, 0.65);
-        display: flex;
-        flex-direction: column;
-        gap: .28rem;
+        background: var(--dark-card); border: 1.5px solid var(--gold); border-radius: 1.25rem;
+        padding: .45rem; min-width: 205px; box-shadow: 0 18px 42px rgba(0, 0, 0, 0.65);
+        display: flex; flex-direction: column; gap: .28rem;
       }
       #adminQuickMenu[hidden] { display: none !important; }
       #adminQuickMenu button {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        gap: .6rem;
-        padding: .58rem .85rem;
-        border-radius: .85rem;
-        font-size: .82rem;
-        font-weight: 800;
-        color: var(--dark-text);
-        text-align: left;
-        cursor: pointer;
-        transition: background .14s ease, color .14s ease;
+        width: 100%; display: flex; align-items: center; gap: .6rem; padding: .58rem .85rem;
+        border-radius: .85rem; font-size: .82rem; font-weight: 800; color: var(--dark-text); text-align: left; cursor: pointer;
       }
-      #adminQuickMenu button:hover {
-        background: var(--dark-elev);
-        color: var(--gold);
-      }
-      #adminQuickMenu button.is-return-admin {
-        background: var(--gold);
-        color: #0b0e14;
-        margin-top: .15rem;
-      }
-      #adminQuickMenu button.is-return-admin:hover {
-        background: #ffd029;
-        color: #0b0e14;
-      }
+      #adminQuickMenu button:hover { background: var(--dark-elev); color: var(--gold); }
+      #adminQuickMenu button.is-return-admin { background: var(--gold); color: #0b0e14; margin-top: .15rem; }
       .admin-fab-pill {
-        height: 44px;
-        padding: 0 15px;
-        border-radius: 9999px;
+        height: 44px; padding: 0 15px; border-radius: 9999px;
         background: linear-gradient(135deg, #0b0e14 0%, #1e2433 100%);
-        border: 1.5px solid var(--gold);
-        color: #ffffff;
-        font-size: 13px;
-        font-weight: 800;
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        box-shadow: 0 10px 26px rgba(0, 0, 0, 0.52);
-        cursor: pointer;
-        transition: transform .12s ease, background .14s ease;
+        border: 1.5px solid var(--gold); color: #ffffff; font-size: 13px; font-weight: 800;
+        display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
       }
-      .admin-fab-pill:hover {
-        background: #1e2433;
-        transform: translateY(-1px);
-      }
-      .admin-fab-pill:active { transform: scale(.97); }
       .admin-fab-back {
-        height: 44px;
-        padding: 0 14px;
-        border-radius: 9999px;
-        background: var(--gold);
-        border: none;
-        color: #0b0e14;
-        font-size: 12.5px;
-        font-weight: 800;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        box-shadow: 0 10px 26px rgba(245, 183, 0, 0.32);
-        cursor: pointer;
-        transition: transform .12s ease, filter .14s ease;
+        height: 44px; padding: 0 14px; border-radius: 9999px; background: var(--gold); border: none;
+        color: #0b0e14; font-size: 12.5px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
       }
-      .admin-fab-back:hover { filter: brightness(1.06); transform: translateY(-1px); }
 
-      /* Permukaan Kartu, Panel & Workspace Umum */
-      .workspace-heading,
-      .workspace-record,
-      .sjs-chart-card,
-      .sjs-chart-card.is-dark,
-      .sjs-ratio-card,
-      .kledo-card,
-      .bento-pastel-card,
-      .pos-catalog-pane,
-      .pos-stat-card,
-      .pos-cart-item-card,
-      .pos-fav-pro-card,
-      .catalog-toolbar,
-      .catalog-card,
-      .howto-card,
-      .shop-location,
-      .quick-cat-btn,
-      .checkout-totals,
-      body.sjs-admin .pos-cart-sticky,
-      .shop-main .bg-white,
-      dialog .bg-white,
-      .fixed .bg-white {
+      .preview-floating-right {
+        position: fixed; right: 18px; bottom: 18px; z-index: 46;
+        display: none; flex-direction: column; align-items: flex-end; gap: .55rem;
+      }
+      body.sjs-admin.sjs-customer-preview .preview-floating-right { display: flex; }
+      .preview-cart-fab {
+        padding: .72rem 1.15rem; border-radius: 9999px; background: var(--gold); color: #0b0e14;
+        font-size: .85rem; font-weight: 800; box-shadow: 0 12px 28px rgba(245, 183, 0, 0.35); cursor: pointer;
+      }
+      .preview-wa-fab {
+        padding: .68rem 1.1rem; border-radius: 9999px; background: #16a34a; color: #ffffff;
+        font-size: .84rem; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: .45rem;
+      }
+
+      /* Admin Hover Quick Actions on Product Cards */
+      #viewCatalog .catalog-card { position: relative; }
+      .admin-card-hover-bar {
+        display: none; position: absolute; top: .6rem; left: .6rem; right: .6rem; z-index: 8;
+        background: rgba(11, 14, 20, 0.92); backdrop-filter: blur(8px);
+        border: 1.5px solid var(--gold); border-radius: .95rem; padding: .35rem;
+        grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .28rem;
+      }
+      body.sjs-admin.sjs-customer-preview #viewCatalog .catalog-card:hover .admin-card-hover-bar,
+      body.sjs-admin.sjs-customer-preview #viewCatalog .catalog-card:focus-within .admin-card-hover-bar { display: grid; }
+      .admin-card-hover-bar button {
+        padding: .38rem .2rem; border-radius: .65rem; background: var(--dark-elev);
+        color: #f8fafc; font-size: .7rem; font-weight: 800; cursor: pointer; text-align: center;
+      }
+      .admin-card-hover-bar button:hover { background: var(--gold); color: #0b0e14; }
+      @media (pointer: coarse) {
+        body.sjs-admin.sjs-customer-preview #viewCatalog .admin-card-hover-bar { display: grid; }
+      }
+
+      #viewCatalog .catalog-search-form input {
+        min-height: 52px !important;
+        font-size: 16px !important;
+        border-width: 2px !important;
+      }
+
+      /* Dark Surfaces */
+      .workspace-heading, .workspace-record, .sjs-chart-card, .sjs-chart-card.is-dark,
+      .sjs-ratio-card, .kledo-card, .bento-pastel-card, .pos-catalog-pane, .pos-stat-card,
+      .pos-cart-item-card, .pos-fav-pro-card, .catalog-toolbar, .catalog-card, .howto-card,
+      .shop-location, .quick-cat-btn, .checkout-totals, body.sjs-admin .pos-cart-sticky,
+      .shop-main .bg-white, dialog .bg-white, .fixed .bg-white {
         background: var(--dark-card) !important;
         border-color: var(--dark-border) !important;
         color: var(--dark-text) !important;
       }
 
-      .uikit-row,
-      .bento-pill-track,
-      .pos-cash-box,
-      .pos-received-frame,
-      .shop-main .bg-slate-50,
-      .shop-main .bg-slate-50\/70,
-      .shop-main .bg-slate-50\/80,
-      .shop-main .bg-slate-100,
-      dialog .bg-slate-50,
-      dialog .bg-slate-50\/70,
-      dialog .bg-slate-50\/80,
-      dialog .bg-slate-100,
-      .fixed .bg-slate-50,
-      .fixed .bg-slate-100,
-      .item-edit-drawer {
+      .uikit-row, .bento-pill-track, .pos-cash-box, .pos-received-frame,
+      .shop-main .bg-slate-50, .shop-main .bg-slate-50\/70, .shop-main .bg-slate-50\/80, .shop-main .bg-slate-100,
+      dialog .bg-slate-50, dialog .bg-slate-50\/70, dialog .bg-slate-50\/80, dialog .bg-slate-100,
+      .fixed .bg-slate-50, .fixed .bg-slate-100, .item-edit-drawer {
         background: var(--dark-elev) !important;
         border-color: var(--dark-border) !important;
         color: var(--dark-text) !important;
       }
 
-      /* Panel Tint (Biru, Amber, Hijau, Merah) dalam Dark Mode */
-      .shop-main .bg-blue-50,
-      .shop-main .bg-blue-50\/40,
-      .shop-main .bg-blue-50\/60,
-      .shop-main .bg-blue-50\/70,
-      .shop-main .bg-blue-100,
-      dialog .bg-blue-50,
-      dialog .bg-blue-100 {
-        background: rgba(37, 99, 235, 0.14) !important;
-        border-color: rgba(96, 165, 250, 0.32) !important;
-        color: #dbeafe !important;
+      .shop-main .bg-blue-50, .shop-main .bg-blue-50\/40, .shop-main .bg-blue-50\/60, .shop-main .bg-blue-50\/70, .shop-main .bg-blue-100, dialog .bg-blue-50, dialog .bg-blue-100 {
+        background: rgba(37, 99, 235, 0.14) !important; border-color: rgba(96, 165, 250, 0.32) !important; color: #dbeafe !important;
       }
-      .shop-main .bg-amber-50,
-      .shop-main .bg-amber-50\/40,
-      .shop-main .bg-amber-100,
-      dialog .bg-amber-50,
-      dialog .bg-amber-100 {
-        background: rgba(245, 183, 0, 0.13) !important;
-        border-color: rgba(245, 183, 0, 0.38) !important;
-        color: var(--gold-soft) !important;
+      .shop-main .bg-amber-50, .shop-main .bg-amber-50\/40, .shop-main .bg-amber-100, dialog .bg-amber-50, dialog .bg-amber-100 {
+        background: rgba(245, 183, 0, 0.13) !important; border-color: rgba(245, 183, 0, 0.38) !important; color: var(--gold-soft) !important;
       }
-      .shop-main .bg-emerald-50,
-      .shop-main .bg-emerald-100,
-      dialog .bg-emerald-50,
-      dialog .bg-emerald-100,
-      .fixed .bg-emerald-50 {
-        background: rgba(16, 185, 129, 0.14) !important;
-        border-color: rgba(52, 211, 153, 0.35) !important;
-        color: #a7f3d0 !important;
+      .shop-main .bg-emerald-50, .shop-main .bg-emerald-100, dialog .bg-emerald-50, dialog .bg-emerald-100, .fixed .bg-emerald-50 {
+        background: rgba(16, 185, 129, 0.14) !important; border-color: rgba(52, 211, 153, 0.35) !important; color: #a7f3d0 !important;
       }
-      .shop-main .bg-rose-50,
-      .shop-main .bg-rose-50\/20,
-      .shop-main .bg-rose-50\/80,
-      .shop-main .bg-rose-100,
-      dialog .bg-rose-50,
-      dialog .bg-rose-100,
-      dialog .bg-red-50 {
-        background: rgba(225, 29, 72, 0.15) !important;
-        border-color: rgba(251, 113, 133, 0.38) !important;
-        color: #fecdd3 !important;
+      .shop-main .bg-rose-50, .shop-main .bg-rose-50\/20, .shop-main .bg-rose-50\/80, .shop-main .bg-rose-100, dialog .bg-rose-50, dialog .bg-rose-100, dialog .bg-red-50 {
+        background: rgba(225, 29, 72, 0.15) !important; border-color: rgba(251, 113, 133, 0.38) !important; color: #fecdd3 !important;
       }
-      .shop-main .bg-sky-50,
-      .shop-main .bg-sky-100 {
-        background: rgba(14, 165, 233, 0.15) !important;
-        border-color: rgba(56, 189, 248, 0.35) !important;
-        color: #bae6fd !important;
-      }
-      .shop-main .bg-purple-50,
-      .shop-main .bg-purple-100 {
-        background: rgba(147, 51, 234, 0.16) !important;
-        border-color: rgba(192, 132, 252, 0.35) !important;
-        color: #e9d5ff !important;
-      }
+      .shop-main .bg-sky-50, .shop-main .bg-sky-100 { background: rgba(14, 165, 233, 0.15) !important; border-color: rgba(56, 189, 248, 0.35) !important; color: #bae6fd !important; }
+      .shop-main .bg-purple-50, .shop-main .bg-purple-100 { background: rgba(147, 51, 234, 0.16) !important; border-color: rgba(192, 132, 252, 0.35) !important; color: #e9d5ff !important; }
 
-      /* Tipografi & Kontras Teks */
-      .workspace-heading h2,
-      .workspace-section-title,
-      .kledo-card-val,
-      .pos-stat-val,
-      .catalog-heading h2,
-      .howto-card h3,
-      .shop-location h2,
-      .uikit-row-val,
-      .pos-fav-pro-name,
+      .workspace-heading h2, .workspace-section-title, .kledo-card-val, .pos-stat-val,
+      .catalog-heading h2, .howto-card h3, .shop-location h2, .uikit-row-val, .pos-fav-pro-name,
       .sjs-chart-card.is-dark .workspace-section-title,
-      .shop-main .text-slate-950,
-      .shop-main .text-slate-900,
-      .shop-main .text-slate-800,
-      .shop-main .text-indigo-950,
-      dialog .text-slate-950,
-      dialog .text-slate-900,
-      dialog .text-slate-800,
-      .fixed .text-slate-900,
-      .fixed .text-slate-800 {
+      .shop-main .text-slate-950, .shop-main .text-slate-900, .shop-main .text-slate-800, .shop-main .text-indigo-950,
+      dialog .text-slate-950, dialog .text-slate-900, dialog .text-slate-800, .fixed .text-slate-900, .fixed .text-slate-800 {
         color: var(--dark-text) !important;
       }
-
-      .shop-main .text-slate-700,
-      .shop-main .text-slate-600,
-      dialog .text-slate-700,
-      dialog .text-slate-600,
-      .fixed .text-slate-700,
-      .fixed .text-slate-600,
-      .uikit-row-label,
-      .sjs-ratio-legend {
-        color: #cbd5e1 !important;
-      }
-
-      .shop-main .text-slate-500,
-      .shop-main .text-slate-400,
-      dialog .text-slate-500,
-      dialog .text-slate-400,
-      .kledo-card-title,
-      .kledo-card-sub,
-      .sjs-chart-sub,
-      .catalog-card-description,
-      .howto-card p,
-      .shop-location address {
+      .shop-main .text-slate-700, .shop-main .text-slate-600, dialog .text-slate-700, dialog .text-slate-600,
+      .fixed .text-slate-700, .fixed .text-slate-600, .uikit-row-label, .sjs-ratio-legend { color: #cbd5e1 !important; }
+      .shop-main .text-slate-500, .shop-main .text-slate-400, dialog .text-slate-500, dialog .text-slate-400,
+      .kledo-card-title, .kledo-card-sub, .sjs-chart-sub, .catalog-card-description, .howto-card p, .shop-location address {
         color: var(--dark-muted) !important;
       }
+      .shop-main .text-blue-950, .shop-main .text-blue-900, .shop-main .text-blue-800, .shop-main .text-blue-700,
+      dialog .text-blue-950, dialog .text-blue-900, dialog .text-blue-800, dialog .text-blue-700 { color: #93c5fd !important; }
+      .shop-main .text-emerald-950, .shop-main .text-emerald-900, .shop-main .text-emerald-800, .shop-main .text-emerald-700,
+      dialog .text-emerald-900, dialog .text-emerald-800, dialog .text-emerald-700 { color: var(--emerald) !important; }
+      .shop-main .text-amber-950, .shop-main .text-amber-900, .shop-main .text-amber-800, .shop-main .text-amber-700,
+      dialog .text-amber-950, dialog .text-amber-900 { color: var(--gold) !important; }
+      .shop-main .text-rose-950, .shop-main .text-rose-900, .shop-main .text-rose-800, .shop-main .text-rose-700,
+      .shop-main .text-red-600, dialog .text-rose-900, dialog .text-rose-800, dialog .text-rose-700, dialog .text-red-600 { color: var(--rose) !important; }
+      .shop-main .text-sky-900, .shop-main .text-sky-800 { color: #7dd3fc !important; }
+      .shop-main .text-purple-900, .shop-main .text-purple-800 { color: #d8b4fe !important; }
 
-      .shop-main .text-blue-950,
-      .shop-main .text-blue-900,
-      .shop-main .text-blue-800,
-      .shop-main .text-blue-700,
-      dialog .text-blue-950,
-      dialog .text-blue-900,
-      dialog .text-blue-800,
-      dialog .text-blue-700 {
-        color: #93c5fd !important;
-      }
-      .shop-main .text-emerald-950,
-      .shop-main .text-emerald-900,
-      .shop-main .text-emerald-800,
-      .shop-main .text-emerald-700,
-      dialog .text-emerald-900,
-      dialog .text-emerald-800,
-      dialog .text-emerald-700 {
-        color: var(--emerald) !important;
-      }
-      .shop-main .text-amber-950,
-      .shop-main .text-amber-900,
-      .shop-main .text-amber-800,
-      .shop-main .text-amber-700,
-      dialog .text-amber-950,
-      dialog .text-amber-900 {
-        color: var(--gold) !important;
-      }
-      .shop-main .text-rose-950,
-      .shop-main .text-rose-900,
-      .shop-main .text-rose-800,
-      .shop-main .text-rose-700,
-      .shop-main .text-red-600,
-      dialog .text-rose-900,
-      dialog .text-rose-800,
-      dialog .text-rose-700,
-      dialog .text-red-600 {
-        color: var(--rose) !important;
-      }
-      .shop-main .text-sky-900,
-      .shop-main .text-sky-800 { color: #7dd3fc !important; }
-      .shop-main .text-purple-900,
-      .shop-main .text-purple-800 { color: #d8b4fe !important; }
-
-      /* Border & Divider */
-      .shop-main .border-slate-100,
-      .shop-main .border-slate-200,
-      .shop-main .border-slate-300,
+      .shop-main .border-slate-100, .shop-main .border-slate-200, .shop-main .border-slate-300,
       .shop-main .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
       .shop-main .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
-      dialog .border-slate-100,
-      dialog .border-slate-200,
-      dialog .border-slate-300,
-      .fixed .border-slate-100,
-      .fixed .border-slate-200 {
-        border-color: var(--dark-border) !important;
-      }
+      dialog .border-slate-100, dialog .border-slate-200, dialog .border-slate-300,
+      .fixed .border-slate-100, .fixed .border-slate-200 { border-color: var(--dark-border) !important; }
 
-      /* Input, Select, Textarea */
-      input:not([type="checkbox"]):not([type="radio"]),
-      select,
-      textarea,
-      .pos-shopify-search,
-      .catalog-search-form input {
-        background: var(--dark-bg) !important;
-        color: var(--dark-text) !important;
-        border-color: var(--dark-border-strong) !important;
+      input:not([type="checkbox"]):not([type="radio"]), select, textarea, .pos-shopify-search, .catalog-search-form input {
+        background: var(--dark-bg) !important; color: var(--dark-text) !important; border-color: var(--dark-border-strong) !important;
       }
-      input::placeholder,
-      textarea::placeholder { color: #64748b !important; }
-      input:focus, select:focus, textarea:focus {
-        border-color: var(--gold) !important;
-        box-shadow: 0 0 0 3px rgba(245, 183, 0, 0.16) !important;
-      }
-      .pos-received-legend {
-        background: var(--dark-card) !important;
-        color: var(--dark-muted) !important;
-      }
-      #posCashReceivedInput {
-        background: transparent !important;
-        color: var(--dark-text) !important;
-        border: none !important;
-        box-shadow: none !important;
-      }
-      #posCashReceivedInput::placeholder { color: var(--dark-muted) !important; }
+      input::placeholder, textarea::placeholder { color: #64748b !important; }
+      input:focus, select:focus, textarea:focus { border-color: var(--gold) !important; box-shadow: 0 0 0 3px rgba(245, 183, 0, 0.16) !important; }
+      .pos-received-legend { background: var(--dark-card) !important; color: var(--dark-muted) !important; }
+      #posCashReceivedInput { background: transparent !important; color: var(--dark-text) !important; border: none !important; box-shadow: none !important; }
 
-      /* Tabel */
-      #viewKasir table thead th,
-      #viewInventory table thead th,
-      #viewBooks table thead th,
-      #stockCardDialog table thead th,
-      table thead tr {
-        background: var(--dark-elev) !important;
-        color: #cbd5e1 !important;
-        border-color: var(--dark-border) !important;
+      #viewKasir table thead th, #viewInventory table thead th, #viewBooks table thead th, #stockCardDialog table thead th, table thead tr {
+        background: var(--dark-elev) !important; color: #cbd5e1 !important; border-color: var(--dark-border) !important;
       }
-      #viewKasir table tbody tr:nth-child(even),
-      #viewInventory table tbody tr:nth-child(even),
-      #viewBooks table tbody tr:nth-child(even) {
+      #viewKasir table tbody tr:nth-child(even), #viewInventory table tbody tr:nth-child(even), #viewBooks table tbody tr:nth-child(even) {
         background: rgba(255, 255, 255, 0.02) !important;
       }
-      #viewKasir table tbody tr:hover,
-      #viewInventory table tbody tr:hover,
-      #viewBooks table tbody tr:hover {
+      #viewKasir table tbody tr:hover, #viewInventory table tbody tr:hover, #viewBooks table tbody tr:hover {
         background: rgba(245, 183, 0, 0.07) !important;
       }
       .inv-sort-btn { color: #cbd5e1 !important; }
-      .inv-sort-btn:hover,
-      .inv-sort-btn.is-active {
-        background: rgba(245, 183, 0, 0.16) !important;
-        color: var(--gold) !important;
-      }
+      .inv-sort-btn:hover, .inv-sort-btn.is-active { background: rgba(245, 183, 0, 0.16) !important; color: var(--gold) !important; }
 
-      /* Kasir POS Khusus */
-      .pos-hdr-badge {
-        background: var(--dark-elev) !important;
-        border-color: var(--dark-border-strong) !important;
-        color: var(--dark-text) !important;
-      }
+      .pos-hdr-badge { background: var(--dark-elev) !important; border-color: var(--dark-border-strong) !important; color: var(--dark-text) !important; }
       .pos-hdr-badge strong { color: var(--gold) !important; }
-      .pos-hdr-badge.pos-hdr-warn {
-        background: rgba(225, 29, 72, 0.18) !important;
-        border-color: rgba(251, 113, 133, 0.45) !important;
-        color: #fda4af !important;
-      }
-      .pos-fav-pro-card:hover {
-        border-color: var(--gold) !important;
-        background: var(--dark-elev) !important;
-      }
+      .pos-hdr-badge.pos-hdr-warn { background: rgba(225, 29, 72, 0.18) !important; border-color: rgba(251, 113, 133, 0.45) !important; color: #fda4af !important; }
+      .pos-fav-pro-card:hover { border-color: var(--gold) !important; background: var(--dark-elev) !important; }
       .pos-fav-pro-price { color: var(--gold) !important; }
-      body.sjs-admin #posTotalPayHeroBox {
-        background: linear-gradient(135deg, #0b0e14 0%, #172033 100%) !important;
-        border: 1.5px solid var(--gold) !important;
-      }
-      body.sjs-admin .pos-exact-seg .pay-option-btn {
-        background: var(--dark-elev) !important;
-        border-color: var(--dark-border-strong) !important;
-        color: var(--dark-text) !important;
-      }
-      body.sjs-admin .pos-exact-seg .pay-option-btn:hover {
-        border-color: var(--gold) !important;
-        color: var(--gold) !important;
-      }
-      body.sjs-admin .pos-exact-seg .pay-option-btn[aria-pressed="true"] {
-        background: var(--gold) !important;
-        color: #0b0e14 !important;
-        border-color: var(--gold) !important;
-      }
-      body.sjs-admin .pos-exact-numpad .pos-num-btn {
-        background: var(--dark-elev) !important;
-        border-color: var(--dark-border-strong) !important;
-        color: var(--dark-text) !important;
-      }
-      body.sjs-admin .pos-exact-numpad .pos-num-btn:hover {
-        background: var(--dark-hover) !important;
-        border-color: var(--gold) !important;
-        color: var(--gold) !important;
-      }
-      body.sjs-admin .pos-exact-numpad .pos-cash-pill {
-        background: var(--dark-surface) !important;
-        border-color: var(--dark-border-strong) !important;
-        color: #cbd5e1 !important;
-      }
-      body.sjs-admin .pos-exact-numpad .pos-cash-pill:hover {
-        background: var(--gold) !important;
-        border-color: var(--gold) !important;
-        color: #0b0e14 !important;
-      }
-      body.sjs-admin .pos-exact-numpad .pos-cash-pill[data-cash-exact] {
-        background: rgba(245, 183, 0, 0.16) !important;
-        border-color: var(--gold) !important;
-        color: var(--gold) !important;
-      }
-      body.sjs-admin #posCashChangeBox.is-idle {
-        background: var(--dark-bg) !important;
-        border-color: var(--dark-border) !important;
-      }
+      body.sjs-admin #posTotalPayHeroBox { background: linear-gradient(135deg, #0b0e14 0%, #172033 100%) !important; border: 1.5px solid var(--gold) !important; }
+      body.sjs-admin .pos-exact-seg .pay-option-btn { background: var(--dark-elev) !important; border-color: var(--dark-border-strong) !important; color: var(--dark-text) !important; }
+      body.sjs-admin .pos-exact-seg .pay-option-btn:hover { border-color: var(--gold) !important; color: var(--gold) !important; }
+      body.sjs-admin .pos-exact-seg .pay-option-btn[aria-pressed="true"] { background: var(--gold) !important; color: #0b0e14 !important; border-color: var(--gold) !important; }
+      body.sjs-admin .pos-exact-numpad .pos-num-btn { background: var(--dark-elev) !important; border-color: var(--dark-border-strong) !important; color: var(--dark-text) !important; }
+      body.sjs-admin .pos-exact-numpad .pos-num-btn:hover { background: var(--dark-hover) !important; border-color: var(--gold) !important; color: var(--gold) !important; }
+      body.sjs-admin .pos-exact-numpad .pos-cash-pill { background: var(--dark-surface) !important; border-color: var(--dark-border-strong) !important; color: #cbd5e1 !important; }
+      body.sjs-admin .pos-exact-numpad .pos-cash-pill:hover { background: var(--gold) !important; border-color: var(--gold) !important; color: #0b0e14 !important; }
+      body.sjs-admin .pos-exact-numpad .pos-cash-pill[data-cash-exact] { background: rgba(245, 183, 0, 0.16) !important; border-color: var(--gold) !important; color: var(--gold) !important; }
+      body.sjs-admin #posCashChangeBox.is-idle { background: var(--dark-bg) !important; border-color: var(--dark-border) !important; }
       body.sjs-admin #posCashChangeBox.is-idle span { color: var(--dark-muted) !important; }
       body.sjs-admin #posCashChangeBox.is-idle strong { color: var(--dark-text) !important; }
-      body.sjs-admin #posCashChangeBox.is-change {
-        background: rgba(16, 185, 129, 0.18) !important;
-        border-color: #10b981 !important;
-      }
+      body.sjs-admin #posCashChangeBox.is-change { background: rgba(16, 185, 129, 0.18) !important; border-color: #10b981 !important; }
       body.sjs-admin #posCashChangeBox.is-change span { color: #6ee7b7 !important; }
       body.sjs-admin #posCashChangeBox.is-change strong { color: #34d399 !important; }
-      body.sjs-admin #posCashChangeBox.is-short {
-        background: rgba(225, 29, 72, 0.18) !important;
-        border-color: #f43f5e !important;
-      }
+      body.sjs-admin #posCashChangeBox.is-short { background: rgba(225, 29, 72, 0.18) !important; border-color: #f43f5e !important; }
       body.sjs-admin #posCashChangeBox.is-short span { color: #fda4af !important; }
       body.sjs-admin #posCashChangeBox.is-short strong { color: #fb7185 !important; }
-      body.sjs-admin #posSaveActionsSticky {
-        background: var(--dark-card) !important;
-        border-top-color: var(--dark-border) !important;
-      }
-      body.sjs-admin #btnSaveAndPrintTx {
-        background: var(--gold) !important;
-        color: #0b0e14 !important;
-        border-color: var(--gold) !important;
-      }
+      body.sjs-admin #posSaveActionsSticky { background: var(--dark-card) !important; border-top-color: var(--dark-border) !important; }
+      body.sjs-admin #btnSaveAndPrintTx { background: var(--gold) !important; color: #0b0e14 !important; border-color: var(--gold) !important; }
       body.sjs-admin #btnSaveAndPrintTx i { color: #0b0e14 !important; }
-      body.sjs-admin #btnSaveTx {
-        background: var(--dark-elev) !important;
-        border-color: var(--dark-border-strong) !important;
-        color: var(--dark-text) !important;
-      }
-      body.sjs-admin #btnSaveTx:hover:not(:disabled) {
-        background: var(--dark-hover) !important;
-        border-color: var(--gold) !important;
-        color: var(--gold) !important;
-      }
-      body.sjs-admin #btnSaveTx:disabled,
-      body.sjs-admin #btnSaveTx.is-disabled {
-        background: var(--dark-surface) !important;
-        border-color: var(--dark-border) !important;
-        color: #64748b !important;
-      }
-      .pos-svc-chip {
-        background: var(--dark-card) !important;
-        border-color: var(--dark-border-strong) !important;
-        color: #e2e8f0 !important;
-      }
-      .pos-svc-chip:hover {
-        border-color: var(--gold) !important;
-        color: var(--gold) !important;
-      }
-      .btn-inline-minus, .btn-inline-plus, .btn-drawer-minus, .btn-drawer-plus {
-        background: var(--dark-elev) !important;
-        color: var(--dark-text) !important;
-      }
-      .item-inline-qty, .item-drawer-qty {
-        color: var(--dark-text) !important;
-        border-color: var(--dark-border-strong) !important;
-      }
+      body.sjs-admin #btnSaveTx { background: var(--dark-elev) !important; border-color: var(--dark-border-strong) !important; color: var(--dark-text) !important; }
+      body.sjs-admin #btnSaveTx:hover:not(:disabled) { background: var(--dark-hover) !important; border-color: var(--gold) !important; color: var(--gold) !important; }
+      body.sjs-admin #btnSaveTx:disabled, body.sjs-admin #btnSaveTx.is-disabled { background: var(--dark-surface) !important; border-color: var(--dark-border) !important; color: #64748b !important; }
+      .pos-svc-chip { background: var(--dark-card) !important; border-color: var(--dark-border-strong) !important; color: #e2e8f0 !important; }
+      .pos-svc-chip:hover { border-color: var(--gold) !important; color: var(--gold) !important; }
+      .btn-inline-minus, .btn-inline-plus, .btn-drawer-minus, .btn-drawer-plus { background: var(--dark-elev) !important; color: var(--dark-text) !important; }
+      .item-inline-qty, .item-drawer-qty { color: var(--dark-text) !important; border-color: var(--dark-border-strong) !important; }
 
-      /* Tombol Umum & Pill */
-      .shop-button-primary {
-        background: var(--gold) !important;
-        color: #0b0e14 !important;
-        border: none !important;
-        box-shadow: 0 6px 16px rgba(245, 183, 0, 0.22) !important;
-      }
-      .shop-button-secondary {
-        background: var(--dark-elev) !important;
-        color: var(--dark-text) !important;
-        border: 1px solid var(--dark-border-strong) !important;
-      }
-      .shop-button-secondary:hover:not(:disabled) {
-        background: var(--dark-hover) !important;
-        border-color: var(--gold) !important;
-      }
-      .sjs-chart-pill {
-        background: var(--dark-elev) !important;
-        border-color: var(--dark-border-strong) !important;
-        color: var(--gold) !important;
-      }
-      .uikit-bar-track,
-      .sjs-ratio-track {
-        background: var(--dark-bg) !important;
-        border-color: var(--dark-border) !important;
-      }
-      .stock-indicator {
-        background: rgba(16, 185, 129, 0.16) !important;
-        color: var(--emerald) !important;
-      }
-      .stock-indicator.is-low {
-        background: rgba(245, 183, 0, 0.16) !important;
-        color: var(--gold) !important;
-      }
-      .stock-indicator.is-empty {
-        background: rgba(225, 29, 72, 0.18) !important;
-        color: var(--rose) !important;
-      }
+      .shop-button-primary { background: var(--gold) !important; color: #0b0e14 !important; border: none !important; box-shadow: 0 6px 16px rgba(245, 183, 0, 0.22) !important; }
+      .shop-button-secondary { background: var(--dark-elev) !important; color: var(--dark-text) !important; border: 1px solid var(--dark-border-strong) !important; }
+      .shop-button-secondary:hover:not(:disabled) { background: var(--dark-hover) !important; border-color: var(--gold) !important; }
+      .sjs-chart-pill { background: var(--dark-elev) !important; border-color: var(--dark-border-strong) !important; color: var(--gold) !important; }
+      .uikit-bar-track, .sjs-ratio-track { background: var(--dark-bg) !important; border-color: var(--dark-border) !important; }
+      .stock-indicator { background: rgba(16, 185, 129, 0.16) !important; color: var(--emerald) !important; }
+      .stock-indicator.is-low { background: rgba(245, 183, 0, 0.16) !important; color: var(--gold) !important; }
+      .stock-indicator.is-empty { background: rgba(225, 29, 72, 0.18) !important; color: var(--rose) !important; }
 
-      /* Grafik SVG agar teks & garis tetap tajam di Dark Mode */
-      .sjs-chart-card svg text[fill="#0f2557"],
-      .kledo-card svg text[fill="#0f2557"],
-      .sjs-chart-card svg text[fill="#334155"],
-      .sjs-chart-card svg text[fill="#475569"] {
-        fill: #e2e8f0 !important;
-      }
-      .sjs-chart-card svg text[fill="#64748b"],
-      .kledo-card svg text[fill="#64748b"] {
-        fill: #94a3b8 !important;
-      }
-      .sjs-chart-card svg text[fill="#1d4ed8"] {
-        fill: #60a5fa !important;
-      }
-      .sjs-chart-card svg text[fill="#b45309"] {
-        fill: #facc15 !important;
-      }
-      .sjs-chart-card svg circle[stroke="#f1f5f9"],
-      .sjs-chart-card svg path[stroke="#f1f5f9"],
-      .sjs-chart-card svg line[stroke="#e2e8f0"],
-      .sjs-chart-card svg line[stroke="#cbd5e1"],
-      .sjs-chart-card svg line[stroke="#f1f5f9"],
-      .kledo-card svg line[stroke="#e2e8f0"] {
-        stroke: #262d3d !important;
-      }
-      .sjs-chart-card svg circle[stroke="#e2e8f0"] {
-        stroke: #334155 !important;
-      }
-      .sjs-chart-card svg rect[fill="#f1f5f9"] {
-        fill: #1e2433 !important;
-      }
+      .sjs-chart-card svg text[fill="#0f2557"], .kledo-card svg text[fill="#0f2557"],
+      .sjs-chart-card svg text[fill="#334155"], .sjs-chart-card svg text[fill="#475569"] { fill: #e2e8f0 !important; }
+      .sjs-chart-card svg text[fill="#64748b"], .kledo-card svg text[fill="#64748b"] { fill: #94a3b8 !important; }
+      .sjs-chart-card svg text[fill="#1d4ed8"] { fill: #60a5fa !important; }
+      .sjs-chart-card svg text[fill="#b45309"] { fill: #facc15 !important; }
+      .sjs-chart-card svg circle[stroke="#f1f5f9"], .sjs-chart-card svg path[stroke="#f1f5f9"],
+      .sjs-chart-card svg line[stroke="#e2e8f0"], .sjs-chart-card svg line[stroke="#cbd5e1"],
+      .sjs-chart-card svg line[stroke="#f1f5f9"], .kledo-card svg line[stroke="#e2e8f0"] { stroke: #262d3d !important; }
+      .sjs-chart-card svg circle[stroke="#e2e8f0"] { stroke: #334155 !important; }
+      .sjs-chart-card svg rect[fill="#f1f5f9"] { fill: #1e2433 !important; }
 
-      /* Mode Pelanggan di dalam Admin (1:1 Full-Bleed Dark Showroom) */
-      #viewCatalog .catalog-card-photo-wrap {
-        padding: 0 !important;
-        background: var(--dark-bg) !important;
-        border-bottom: 1px solid var(--dark-border) !important;
-      }
-      #viewCatalog .catalog-card-photo {
-        aspect-ratio: 1 / 1 !important;
-        border-radius: 0 !important;
-        background: var(--dark-bg) !important;
-      }
-      #viewCatalog .catalog-card-photo img {
-        background: var(--dark-bg) !important;
-        object-fit: cover !important;
-      }
-      #viewCatalog .catalog-card-meta {
-        background: var(--dark-elev) !important;
-        color: var(--dark-muted) !important;
-      }
-      #viewCatalog .catalog-card-price {
-        color: var(--gold) !important;
-      }
-      #viewCatalog .catalog-stock {
-        background: rgba(16, 185, 129, 0.15) !important;
-        color: var(--emerald) !important;
-      }
-      #viewCatalog .catalog-categories label span {
-        background: var(--dark-elev) !important;
-        color: #cbd5e1 !important;
-      }
-      #viewCatalog .catalog-categories label input:checked + span {
-        background: var(--gold) !important;
-        color: #0b0e14 !important;
-      }
-      #viewCatalog .quick-cat-btn.is-active {
-        background: linear-gradient(135deg, #1b2232, #0f172a) !important;
-        border-color: var(--gold) !important;
-      }
+      #viewCatalog .catalog-card-photo-wrap { padding: 0 !important; background: var(--dark-bg) !important; border-bottom: 1px solid var(--dark-border) !important; }
+      #viewCatalog .catalog-card-photo { aspect-ratio: 1 / 1 !important; border-radius: 0 !important; background: var(--dark-bg) !important; }
+      #viewCatalog .catalog-card-photo img { background: var(--dark-bg) !important; object-fit: cover !important; }
+      #viewCatalog .catalog-card-meta { background: var(--dark-elev) !important; color: var(--dark-muted) !important; }
+      #viewCatalog .catalog-card-price { color: var(--gold) !important; }
+      #viewCatalog .catalog-stock { background: rgba(16, 185, 129, 0.15) !important; color: var(--emerald) !important; }
+      #viewCatalog .catalog-categories label span { background: var(--dark-elev) !important; color: #cbd5e1 !important; }
+      #viewCatalog .catalog-categories label input:checked + span { background: var(--gold) !important; color: #0b0e14 !important; }
+      #viewCatalog .quick-cat-btn.is-active { background: linear-gradient(135deg, #1b2232, #0f172a) !important; border-color: var(--gold) !important; }
       #viewCatalog .quick-cat-btn.is-active strong { color: var(--gold) !important; }
-      #viewCatalog .quick-cat-btn .quick-cat-icon {
-        background: var(--dark-elev) !important;
-        color: var(--gold) !important;
-      }
-      #viewCatalog .senar-service-note {
-        background: rgba(245, 183, 0, 0.12) !important;
-        border-color: rgba(245, 183, 0, 0.35) !important;
-        color: var(--gold-soft) !important;
-      }
+      #viewCatalog .quick-cat-btn .quick-cat-icon { background: var(--dark-elev) !important; color: var(--gold) !important; }
+      #viewCatalog .senar-service-note { background: rgba(245, 183, 0, 0.12) !important; border-color: rgba(245, 183, 0, 0.35) !important; color: var(--gold-soft) !important; }
 
-      /* Dialog, Modal & Asisten Toko */
-      dialog,
-      .workspace-dialog,
-      #sjsAiBox {
-        background: var(--dark-card) !important;
-        border-color: var(--dark-border-strong) !important;
-        color: var(--dark-text) !important;
-      }
-      .workspace-dialog-heading,
-      #sjsAiBox > div:first-child {
-        background: linear-gradient(135deg, #0b0e14, #172033) !important;
-        border-bottom: 1.5px solid var(--gold) !important;
-      }
-      #invEntryFooter {
-        background: var(--dark-card) !important;
-        border-top-color: var(--dark-border) !important;
-      }
-      #sjsAssistantShortcuts {
-        background: var(--dark-surface) !important;
-        border-bottom-color: var(--dark-border) !important;
-      }
-      #sjsAiChatLog {
-        background: var(--dark-bg) !important;
-      }
-      #sjsAiChatLog > div.bg-white {
-        background: var(--dark-elev) !important;
-        border-color: var(--dark-border-strong) !important;
-        color: var(--dark-text) !important;
-      }
-      #sjsAssistantForm {
-        background: var(--dark-card) !important;
-        border-top-color: var(--dark-border) !important;
-      }
-      #sjsAiSendBtn {
-        background: var(--gold) !important;
-        color: #0b0e14 !important;
-      }
+      dialog, .workspace-dialog, #sjsAiBox { background: var(--dark-card) !important; border-color: var(--dark-border-strong) !important; color: var(--dark-text) !important; }
+      .workspace-dialog-heading, #sjsAiBox > div:first-child { background: linear-gradient(135deg, #0b0e14, #172033) !important; border-bottom: 1.5px solid var(--gold) !important; }
+      #invEntryFooter { background: var(--dark-card) !important; border-top-color: var(--dark-border) !important; }
+      #sjsAssistantShortcuts { background: var(--dark-surface) !important; border-bottom-color: var(--dark-border) !important; }
+      #sjsAiChatLog { background: var(--dark-bg) !important; }
+      #sjsAiChatLog > div.bg-white { background: var(--dark-elev) !important; border-color: var(--dark-border-strong) !important; color: var(--dark-text) !important; }
+      #sjsAssistantForm { background: var(--dark-card) !important; border-top-color: var(--dark-border) !important; }
+      #sjsAiSendBtn { background: var(--gold) !important; color: #0b0e14 !important; }
 
-      /* Footer */
-      .shop-footer {
-        background: #07090e !important;
-        border-top-color: var(--dark-border) !important;
-        color: var(--dark-muted) !important;
-      }
+      .shop-footer { background: #07090e !important; border-top-color: var(--dark-border) !important; color: var(--dark-muted) !important; }
       .shop-footer strong { color: var(--dark-text) !important; }
 
-      /* Pertahankan Latar Putih Bersih pada QR, QRIS, Stiker agar mudah di-scan */
-      #qrisCodeCanvas,
-      #invCodeQrPreview,
-      #niimbotPreviewCanvas {
-        background: #ffffff !important;
-      }
+      #qrisCodeCanvas, #invCodeQrPreview, #niimbotPreviewCanvas { background: #ffffff !important; }
     }
   </style>
 </head>
@@ -3429,9 +3119,28 @@
           <span class="preview-stat-pill"><strong id="previewStatCart">0</strong> Keranjang</span>
           <span class="preview-stat-pill text-amber-300">Admin View</span>
         </div>
-        <button type="button" id="btnBannerBackToAdmin" class="shop-button shop-button-primary !min-h-9 !py-1.5 !px-3.5 !text-xs">
-          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Kembali ke Admin
-        </button>
+        <div class="flex items-center gap-2">
+          <div class="system-bar-wrap" id="systemBarWrap">
+            <button type="button" id="btnToggleSystemBar" class="system-bar-trigger" aria-label="Status Sistem Admin">
+              <span>⚙ System Bar</span>
+            </button>
+            <div class="system-bar-popover" role="region" aria-label="Info Sistem">
+              <div class="flex items-center justify-between text-xs font-bold text-emerald-400">
+                <span><i class="fa-solid fa-unlock-keyhole mr-1" aria-hidden="true"></i> Admin Aktif</span>
+                <span id="sysBarCloudText" class="text-[11px] text-slate-300">Cloud Online</span>
+              </div>
+              <button type="button" id="btnSysBarTablet" class="w-full py-1.5 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-left text-xs font-bold text-amber-300">
+                <i class="fa-solid fa-tablet-screen-button mr-1.5" aria-hidden="true"></i><span id="sysBarTabletText">Mode Tablet</span>
+              </button>
+              <button type="button" id="btnSysBarAuthModal" class="w-full py-1.5 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-left text-xs font-bold text-slate-200">
+                <i class="fa-solid fa-key mr-1.5" aria-hidden="true"></i>Pengaturan Akun Pemilik
+              </button>
+            </div>
+          </div>
+          <button type="button" id="btnBannerBackToAdmin" class="shop-button shop-button-primary !min-h-9 !py-1.5 !px-3.5 !text-xs">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Kembali ke Admin
+          </button>
+        </div>
       </div>
       <div class="shop-hero">
         <div class="shop-hero-content">
@@ -3472,6 +3181,17 @@
           </button>
         </div>
       </div>
+
+      <section id="brand-pilihan" class="brand-showcase-section flex flex-col gap-3.5" aria-labelledby="brandShowcaseTitle">
+        <div class="catalog-heading">
+          <div>
+            <h2 id="brandShowcaseTitle">🏷️ Cari Berdasarkan Brand Resmi</h2>
+            <span class="text-xs font-bold text-slate-400">Klik logo brand untuk langsung menyaring produk merek tersebut</span>
+          </div>
+          <button type="button" id="btnResetBrandFilter" class="hidden text-xs font-extrabold text-amber-300 hover:underline">✕ Tampilkan semua brand</button>
+        </div>
+        <div id="brandLogoGrid" class="brand-logo-grid"></div>
+      </section>
 
       <section id="kategori-unggulan" class="flex flex-col gap-3" aria-label="Menu kategori cepat">
         <div class="catalog-heading">
@@ -3517,7 +3237,7 @@
           <form id="catalogSearchForm" role="search" autocomplete="off" class="catalog-search-form">
             <label for="catalogSearch" class="sr-only">Cari produk katalog</label>
             <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-            <input type="search" id="catalogSearch" placeholder="Cari nama produk, merek, ukuran, atau kode (mis. senar, raket, SJS-001)..." autocomplete="off" spellcheck="false">
+            <input type="search" id="catalogSearch" placeholder="🔍 Cari raket, senar, gitar, bola futsal, atau klik logo brand..." autocomplete="off" spellcheck="false">
             <button type="button" id="btnClearCatalogSearch" class="hidden" aria-label="Hapus pencarian"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
           </form>
           <div class="catalog-filter-row">
@@ -4595,6 +4315,10 @@
               <label for="invDescription" class="block text-sm font-bold text-slate-800 mb-1">Deskripsi untuk pelanggan</label>
               <textarea id="invDescription" maxlength="400" rows="2" placeholder="Keterangan singkat produk yang tampil di katalog..." class="w-full rounded-xl border border-slate-300 px-3.5 py-2 placeholder:text-slate-400"></textarea>
             </div>
+            <label class="flex items-center gap-2.5 rounded-xl border border-amber-300 bg-amber-50 px-3.5 py-2.5 text-xs font-extrabold text-amber-950 cursor-pointer">
+              <input type="checkbox" id="invFeatured" class="h-4 w-4 accent-amber-500">
+              <span>⭐ Tampilkan sebagai Produk Unggulan (naik ke baris pertama katalog &amp; bagian Produk Unggulan)</span>
+            </label>
           </section>
 
           <!-- SECTION 2: MEDIA RINGKAS (PANEL PRATINJAU MUNCUL SAAT FOTO DIPILIH) -->
@@ -4977,7 +4701,7 @@
     <i class="fa-brands fa-whatsapp text-lg" aria-hidden="true"></i><span>Chat WhatsApp</span>
   </a>
 
-  <!-- FLOATING ADMIN DOCK (SAAT MODE PELANGGAN AKTIF) -->
+  <!-- FLOATING ADMIN DOCK POJOK KIRI BAWAH (SAAT MODE PELANGGAN AKTIF) -->
   <div id="adminQuickDock" hidden class="no-print" aria-label="Menu cepat kembali ke admin">
     <div id="adminQuickMenu" hidden role="menu">
       <button type="button" data-quick-admin="kasir"><i class="fa-solid fa-cash-register text-amber-400 w-4 text-center" aria-hidden="true"></i><span>Kasir</span></button>
@@ -4994,6 +4718,16 @@
         <i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Kembali ke Admin</span>
       </button>
     </div>
+  </div>
+
+  <!-- FLOATING KERANJANG & WA POJOK KANAN BAWAH (SAAT MODE PELANGGAN AKTIF) -->
+  <div class="preview-floating-right no-print">
+    <button type="button" id="previewFloatingCartBtn" class="preview-cart-fab">
+      🛒 Keranjang (<strong id="previewFloatingCartCount">0</strong>)
+    </button>
+    <a href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer" class="preview-wa-fab">
+      <i class="fa-brands fa-whatsapp text-base" aria-hidden="true"></i><span>💬 Chat WA</span>
+    </a>
   </div>
 
   <!-- ASISTEN TOKO (LOKAL) -->
@@ -5037,6 +4771,8 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261127-3"></script>
+  <script type="module" src="./admin.js?v=20261127-5"></script>
 </body>
 </html>
+
+Displaying admin-dark-v4.html.
