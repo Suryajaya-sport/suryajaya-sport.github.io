@@ -451,6 +451,10 @@
     .shop-map-frame iframe { width: 100%; height: 100%; min-height: 260px; border: 0; display: block; }
 
     .floating-cart-bar { position: fixed; bottom: 1.15rem; left: 50%; transform: translateX(-50%); z-index: 40; display: flex; align-items: center; gap: .6rem; }
+    @media (max-width: 767px) {
+      .floating-cart-bar { position: static; transform: none; margin-block: .5rem 1rem; }
+      .floating-cart-bar .shop-button { min-height: 44px; }
+    }
     .floating-wa-btn { position: fixed; right: 1.15rem; bottom: 1.15rem; z-index: 40; display: inline-flex; align-items: center; gap: .5rem; padding: .75rem 1.15rem; border-radius: 9999px; background: #16a34a; color: #fff; font-weight: 800; font-size: .88rem; text-decoration: none; box-shadow: 0 10px 24px rgba(22,163,74,.35); }
     .floating-wa-btn:hover { background: #15803d; }
 
@@ -794,7 +798,6 @@
 
     <section class="shop-hero" aria-labelledby="catalogPageTitle">
       <div class="shop-hero-content">
-        <p class="shop-eyebrow"><i class="fa-solid fa-clock" aria-hidden="true"></i> Jl. Ahmad Yani 37, Tanjung Redeb, Berau · Buka Setiap Hari 08.00–21.00 WITA</p>
         <h2 id="catalogPageTitle">Perlengkapan Olahraga<br><span class="shop-hero-accent">&amp; Alat Musik Berau</span></h2>
         <p class="text-[15px] text-slate-200 leading-relaxed">Toko raket badminton Berau, bola futsal Tanjung Redeb, catur, hingga senar dan aksesori gitar dengan harga jelas dan stok langsung dari toko kami.</p>
         <div class="hero-trust-row">
@@ -817,7 +820,7 @@
       <div class="hero-feature-grid" aria-label="Pilih kategori cepat">
         <button type="button" class="hero-feature-card" data-quick-cat="badminton">
           <i class="fa-solid fa-feather-pointed" aria-hidden="true"></i>
-          <strong>Badminton</strong>
+          <strong>Bulu Tangkis</strong>
           <span>Raket, kok, senar &amp; grip</span>
         </button>
         <button type="button" class="hero-feature-card" data-quick-cat="ball">
@@ -882,7 +885,7 @@
         </button>
         <button type="button" class="quick-cat-btn" data-quick-cat="badminton">
           <img src="cat-badminton-150.webp" srcset="cat-badminton-150.webp 1x, cat-badminton-150.webp 2x, cat-badminton.webp 3x" alt="" width="76" height="76" class="quick-cat-thumb" loading="lazy" decoding="async">
-          <strong>Badminton</strong>
+          <strong>Bulu Tangkis</strong>
           <span>Raket, kok, senar, grip</span>
         </button>
         <button type="button" class="quick-cat-btn" data-quick-cat="ball">
@@ -923,7 +926,7 @@
         <div class="catalog-filter-row">
           <div id="catalogCategory" class="catalog-categories" role="radiogroup" aria-label="Kategori produk">
             <label><input type="radio" name="catalogCategory" value="all" checked class="sr-only"><span>Semua</span></label>
-            <label><input type="radio" name="catalogCategory" value="badminton" class="sr-only"><span>Badminton</span></label>
+            <label><input type="radio" name="catalogCategory" value="badminton" class="sr-only"><span>Bulu Tangkis</span></label>
             <label><input type="radio" name="catalogCategory" value="ball" class="sr-only"><span>Futsal &amp; Bola</span></label>
             <label><input type="radio" name="catalogCategory" value="chess" class="sr-only"><span>Catur</span></label>
             <label><input type="radio" name="catalogCategory" value="music" class="sr-only"><span>Musik</span></label>
@@ -939,6 +942,13 @@
             <p id="catalogResultCount" aria-live="polite"></p>
           </div>
         </div>
+      </div>
+      <div class="floating-cart-bar">
+        <button type="button" id="openCatalogCart" class="shop-button shop-button-primary !rounded-full !px-5 shadow-xl">
+          <i class="fa-solid fa-basket-shopping" aria-hidden="true"></i>
+          <span>Keranjang</span>
+          <span id="catalogCartCount" class="rounded-full bg-amber-400 px-2 py-0.5 text-xs font-extrabold text-slate-950">0</span>
+        </button>
       </div>
       <div id="productCatalogGrid" class="catalog-grid"><p class="catalog-empty" role="status">Katalog sedang dimuat…</p></div>
     </section>
@@ -1011,13 +1021,6 @@
     <p class="mt-1.5"><a href="kebijakan-privasi.html" class="font-bold text-blue-700 underline">Kebijakan Privasi</a></p>
   </footer>
 
-  <div class="floating-cart-bar">
-    <button type="button" id="openCatalogCart" class="shop-button shop-button-primary !rounded-full !px-5 shadow-xl">
-      <i class="fa-solid fa-basket-shopping" aria-hidden="true"></i>
-      <span>Keranjang</span>
-      <span id="catalogCartCount" class="rounded-full bg-amber-400 px-2 py-0.5 text-xs font-extrabold text-slate-950">0</span>
-    </button>
-  </div>
   <a href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer" class="floating-wa-btn" aria-label="Chat WhatsApp Surya Jaya Sport">
     <i class="fa-brands fa-whatsapp text-xl" aria-hidden="true"></i>
     <span>WhatsApp</span>
@@ -1272,7 +1275,7 @@
       const variants = getProductVariants(item);
       const specLabel = [item.size, item.color].filter(Boolean).join(" / ");
       const msg = `Halo Surya Jaya Sport, saya ingin bertanya tentang ${item.name}${specLabel ? ` (${specLabel})` : ""}${item.code ? ` [${item.code}]` : ""} dengan harga ${rp(item.price)}. Apakah stoknya tersedia?`;
-      document.getElementById("catalogDetailTitle").textContent = item.name;
+      document.getElementById("catalogDetailTitle").textContent = displayProductName(item.name);
       if (typeof window.gtag === "function") {
         window.gtag("event", "view_item", { currency: "IDR", value: Number(item.price || 0), items: [{ item_id: item.code || item.id, item_name: item.name, price: Number(item.price || 0) }] });
       }
@@ -1341,6 +1344,14 @@
       if (!dlg.open) dlg.showModal();
     }
 
+    function displayProductName(name) {
+      return String(name || "")
+        .replace(/\s+/g, " ").trim()
+        .replace(/\bMusic\b/gi, "Musik")
+        .replace(/\bVolleyball\b/gi, "Voli")
+        .replace(/\bBadminton\b/gi, "Bulu Tangkis");
+    }
+
     function renderProductCatalog() {
       const grid = document.getElementById("productCatalogGrid");
       const search = document.getElementById("catalogSearch");
@@ -1357,7 +1368,7 @@
       const sortMode = document.getElementById("catalogSort")?.value || "default";
       const items = publicCatalog.slice().sort((a, b) => (Number(b.stock || 0) > 0) - (Number(a.stock || 0) > 0));
       const filtered = items.filter(item => {
-        const hay = [item.name, item.code, item.size, item.color, item.description].filter(Boolean).join(" ").toLocaleLowerCase("id");
+        const hay = [item.name, displayProductName(item.name), item.code, item.size, item.color, item.description].filter(Boolean).join(" ").toLocaleLowerCase("id");
         return (!q || hay.includes(q)) && matchesCatalogCategory(item, category);
       });
       if (sortMode === "price-asc") filtered.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
@@ -1378,13 +1389,13 @@
         const showSenarNote = isSenarBadminton(item);
         return `
         <article class="catalog-card ${outOfStock ? "opacity-85" : ""}">
-          <div class="catalog-card-photo-wrap" data-view-product="${esc(item.id)}" role="button" tabindex="0" aria-label="Lihat detail ${esc(item.name)}">
+          <div class="catalog-card-photo-wrap" data-view-product="${esc(item.id)}" role="button" tabindex="0" aria-label="Lihat detail ${esc(displayProductName(item.name))}">
             <span class="catalog-card-badge ${outOfStock ? "!bg-rose-600" : limited ? "is-limited" : ""}">${outOfStock ? "Habis" : limited ? "Stok terbatas" : "Tersedia"}</span>
             ${productImageMarkup(item, "catalog-card-photo", 360, index < 2)}
           </div>
           <div class="catalog-card-body">
             <p class="catalog-card-meta">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
-            <h3 class="font-extrabold cursor-pointer hover:text-blue-700" data-view-product="${esc(item.id)}">${esc(item.name)}</h3>
+            <h3 class="font-extrabold cursor-pointer hover:text-blue-700" data-view-product="${esc(item.id)}">${esc(displayProductName(item.name))}</h3>
             ${(() => {
               const vs = getProductVariants(item);
               if (vs.length <= 1) return "";
@@ -1516,7 +1527,10 @@
     const requestedProductId = new URLSearchParams(location.search).get("id");
     const CATALOG_CACHE_KEY = "sjs-public-catalog-cache-v1";
     function applyLoadedCatalog(items) {
-      publicCatalog = Array.isArray(items) ? items : [];
+      publicCatalog = Array.isArray(items) ? items.filter(item => {
+        const name = String(item?.name || "").trim().replace(/^\[?[A-Z]{2,5}-\d+\]?\s*[-·:]?\s*/i, "");
+        return !/^baju\s+voli\s+1\s+set\s+deluxe(?:\s*(?:[-–(]|\d).*)?$/i.test(name);
+      }) : [];
       catalogLoadState = "ready";
       renderProductCatalog();
       updateCartSummary();
