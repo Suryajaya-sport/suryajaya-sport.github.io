@@ -1,0 +1,79 @@
+:root {
+  --paper: #f5f4f0;
+  --ink: #181818;
+  --muted: #57544f;
+  --line: #d9d6cf;
+  --red: #c62828;
+  --sjs-navy: var(--ink);
+}
+html body, html body.sjs-admin { background: var(--paper) !important; color: var(--ink); }
+.shop-header, body.sjs-admin .shop-header, .product-page .hdr, .privacy-page header {
+  background: var(--paper) !important;
+  color: var(--ink);
+  border-bottom: 1px solid var(--line) !important;
+  box-shadow: none !important;
+}
+.shop-brand img, .brand img {
+  width: 48px; height: 48px; padding: 0; border: 0; border-radius: 0;
+  background: transparent; box-shadow: none; object-fit: contain; mix-blend-mode: multiply;
+}
+.shop-brand h1, body.sjs-admin .shop-brand h1, .brand strong {
+  font: italic 850 clamp(1.15rem, 2.35vw, 1.9rem)/1.06 system-ui, sans-serif;
+  letter-spacing: -.04em; text-transform: uppercase; color: var(--ink) !important;
+}
+body.sjs-admin .shop-brand p { color: var(--muted) !important; }
+.shop-links { background: transparent; }
+.shop-links a { color: var(--ink); }
+.shop-links a:hover, .shop-links a:focus-visible { background: white; color: var(--red); }
+.shop-hero, #viewCatalog .shop-hero {
+  display: flex; align-items: center; min-height: clamp(285px, 30vw, 465px);
+  padding: clamp(1.5rem, 4vw, 4rem); border: 0; border-radius: 0; box-shadow: none;
+  background-color: var(--ink);
+  background-image: linear-gradient(90deg,#181818 0%,#181818 35%,transparent 62%), url('/assets/badminton-banner.webp');
+  background-size: cover, auto 100%; background-repeat: no-repeat; background-position: center, right center;
+}
+.shop-hero .shop-hero-content { padding: 0; display: grid; gap: 1rem; align-content: center; }
+.shop-hero .shop-eyebrow { padding: 0; color: #f5f4f0; background: transparent; border: 0; text-transform: uppercase; letter-spacing: .14em; font-size: .8rem; }
+.shop-hero h2 { color: #fff; font: 800 clamp(2.75rem, 5.7vw, 5.75rem)/.98 system-ui,sans-serif; text-transform: none; letter-spacing: -.055em; }
+.shop-button-accent, .shop-button-primary, .btn-cat, .shop-header .shop-owner-button,
+body.sjs-admin #btnSaveInventory, body.sjs-admin #btnSaveTx:not(:disabled):not(.is-disabled) {
+  background: var(--red) !important; border: 1px solid var(--red) !important;
+  color: white !important; box-shadow: none !important;
+}
+.shop-hero .shop-button-accent { padding: .85rem 1.4rem; border-radius: .3rem !important; }
+.shop-button-secondary, .back-link, .catalog-card-meta, .meta, .senar-service-note, .senar-note {
+  color: var(--ink); border-color: var(--line); background: #efede8;
+}
+.shop-button-secondary { border: 1px solid var(--line) !important; }
+.catalog-card, .howto-card, .quick-cat-btn, .catalog-toolbar, .fun-highlight-pill, .shop-location, .product-page .card, .privacy-page .card {
+  background: white; border: 1px solid var(--line) !important; border-radius: .65rem !important; box-shadow: none !important;
+}
+.quick-cat-btn:hover, .catalog-card:hover { border-color: var(--ink) !important; }
+.quick-cat-btn.is-active, .catalog-categories label input:checked + span, .howto-step {
+  background: var(--ink); color: white; border-color: var(--ink) !important;
+}
+.quick-cat-btn.is-active :is(i,span) { color: white; }
+.quick-cat-btn i, .howto-icon-badge, .fun-highlight-icon.is-blue { color: var(--red); }
+.quick-cat-thumb { border: 0; background: var(--paper); }
+.catalog-card-photo-wrap, .catalog-card-photo, .product-page .photo-box { background: #101010 !important; }
+.catalog-card-photo-wrap { padding: 0; }
+.catalog-card-photo { border-radius: 0; }
+.catalog-card-price, .product-page .price {
+  color: var(--ink) !important; background: transparent; padding-inline: 0; border: 0;
+}
+.catalog-heading h2, .shop-location h2 { color: var(--ink); text-transform: none; }
+.privacy-page .brand { display: inline-flex; align-items: center; gap: .75rem; }
+.privacy-page h1, .privacy-page h2 { color: var(--ink); }
+.privacy-page a, .product-page .back-link { color: #a52323; }
+.privacy-page main .meta { background: transparent; }
+body.sjs-admin #mainNavigation:not([hidden]) { background: var(--ink) !important; border-color: var(--line) !important; }
+body.sjs-admin .shop-header :is(.shop-status,.shop-date,.tablet-toggle-btn,#shopHeaderTrigger) {
+  background: white !important; color: var(--ink) !important; border-color: var(--line) !important;
+}
+@media (max-width: 640px) {
+  .shop-hero, #viewCatalog .shop-hero {
+    background-image: linear-gradient(90deg,rgba(15,15,15,.95),rgba(15,15,15,.78) 40%,rgba(15,15,15,.13)), url('/assets/badminton-banner.webp');
+    background-position: center, 60% center;
+  }
+  .shop-brand img, .brand img { width: 39px; height: 39px; }
+}
