@@ -74,9 +74,9 @@
     .shop-main { max-width: 82rem; width: 100%; margin: 0 auto; padding: 1.35rem 1.15rem 4rem; display: flex; flex-direction: column; gap: 1.4rem; }
     #mainNavigation { background: #fff; border: 1.5px solid #bfdbfe; border-radius: 1.35rem; padding: .5rem; display: flex; flex-wrap: wrap; align-items: center; gap: .375rem; }
     .workspace-nav-title { font-size: .7rem; font-weight: 800; text-transform: uppercase; color: #1d4ed8; padding: 0 .75rem; }
-    #mainNavigation button[data-workspace] { display: inline-flex; align-items: center; gap: .5rem; padding: .65rem 1.05rem; border-radius: .95rem; font-size: .875rem; font-weight: 700; color: #1e293b; cursor: pointer; }
-    #mainNavigation button[data-workspace]:hover { background: #eff6ff; color: #1d4ed8; }
-    #mainNavigation button[data-workspace][aria-current="page"] { background: linear-gradient(135deg,#1e3a8a,#2563eb); color: #fff; }
+    #mainNavigation :is(button[data-workspace], .admin-public-catalog-link) { display: inline-flex; align-items: center; gap: .5rem; padding: .65rem 1.05rem; border-radius: .95rem; font-size: .875rem; font-weight: 700; color: #1e293b; cursor: pointer; }
+    #mainNavigation :is(button[data-workspace], .admin-public-catalog-link):hover { background: #eff6ff; color: #1d4ed8; }
+    #mainNavigation :is(button[data-workspace], .admin-public-catalog-link)[aria-current="page"] { background: linear-gradient(135deg,#1e3a8a,#2563eb); color: #fff; }
     #navStockBadge { padding: .12rem .52rem; border-radius: 9999px; font-size: .75rem; font-weight: 800; background: #dbeafe; color: #1e3a8a; }
 
     .shop-button { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 2.75rem; padding: .62rem 1.2rem; border-radius: .9rem; font-size: .875rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: all .16s; }
@@ -384,10 +384,10 @@
       box-shadow: 0 10px 24px -14px rgba(30,58,138,.25);
       padding: .55rem .65rem;
     }
-    #mainNavigation button[data-workspace] {
+    #mainNavigation :is(button[data-workspace], .admin-public-catalog-link) {
       transition: background .16s ease, color .16s ease, transform .14s ease, box-shadow .16s ease;
     }
-    #mainNavigation button[data-workspace][aria-current="page"] {
+    #mainNavigation :is(button[data-workspace], .admin-public-catalog-link)[aria-current="page"] {
       box-shadow: 0 6px 16px -4px rgba(37,99,235,.45);
     }
     .workspace-heading {
@@ -669,7 +669,7 @@
     .pos-card:active:not(:disabled),
     .shop-button:active:not(:disabled),
     .pay-option-btn:active,
-    #mainNavigation button[data-workspace]:active {
+    #mainNavigation :is(button[data-workspace], .admin-public-catalog-link):active {
       transform: scale(.97);
     }
     @media (pointer: coarse), (max-width: 1180px) {
@@ -680,7 +680,7 @@
         scrollbar-width: none;
       }
       #mainNavigation::-webkit-scrollbar { display: none; }
-      #mainNavigation button[data-workspace] {
+      #mainNavigation :is(button[data-workspace], .admin-public-catalog-link) {
         flex-shrink: 0;
         min-height: 44px;
         padding: .65rem 1.05rem;
@@ -702,12 +702,12 @@
     body.sjs-tablet-mode { font-size: 17px; }
     body.sjs-tablet-mode #mainNavigation { gap: .55rem; padding: .65rem; }
     body.sjs-tablet-mode #mainNavigation .workspace-nav-title { display: none; }
-    body.sjs-tablet-mode #mainNavigation button[data-workspace] {
+    body.sjs-tablet-mode #mainNavigation :is(button[data-workspace], .admin-public-catalog-link) {
       flex-direction: column; justify-content: center; gap: .3rem;
       min-width: 98px; min-height: 66px; padding: .6rem .9rem;
       border-radius: 1.15rem; font-size: .92rem; font-weight: 800;
     }
-    body.sjs-tablet-mode #mainNavigation button[data-workspace] i { font-size: 1.35rem; }
+    body.sjs-tablet-mode #mainNavigation :is(button[data-workspace], .admin-public-catalog-link) i { font-size: 1.35rem; }
     body.sjs-tablet-mode .shop-button { min-height: 52px; padding: .75rem 1.25rem; font-size: .98rem; border-radius: 1.05rem; }
     body.sjs-tablet-mode .shop-button i { font-size: 1.15rem; }
     body.sjs-tablet-mode .pay-option-btn { flex-direction: column; gap: .28rem; min-height: 64px !important; padding: .65rem .5rem !important; font-size: .92rem !important; border-radius: 1.05rem !important; }
@@ -999,7 +999,7 @@
         padding: .85rem .55rem !important;
         gap: .6rem !important;
       }
-      body.sjs-admin #mainNavigation button[data-workspace] {
+      body.sjs-admin #mainNavigation :is(button[data-workspace], .admin-public-catalog-link) {
         min-width: 0 !important;
         width: 100% !important;
         min-height: 48px !important;
@@ -1020,33 +1020,33 @@
         overflow: hidden !important;
         position: relative !important;
       }
-      body.sjs-admin #mainNavigation button[data-workspace] > i { width: 20px; text-align: center; flex-shrink: 0; }
-      body.sjs-admin #mainNavigation button[data-workspace] > span:not(#navStockBadge) {
+      body.sjs-admin #mainNavigation :is(button[data-workspace], .admin-public-catalog-link) > i { width: 20px; text-align: center; flex-shrink: 0; }
+      body.sjs-admin #mainNavigation :is(button[data-workspace], .admin-public-catalog-link) > span:not(#navStockBadge) {
         opacity: 0;
         transition: opacity .15s ease;
       }
       body.sjs-admin #mainNavigation:hover button[data-workspace] > span:not(#navStockBadge) {
         opacity: 1;
       }
-      body.sjs-admin #mainNavigation button[data-workspace] i { font-size: 1.15rem !important; }
-      body.sjs-admin.sjs-tablet-mode #mainNavigation button[data-workspace] {
+      body.sjs-admin #mainNavigation :is(button[data-workspace], .admin-public-catalog-link) i { font-size: 1.15rem !important; }
+      body.sjs-admin.sjs-tablet-mode #mainNavigation :is(button[data-workspace], .admin-public-catalog-link) {
         min-height: 74px !important;
         padding: .6rem .35rem !important;
         border-radius: 1.05rem !important;
         font-size: .78rem !important;
       }
-      body.sjs-admin.sjs-tablet-mode #mainNavigation button[data-workspace] i { font-size: 1.35rem !important; }
-      body.sjs-admin #mainNavigation button[data-workspace]:hover {
+      body.sjs-admin.sjs-tablet-mode #mainNavigation :is(button[data-workspace], .admin-public-catalog-link) i { font-size: 1.35rem !important; }
+      body.sjs-admin #mainNavigation :is(button[data-workspace], .admin-public-catalog-link):hover {
         background: rgba(255, 255, 255, .20) !important;
         color: #ffffff !important;
       }
-      body.sjs-admin #mainNavigation button[data-workspace][aria-current="page"] {
+      body.sjs-admin #mainNavigation :is(button[data-workspace], .admin-public-catalog-link)[aria-current="page"] {
         background: linear-gradient(135deg, #facc15, #fde047) !important;
         color: #0f172a !important;
         border-color: #fef08a !important;
         box-shadow: 0 8px 18px rgba(250, 204, 21, .35) !important;
       }
-      body.sjs-admin #mainNavigation button[data-workspace][aria-current="page"] i {
+      body.sjs-admin #mainNavigation :is(button[data-workspace], .admin-public-catalog-link)[aria-current="page"] i {
         color: #0f2557 !important;
       }
       body.sjs-admin #navStockBadge {
@@ -1054,7 +1054,7 @@
         background: #facc15 !important; color: #0f172a !important;
         font-size: .66rem; font-weight: 900; padding: .08rem .38rem; border-radius: 9999px;
       }
-      body.sjs-admin #mainNavigation button[data-workspace][aria-current="page"] #navStockBadge {
+      body.sjs-admin #mainNavigation :is(button[data-workspace], .admin-public-catalog-link)[aria-current="page"] #navStockBadge {
         background: #0f2557 !important; color: #facc15 !important;
       }
     }
@@ -1081,13 +1081,13 @@
         gap: .4rem !important;
       }
       body.sjs-admin #mainNavigation .workspace-nav-title { display: none !important; }
-      body.sjs-admin #mainNavigation button[data-workspace] {
+      body.sjs-admin #mainNavigation :is(button[data-workspace], .admin-public-catalog-link) {
         flex: 1 0 auto !important; min-width: 78px !important; min-height: 56px !important;
         flex-direction: column !important; justify-content: center !important; gap: .2rem !important;
         background: rgba(255, 255, 255, .1) !important; color: #eff6ff !important;
         font-size: .72rem !important; padding: .4rem .5rem !important;
       }
-      body.sjs-admin #mainNavigation button[data-workspace][aria-current="page"] {
+      body.sjs-admin #mainNavigation :is(button[data-workspace], .admin-public-catalog-link)[aria-current="page"] {
         background: #facc15 !important; color: #0f172a !important;
       }
     }
@@ -1326,10 +1326,10 @@
     body.sjs-admin .pos-num-btn.is-clear { border-bottom: 4px solid #ca8a04 !important; }
     body.sjs-admin .pos-cash-pill { border-bottom: 3px solid #93c5fd !important; }
     body.sjs-admin .pos-cash-pill.is-exact { border-bottom: 3px solid #ca8a04 !important; }
-    body.sjs-admin #mainNavigation button[data-workspace] {
+    body.sjs-admin #mainNavigation :is(button[data-workspace], .admin-public-catalog-link) {
       transition: transform .15s cubic-bezier(.34,1.56,.64,1), background .15s ease !important;
     }
-    body.sjs-admin #mainNavigation button[data-workspace]:active { transform: scale(.94) !important; }
+    body.sjs-admin #mainNavigation :is(button[data-workspace], .admin-public-catalog-link):active { transform: scale(.94) !important; }
 
     /* Bar Rasio Visual (Modal vs Laba, dll) agar mudah dibaca siapa saja */
     .sjs-ratio-card {
@@ -2471,7 +2471,7 @@
       <button type="button" id="tabBtnBooks" data-workspace="books" aria-controls="viewBooks"><i class="fa-solid fa-book" aria-hidden="true"></i><span>Pembukuan</span></button>
       <button type="button" id="tabBtnAllReports" data-workspace="reports" aria-controls="viewAllReports"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i><span>Semua Laporan</span></button>
       <button type="button" id="tabBtnBackup" data-workspace="backup" aria-controls="viewBackup"><i class="fa-solid fa-database" aria-hidden="true"></i><span>Cadangan data</span></button>
-      <button type="button" id="tabBtnCatalog" data-workspace="catalog" aria-controls="viewCatalog" aria-current="page"><i class="fa-solid fa-store" aria-hidden="true"></i><span>Mode Pelanggan</span></button>
+      <a id="tabBtnCatalog" class="admin-public-catalog-link" href="./" target="_blank" rel="noopener" aria-label="Lihat Katalog Publik (buka di tab baru)"><i class="fa-solid fa-store" aria-hidden="true"></i><span>Katalog Publik</span></a>
     </nav>
 
     <section id="adminPastelMenu" hidden class="sjs-pastel-menu-card no-print" aria-label="Menu cepat admin">
