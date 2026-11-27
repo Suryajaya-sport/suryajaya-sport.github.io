@@ -773,8 +773,9 @@
     }
     .catalog-brand-strip { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; margin: 1rem 0; color: #f8fafc; }
     .catalog-brand-strip strong { margin-right: .35rem; }
-    .catalog-brand-strip button { min-height: 44px; padding: .45rem .85rem; border: 1px solid #475569; border-radius: 999px; background: #171a20; color: #fff; font-weight: 700; }
-    .catalog-brand-strip button:hover, .catalog-brand-strip button[aria-pressed="true"] { border-color: #d9f261; color: #d9f261; }
+    .catalog-brand-strip button { display: inline-grid; place-items: center; width: 104px; height: 54px; padding: .35rem; border: 2px solid #e2e8f0; border-radius: .75rem; background: #fff; color: #172033; font-weight: 800; }
+    .catalog-brand-strip button img { width: 100%; height: 34px; object-fit: contain; font-size: .8rem; }
+    .catalog-brand-strip button:hover, .catalog-brand-strip button[aria-pressed="true"] { border-color: #a3c32f; box-shadow: 0 0 0 2px #a3c32f; }
     .catalog-brand-strip button:focus-visible { outline: 2px solid #d9f261; outline-offset: 3px; }
     .catalog-card-photo-wrap { border-bottom-color: #66723b !important; }
     .catalog-card-photo, .catalog-card-photo > div, .catalog-card-photo img { background: #151616 !important; }
@@ -872,12 +873,20 @@
 
     <section class="catalog-brand-strip" aria-label="Jelajahi merek">
       <strong>Jelajahi merek</strong>
-      <button type="button" data-catalog-brand="Yonex" aria-pressed="false">Yonex</button>
-      <button type="button" data-catalog-brand="Victor" aria-pressed="false">Victor</button>
-      <button type="button" data-catalog-brand="Li-Ning" aria-pressed="false">Li-Ning</button>
-      <button type="button" data-catalog-brand="Astec" aria-pressed="false">Astec</button>
-      <button type="button" data-catalog-brand="Molten" aria-pressed="false">Molten</button>
-      <button type="button" data-catalog-brand="Specs" aria-pressed="false">Specs</button>
+      <button type="button" data-catalog-brand="Yonex" aria-label="Yonex" aria-pressed="false"><img src="https://img.ws.mms.shopee.co.id/7b350a88f859bf8c0f3a27d35f561f73" alt="Yonex" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
+      <button type="button" data-catalog-brand="Victor" aria-label="Victor" aria-pressed="false"><img src="https://cdn.shopify.com/s/files/1/0532/4941/files/victor-450x450_large.jpg?v=1519908176" alt="Victor" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
+      <button type="button" data-catalog-brand="Li-Ning" aria-label="Li-Ning" aria-pressed="false"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/Li-Ning-logo.png" alt="Li-Ning" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
+      <button type="button" data-catalog-brand="Astec" aria-label="Astec" aria-pressed="false"><img src="https://www.static-src.com/wcsstore/Indraprastha/images/brandlogo/BR-M036969-03920/astec--logo.jpg" alt="Astec" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
+      <button type="button" data-catalog-brand="Molten" aria-label="Molten" aria-pressed="false"><img src="https://logowik.com/content/uploads/images/molten1323.logowik.com.webp" alt="Molten" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
+      <button type="button" data-catalog-brand="Specs" aria-label="Specs" aria-pressed="false"><img src="https://www.bahankain.com/storage/posts/perjalanan-specs-dari-pelopor-sepatu-futsal-jadi-merek-sportswear-yang-melegenda.png" alt="Specs" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
+      <button type="button" data-catalog-brand="Ortuseight" aria-label="Ortuseight" aria-pressed="false"><img src="https://seeklogo.com/images/O/ortuseight-logo-2EDAC0E5CC-seeklogo.com.png" alt="Ortuseight" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
+      <button type="button" data-catalog-brand="AVO" aria-label="AVO" aria-pressed="false">AVO</button>
+      <button type="button" data-catalog-brand="Butterfly" aria-label="Butterfly" aria-pressed="false"><img src="https://nl.butterfly.tt/media/logo/websites/5/butterfly.png" alt="Butterfly" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
+      <button type="button" data-catalog-brand="DHS" aria-label="DHS" aria-pressed="false"><img src="https://americantabletennis.com/cdn/shop/files/DHS.jpg?v=1724446787&amp;width=240" alt="DHS" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
+      <button type="button" data-catalog-brand="Powermax" aria-label="Powermax" aria-pressed="false"><img src="https://img.ws.mms.shopee.co.id/id-11134216-7r98z-lug6rwuqyo5876" alt="Powermax" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
+      <button type="button" data-catalog-brand="Maxbolt" aria-label="Maxbolt" aria-pressed="false"><img src="https://cdn1.sgliteasset.com/pawasports/images/brand/brand-6756/wUzlp5oN64155b7c22b50_1679121276.png" alt="Maxbolt" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
+      <button type="button" data-catalog-brand="RS" aria-label="RS" aria-pressed="false">RS</button>
+      <button type="button" data-catalog-brand="Mikasa" aria-label="Mikasa" aria-pressed="false"><img src="https://www.logotypes101.com/logos/656/F01CA4B6EBF8D867BE74F1412CCC82A3/Mikasa_Sports.png" alt="Mikasa" width="88" height="34" loading="lazy" decoding="async" referrerpolicy="no-referrer"></button>
     </section>
     <section class="fun-highlights-strip" aria-label="Keunggulan belanja di Surya Jaya Sport">
       <div class="fun-highlight-pill">
@@ -979,6 +988,14 @@
               <option>Astec</option>
               <option>Molten</option>
               <option>Specs</option>
+              <option>Ortuseight</option>
+              <option>AVO</option>
+              <option>Butterfly</option>
+              <option>DHS</option>
+              <option>Powermax</option>
+              <option>Maxbolt</option>
+              <option>RS</option>
+              <option>Mikasa</option>
             </select>
             <select id="catalogSort" aria-label="Urutkan produk" class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700">
               <option value="default">Urutan default</option>
@@ -1424,7 +1441,11 @@
         const brandText = " " + [item.brand, item.name].filter(Boolean).join(" ").toLowerCase().replace(/[^a-z0-9]+/g, " ") + " ";
         const brandName = brand.toLowerCase().replace(/-/g, " ");
         const matchesBrand = !brand || brandText.includes(" " + brandName + " ")
-          || (brand === "Li-Ning" && brandText.includes(" lining "));
+          || (brand === "Li-Ning" && brandText.includes(" lining "))
+          || (brand === "Powermax" && brandText.includes(" powermaxx "))
+          || (brand === "Ortuseight" && brandText.includes(" ortus "))
+          || (brand === "RS" && brandText.includes(" reinforce speed "))
+          || (brand === "DHS" && brandText.includes(" double happiness "));
         return matchesBrand && (!q || hay.includes(q)) && matchesCatalogCategory(item, category);
       });
       if (sortMode === "price-asc") filtered.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
