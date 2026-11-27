@@ -66,7 +66,7 @@
   <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
   <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="print" onload="this.media='all'">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&amp;family=Inter:wght@400;500;600;700;800;900&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" media="print" onload="this.media='all'">
   <noscript>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap">
@@ -460,6 +460,156 @@
       .floating-wa-btn span { display: none; }
       .floating-wa-btn { width: 52px; height: 52px; justify-content: center; padding: 0; font-size: 1.35rem; }
     }
+
+    /* === SHOWROOM SPORT PREMIUM: SERASI POSTER DARK STUDIO 1:1 (NAVY DEEP + GOLD + CLEAN WHITE) === */
+    body {
+      font-family: "Inter", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, sans-serif !important;
+      background: #F4F6F8 !important;
+      color: #0F172A !important;
+    }
+    .shop-header {
+      background: linear-gradient(90deg, #0B1120 0%, #142850 100%) !important;
+      border-bottom: 2px solid #F5B700 !important;
+      box-shadow: 0 8px 24px rgba(11, 17, 32, .28) !important;
+    }
+    .shop-brand h1, .shop-brand p { color: #FFFFFF !important; }
+    .shop-brand p { opacity: .8; }
+    .shop-links a { color: #E2E8F0 !important; }
+    .shop-links a:hover { color: #F5B700 !important; background: rgba(255,255,255,.08) !important; }
+    .hero-band, .shop-hero {
+      background: linear-gradient(135deg, #0B1120 0%, #142850 65%, #0F172A 100%) !important;
+      border: 1px solid rgba(245, 183, 0, .32) !important;
+      box-shadow: 0 18px 40px -14px rgba(11, 17, 32, .45) !important;
+    }
+    /* Grid & Kartu Produk 1:1 Full-Bleed */
+    .catalog-grid {
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+      gap: 1.25rem !important;
+    }
+    .catalog-card {
+      background: #FFFFFF !important;
+      border: 1px solid #E2E8F0 !important;
+      border-radius: 18px !important;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, .06) !important;
+      overflow: hidden !important;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease !important;
+    }
+    .catalog-card:hover {
+      transform: translateY(-4px) !important;
+      border-color: #F5B700 !important;
+      box-shadow: 0 16px 34px rgba(11, 17, 32, .14) !important;
+    }
+    .catalog-card-photo-wrap {
+      padding: 0 !important;
+      background: #0B1120 !important;
+      border-bottom: 1px solid #E2E8F0 !important;
+      overflow: hidden !important;
+    }
+    .catalog-card-photo {
+      aspect-ratio: 1 / 1 !important;
+      width: 100% !important;
+      border-radius: 0 !important;
+      overflow: hidden !important;
+      background: #0B1120 !important;
+    }
+    .catalog-card-photo img {
+      width: 100% !important;
+      height: 100% !important;
+      object-fit: cover !important;
+      display: block !important;
+      transition: transform .35s ease !important;
+    }
+    .catalog-card:hover .catalog-card-photo img {
+      transform: scale(1.03) !important;
+    }
+    .catalog-card-body {
+      padding: 1rem 1.05rem 1.05rem !important;
+      gap: .45rem !important;
+    }
+    .catalog-card-meta {
+      background: #F1F5F9 !important;
+      color: #475569 !important;
+      border: 1px solid #E2E8F0;
+      font-size: 11px !important;
+      font-weight: 700 !important;
+      padding: 2px 8px !important;
+      border-radius: 6px !important;
+    }
+    .catalog-status-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 9999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .catalog-status-dot.is-ok { background: #ECFDF5; color: #15803D; }
+    .catalog-status-dot.is-low { background: #FEF3C7; color: #B45309; }
+    .catalog-status-dot.is-out { background: #FEE2E2; color: #B91C1C; }
+    .catalog-card-body h3 {
+      font-size: 15.5px !important;
+      font-weight: 700 !important;
+      color: #0F172A !important;
+      line-height: 1.3 !important;
+      letter-spacing: -.01em;
+    }
+    /* Harga bersih maskulin (tanpa kotak kuning stabilo) */
+    .catalog-card-price {
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+      color: #0F172A !important;
+      font-size: 1.2rem !important;
+      font-weight: 800 !important;
+      font-variant-numeric: tabular-nums !important;
+      letter-spacing: -.02em;
+    }
+    .catalog-stock {
+      background: #F8FAFC !important;
+      border: 1px solid #E2E8F0 !important;
+      color: #475569 !important;
+      font-size: 11.5px !important;
+      font-weight: 700 !important;
+    }
+    /* Tombol Aksi Navy Deep + Aksen Emas */
+    .catalog-card-actions .shop-button-primary,
+    #catalogProductModal .shop-button-primary,
+    .floating-cart-bar .shop-button-primary {
+      background: linear-gradient(135deg, #0F172A 0%, #142850 100%) !important;
+      border: 1.5px solid #F5B700 !important;
+      color: #FFFFFF !important;
+      border-radius: 12px !important;
+      font-weight: 700 !important;
+      box-shadow: 0 4px 12px rgba(11, 17, 32, .22) !important;
+    }
+    .catalog-card-actions .shop-button-primary:hover:not(:disabled),
+    #catalogProductModal .shop-button-primary:hover:not(:disabled) {
+      background: #0B1120 !important;
+      border-color: #FFD029 !important;
+    }
+    .catalog-card-actions .shop-button-secondary,
+    #catalogProductModal .shop-button-secondary {
+      background: #FFFFFF !important;
+      border: 1.5px solid #CBD5E1 !important;
+      color: #0F172A !important;
+      border-radius: 12px !important;
+      font-weight: 700 !important;
+    }
+    .catalog-card-actions .shop-button-secondary:hover,
+    #catalogProductModal .shop-button-secondary:hover {
+      background: #F8FAFC !important;
+      border-color: #0F172A !important;
+    }
+    .quick-cat-btn.is-active,
+    .catalog-categories label input:checked + span {
+      background: #0F172A !important;
+      color: #FFFFFF !important;
+      border-color: #F5B700 !important;
+    }
+
   </style>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZS9T9ZJXBK"></script>
   <script>
@@ -1004,7 +1154,7 @@
           </div>
         </div>` : "";
       document.getElementById("catalogDetailBody").innerHTML = `
-        <div class="rounded-2xl border border-slate-100 bg-white overflow-hidden">${productImageMarkup(item, "aspect-[4/3] w-full", 720, true)}</div>
+        <div class="rounded-2xl border border-slate-800/20 bg-[#0B1120] overflow-hidden">${productImageMarkup(item, "aspect-square w-full", 800, true)}</div>
         <p class="text-xs font-mono font-bold text-blue-700">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
         ${variantPickerHtml}
         ${item.description ? `<p class="text-sm text-slate-600 leading-relaxed">${esc(item.description)}</p>` : ""}
@@ -1069,12 +1219,30 @@
       if (sortMode === "price-asc") filtered.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
       else if (sortMode === "price-desc") filtered.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
       else if (sortMode === "name-asc") filtered.sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "id"));
-      document.getElementById("catalogResultCount").textContent = `${filtered.length} produk`;
-      if (!filtered.length) {
+      // Kelompokkan varian yang sama menjadi 1 kartu produk agar tidak duplikat di etalase
+      const seenGroups = new Map();
+      for (const it of filtered) {
+        const gk = variantGroupKey(it);
+        if (!seenGroups.has(gk)) {
+          seenGroups.set(gk, it);
+        } else {
+          const prev = seenGroups.get(gk);
+          const prevIsVariant = /-[A-Z]\d*$/i.test(String(prev.code || ""));
+          const curIsVariant = /-[A-Z]\d*$/i.test(String(it.code || ""));
+          const prevStock = Number(prev.stock || 0);
+          const curStock = Number(it.stock || 0);
+          if ((prevIsVariant && !curIsVariant && curStock > 0) || (prevStock <= 0 && curStock > 0)) {
+            seenGroups.set(gk, it);
+          }
+        }
+      }
+      const grouped = [...seenGroups.values()];
+      document.getElementById("catalogResultCount").textContent = `${grouped.length} produk`;
+      if (!grouped.length) {
         grid.innerHTML = `<p class="catalog-empty" role="status">Produk tidak ditemukan. Coba kata kunci lain atau pilih kategori "Semua".</p>`;
         return;
       }
-      grid.innerHTML = filtered.map((item, index) => {
+      grid.innerHTML = grouped.map((item, index) => {
         const stockNum = Number(item.stock || 0);
         const outOfStock = stockNum <= 0;
         const limited = !outOfStock && stockNum < LOW_STOCK_LIMIT;
@@ -1085,11 +1253,13 @@
         return `
         <article class="catalog-card ${outOfStock ? "opacity-85" : ""}">
           <div class="catalog-card-photo-wrap" data-view-product="${esc(item.id)}" role="button" tabindex="0" aria-label="Lihat detail ${esc(item.name)}">
-            <span class="catalog-card-badge ${outOfStock ? "!bg-rose-600" : limited ? "is-limited" : ""}">${outOfStock ? "Habis" : limited ? "Stok terbatas" : "Tersedia"}</span>
-            ${productImageMarkup(item, "catalog-card-photo", 360, index < 2)}
+            ${productImageMarkup(item, "catalog-card-photo", 520, index < 4)}
           </div>
           <div class="catalog-card-body">
-            <p class="catalog-card-meta">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
+            <div class="flex items-center justify-between gap-2">
+              <p class="catalog-card-meta truncate">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
+              <span class="catalog-status-dot ${outOfStock ? "is-out" : limited ? "is-low" : "is-ok"}">${outOfStock ? "Habis" : limited ? "Terbatas" : "Tersedia"}</span>
+            </div>
             <h3 class="font-extrabold cursor-pointer hover:text-blue-700" data-view-product="${esc(item.id)}">${esc(item.name)}</h3>
             ${(() => {
               const vs = getProductVariants(item);
@@ -1112,7 +1282,7 @@
           </div>
         </article>`;
       }).join("");
-      updateCatalogSchema(catalog);
+      updateCatalogSchema(grouped);
     }
 
     function updateCatalogSchema(items) {
