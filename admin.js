@@ -2584,6 +2584,7 @@
       else if (sortMode === "price-desc") filtered.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
       else if (sortMode === "name-asc") filtered.sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "id"));
       document.getElementById("catalogResultCount").textContent = `${filtered.length} produk`;
+      updateCustomerPreviewStats();
       if (!filtered.length) {
         grid.innerHTML = `<p class="catalog-empty" role="status">Produk tidak ditemukan. Coba kata kunci lain atau pilih kategori "Semua".</p>`;
         return;
@@ -2637,6 +2638,7 @@
     function updateCartSummary() {
       const lines = cartProducts();
       document.getElementById("catalogCartCount").textContent = lines.length;
+      updateCustomerPreviewStats();
       const total = lines.reduce((s, { item, line }) => s + (Number(item?.price) || 0) * line.qty, 0);
       document.getElementById("catalogCartTotal").textContent = lines.length ? `Perkiraan total: ${rp(total)}` : "";
       const link = document.getElementById("catalogCartWhatsApp");
@@ -5678,8 +5680,45 @@
       backup: { btn: "tabBtnBackup", panel: "viewBackup" },
       catalog: { btn: "tabBtnCatalog", panel: "viewCatalog" }
     };
+    let lastAdminWorkspace = "kasir";
+    function updateCustomerPreviewStats() {
+      const inStockCount = publicCatalog.filter(item => Number(item.stock) > 0).length;
+      const lines = cartProducts();
+      const cartQty = lines.reduce((s, { line }) => s + Math.max(0, Number(line.qty) || 0), 0);
+      const pEl = document.getElementById("previewStatProducts");
+      const cEl = document.getElementById("previewStatCart");
+      if (pEl) pEl.textContent = String(inStockCount);
+      if (cEl) cEl.textContent = String(cartQty);
+    }
+
     function switchWorkspace(name) {
       const target = isAdmin ? (WORKSPACES[name] ? name : "kasir") : "catalog";
+      if (isAdmin && target !== "catalog") lastAdminWorkspace = target;
+      const inCustomerPreview = isAdmin && target === "catalog";
+
+      document.body.classList.toggle("sjs-customer-preview", inCustomerPreview);
+      const navEl = document.getElementById("mainNavigation");
+      if (navEl) navEl.hidden = !isAdmin || inCustomerPreview;
+      const pmEl = document.getElementById("adminPastelMenu");
+      if (pmEl) pmEl.hidden = !isAdmin || inCustomerPreview;
+      const aiFab = document.getElementById("sjsAiFab");
+      if (aiFab) aiFab.classList.toggle("hidden", !isAdmin || inCustomerPreview);
+      if (inCustomerPreview) {
+        document.getElementById("sjsAiBox")?.classList.add("hidden");
+      }
+
+      const dock = document.getElementById("adminQuickDock");
+      const qMenu = document.getElementById("adminQuickMenu");
+      const qBtn = document.getElementById("btnToggleAdminQuickDock");
+      if (dock) dock.hidden = !inCustomerPreview;
+      if (!inCustomerPreview && qMenu) {
+        qMenu.hidden = true;
+        qBtn?.setAttribute("aria-expanded", "false");
+      }
+      const banner = document.getElementById("customerPreviewBanner");
+      if (banner) banner.hidden = !inCustomerPreview;
+      updateCustomerPreviewStats();
+
       for (const [key, cfg] of Object.entries(WORKSPACES)) {
         document.getElementById(cfg.btn).setAttribute("aria-current", key === target ? "page" : "false");
       }
@@ -5928,6 +5967,34 @@
           window.scrollTo({ top: 0, behavior: "smooth" });
         });
       }
+      document.getElementById("btnToggleAdminQuickDock")?.addEventListener("click", e => {
+        const menu = document.getElementById("adminQuickMenu");
+        if (!menu) return;
+        const willOpen = menu.hidden;
+        menu.hidden = !willOpen;
+        e.currentTarget.setAttribute("aria-expanded", String(willOpen));
+      });
+      document.getElementById("adminQuickMenu")?.addEventListener("click", e => {
+        const btn = e.target.closest("[data-quick-admin]");
+        if (!btn) return;
+        const dest = btn.classList.contains("is-return-admin") ? (lastAdminWorkspace || "kasir") : btn.dataset.quickAdmin;
+        switchWorkspace(dest);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+      const backToAdminHandler = () => {
+        switchWorkspace(lastAdminWorkspace || "kasir");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      };
+      document.getElementById("btnQuickBackToAdmin")?.addEventListener("click", backToAdminHandler);
+      document.getElementById("btnBannerBackToAdmin")?.addEventListener("click", backToAdminHandler);
+      document.addEventListener("click", e => {
+        const dock = document.getElementById("adminQuickDock");
+        const menu = document.getElementById("adminQuickMenu");
+        if (dock && menu && !menu.hidden && !dock.contains(e.target)) {
+          menu.hidden = true;
+          document.getElementById("btnToggleAdminQuickDock")?.setAttribute("aria-expanded", "false");
+        }
+      });
       for (const b of document.querySelectorAll("[data-workspace]")) {
         b.addEventListener("click", () => {
           switchWorkspace(b.dataset.workspace);
