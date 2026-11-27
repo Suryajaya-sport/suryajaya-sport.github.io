@@ -877,6 +877,72 @@
       }
       .catalog-filter-row > div { flex-wrap: wrap; }
     }
+
+    #publicProductCatalog .catalog-card-photo-wrap,
+    .catalog-poster {
+      background: radial-gradient(ellipse at 34% 28%, #38373b, #151618 52%, #08090b) !important;
+    }
+    .catalog-poster {
+      --poster-accent: #c7e66d;
+      aspect-ratio: 1;
+      width: 100%;
+      container-type: inline-size;
+      position: relative;
+      isolation: isolate;
+      color: #fff;
+      overflow: hidden;
+    }
+    .catalog-poster-frame {
+      position: absolute;
+      inset: 3%;
+      border: 1px solid var(--poster-accent);
+      border-radius: .65rem;
+      opacity: .68;
+      pointer-events: none;
+    }
+    .catalog-poster-heading {
+      position: absolute;
+      inset: 6% 6% auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: .5em;
+      font-size: clamp(8px, 4cqi, 17px);
+      font-weight: 800;
+      line-height: 1.1;
+    }
+    .catalog-poster-store { display: flex; align-items: center; gap: .45em; }
+    .catalog-poster-store img { width: 1.8em; height: 1.8em; object-fit: contain; }
+    .catalog-poster-brand { color: var(--poster-accent); text-align: right; }
+    .catalog-poster-main {
+      position: absolute;
+      inset: 18% 26% 19% 6%;
+      border-radius: .35rem;
+      filter: drop-shadow(0 .45rem .9rem #0008);
+    }
+    .catalog-poster-detail {
+      position: absolute;
+      inset: 33% 6% auto auto;
+      width: 18%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      object-position: center;
+      border: 1px solid var(--poster-accent);
+      border-radius: .45rem;
+    }
+    .catalog-poster-name {
+      position: absolute;
+      inset: auto 6% 7%;
+      margin: 0;
+      font-size: clamp(10px, 5.2cqi, 23px);
+      font-weight: 850;
+      line-height: 1.1;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 2;
+      overflow: hidden;
+    }
+    .catalog-poster--no-photo .catalog-poster-main { right: 6%; }
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -1351,6 +1417,26 @@
       </div>`;
     }
 
+
+    function catalogPosterMarkup(item, eager = false) {
+      const name = displayProductName(item.name);
+      const brand = item.brand || name.match(/\b(?:yonex|victor|li[- ]?ning|astec|molten|specs|ortuseight|butterfly|dhs|power\s*maxx?|maxbolt|mikasa|hundred|apacs|felet|mizuno|elixir|tama|avo|hi[- ]?qua)\b/i)?.[0] || "";
+      const url = catalogImageUrl(item);
+      const image = url ? esc(thumbnailUrl(url, 640)) : "";
+      const accent = matchesCatalogCategory(item, "music") ? "#ffd087"
+        : matchesCatalogCategory(item, "ball") ? "#8ed9ff" : "#c7e66d";
+      return `<div class="catalog-poster ${image ? "" : "catalog-poster--no-photo"}" style="--poster-accent:${accent}">
+        <span class="catalog-poster-frame" aria-hidden="true"></span>
+        <div class="catalog-poster-heading">
+          <span class="catalog-poster-store"><img src="sjs-mark-192.png" alt="" width="32" height="32">Surya Jaya Sport</span>
+          ${brand ? `<span class="catalog-poster-brand">${esc(brand.toUpperCase())}</span>` : ""}
+        </div>
+        ${productImageMarkup(item, "catalog-poster-main", 640, eager)}
+        ${image ? `<img class="catalog-poster-detail" src="${image}" alt="" width="96" height="96" loading="${eager ? "eager" : "lazy"}" decoding="async" style="object-fit:none;object-position:center">` : ""}
+        <p class="catalog-poster-name">${esc(name)}</p>
+      </div>`;
+    }
+
     function saveCart() {
       try { localStorage.setItem(CART_KEY, JSON.stringify([...catalogCart])); } catch {}
     }
@@ -1565,8 +1651,7 @@
         return `
         <article class="catalog-card ${outOfStock ? "opacity-85" : ""}">
           <div class="catalog-card-photo-wrap" data-view-product="${esc(item.id)}" role="button" tabindex="0" aria-label="Lihat detail ${esc(displayProductName(item.name))}">
-            <span class="catalog-card-badge ${outOfStock ? "is-sold-out" : limited ? "is-limited" : ""}">${outOfStock ? "STOK HABIS" : limited ? "Stok terbatas" : "Tersedia"}</span>
-            ${productImageMarkup(item, "catalog-card-photo", 360, index < 2)}
+            ${catalogPosterMarkup(item, index < 2)}
           </div>
           <div class="catalog-card-body">
             <p class="catalog-card-meta">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
@@ -1583,7 +1668,7 @@
             ${showSenarNote ? `<p class="senar-service-note"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>${SENAR_SERVICE_NOTE}</span></p>` : ""}
             <div class="catalog-card-facts">
               <p class="catalog-card-price text-slate-900">${rp(item.price)}</p>
-              <span class="catalog-stock ${outOfStock ? "!bg-rose-50 !text-rose-700" : ""}">${outOfStock ? "Stok habis" : `Stok ${stockNum} pcs`}</span>
+              <span class="catalog-stock ${outOfStock ? "!bg-rose-50 !text-rose-700" : ""}">${outOfStock ? "Stok habis" : limited ? `Stok terbatas · ${stockNum} pcs` : `Stok ${stockNum} pcs`}</span>
             </div>
             <div class="catalog-card-actions">
               <button type="button" data-add-cart="${esc(item.id)}" ${outOfStock ? "disabled" : ""} class="shop-button shop-button-primary"><i class="fa-solid ${outOfStock ? "fa-ban" : "fa-plus"}" aria-hidden="true"></i> ${outOfStock ? "Habis" : "Keranjang"}</button>
