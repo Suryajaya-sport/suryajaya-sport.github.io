@@ -745,6 +745,16 @@
     gtag('js', new Date());
     gtag('config', 'G-ZS9T9ZJXBK');
   </script>
+<style>
+    .hero-search { display:flex; align-items:center; gap:.65rem; width:100%; max-width:34rem; box-sizing:border-box; padding:.3rem .3rem .3rem .9rem; border:1px solid #657083; border-radius:1rem; background:#101724; color:#f8fafc; }
+    .hero-search:focus-within { outline:2px solid #facc15; outline-offset:2px; }
+    .hero-search i { color:#facc15; }
+    .hero-search input { flex:1; min-width:0; color:inherit; background:transparent; border:0; font:inherit; font-size:1rem; outline:none; }
+    .hero-search input::placeholder { color:#bec6d2; }
+    .hero-search button, .catalog-reset { min-height:44px; padding:0 1.25rem; border:0; border-radius:.75rem; background:#facc15; color:#10141c; font:inherit; font-weight:800; cursor:pointer; }
+    .catalog-reset { display:block; margin:.85rem auto 0; }
+    .hero-search button:focus-visible, .catalog-reset:focus-visible { outline:2px solid white; outline-offset:2px; }
+  </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
 
@@ -792,6 +802,12 @@
           <span class="hero-trust-pill"><i class="fa-solid fa-store text-amber-300" aria-hidden="true"></i> Ambil di toko · Bisa pesan/DP via WA</span>
           <span class="hero-trust-pill"><i class="fa-solid fa-qrcode text-amber-300" aria-hidden="true"></i> Tunai, QRIS, Kartu &amp; Transfer</span>
         </div>
+        <form id="heroSearchForm" class="hero-search" role="search" aria-label="Pencarian dari beranda">
+          <label for="heroSearch" class="sr-only">Cari produk dari beranda</label>
+          <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+          <input id="heroSearch" type="search" placeholder="Cari produk, misalnya raket Yonex" enterkeyhint="search">
+          <button type="submit">Cari</button>
+        </form>
         <div class="shop-hero-actions pt-1">
           <a class="shop-button shop-button-accent" href="#publicProductCatalog">Jelajahi katalog <i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a>
           <a class="shop-button shop-button-outline" href="#cara-pesan"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> Cara pesan</a>
@@ -1348,7 +1364,7 @@
       else if (sortMode === "name-asc") filtered.sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "id"));
       document.getElementById("catalogResultCount").textContent = `${filtered.length} produk`;
       if (!filtered.length) {
-        grid.innerHTML = `<p class="catalog-empty" role="status">Produk tidak ditemukan. Coba kata kunci lain atau pilih kategori "Semua".</p>`;
+        grid.innerHTML = `<div class="catalog-empty"><p role="status">Produk tidak ditemukan. Coba kata kunci lain.</p>${q || category !== "all" ? '<button type="button" class="catalog-reset" data-reset-filters>Lihat semua produk</button>' : ""}</div>`;
         return;
       }
       grid.innerHTML = filtered.map((item, index) => {
@@ -1422,9 +1438,25 @@
     window.addEventListener("resize", syncHeaderHeight);
 
     restoreCart();
-    document.getElementById("catalogSearch").addEventListener("input", renderProductCatalog);
+    const heroSearch = document.getElementById("heroSearch");
+    const catalogSearch = document.getElementById("catalogSearch");
+    const allCategories = document.querySelector('#catalogCategory input[value="all"]');
+    document.getElementById("heroSearchForm").addEventListener("submit", event => {
+      event.preventDefault();
+      catalogSearch.value = heroSearch.value.trim();
+      heroSearch.value = catalogSearch.value;
+      allCategories.checked = true;
+      renderProductCatalog();
+      document.getElementById("publicProductCatalog").scrollIntoView({ block: "start" });
+      catalogSearch.focus({ preventScroll: true });
+    });
+    catalogSearch.addEventListener("input", () => {
+      heroSearch.value = catalogSearch.value;
+      renderProductCatalog();
+    });
     document.getElementById("btnClearCatalogSearch").addEventListener("click", () => {
-      document.getElementById("catalogSearch").value = "";
+      heroSearch.value = catalogSearch.value = "";
+      catalogSearch.focus({ preventScroll: true });
       renderProductCatalog();
     });
     document.getElementById("catalogCategory").addEventListener("change", renderProductCatalog);
@@ -1439,6 +1471,13 @@
       });
     }
     document.getElementById("productCatalogGrid").addEventListener("click", e => {
+      if (e.target.closest("[data-reset-filters]")) {
+        heroSearch.value = catalogSearch.value = "";
+        allCategories.checked = true;
+        renderProductCatalog();
+        catalogSearch.focus({ preventScroll: true });
+        return;
+      }
       const btn = e.target.closest("[data-add-cart]");
       if (btn) return addToCatalogCart(btn.dataset.addCart);
       const view = e.target.closest("[data-view-product]");
