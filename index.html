@@ -37,7 +37,7 @@
     "telephone": "+62-823-200-33333",
     "image": "https://suryajaya-sport.github.io/sjs-mark.png",
     "priceRange": "Rp",
-    "paymentAccepted": "Cash, QRIS, Credit Card, Bank Transfer",
+    "paymentAccepted": "Cash, Credit Card, Debit Card, Bank Transfer, QRIS",
     "currenciesAccepted": "IDR",
     "areaServed": ["Tanjung Redeb", "Berau", "Kalimantan Timur"],
     "foundingDate": "1984",
@@ -261,6 +261,7 @@
     .quick-cat-btn.is-active .quick-cat-thumb { border-color: #facc15; }
     .pay-badges-row { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
     .pay-badges-row img { height: 42px; width: auto; border-radius: .55rem; }
+    .pay-chip { display: inline-flex; align-items: center; min-height: 36px; padding: .35rem .8rem; border-radius: 9999px; background: #ffffff; color: #0f172a; border: 1.5px solid #cbd5e1; font-size: .8125rem; font-weight: 800; }
     .howto-icon-row { display: flex; align-items: center; gap: .65rem; }
     .howto-icon-badge { width: 42px; height: 42px; border-radius: .95rem; background: #eff6ff; border: 1.5px solid #bfdbfe; color: #1d4ed8; display: inline-flex; align-items: center; justify-content: center; font-size: 1.15rem; }
 
@@ -811,7 +812,7 @@
         <div class="hero-trust-row">
           <span class="hero-trust-pill"><i class="fa-solid fa-circle-check text-amber-300" aria-hidden="true"></i> Harga &amp; stok dikonfirmasi toko</span>
           <span class="hero-trust-pill"><i class="fa-solid fa-store text-amber-300" aria-hidden="true"></i> Ambil di toko · Bisa pesan/DP via WA</span>
-          <span class="hero-trust-pill"><i class="fa-solid fa-qrcode text-amber-300" aria-hidden="true"></i> Tunai, QRIS, Kartu &amp; Transfer</span>
+          <span class="hero-trust-pill"><i class="fa-solid fa-qrcode text-amber-300" aria-hidden="true"></i> Tunai, Kartu Kredit, Kartu Debit, Transfer &amp; QRIS</span>
         </div>
         <form id="heroSearchForm" class="hero-search" role="search" aria-label="Pencarian dari beranda">
           <label for="heroSearch" class="sr-only">Cari produk dari beranda</label>
@@ -875,7 +876,7 @@
         <span class="fun-highlight-icon is-navy"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></span>
         <div>
           <strong class="block text-sm font-extrabold text-slate-900">Ambil &amp; Cek di Toko</strong>
-          <span class="text-xs font-semibold text-slate-600">Tunai, QRIS, Kartu &amp; Transfer</span>
+          <span class="text-xs font-semibold text-slate-600">Tunai, Kartu Kredit, Kartu Debit, Transfer &amp; QRIS</span>
         </div>
       </div>
     </section>
@@ -980,7 +981,7 @@
         <article class="howto-card">
           <div class="howto-icon-row"><span class="howto-step">3</span><span class="howto-icon-badge"><i class="fa-solid fa-store" aria-hidden="true"></i></span></div>
           <h3>Ambil &amp; bayar di toko</h3>
-          <p>Saat ini kami <strong>tidak melayani pengiriman</strong> maupun checkout online. Pengambilan dilakukan langsung di toko kami, dengan pilihan bayar <strong>Tunai, QRIS, Kartu, atau Transfer Bank</strong>.</p>
+          <p>Saat ini kami <strong>tidak melayani pengiriman</strong> maupun checkout online. Pengambilan dilakukan langsung di toko kami, dengan pilihan bayar <strong>Tunai, Kartu Kredit, Kartu Debit, Transfer Bank, atau QRIS</strong>.</p>
         </article>
       </div>
     </section>
@@ -998,10 +999,11 @@
           <div class="rounded-2xl bg-blue-50 border border-blue-200 p-3 text-xs font-semibold text-blue-950 space-y-1">
             <p><i class="fa-solid fa-wallet text-blue-700 mr-1" aria-hidden="true"></i> <strong>Pembayaran di toko:</strong></p>
             <div class="pay-badges-row pt-1">
-              <img src="pay-qris.svg" alt="QRIS" width="120" height="60" loading="lazy">
-              <img src="pay-tunai.svg" alt="Tunai" width="120" height="60" loading="lazy">
-              <img src="pay-kartu.svg" alt="Kartu Debit Kredit" width="120" height="60" loading="lazy">
-              <img src="pay-transfer.svg" alt="Transfer Bank" width="120" height="60" loading="lazy">
+              <span class="pay-chip">Tunai</span>
+              <span class="pay-chip">Kartu Kredit</span>
+              <span class="pay-chip">Kartu Debit</span>
+              <span class="pay-chip">Transfer</span>
+              <span class="pay-chip">QRIS</span>
             </div>
             <p><i class="fa-brands fa-whatsapp text-emerald-600 mr-1" aria-hidden="true"></i> <strong>Pemesanan WA:</strong> Bisa DP / transfer untuk pembelian besar maupun kecil, lalu ambil langsung di toko.</p>
           </div>
@@ -1382,12 +1384,21 @@
       if (sortMode === "price-asc") filtered.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
       else if (sortMode === "price-desc") filtered.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
       else if (sortMode === "name-asc") filtered.sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "id"));
-      document.getElementById("catalogResultCount").textContent = `${filtered.length} produk`;
-      if (!filtered.length) {
+      // Satu kartu per grup varian: varian lain dipilih lewat kotak kecil di dalam kartu
+      const shown = [];
+      const seenVariantGroups = new Set();
+      for (const it of filtered) {
+        const gk = variantGroupKey(it);
+        if (seenVariantGroups.has(gk)) continue;
+        seenVariantGroups.add(gk);
+        shown.push(it);
+      }
+      document.getElementById("catalogResultCount").textContent = `${shown.length} produk`;
+      if (!shown.length) {
         grid.innerHTML = `<div class="catalog-empty"><p role="status">Produk tidak ditemukan. Coba kata kunci lain.</p>${q || category !== "all" ? '<button type="button" class="catalog-reset" data-reset-filters>Lihat semua produk</button>' : ""}</div>`;
         return;
       }
-      grid.innerHTML = filtered.map((item, index) => {
+      grid.innerHTML = shown.map((item, index) => {
         const stockNum = Number(item.stock || 0);
         const outOfStock = stockNum <= 0;
         const limited = !outOfStock && stockNum < LOW_STOCK_LIMIT;
