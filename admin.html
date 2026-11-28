@@ -2621,6 +2621,16 @@
       }
       .brand-logo-card.is-empty-stock { opacity: .68; }
       .brand-emblem-box { height: 34px; width: 100%; display: flex; align-items: center; justify-content: center; }
+      .brand-emblem-image {
+        box-sizing: border-box;
+        width: 112px;
+        max-width: calc(100% - 2rem);
+        height: 100%;
+        padding: 2px 6px;
+        object-fit: contain;
+        border-radius: .35rem;
+      }
+      .brand-emblem-image.has-light-background { background: #f8fafc; }
       .brand-wordmark {
         font-family: 'Barlow Condensed', sans-serif;
         font-size: 1.02rem;
@@ -4770,6 +4780,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261127-5"></script>
+  <script type="module" src="./admin.js?v=20261128-1"></script>
 </body>
 </html>

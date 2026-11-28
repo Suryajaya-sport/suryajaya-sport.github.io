@@ -2570,26 +2570,26 @@
     }
 
     const CATALOG_BRANDS = [
-      { id: "yonex", name: "Yonex", sub: "Badminton", searchTerm: "Yonex", re: /\byonex\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><circle cx="24" cy="11" r="4.5" fill="#0066cc"/><circle cx="38" cy="11" r="4.5" fill="#10b981"/><path d="M18 19 L31 29 L44 19 L39 19 L31 24.5 L23 19 Z" fill="#0066cc"/><path d="M26 17 L31 21 L36 17" stroke="#10b981" stroke-width="2.5" fill="none"/></svg>` },
-      { id: "lining", name: "Li-Ning", sub: "Badminton & Sport", searchTerm: "Li-Ning", re: /\b(li-?ning|lining)\b/i, svg: `<svg viewBox="0 0 84 34" class="h-7 w-auto" aria-hidden="true"><path d="M14 25 C28 22, 44 14, 68 7 C52 17, 36 24, 18 28 Z" fill="#ef4444"/><path d="M24 12 L42 18 L28 24 Z" fill="#facc15"/></svg>` },
-      { id: "victor", name: "Victor", sub: "Badminton", searchTerm: "Victor", re: /\bvictor\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M22 7 L40 28 L58 7 L49 7 L40 19 L31 7 Z" fill="#2563eb"/><path d="M33 7 L40 15 L47 7 Z" fill="#ef4444"/></svg>` },
-      { id: "hiqua", name: "Hiqua", sub: "Badminton", searchTerm: "Hiqua", re: /\b(hi-?qua|hiqua)\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><rect x="20" y="7" width="6" height="20" rx="2" fill="#f5b700"/><rect x="34" y="7" width="6" height="20" rx="2" fill="#f5b700"/><rect x="20" y="14.5" width="20" height="5" fill="#f5b700"/><circle cx="52" cy="17" r="8" stroke="#38bdf8" stroke-width="4" fill="none"/><path d="M55 21 L62 27" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/></svg>` },
-      { id: "rs", name: "RS", sub: "Reinforce Speed", searchTerm: "RS", re: /\b(rs|reinforce(\s*speed)?)\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><polygon points="18,26 26,8 42,8 38,16 29,16 25,26" fill="#ef4444"/><polygon points="42,26 46,18 58,18 62,8 46,8 42,16 53,16 49,26" fill="#facc15"/></svg>` },
-      { id: "flypower", name: "Flypower", sub: "Badminton", searchTerm: "Flypower", re: /\bflypower\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M18 24 L36 8 L44 14 L58 8 L44 26 L36 19 Z" fill="#f97316"/><circle cx="58" cy="19" r="4" fill="#facc15"/></svg>` },
-      { id: "astec", name: "Astec", sub: "Badminton", searchTerm: "Astec", re: /\bastec\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><polygon points="40,6 22,28 31,28 40,16 49,28 58,28" fill="#38bdf8"/><rect x="31" y="21" width="18" height="4" fill="#f5b700"/></svg>` },
-      { id: "butterfly", name: "Butterfly", sub: "Tenis Meja", searchTerm: "Butterfly", re: /\bbutterfly\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M38 17 C28 6, 16 9, 20 20 C22 25, 32 25, 38 19 Z" fill="#ec4899"/><path d="M42 17 C52 6, 64 9, 60 20 C58 25, 48 25, 42 19 Z" fill="#f43f5e"/><rect x="38.5" y="10" width="3" height="15" rx="1.5" fill="#facc15"/></svg>` },
-      { id: "dhs", name: "DHS", sub: "Double Happiness", searchTerm: "DHS", re: /\b(dhs|double\s*happiness)\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><circle cx="33" cy="17" r="9" stroke="#ef4444" stroke-width="3.5" fill="none"/><circle cx="47" cy="17" r="9" stroke="#facc15" stroke-width="3.5" fill="none"/></svg>` },
-      { id: "nitaku", name: "Nitaku", sub: "Nittaku Pingpong", searchTerm: "Nitaku", re: /\b(nitaku|nittaku)\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><polygon points="24,26 24,8 32,8 48,20 48,8 56,8 56,26 48,26 32,14 32,26" fill="#38bdf8"/></svg>` },
-      { id: "donics", name: "Donics", sub: "Donic Pingpong", searchTerm: "Donic", re: /\b(donics?|donic)\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M24 8 H42 C52 8, 56 12, 56 17 C56 22, 52 26, 42 26 H24 Z" stroke="#10b981" stroke-width="4" fill="none"/><circle cx="40" cy="17" r="4" fill="#facc15"/></svg>` },
-      { id: "doublefish", name: "Double Fish", sub: "Tenis Meja", searchTerm: "Double Fish", re: /\bdouble\s*fish\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M22 14 C30 8, 42 8, 50 14 L58 9 L55 14 L58 19 L50 14 C42 20, 30 20, 22 14 Z" fill="#ef4444"/><path d="M58 22 C50 16, 38 16, 30 22 L22 17 L25 22 L22 27 L30 22 C38 28, 50 28, 58 22 Z" fill="#38bdf8"/></svg>` },
-      { id: "specs", name: "Specs", sub: "Futsal & Bola", searchTerm: "Specs", re: /\bspecs\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M20 22 L38 10 L58 10 L44 18 L60 18 L38 27 L24 27 Z" fill="#f5b700"/></svg>` },
-      { id: "ortuseight", name: "Ortuseight", sub: "Futsal & Running", searchTerm: "Ortuseight", re: /\b(ortuseight|ortus)\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><circle cx="40" cy="17" r="10" stroke="#f97316" stroke-width="4" fill="none"/><path d="M28 24 L52 10" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/></svg>` },
-      { id: "adidas", name: "Adidas", sub: "Sport & Futsal", searchTerm: "Adidas", re: /\badidas\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><polygon points="22,26 27,26 24,20 19,20" fill="#ffffff"/><polygon points="32,26 37,26 31,14 26,14" fill="#ffffff"/><polygon points="42,26 47,26 38,8 33,8" fill="#ffffff"/></svg>` },
-      { id: "nike", name: "Nike", sub: "Sport & Futsal", searchTerm: "Nike", re: /\bnike\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M22 21 C19 18, 22 12, 27 10 C25 14, 27 17, 33 16 L62 9 L31 23 C26 25, 23 23, 22 21 Z" fill="#ffffff"/></svg>` },
-      { id: "molten", name: "Molten", sub: "Bola Basket & Voli", searchTerm: "Molten", re: /\bmolten\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M22 22 C28 10, 44 8, 58 14 C48 16, 38 20, 32 26 Z" fill="#ef4444"/><path d="M28 12 C38 12, 48 16, 54 24" stroke="#facc15" stroke-width="3" fill="none"/></svg>` },
-      { id: "mikasa", name: "Mikasa", sub: "Bola Voli & Sepak", searchTerm: "Mikasa", re: /\bmikasa\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><circle cx="40" cy="17" r="10" fill="#2563eb"/><path d="M31 14 Q40 9 49 14 Q44 22 36 22 Z" fill="#facc15"/></svg>` },
-      { id: "mizuno", name: "Mizuno", sub: "Badminton & Voli", searchTerm: "Mizuno", re: /\bmizuno\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M18 23 C28 11, 44 9, 62 11 C46 15, 36 20, 28 26 Z" fill="#38bdf8"/></svg>` },
-      { id: "asics", name: "Asics", sub: "Sepatu & Voli", searchTerm: "Asics", re: /\basics\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M46 9 C32 9, 24 16, 26 23 C28 27, 36 26, 44 20 L48 25 H54 L47 9 Z M34 21 C31 21, 31 16, 37 14 L41 14 L38 20 C36 21, 35 21, 34 21 Z" fill="#60a5fa"/></svg>` }
+      { id: "yonex", name: "Yonex", sub: "Badminton", searchTerm: "Yonex", re: /\byonex\b/i, logo: "01-Yonex.svg" },
+      { id: "lining", name: "Li-Ning", sub: "Badminton & Sport", searchTerm: "Li-Ning", re: /\b(li-?ning|lining)\b/i, logo: "02-Li-Ning.svg", lightLogoBackground: true },
+      { id: "victor", name: "Victor", sub: "Badminton", searchTerm: "Victor", re: /\bvictor\b/i, logo: "03-Victor.png" },
+      { id: "hiqua", name: "Hiqua", sub: "Badminton", searchTerm: "Hiqua", re: /\b(hi-?qua|hiqua)\b/i, logo: "04-Hi-Qua.png" },
+      { id: "rs", name: "RS", sub: "Reinforce Speed", searchTerm: "RS", re: /\b(rs|reinforce(\s*speed)?)\b/i, logo: "05-RS-Reinforce-Speed.png" },
+      { id: "flypower", name: "Flypower", sub: "Badminton", searchTerm: "Flypower", re: /\bflypower\b/i, logo: "06-Flypower.png" },
+      { id: "astec", name: "Astec", sub: "Badminton", searchTerm: "Astec", re: /\bastec\b/i, logo: "07-Astec.svg" },
+      { id: "butterfly", name: "Butterfly", sub: "Tenis Meja", searchTerm: "Butterfly", re: /\bbutterfly\b/i, logo: "08-Butterfly.svg" },
+      { id: "dhs", name: "DHS", sub: "Double Happiness", searchTerm: "DHS", re: /\b(dhs|double\s*happiness)\b/i, logo: "09-DHS-Double-Happiness.png" },
+      { id: "nitaku", name: "Nitaku", sub: "Nittaku Pingpong", searchTerm: "Nitaku", re: /\b(nitaku|nittaku)\b/i, logo: "10-Nittaku.svg" },
+      { id: "donics", name: "Donics", sub: "Donic Pingpong", searchTerm: "Donic", re: /\b(donics?|donic)\b/i, logo: "11-DONIC.png" },
+      { id: "doublefish", name: "Double Fish", sub: "Tenis Meja", searchTerm: "Double Fish", re: /\bdouble\s*fish\b/i, logo: "12-Double-Fish.png" },
+      { id: "specs", name: "Specs", sub: "Futsal & Bola", searchTerm: "Specs", re: /\bspecs\b/i, logo: "13-Specs.svg", lightLogoBackground: true },
+      { id: "ortuseight", name: "Ortuseight", sub: "Futsal & Running", searchTerm: "Ortuseight", re: /\b(ortuseight|ortus)\b/i, logo: "14-Ortuseight.png" },
+      { id: "adidas", name: "Adidas", sub: "Sport & Futsal", searchTerm: "Adidas", re: /\badidas\b/i, logo: "15-Adidas.svg" },
+      { id: "nike", name: "Nike", sub: "Sport & Futsal", searchTerm: "Nike", re: /\bnike\b/i, logo: "16-Nike.svg", lightLogoBackground: true },
+      { id: "molten", name: "Molten", sub: "Bola Basket & Voli", searchTerm: "Molten", re: /\bmolten\b/i, logo: "17-Molten.svg", lightLogoBackground: true },
+      { id: "mikasa", name: "Mikasa", sub: "Bola Voli & Sepak", searchTerm: "Mikasa", re: /\bmikasa\b/i, logo: "18-Mikasa.svg" },
+      { id: "mizuno", name: "Mizuno", sub: "Badminton & Voli", searchTerm: "Mizuno", re: /\bmizuno\b/i, logo: "19-Mizuno.svg" },
+      { id: "asics", name: "Asics", sub: "Sepatu & Voli", searchTerm: "Asics", re: /\basics\b/i, logo: "20-ASICS.png", lightLogoBackground: true }
     ];
     let activeBrandId = "";
     function itemHaystack(item) {
@@ -2609,7 +2609,7 @@
         const isActive = activeBrandId === b.id;
         return `<button type="button" data-brand-id="${esc(b.id)}" class="brand-logo-card ${isActive ? "is-active" : ""} ${count === 0 ? "is-empty-stock" : ""}" aria-pressed="${isActive}">
           <span class="brand-count-pill ${count > 0 ? "has-stock" : ""}">${count}</span>
-          <div class="brand-emblem-box">${b.svg}</div>
+          <div class="brand-emblem-box"><img class="brand-emblem-image${b.lightLogoBackground ? " has-light-background" : ""}" src="./assets/brand-logos/${esc(b.logo)}" alt="" width="112" height="34" decoding="async"></div>
           <span class="brand-wordmark">${esc(b.name)}</span>
           <span class="brand-sub-label">${esc(b.sub)}</span>
         </button>`;
