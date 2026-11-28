@@ -257,7 +257,7 @@ export function renderCustomerViewTemplate(container, { isAdminPreview = false }
     <section id="produk-unggulan" class="flex flex-col gap-3" aria-labelledby="featuredProductsTitle">
       <div class="catalog-heading">
         <div>
-          <h2 id="featuredProductsTitle">&#11088; Produk Unggulan &amp; Promo Pilihan</h2>
+          <h2 id="featuredProductsTitle" class="!text-[#facc15]">&#11088; Produk Unggulan &amp; Promo Pilihan</h2>
           <span class="text-xs font-bold text-slate-500">8 produk terlaris &amp; favorit pelanggan Surya Jaya Sport Berau</span>
         </div>
         <a href="#publicProductCatalog" class="shop-button shop-button-secondary !min-h-10 !py-2 !px-4 !text-xs">Lihat Semua Produk <i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a>
@@ -455,50 +455,10 @@ export function renderCustomerViewTemplate(container, { isAdminPreview = false }
 
     <section id="testimoni-pelanggan" class="flex flex-col gap-4" aria-labelledby="testimonialsTitle">
       <div class="catalog-heading">
-        <h2 id="testimonialsTitle">Testimoni Pelanggan</h2>
+        <h2 id="testimonialsTitle" class="!text-[#facc15]">&#11088; Testimoni Pelanggan</h2>
         <span class="text-xs font-bold text-slate-500">Dipercaya pemain badminton, futsal, &amp; musisi di Berau</span>
       </div>
-      <div class="testimonials-grid">
-        <article class="testimonial-card">
-          <div class="space-y-2">
-            <div class="testimonial-stars" aria-label="5 dari 5 bintang">⭐⭐⭐⭐⭐</div>
-            <p class="text-sm font-semibold text-slate-200 leading-relaxed">"Barang lengkap dan harga bersahabat."</p>
-          </div>
-          <div class="flex items-center gap-2.5 pt-2 border-t border-slate-200">
-            <span class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 text-xs font-extrabold text-amber-300 inline-flex items-center justify-center">A</span>
-            <div>
-              <strong class="block text-xs font-extrabold text-white">Andi</strong>
-              <span class="block text-[11px] text-slate-500">Pelanggan Tanjung Redeb</span>
-            </div>
-          </div>
-        </article>
-        <article class="testimonial-card">
-          <div class="space-y-2">
-            <div class="testimonial-stars" aria-label="5 dari 5 bintang">⭐⭐⭐⭐⭐</div>
-            <p class="text-sm font-semibold text-slate-200 leading-relaxed">"Pasang senar cepat dan rapi."</p>
-          </div>
-          <div class="flex items-center gap-2.5 pt-2 border-t border-slate-200">
-            <span class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 text-xs font-extrabold text-amber-300 inline-flex items-center justify-center">R</span>
-            <div>
-              <strong class="block text-xs font-extrabold text-white">Rizky</strong>
-              <span class="block text-[11px] text-slate-500">Pemain Badminton Berau</span>
-            </div>
-          </div>
-        </article>
-        <article class="testimonial-card">
-          <div class="space-y-2">
-            <div class="testimonial-stars" aria-label="5 dari 5 bintang">⭐⭐⭐⭐⭐</div>
-            <p class="text-sm font-semibold text-slate-200 leading-relaxed">"Langganan beli shuttlecock di sini."</p>
-          </div>
-          <div class="flex items-center gap-2.5 pt-2 border-t border-slate-200">
-            <span class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 text-xs font-extrabold text-amber-300 inline-flex items-center justify-center">B</span>
-            <div>
-              <strong class="block text-xs font-extrabold text-white">Budi</strong>
-              <span class="block text-[11px] text-slate-500">Pelanggan Tetap Berau</span>
-            </div>
-          </div>
-        </article>
-      </div>
+      <div id="testimonialsRandomGrid" class="testimonials-grid"></div>
     </section>
   `;
 }
@@ -529,10 +489,10 @@ export function renderCustomerCatalogState({ publicCatalog, catalogLoadState, on
   if (featuredSecEl && featuredGridEl) {
     const allAvailable = groupCatalogProducts(publicCatalog).filter(g => g.totalStock > 0);
     const withPhoto = allAvailable.filter(g => Boolean(safeHttpsUrl(g.primary.imageUrl)));
-    const featuredList = (withPhoto.length ? withPhoto : allAvailable)
+    const sortedAvailable = (withPhoto.length ? withPhoto : allAvailable)
       .slice()
-      .sort((a, b) => (Boolean(b.primary.featured) - Boolean(a.primary.featured)) || b.totalStock - a.totalStock)
-      .slice(0, 8);
+      .sort((a, b) => (Boolean(b.primary.featured) - Boolean(a.primary.featured)) || b.totalStock - a.totalStock);
+    const featuredList = sortedAvailable.slice(0, 16);
     if (featuredList.length && !q && category === "all") {
       featuredSecEl.hidden = false;
       featuredGridEl.innerHTML = featuredList.map((g, i) => buildCatalogCardHtml(g, i, true)).join("");
@@ -560,6 +520,7 @@ export function renderCustomerCatalogState({ publicCatalog, catalogLoadState, on
   else if (sortMode === "price-desc") grouped.sort((a, b) => b.maxPrice - a.maxPrice);
   else if (sortMode === "name-asc") grouped.sort((a, b) => String(a.primary.name || "").localeCompare(String(b.primary.name || ""), "id"));
 
+  renderRandomTestimonials(3);
   const countEl = document.getElementById("catalogResultCount");
   if (countEl) countEl.textContent = `${grouped.length} produk`;
   if (onRendered) onRendered(grouped);
@@ -643,4 +604,35 @@ export function openCustomerProductModal({ publicCatalog, id, onAddCart }) {
     }, 2000);
   });
   if (!dlg.open) dlg.showModal();
+}
+
+
+const TESTIMONIAL_POOL = [
+  { initial: "A", name: "Andi", role: "Pelanggan Tanjung Redeb", quote: "Barang lengkap dan harga bersahabat." },
+  { initial: "R", name: "Rizky", role: "Pemain Badminton Berau", quote: "Pasang senar cepat dan rapi." },
+  { initial: "B", name: "Budi", role: "Pelanggan Tetap Berau", quote: "Langganan beli shuttlecock di sini." },
+  { initial: "F", name: "Fajar", role: "Atlet Futsal Berau", quote: "Bola futsal dan sepatu olahraga pilihannya banyak." },
+  { initial: "D", name: "Dimas", role: "Pemain Hobi Musik Berau", quote: "Senar gitar dan perlengkapan musik selalu tersedia." },
+  { initial: "H", name: "Hendra", role: "Pengurus Klub Berau", quote: "Bisa tanya stok dulu via WhatsApp sebelum ke toko." }
+];
+
+export function renderRandomTestimonials(count = 3) {
+  const wrap = document.getElementById("testimonialsRandomGrid");
+  if (!wrap) return;
+  const shuffled = TESTIMONIAL_POOL.slice().sort(() => Math.random() - 0.5).slice(0, count);
+  wrap.innerHTML = shuffled.map(t => `
+    <article class="testimonial-card" style="border-top:2px solid #facc15">
+      <div class="space-y-2">
+        <div class="testimonial-stars" aria-label="5 dari 5 bintang">⭐⭐⭐⭐⭐</div>
+        <p class="text-sm font-semibold text-slate-200 leading-relaxed">"${escHtml(t.quote)}"</p>
+      </div>
+      <div class="flex items-center gap-2.5 pt-2 border-t border-slate-700/70">
+        <span class="w-8 h-8 rounded-full bg-amber-400/15 border border-amber-400/50 text-xs font-extrabold text-amber-300 inline-flex items-center justify-center">${escHtml(t.initial)}</span>
+        <div>
+          <strong class="block text-xs font-extrabold text-white">${escHtml(t.name)}</strong>
+          <span class="block text-[11px] text-slate-400">${escHtml(t.role)}</span>
+        </div>
+      </div>
+    </article>
+  `).join("");
 }

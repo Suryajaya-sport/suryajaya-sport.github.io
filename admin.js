@@ -825,70 +825,78 @@
           tx.set(invRef, patch, { merge: true });
           if (published.exists()) tx.set(publicRef, publicProductData(patch));
         });
-        // Simpan & perbarui varian (berlaku untuk Tambah Baru maupun Ubah Barang)
+        // Varian hanya dibuat/diperbarui jika pengguna secara eksplisit mengisi baris varian di #invVariantsList
         let savedVariants = 0;
         const vRows = [...document.querySelectorAll("#invVariantsList .inv-variant-row")];
-        const validVarRows = vRows.filter(vr => (vr.querySelector(".var-size")?.value.trim() || vr.querySelector(".var-color")?.value.trim()));
-        const groupId = oldItem?.variantGroup || itemId;
+        const validVarRows = vRows.filter(vr => {
+          const hasSz = Boolean(vr.querySelector(".var-size")?.value.trim());
+          const hasCl = Boolean(vr.querySelector(".var-color")?.value.trim());
+          const hasSt = Number(vr.querySelector(".var-stock")?.value || 0) > 0;
+          const hasPr = parseIdrNum(vr.querySelector(".var-price")?.value) > 0;
+          return hasSz || hasCl || hasSt || hasPr;
+        });
         const isMainPublished = publicCatalog.some(p => p.id === itemId);
 
-        if (validVarRows.length > 0 && oldItem?.variantGroup !== groupId) {
-          await setDoc(doc(db, ...paths("inventory", itemId)), { variantGroup: groupId }, { merge: true });
-          if (isMainPublished) {
-            await setDoc(doc(db, "publicCatalog", itemId), publicProductData({ ...itemData, variantGroup: groupId }), { merge: true });
-          }
-        }
-
-        const usedCodes = new Set(inventory.map(i => String(i.code || "").trim().toLowerCase()));
-        usedCodes.add(code.toLowerCase());
-        const allocCode = (idx) => {
-          const suffix = idx < 26 ? String.fromCharCode(65 + idx) : String(idx + 1);
-          let cand = `${code}-${suffix}`;
-          let seq = 2;
-          while (usedCodes.has(cand.toLowerCase())) { cand = `${code}-${suffix}${seq++}`; }
-          usedCodes.add(cand.toLowerCase());
-          return cand;
-        };
-
-        for (let vi = 0; vi < validVarRows.length; vi++) {
-          const vr = validVarRows[vi];
-          const existingId = vr.dataset.varId || "";
-          const vId = existingId || doc(collection(db, ...paths("inventory"))).id;
-          const vCode = vr.dataset.existingCode || allocCode(vi);
-          const vSize = vr.querySelector(".var-size")?.value.trim() || "";
-          const vColor = vr.querySelector(".var-color")?.value.trim() || "";
-          const vStock = Math.max(0, Math.trunc(Number(vr.querySelector(".var-stock")?.value) || 0));
-          const vPrice = parseIdrNum(vr.querySelector(".var-price")?.value) || price;
-
-          let vImgUrl = vr.dataset.clearPhoto === "1" ? (itemData.imageUrl || "") : (vr.dataset.existingImgUrl || itemData.imageUrl || "");
-          let vImgPath = vr.dataset.clearPhoto === "1" ? (itemData.imagePath || "") : (vr.dataset.existingImgPath || itemData.imagePath || "");
-          const vFile = vr.querySelector(".var-photo-input")?.files?.[0] || null;
-          if (vFile) {
-            showToast(`Mengunggah foto varian ${vi + 1}/${validVarRows.length}...`);
-            const upVar = await uploadProductImage(vFile, vId);
-            vImgUrl = upVar.imageUrl;
-            vImgPath = upVar.imagePath;
+        if (validVarRows.length > 0) {
+          const groupId = oldItem?.variantGroup || itemId;
+          if (oldItem?.variantGroup !== groupId) {
+            await setDoc(doc(db, ...paths("inventory", itemId)), { variantGroup: groupId }, { merge: true });
+            if (isMainPublished) {
+              await setDoc(doc(db, "publicCatalog", itemId), publicProductData({ ...itemData, variantGroup: groupId }), { merge: true });
+            }
           }
 
-          const vData = {
-            code: vCode,
-            name,
-            size: vSize,
-            color: vColor,
-            stock: vStock,
-            cost,
-            price: vPrice,
-            description: autoDesc,
-            imageUrl: vImgUrl,
-            imagePath: vImgPath,
-            variantGroup: groupId,
-            updatedAt: new Date().toISOString()
+          const usedCodes = new Set(inventory.map(i => String(i.code || "").trim().toLowerCase()));
+          usedCodes.add(code.toLowerCase());
+          const allocCode = (idx) => {
+            const suffix = idx < 26 ? String.fromCharCode(65 + idx) : String(idx + 1);
+            let cand = `${code}-${suffix}`;
+            let seq = 2;
+            while (usedCodes.has(cand.toLowerCase())) { cand = `${code}-${suffix}${seq++}`; }
+            usedCodes.add(cand.toLowerCase());
+            return cand;
           };
-          await setDoc(doc(db, ...paths("inventory", vId)), vData, { merge: true });
-          if (isMainPublished) {
-            await setDoc(doc(db, "publicCatalog", vId), publicProductData(vData));
+
+          for (let vi = 0; vi < validVarRows.length; vi++) {
+            const vr = validVarRows[vi];
+            const existingId = vr.dataset.varId || "";
+            const vId = existingId || doc(collection(db, ...paths("inventory"))).id;
+            const vCode = vr.dataset.existingCode || allocCode(vi);
+            const vSize = vr.querySelector(".var-size")?.value.trim() || "";
+            const vColor = vr.querySelector(".var-color")?.value.trim() || "";
+            const vStock = Math.max(0, Math.trunc(Number(vr.querySelector(".var-stock")?.value) || 0));
+            const vPrice = parseIdrNum(vr.querySelector(".var-price")?.value) || price;
+
+            let vImgUrl = vr.dataset.clearPhoto === "1" ? (itemData.imageUrl || "") : (vr.dataset.existingImgUrl || itemData.imageUrl || "");
+            let vImgPath = vr.dataset.clearPhoto === "1" ? (itemData.imagePath || "") : (vr.dataset.existingImgPath || itemData.imagePath || "");
+            const vFile = vr.querySelector(".var-photo-input")?.files?.[0] || null;
+            if (vFile) {
+              showToast(`Mengunggah foto varian ${vi + 1}/${validVarRows.length}...`);
+              const upVar = await uploadProductImage(vFile, vId);
+              vImgUrl = upVar.imageUrl;
+              vImgPath = upVar.imagePath;
+            }
+
+            const vData = {
+              code: vCode,
+              name,
+              size: vSize,
+              color: vColor,
+              stock: vStock,
+              cost,
+              price: vPrice,
+              description: autoDesc,
+              imageUrl: vImgUrl,
+              imagePath: vImgPath,
+              variantGroup: groupId,
+              updatedAt: new Date().toISOString()
+            };
+            await setDoc(doc(db, ...paths("inventory", vId)), vData, { merge: true });
+            if (isMainPublished) {
+              await setDoc(doc(db, "publicCatalog", vId), publicProductData(vData));
+            }
+            savedVariants++;
           }
-          savedVariants++;
         }
 
         for (const remId of removedVariantIds) {
