@@ -22,7 +22,7 @@
         <p class="text-xs text-amber-300/90">Sport for a Better Life · Jl. Ahmad Yani 37, Berau</p>
       </div>
       <div class="flex items-center gap-2">
-        <button type="button" id="btnViewCatalog" class="px-3.5 py-2 rounded-xl dark-pill text-xs font-bold cursor-pointer">Katalog User</button>
+        <a href="./" class="px-3.5 py-2 rounded-xl dark-pill text-xs font-bold cursor-pointer">Katalog User</a>
         <button type="button" id="btnViewAdmin" class="px-3.5 py-2 rounded-xl gold-btn text-xs cursor-pointer">Dashboard Admin</button>
       </div>
     </div>
@@ -71,22 +71,22 @@
       </div>
     </section>
 
-    <!-- HALAMAN USER / KATALOG & BRAND -->
+    <!-- KELOLA KATALOG & BRAND -->
     <section id="catalogSection" class="space-y-5">
       <div class="gold-card p-4 space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h2 class="text-base font-black text-white">Brand Resmi</h2>
-            <p class="text-xs text-zinc-400">Klik nama brand untuk membuka daftar produk khusus brand tersebut</p>
+            <h2 class="text-base font-black text-white">Filter Brand</h2>
+            <p class="text-xs text-zinc-400">Klik nama brand untuk menyaring produk</p>
           </div>
           <button type="button" id="btnClearBrand" class="hidden px-3 py-1.5 rounded-xl dark-pill text-xs font-bold text-amber-300 cursor-pointer">Tampilkan Semua Brand</button>
         </div>
-        <div id="brandTextGrid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2.5"></div>
+        <div id="brandTextGrid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-2"></div>
       </div>
 
       <div id="brandSpecialBanner" class="hidden gold-card p-4 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <span class="px-2.5 py-0.5 rounded-full gold-btn text-[10px] uppercase">Halaman Brand Khusus</span>
+          <span class="px-2.5 py-0.5 rounded-full gold-btn text-[10px] uppercase">Brand Terpilih</span>
           <h3 id="brandSpecialTitle" class="text-xl font-black text-white mt-1"></h3>
           <p id="brandSpecialCount" class="text-xs text-zinc-300"></p>
         </div>
@@ -94,8 +94,11 @@
       </div>
 
       <div class="flex flex-wrap items-center justify-between gap-3">
-        <h2 class="text-lg font-black uppercase text-white">Katalog Produk</h2>
-        <input type="search" id="catalogSearchInput" placeholder="Cari produk, senar, raket, futsal..." class="w-full sm:w-72 rounded-xl bg-[#0b0e14] border border-amber-400/40 px-3.5 py-2 text-sm text-white">
+        <h2 class="text-lg font-black uppercase text-white">Kelola Produk, Harga &amp; Foto</h2>
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" data-quick-action="produk" class="px-3.5 py-2 rounded-xl gold-btn text-xs cursor-pointer">+ Tambah Barang &amp; Foto</button>
+          <input type="search" id="catalogSearchInput" placeholder="Cari produk, kode, brand..." class="w-full sm:w-72 rounded-xl bg-[#0b0e14] border border-amber-400/40 px-3.5 py-2 text-sm text-white">
+        </div>
       </div>
       <div id="catalogGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
     </section>
