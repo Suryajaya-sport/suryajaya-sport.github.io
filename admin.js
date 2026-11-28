@@ -750,8 +750,11 @@
     }
 
     // ==================== SIMPAN BARANG ====================
+    let invSaveInProgress = false;
     async function saveInventoryItem() {
       if (!isAdmin) return showToast("Masuk sebagai pemilik terlebih dahulu.");
+      if (invSaveInProgress) return;
+      invSaveInProgress = true;
       const editId = document.getElementById("editInvId").value.trim();
       const name = document.getElementById("invName").value.trim();
       let code = document.getElementById("invCode").value.trim();
@@ -898,6 +901,8 @@
       } catch (err) {
         console.error(err);
         showToast("Gagal menyimpan: " + (err.message || "kesalahan tidak diketahui"));
+      } finally {
+        invSaveInProgress = false;
       }
     }
 
@@ -1185,8 +1190,7 @@
       const siblings = activeInventory().filter(i =>
         i.id !== item.id && (
           (item.variantGroup && i.variantGroup === item.variantGroup) ||
-          i.variantGroup === item.id ||
-          (!item.variantGroup && String(i.name || "").trim().toLowerCase() === String(item.name || "").trim().toLowerCase())
+          i.variantGroup === item.id
         )
       );
       for (const sib of siblings) addInvVariantRow(sib);
@@ -2974,6 +2978,14 @@
         const stock = Number(item.stock || 0);
         const cost = Number(item.cost || 0), price = Number(item.price || 0);
         const badge = stock <= 0 ? "is-empty" : stock < LOW_STOCK_LIMIT ? "is-low" : "";
+        const stockBadgeStyle = stock <= 0
+          ? "background:rgba(239,68,68,0.16);color:#ef4444;border:1px solid rgba(239,68,68,0.55);font-weight:700;"
+          : stock < LOW_STOCK_LIMIT
+            ? "background:rgba(245,158,11,0.16);color:#f59e0b;border:1px solid rgba(245,158,11,0.55);font-weight:700;"
+            : "background:rgba(16,185,129,0.16);color:#10b981;border:1px solid rgba(16,185,129,0.55);font-weight:700;";
+        const stockLabelText = stock <= 0 ? "0 pcs ⛔ Merah" : stock < LOW_STOCK_LIMIT ? `${stock} pcs ⚠️ Oranye` : `${stock} pcs ✅ Hijau`;
+        const profitVal = price - cost;
+        const profitStyle = profitVal < 0 ? "color:#ef4444 !important;font-weight:700 !important;" : "color:#60a5fa;font-weight:700;";
         const status = item.archivedAt ? "Diarsipkan" : published.has(item.id) ? "Terbit" : "Belum terbit";
         const cat = detectProductCategoryLabel(item);
         const id = esc(item.id);
@@ -3005,9 +3017,9 @@
           <td class="py-3 px-3 text-right tabular-nums text-slate-600 whitespace-nowrap">${rp(cost)}</td>
           <td class="py-3 px-3 text-right font-extrabold text-emerald-800 tabular-nums whitespace-nowrap">${rp(price)}</td>
           <td class="py-3 px-3 text-center whitespace-nowrap">
-            <button type="button" data-stock-card="${id}" title="Klik untuk lihat Kartu Stok" class="stock-indicator ${badge} cursor-pointer hover:ring-2 hover:ring-blue-400 transition">${stock} Pcs <i class="fa-solid fa-clock-rotate-left ml-1 text-[10px] opacity-75"></i></button>
+            <button type="button" data-stock-card="${id}" title="Klik untuk lihat Kartu Stok" style="${stockBadgeStyle}" class="stock-indicator ${badge} cursor-pointer hover:ring-2 hover:ring-amber-400 transition">${stockLabelText} <i class="fa-solid fa-clock-rotate-left ml-1 text-[10px] opacity-75"></i></button>
           </td>
-          <td class="py-3 px-3 text-right font-bold text-blue-800 tabular-nums whitespace-nowrap">${rp(price - cost)}</td>
+          <td style="${profitStyle}" class="py-3 px-3 text-right tabular-nums whitespace-nowrap">${rp(profitVal)}</td>
           <td class="py-3 px-3 text-center whitespace-nowrap">
             <div class="inline-flex items-center gap-1">${quickMove}${editBtns}</div>
           </td>`;
@@ -3023,12 +3035,12 @@
               <p class="font-extrabold break-words leading-snug">${esc(item.name)}</p>
               <p class="text-xs text-slate-500 mt-0.5"><span class="font-mono font-bold text-blue-800">${esc(item.code || "-")}</span> · ${esc(cat.label)} · ${status}</p>
             </div>
-            <button type="button" data-stock-card="${id}" title="Lihat Kartu Stok" class="stock-indicator ${badge} shrink-0 cursor-pointer">${stock} Pcs</button>
+            <button type="button" data-stock-card="${id}" title="Lihat Kartu Stok" style="${stockBadgeStyle}" class="stock-indicator ${badge} shrink-0 cursor-pointer">${stockLabelText}</button>
           </div>
-          <div class="grid grid-cols-3 gap-2 bg-slate-50 p-2.5 rounded-xl text-xs text-center">
+          <div style="background:#0f172a;border:1px solid #1f2937" class="grid grid-cols-3 gap-2 p-2.5 rounded-xl text-xs text-center">
             <div>Modal<br><strong class="tabular-nums">${rp(cost)}</strong></div>
-            <div>Jual<br><strong class="tabular-nums text-emerald-800">${rp(price)}</strong></div>
-            <div>Untung<br><strong class="tabular-nums text-blue-800">${rp(price - cost)}</strong></div>
+            <div>Jual<br><strong style="color:#10b981" class="tabular-nums">${rp(price)}</strong></div>
+            <div>Untung<br><strong style="${profitStyle}" class="tabular-nums">${rp(profitVal)}</strong></div>
           </div>
           <div class="flex flex-wrap items-center gap-1.5">${quickMove}${editBtns}</div>`;
         cards.appendChild(card);

@@ -2791,6 +2791,141 @@
       }
       .shop-footer strong { color: var(--dark-text) !important; }
 
+
+      /* 1 & 2. Card Dashboard & Tabel Produk Dark Mode (#131c2e / #111827) */
+      body.sjs-admin .sjs-chart-card,
+      body.sjs-admin .sjs-chart-card.is-dark,
+      body.sjs-admin .kledo-card,
+      body.sjs-admin .bento-pastel-card,
+      body.sjs-admin .sjs-ratio-card,
+      body.sjs-admin #inventoryCatalogPanel,
+      body.sjs-admin #viewInventory > .workspace-metrics > div:not(.bg-amber-50),
+      body.sjs-admin #viewInventory > section.bg-white,
+      body.sjs-admin #viewBooks .bg-white,
+      body.sjs-admin #viewBackup .bg-white,
+      body.sjs-admin #salesHistoryWorkspace > section.bg-white,
+      body.sjs-admin .workspace-heading,
+      body.sjs-admin .workspace-record {
+        background: #131c2e !important;
+        background-image: none !important;
+        border-color: #1f2937 !important;
+        color: #f8fafc !important;
+        box-shadow: 0 10px 24px -12px rgba(0, 0, 0, 0.55) !important;
+      }
+      body.sjs-admin .uikit-row,
+      body.sjs-admin #tableStockPriorityWrap .rounded-2xl,
+      body.sjs-admin #ownerPurchaseHistory .bg-white,
+      body.sjs-admin #ownerTopExpenseTable .bg-white,
+      body.sjs-admin #booksCashCard .bg-white,
+      body.sjs-admin #booksUmkmTaxCard .bg-white {
+        background: #0f172a !important;
+        border-color: #1f2937 !important;
+        color: #e2e8f0 !important;
+      }
+      body.sjs-admin .uikit-row-label,
+      body.sjs-admin .uikit-row-val,
+      body.sjs-admin .kledo-card-val,
+      body.sjs-admin .workspace-section-title,
+      body.sjs-admin #inventoryTableBody .text-slate-900,
+      body.sjs-admin #inventoryMobileList .text-slate-900,
+      body.sjs-admin #tableStockPriorityWrap .text-slate-900,
+      body.sjs-admin #svgSalesGaugeWrap .text-slate-900 {
+        color: #f8fafc !important;
+      }
+      body.sjs-admin .uikit-row-head .text-slate-400,
+      body.sjs-admin .sjs-chart-sub,
+      body.sjs-admin .kledo-card-title,
+      body.sjs-admin .kledo-card-sub,
+      body.sjs-admin #inventoryResultCount,
+      body.sjs-admin #inventoryCatalogStatus {
+        color: #94a3b8 !important;
+      }
+      body.sjs-admin .uikit-bar-track {
+        background: #1e293b !important;
+      }
+
+      /* Tabel Produk (#viewInventory table) */
+      body.sjs-admin #viewInventory table,
+      body.sjs-admin #viewInventory table tbody,
+      body.sjs-admin #viewInventory table tbody tr,
+      body.sjs-admin #viewInventory table tbody tr:nth-child(even),
+      body.sjs-admin #viewInventory table tbody td {
+        background: #111827 !important;
+        border-color: #1f2937 !important;
+        color: #e2e8f0 !important;
+      }
+      body.sjs-admin #viewInventory table tbody tr:hover,
+      body.sjs-admin #viewInventory table tbody tr:nth-child(even):hover {
+        background: #182236 !important;
+      }
+      body.sjs-admin #viewInventory table thead,
+      body.sjs-admin #viewInventory table thead tr,
+      body.sjs-admin #viewInventory table thead th {
+        background: #0f172a !important;
+        border-color: #1f2937 !important;
+        color: #cbd5e1 !important;
+      }
+      body.sjs-admin .inv-sort-btn {
+        color: #cbd5e1 !important;
+      }
+      body.sjs-admin .inv-sort-btn:hover {
+        background: #1e293b !important;
+        color: #facc15 !important;
+      }
+      body.sjs-admin .inv-sort-btn.is-active {
+        background: rgba(250, 204, 21, 0.16) !important;
+        color: #facc15 !important;
+      }
+
+      /* 3. Pertahankan Sidebar & Kuning Aktif (#facc15 / #000) */
+      body.sjs-admin #mainNavigation button[data-workspace][aria-current="page"],
+      body.sjs-admin #mainNavigation button[data-workspace][aria-current="page"] span:not(#navStockBadge) {
+        background: #facc15 !important;
+        color: #000000 !important;
+        opacity: 1 !important;
+      }
+
+      /* 6. Highlight Barang Mati Total / Dead Stock */
+      body.sjs-admin #listDeadStockWrap > div {
+        background: rgba(239, 68, 68, 0.08) !important;
+        border: 1.5px solid rgba(239, 68, 68, 0.55) !important;
+        color: #fecaca !important;
+      }
+      body.sjs-admin #listDeadStockWrap > div .text-rose-950,
+      body.sjs-admin #listDeadStockWrap > div .text-rose-800 {
+        color: #fca5a5 !important;
+      }
+
+      /* 7. Search Area, Filter & Kategori di Daftar Stok (48px, #334155 border, focus glow) */
+      body.sjs-admin #invSearchInput,
+      body.sjs-admin #inventoryCategoryFilter,
+      body.sjs-admin #inventoryFollowUp,
+      body.sjs-admin #inventorySortSelect {
+        height: 48px !important;
+        min-height: 48px !important;
+        background: #0f172a !important;
+        border: 1px solid #334155 !important;
+        color: #f8fafc !important;
+        border-radius: 0.85rem !important;
+        transition: border-color .15s ease, box-shadow .15s ease !important;
+      }
+      body.sjs-admin #invSearchInput:focus,
+      body.sjs-admin #inventoryCategoryFilter:focus,
+      body.sjs-admin #inventoryFollowUp:focus,
+      body.sjs-admin #inventorySortSelect:focus {
+        outline: none !important;
+        border-color: #facc15 !important;
+        box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.22) !important;
+      }
+      body.sjs-admin #viewInventory label:has(#invMissingPhotoOnly) {
+        height: 48px !important;
+        min-height: 48px !important;
+        background: #0f172a !important;
+        border: 1px solid #334155 !important;
+        color: #e2e8f0 !important;
+        border-radius: 0.85rem !important;
+      }
+
       /* Pertahankan Latar Putih Bersih pada QR, QRIS, Stiker agar mudah di-scan */
       #qrisCodeCanvas,
       #invCodeQrPreview,
