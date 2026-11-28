@@ -1,3 +1,5 @@
+index.html
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -233,39 +235,42 @@
     .shop-brand { display: flex; align-items: center; gap: .8rem; text-decoration: none; }
     .shop-brand img { width: 48px; height: 48px; object-fit: contain; border-radius: .9rem; background: #ffffff; padding: 4px; border: 1.5px solid #334155; }
     .shop-brand h1 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.6rem; font-weight: 800; text-transform: uppercase; color: #ffffff; line-height: 1.05; }
-    .shop-links { display: flex; gap: .35rem; background: var(--dark-card); border: 1px solid var(--dark-border); padding: .25rem; border-radius: 9999px; }
-    .shop-links a { font-size: .8125rem; font-weight: 700; color: #cbd5e1; padding: .4rem .9rem; border-radius: 9999px; text-decoration: none; }
-    .shop-links a:hover { background: var(--dark-elev); color: #ffffff; }
+    .shop-links { display: flex; align-items: center; gap: .45rem; background: var(--dark-card); border: 1px solid var(--dark-border); padding: .35rem .5rem; border-radius: 9999px; }
+    .shop-links a { font-size: .92rem; font-weight: 700; color: #e2e8f0; padding: .48rem 1.05rem; border-radius: 9999px; text-decoration: none; transition: background .15s, color .15s; white-space: nowrap; }
+    .shop-links a:hover { background: var(--dark-elev); color: #facc15; }
+    @media (max-width: 1080px) {
+      .shop-links a { font-size: .84rem; padding: .42rem .75rem; }
+    }
     .shop-header-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
 
-    .shop-main { max-width: 82rem; width: 100%; margin: 0 auto; padding: 1.35rem 1.15rem 3.5rem; display: flex; flex-direction: column; gap: 1.75rem; }
-    #kategori-unggulan, #produk-unggulan, #publicProductCatalog, #cara-pesan, #lokasi-toko { scroll-margin-top: calc(var(--sjs-header-h, 74px) + 16px); }
+    .shop-main { max-width: 82rem; width: 100%; margin: 0 auto; padding: 1.35rem 1.15rem 3.5rem; display: flex; flex-direction: column; gap: 1.85rem; }
+    #kategori-unggulan, #produk-unggulan, #publicProductCatalog, #cara-pesan, #lokasi-toko, #testimoni-pelanggan, #tentang-kami { scroll-margin-top: calc(var(--sjs-header-h, 74px) + 16px); }
 
     .shop-button { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 2.75rem; padding: .62rem 1.2rem; border-radius: .95rem; font-size: .875rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: all .15s; }
     .shop-button:disabled { opacity: .48; cursor: not-allowed; }
     .shop-button-primary { background: linear-gradient(135deg,#1d4ed8,#2563eb); color: #ffffff; border: 1px solid #3b82f6; }
     .shop-button-secondary { background: var(--dark-elev); color: var(--dark-text); border: 1px solid #334155; }
     .shop-button-secondary:hover:not(:disabled) { background: #283044; border-color: #60a5fa; }
-    .shop-button-accent { background: #1e293b; color: #ffffff; border: 1px solid #475569; font-weight: 800; }
+    .shop-button-accent { background: linear-gradient(135deg,#facc15,#eab308); color: #0b0e14; border: 1px solid #fde047; font-weight: 800; box-shadow: 0 6px 18px rgba(234, 179, 8, 0.25); }
+    .shop-button-accent:hover { filter: brightness(1.05); }
     .shop-button-outline { background: rgba(255,255,255,.12); color: #fff; border: 1.5px solid rgba(255,255,255,.32); }
     .shop-button-wa { background: linear-gradient(135deg,#16a34a,#15803d); color: #fff; border: 1px solid #22c55e; }
     .shop-button-wa:hover { background: #15803d; }
 
-    .shop-hero { position: relative; border-radius: 2rem; overflow: hidden; min-height: 350px; background: linear-gradient(95deg, rgba(7,20,51,.94) 0%, rgba(15,37,87,.84) 52%, rgba(15,37,87,.22) 100%), url('hero-surya-jaya-sport.webp') right center / cover no-repeat, #071433; color: #fff; border: 1.5px solid var(--dark-border); display: grid; grid-template-columns: minmax(0,1.2fr) minmax(0,.8fr); gap: 1.5rem; align-items: center; padding: 2.35rem 2rem; }
-    @media (max-width: 900px) { .shop-hero { grid-template-columns: 1fr; padding: 1.8rem 1.35rem; } }
-    .shop-hero-content { position: relative; z-index: 2; display: flex; flex-direction: column; gap: .9rem; }
-    .shop-eyebrow { display: inline-flex; align-items: center; gap: .45rem; width: fit-content; padding: .35rem .85rem; border-radius: 9999px; background: rgba(255,255,255,.14); font-size: .75rem; font-weight: 700; color: #e2e8f0; }
-    .shop-hero h2 { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(2.3rem,5vw,3.5rem); font-weight: 800; line-height: .96; text-transform: uppercase; }
-    .shop-hero-accent { color: #93c5fd; }
-    .hero-trust-row { display: flex; flex-wrap: wrap; gap: .5rem; }
-    .hero-trust-pill { display: inline-flex; align-items: center; gap: .4rem; padding: .35rem .75rem; border-radius: 9999px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18); font-size: .76rem; font-weight: 700; color: #f8fafc; }
+    .shop-hero { position: relative; border-radius: 2rem; overflow: hidden; min-height: 370px; background: radial-gradient(circle at 80% 45%, rgba(250,204,21,0.16), transparent 44%), linear-gradient(105deg, rgba(7,16,38,.97) 0%, rgba(15,37,87,.92) 56%, rgba(29,78,216,.78) 100%); color: #fff; border: 1.5px solid var(--dark-border); display: grid; grid-template-columns: minmax(0,1.22fr) minmax(0,.78fr); gap: 1.75rem; align-items: center; padding: 2.4rem 2.2rem; }
+    @media (max-width: 900px) { .shop-hero { grid-template-columns: 1fr; padding: 1.85rem 1.35rem; } }
+    .shop-hero-content { position: relative; z-index: 2; display: flex; flex-direction: column; gap: .95rem; }
+    .shop-eyebrow { display: inline-flex; align-items: center; gap: .45rem; width: fit-content; padding: .35rem .85rem; border-radius: 9999px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18); font-size: .76rem; font-weight: 700; color: #fde68a; }
+    .shop-hero h2 { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(2.4rem,5.2vw,3.7rem); font-weight: 800; line-height: .96; text-transform: uppercase; letter-spacing: .01em; }
+    .shop-hero-accent { color: #facc15; }
     .shop-hero-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
-    .hero-feature-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; position: relative; z-index: 2; }
-    .hero-feature-card { text-align: left; padding: 1rem; border-radius: 1.25rem; background: rgba(255,255,255,.11); border: 1px solid rgba(255,255,255,.2); color: #fff; cursor: pointer; display: flex; flex-direction: column; gap: .25rem; transition: transform .15s, background .15s; }
-    .hero-feature-card:hover { background: rgba(255,255,255,.2); transform: translateY(-2px); }
-    .hero-feature-card i { font-size: 1.2rem; color: #93c5fd; margin-bottom: .15rem; }
-    .hero-feature-card strong { font-size: .95rem; font-weight: 800; }
-    .hero-feature-card span { font-size: .74rem; color: #dbeafe; }
+    .hero-trust-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .55rem; margin-top: .25rem; }
+    @media (max-width: 640px) { .hero-trust-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .hero-trust-stat { display: flex; align-items: center; gap: .45rem; padding: .5rem .7rem; border-radius: .95rem; background: rgba(11, 14, 20, 0.55); border: 1px solid rgba(250, 204, 21, 0.28); font-size: .78rem; font-weight: 800; color: #f8fafc; }
+    .hero-visual-stage { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; min-height: 250px; }
+    .hero-visual-card { position: relative; width: 100%; max-width: 390px; aspect-ratio: 4 / 3; border-radius: 1.65rem; overflow: hidden; border: 2px solid rgba(250, 204, 21, 0.45); box-shadow: 0 22px 44px rgba(0, 0, 0, 0.5); background: #0b1220; }
+    .hero-visual-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .hero-visual-caption { position: absolute; left: .75rem; right: .75rem; bottom: .75rem; padding: .55rem .85rem; border-radius: .95rem; background: rgba(11, 14, 20, 0.86); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.14); display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
 
     .fun-highlights-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .85rem; }
     @media (max-width: 900px) { .fun-highlights-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -306,8 +311,10 @@
     .catalog-card-photo-wrap { position: relative; cursor: pointer; background: var(--dark-bg); border-bottom: 1px solid var(--dark-border); }
     .catalog-card-photo { aspect-ratio: 1 / 1; width: 100%; background: var(--dark-bg); }
     .catalog-card-photo img { background: var(--dark-bg); object-fit: cover; }
-    .catalog-card-badge { position: absolute; top: .65rem; right: .65rem; z-index: 2; padding: .24rem .62rem; border-radius: 9999px; font-size: .7rem; font-weight: 800; background: rgba(15,23,42,.88); color: #fff; border: 1px solid #334155; }
-    .catalog-card-badge.is-limited { background: #1e3a8a; color: #dbeafe; border-color: #60a5fa; }
+    .catalog-card-badge { position: absolute; top: .65rem; right: .65rem; z-index: 2; padding: .34rem .78rem; border-radius: 9999px; font-size: .76rem; font-weight: 800; letter-spacing: .01em; background: #064e3b; color: #ecfdf5; border: 1.5px solid #34d399; box-shadow: 0 4px 12px rgba(0,0,0,.45); }
+    .catalog-card-badge.is-featured { background: linear-gradient(135deg,#9a3412,#ea580c); color: #fff7ed; border-color: #fdba74; }
+    .catalog-card-badge.is-limited { background: #78350f; color: #fef3c7; border-color: #facc15; }
+    .catalog-card-badge.is-out { background: #881337; color: #ffe4e6; border-color: #fb7185; }
     .catalog-card-body { padding: 1.1rem; display: flex; flex-direction: column; flex: 1; gap: .5rem; }
     .catalog-card-meta { font-family: ui-monospace, monospace; font-size: .72rem; font-weight: 700; color: #93c5fd; background: var(--dark-elev); width: fit-content; padding: .15rem .5rem; border-radius: .45rem; }
     .catalog-card-description { font-size: .8125rem; color: var(--dark-muted); }
@@ -334,8 +341,17 @@
     .shop-location address { font-style: normal; font-size: .92rem; color: var(--dark-muted); line-height: 1.65; }
     .shop-map-frame { width: 100%; min-height: 260px; border: 1.5px solid var(--dark-border); border-radius: 1.2rem; overflow: hidden; background: var(--dark-bg); }
     .shop-map-frame iframe { width: 100%; height: 100%; min-height: 260px; border: 0; display: block; }
-    .pay-badges-row { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; }
-    .pay-badges-row img { height: 42px; width: auto; border-radius: .55rem; }
+    .pay-methods-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); gap: .55rem; padding-top: .35rem; }
+    .pay-method-tile { display: flex; align-items: center; gap: .55rem; padding: .5rem .65rem; border-radius: .85rem; background: var(--dark-bg); border: 1px solid #334155; color: #f8fafc; transition: border-color .15s, transform .15s; }
+    .pay-method-tile:hover { border-color: #facc15; transform: translateY(-1px); }
+    .pay-method-tile svg { width: 32px; height: 24px; flex-shrink: 0; border-radius: .35rem; }
+    .pay-method-tile div { min-width: 0; line-height: 1.15; }
+    .pay-method-tile strong { display: block; font-size: .74rem; font-weight: 800; color: #ffffff; }
+    .pay-method-tile span { display: block; font-size: .64rem; font-weight: 600; color: #94a3b8; }
+    .testimonials-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+    @media (max-width: 820px) { .testimonials-grid { grid-template-columns: 1fr; } }
+    .testimonial-card { background: var(--dark-card); border: 1.5px solid var(--dark-border); border-radius: 1.35rem; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between; gap: .75rem; }
+    .testimonial-stars { color: #facc15; font-size: .95rem; letter-spacing: .1em; }
 
     dialog { background: var(--dark-card); border-color: var(--dark-border); color: var(--dark-text); }
     dialog::backdrop { background: rgba(0, 0, 0, .68); backdrop-filter: blur(2px); }
@@ -365,8 +381,10 @@
       <nav class="shop-links" aria-label="Navigasi toko">
         <a href="#kategori-unggulan">Kategori</a>
         <a href="#publicProductCatalog">Katalog</a>
-        <a href="#cara-pesan">Cara pesan</a>
-        <a href="#lokasi-toko">Lokasi toko</a>
+        <a href="#produk-unggulan">Promo</a>
+        <a href="#cara-pesan">Cara Pesan</a>
+        <a href="#lokasi-toko">Lokasi Toko</a>
+        <a href="#tentang-kami">Tentang Kami</a>
       </nav>
       <div class="shop-header-actions">
         <button type="button" id="openCatalogCart" class="shop-button shop-button-secondary !min-h-10 !py-2 !px-3.5 !text-xs">
@@ -394,41 +412,32 @@
 
     <section class="shop-hero" aria-labelledby="catalogPageTitle">
       <div class="shop-hero-content">
-        <p class="shop-eyebrow"><i class="fa-solid fa-clock" aria-hidden="true"></i> Jl. Ahmad Yani 37, Tanjung Redeb, Berau · Buka Setiap Hari 08.00–21.00 WITA</p>
+        <p class="shop-eyebrow"><i class="fa-solid fa-store" aria-hidden="true"></i> Jl. Ahmad Yani 37, Tanjung Redeb, Berau · Sejak 1984</p>
         <h2 id="catalogPageTitle">Perlengkapan Olahraga<br><span class="shop-hero-accent">&amp; Alat Musik Berau</span></h2>
-        <p class="text-[15px] text-slate-200 leading-relaxed">Toko raket badminton Berau, bola futsal Tanjung Redeb, catur, hingga senar dan aksesori gitar dengan harga jelas dan stok langsung dari toko kami.</p>
-        <div class="hero-trust-row">
-          <span class="hero-trust-pill"><i class="fa-solid fa-circle-check text-blue-300" aria-hidden="true"></i> Harga &amp; stok dikonfirmasi toko</span>
-          <span class="hero-trust-pill"><i class="fa-solid fa-store text-blue-300" aria-hidden="true"></i> Ambil di toko · Bisa pesan/DP via WA</span>
-          <span class="hero-trust-pill"><i class="fa-solid fa-qrcode text-blue-300" aria-hidden="true"></i> Tunai, QRIS, Kartu &amp; Transfer</span>
-        </div>
+        <p class="text-[15px] text-slate-200 leading-relaxed">Raket badminton, shuttlecock, senar (gratis jasa pasang), bola futsal, catur, hingga aksesori gitar dengan harga jujur dan stok nyata langsung di toko kami.</p>
         <div class="shop-hero-actions pt-1">
-          <a class="shop-button shop-button-accent" href="#publicProductCatalog">Jelajahi katalog <i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a>
-          <a class="shop-button shop-button-outline" href="#cara-pesan"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> Cara pesan</a>
-          <a class="shop-button shop-button-wa" href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Chat WhatsApp</a>
+          <a class="shop-button shop-button-accent" href="#publicProductCatalog">Jelajahi Katalog <i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a>
+          <a class="shop-button shop-button-wa" href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp text-base" aria-hidden="true"></i> Chat WhatsApp</a>
+          <a class="shop-button shop-button-outline" href="#cara-pesan">Cara Pesan</a>
+        </div>
+        <div class="hero-trust-stats" aria-label="Statistik Kepercayaan Toko">
+          <div class="hero-trust-stat"><span>✅</span><span>500+ Produk</span></div>
+          <div class="hero-trust-stat"><span>✅</span><span>1000+ Pelanggan</span></div>
+          <div class="hero-trust-stat"><span>✅</span><span>Buka Setiap Hari</span></div>
+          <div class="hero-trust-stat"><span>✅</span><span>Toko Fisik Berau</span></div>
         </div>
       </div>
-      <div class="hero-feature-grid" aria-label="Pilih kategori cepat">
-        <button type="button" class="hero-feature-card" data-quick-cat="badminton">
-          <i class="fa-solid fa-feather-pointed" aria-hidden="true"></i>
-          <strong>Badminton</strong>
-          <span>Raket, kok, senar &amp; grip</span>
-        </button>
-        <button type="button" class="hero-feature-card" data-quick-cat="ball">
-          <i class="fa-solid fa-futbol" aria-hidden="true"></i>
-          <strong>Futsal &amp; Bola</strong>
-          <span>Sepatu, bola &amp; pelindung</span>
-        </button>
-        <button type="button" class="hero-feature-card" data-quick-cat="music">
-          <i class="fa-solid fa-guitar" aria-hidden="true"></i>
-          <strong>Musik &amp; Gitar</strong>
-          <span>Senar, capo &amp; aksesori</span>
-        </button>
-        <button type="button" class="hero-feature-card" data-quick-cat="chess">
-          <i class="fa-solid fa-chess-knight" aria-hidden="true"></i>
-          <strong>Catur</strong>
-          <span>Papan &amp; bidak catur</span>
-        </button>
+      <div class="hero-visual-stage">
+        <figure class="hero-visual-card">
+          <img src="hero-surya-jaya-sport.webp" alt="Koleksi Raket Badminton, Shuttlecock, dan Bola Futsal di Surya Jaya Sport Berau" width="600" height="450" fetchpriority="high">
+          <figcaption class="hero-visual-caption">
+            <div>
+              <strong class="block text-xs font-extrabold text-white">Raket · Shuttlecock · Bola Futsal</strong>
+              <span class="block text-[11px] font-semibold text-slate-300">Cek stok langsung &amp; ambil di toko</span>
+            </div>
+            <span class="px-2.5 py-1 rounded-full bg-amber-400 text-slate-950 text-[11px] font-extrabold shrink-0">08.00–21.00</span>
+          </figcaption>
+        </figure>
       </div>
     </section>
 
@@ -508,12 +517,18 @@
       </div>
     </section>
 
-    <section id="produk-unggulan" class="flex flex-col gap-3" aria-labelledby="featuredProductsTitle">
+    <section id="produk-unggulan" class="flex flex-col gap-4" aria-labelledby="featuredProductsTitle">
       <div class="catalog-heading">
-        <h2 id="featuredProductsTitle">&#11088; Produk Unggulan &amp; Terlaris</h2>
-        <span class="text-xs font-bold text-slate-500">Pilihan favorit pelanggan Surya Jaya Sport Berau</span>
+        <div>
+          <h2 id="featuredProductsTitle">&#11088; Produk Unggulan &amp; Promo Pilihan</h2>
+          <span class="text-xs font-bold text-slate-500">8 produk terlaris &amp; favorit pelanggan Surya Jaya Sport Berau</span>
+        </div>
+        <a href="#publicProductCatalog" class="shop-button shop-button-secondary !min-h-10 !py-2 !px-4 !text-xs">Lihat Semua Produk <i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a>
       </div>
       <div id="featuredProductsGrid" class="catalog-grid"></div>
+      <div class="flex justify-center pt-1">
+        <a href="#publicProductCatalog" class="shop-button shop-button-primary px-6"><i class="fa-solid fa-grid-2" aria-hidden="true"></i> Lihat Semua Produk</a>
+      </div>
     </section>
 
     <section id="publicProductCatalog" class="flex flex-col gap-5" aria-labelledby="productCatalogTitle">
@@ -591,11 +606,63 @@
           </address>
           <div class="rounded-2xl bg-blue-50 border border-blue-200 p-3 text-xs font-semibold text-blue-950 space-y-1">
             <p><i class="fa-solid fa-wallet text-blue-700 mr-1" aria-hidden="true"></i> <strong>Pembayaran di toko:</strong></p>
-            <div class="pay-badges-row pt-1">
-              <img src="pay-qris.svg" alt="QRIS" width="120" height="60" loading="lazy">
-              <img src="pay-tunai.svg" alt="Tunai" width="120" height="60" loading="lazy">
-              <img src="pay-kartu.svg" alt="Kartu Debit Kredit" width="120" height="60" loading="lazy">
-              <img src="pay-transfer.svg" alt="Transfer Bank" width="120" height="60" loading="lazy">
+            <div class="pay-methods-grid" role="list" aria-label="Metode pembayaran yang diterima">
+              <div class="pay-method-tile" role="listitem">
+                <svg viewBox="0 0 36 26" fill="none" aria-hidden="true">
+                  <rect width="36" height="26" rx="5" fill="#064E3B"/>
+                  <rect x="3" y="5" width="30" height="16" rx="2.5" stroke="#34D399" stroke-width="1.5"/>
+                  <circle cx="18" cy="13" r="3.5" fill="#34D399"/>
+                  <circle cx="7.5" cy="13" r="1.2" fill="#A7F3D0"/>
+                  <circle cx="28.5" cy="13" r="1.2" fill="#A7F3D0"/>
+                </svg>
+                <div><strong>Tunai</strong><span>Cash Rupiah</span></div>
+              </div>
+              <div class="pay-method-tile" role="listitem">
+                <svg viewBox="0 0 36 26" fill="none" aria-hidden="true">
+                  <rect width="36" height="26" rx="5" fill="#1E1B4B"/>
+                  <path d="M18 4L29 9.5H7L18 4Z" fill="#818CF8"/>
+                  <rect x="9" y="11" width="2.5" height="7" rx="1" fill="#C7D2FE"/>
+                  <rect x="14.5" y="11" width="2.5" height="7" rx="1" fill="#C7D2FE"/>
+                  <rect x="20" y="11" width="2.5" height="7" rx="1" fill="#C7D2FE"/>
+                  <rect x="25.5" y="11" width="2.5" height="7" rx="1" fill="#C7D2FE"/>
+                  <rect x="6.5" y="19.5" width="23" height="2.2" rx="1" fill="#818CF8"/>
+                </svg>
+                <div><strong>Transfer</strong><span>Antar Bank</span></div>
+              </div>
+              <div class="pay-method-tile" role="listitem">
+                <svg viewBox="0 0 36 26" fill="none" aria-hidden="true">
+                  <rect width="36" height="26" rx="5" fill="#172554"/>
+                  <rect x="2" y="2" width="32" height="22" rx="4" stroke="#60A5FA" stroke-width="1.2"/>
+                  <rect x="6" y="7" width="7" height="5" rx="1.2" fill="#FACC15"/>
+                  <rect x="6" y="15.5" width="12" height="2" rx="1" fill="#93C5FD"/>
+                  <rect x="21" y="15.5" width="8" height="2" rx="1" fill="#60A5FA"/>
+                </svg>
+                <div><strong>Debit Card</strong><span>EDC Semua Bank</span></div>
+              </div>
+              <div class="pay-method-tile" role="listitem">
+                <svg viewBox="0 0 36 26" fill="none" aria-hidden="true">
+                  <rect width="36" height="26" rx="5" fill="#1E293B"/>
+                  <rect x="2" y="2" width="32" height="22" rx="4" stroke="#FACC15" stroke-width="1.2"/>
+                  <rect x="2.5" y="6.5" width="31" height="4" fill="#0F172A"/>
+                  <circle cx="24" cy="17.5" r="3" fill="#EF4444" fill-opacity="0.9"/>
+                  <circle cx="27.5" cy="17.5" r="3" fill="#F59E0B" fill-opacity="0.9"/>
+                  <rect x="6" y="16" width="10" height="2.5" rx="1" fill="#CBD5E1"/>
+                </svg>
+                <div><strong>Credit Card</strong><span>Visa / Mastercard</span></div>
+              </div>
+              <div class="pay-method-tile" role="listitem">
+                <svg viewBox="0 0 36 26" fill="none" aria-hidden="true">
+                  <rect width="36" height="26" rx="5" fill="#FFFFFF"/>
+                  <rect x="6" y="4" width="8" height="8" rx="1.5" stroke="#0F172A" stroke-width="1.8"/>
+                  <rect x="8.5" y="6.5" width="3" height="3" fill="#DC2626"/>
+                  <rect x="22" y="4" width="8" height="8" rx="1.5" stroke="#0F172A" stroke-width="1.8"/>
+                  <rect x="24.5" y="6.5" width="3" height="3" fill="#0F172A"/>
+                  <rect x="6" y="14" width="8" height="8" rx="1.5" stroke="#0F172A" stroke-width="1.8"/>
+                  <rect x="8.5" y="16.5" width="3" height="3" fill="#0F172A"/>
+                  <path d="M17 5H19V11H17V5ZM17 14H22V16H19V22H17V14ZM24 14H30V17H27V22H24V14Z" fill="#0F172A"/>
+                </svg>
+                <div><strong>QRIS</strong><span>Scan Instan</span></div>
+              </div>
             </div>
             <p><i class="fa-brands fa-whatsapp text-emerald-600 mr-1" aria-hidden="true"></i> <strong>Pemesanan WA:</strong> Bisa DP / transfer untuk pembelian besar maupun kecil, lalu ambil langsung di toko.</p>
           </div>
@@ -615,9 +682,56 @@
         </iframe>
       </div>
     </section>
+    <section id="testimoni-pelanggan" class="flex flex-col gap-4" aria-labelledby="testimonialsTitle">
+      <div class="catalog-heading">
+        <h2 id="testimonialsTitle">Testimoni Pelanggan</h2>
+        <span class="text-xs font-bold text-slate-500">Dipercaya pemain badminton, futsal, &amp; musisi di Berau</span>
+      </div>
+      <div class="testimonials-grid">
+        <article class="testimonial-card">
+          <div class="space-y-2">
+            <div class="testimonial-stars" aria-label="5 dari 5 bintang">⭐⭐⭐⭐⭐</div>
+            <p class="text-sm font-semibold text-slate-200 leading-relaxed">"Barang lengkap dan harga bersahabat."</p>
+          </div>
+          <div class="flex items-center gap-2.5 pt-2 border-t border-slate-200">
+            <span class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 text-xs font-extrabold text-amber-300 inline-flex items-center justify-center">A</span>
+            <div>
+              <strong class="block text-xs font-extrabold text-white">Andi</strong>
+              <span class="block text-[11px] text-slate-500">Pelanggan Tanjung Redeb</span>
+            </div>
+          </div>
+        </article>
+        <article class="testimonial-card">
+          <div class="space-y-2">
+            <div class="testimonial-stars" aria-label="5 dari 5 bintang">⭐⭐⭐⭐⭐</div>
+            <p class="text-sm font-semibold text-slate-200 leading-relaxed">"Pasang senar cepat dan rapi."</p>
+          </div>
+          <div class="flex items-center gap-2.5 pt-2 border-t border-slate-200">
+            <span class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 text-xs font-extrabold text-amber-300 inline-flex items-center justify-center">R</span>
+            <div>
+              <strong class="block text-xs font-extrabold text-white">Rizky</strong>
+              <span class="block text-[11px] text-slate-500">Pemain Badminton Berau</span>
+            </div>
+          </div>
+        </article>
+        <article class="testimonial-card">
+          <div class="space-y-2">
+            <div class="testimonial-stars" aria-label="5 dari 5 bintang">⭐⭐⭐⭐⭐</div>
+            <p class="text-sm font-semibold text-slate-200 leading-relaxed">"Langganan beli shuttlecock di sini."</p>
+          </div>
+          <div class="flex items-center gap-2.5 pt-2 border-t border-slate-200">
+            <span class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 text-xs font-extrabold text-amber-300 inline-flex items-center justify-center">B</span>
+            <div>
+              <strong class="block text-xs font-extrabold text-white">Budi</strong>
+              <span class="block text-[11px] text-slate-500">Pelanggan Tetap Berau</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
   </main>
 
-  <footer class="border-t border-slate-200 bg-white py-8 px-4 text-xs text-slate-500">
+  <footer id="tentang-kami" class="border-t border-slate-200 bg-white py-8 px-4 text-xs text-slate-500">
     <div style="max-width:82rem;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1.5rem;text-align:left">
       <div class="space-y-1.5">
         <p class="text-sm font-extrabold text-slate-700 uppercase">Surya Jaya Sport</p>
@@ -725,7 +839,7 @@
       const base = `https://firestore.googleapis.com/v1/projects/${EMBEDDED_FIREBASE_CONFIG.projectId}/databases/(default)/documents/publicCatalog?pageSize=200&key=${encodeURIComponent(EMBEDDED_FIREBASE_CONFIG.apiKey)}`;
       for (let page = 0; page < 5; page++) {
         const url = pageToken ? `${base}&pageToken=${encodeURIComponent(pageToken)}` : base;
-        const res = await fetchWithTimeout(url, { mode: "cors", cache: "no-store" }, 8000);
+        const res = await fetchWithTimeout(url, { mode: "cors", cache: "no-store" }, 4500);
         if (!res.ok) throw new Error("HTTP " + res.status);
         const json = await res.json();
         if (Array.isArray(json.documents)) {
@@ -1018,8 +1132,8 @@
       const primaryActionBtn = hasVariants
         ? `<button type="button" data-view-product="${esc(item.id)}" ${outOfStock ? "disabled" : ""} class="shop-button shop-button-primary"><i class="fa-solid ${outOfStock ? "fa-ban" : "fa-layer-group"}" aria-hidden="true"></i> ${outOfStock ? "Habis" : "Pilih Varian"}</button>`
         : `<button type="button" data-add-cart="${esc(item.id)}" ${outOfStock ? "disabled" : ""} class="shop-button shop-button-primary"><i class="fa-solid ${outOfStock ? "fa-ban" : "fa-plus"}" aria-hidden="true"></i> ${outOfStock ? "Habis" : "Keranjang"}</button>`;
-      const badgeLabel = outOfStock ? "Habis" : isFeatured ? "Unggulan" : limited ? "Stok terbatas" : hasVariants ? `${variants.length} Varian` : "Tersedia";
-      const badgeStyle = outOfStock ? "!bg-rose-600" : isFeatured ? "!bg-blue-600 !text-white" : limited ? "is-limited" : "";
+      const badgeLabel = outOfStock ? "⛔ Stok Habis" : isFeatured ? "🔥 Best Seller" : limited ? "⚠️ Stok Terbatas" : hasVariants ? `🟢 ${variants.length} Varian` : "🟢 Stok Tersedia";
+      const badgeStyle = outOfStock ? "is-out" : isFeatured ? "is-featured" : limited ? "is-limited" : "";
       return `
       <article class="catalog-card ${outOfStock ? "opacity-85" : ""}">
         <div class="catalog-card-photo-wrap" data-view-product="${esc(item.id)}" role="button" tabindex="0" aria-label="Lihat detail ${esc(item.name)}">
@@ -1073,7 +1187,7 @@
         const featuredList = (withPhoto.length ? withPhoto : allAvailable)
           .slice()
           .sort((a, b) => (Boolean(b.primary.featured) - Boolean(a.primary.featured)) || b.totalStock - a.totalStock)
-          .slice(0, 4);
+          .slice(0, 8);
         if (featuredList.length) {
           featuredSecEl.hidden = false;
           featuredGridEl.innerHTML = featuredList.map((g, i) => buildCatalogCardHtml(g, i, true)).join("");
@@ -1123,19 +1237,7 @@
           "@type": "ListItem",
           position: i + 1,
           url: `https://suryajaya-sport.github.io/produk/?id=${encodeURIComponent(it.id)}`,
-          item: {
-            "@type": "Product",
-            name: it.name,
-            sku: it.code || it.id,
-            ...(safeHttpsUrl(it.imageUrl) ? { image: safeHttpsUrl(it.imageUrl) } : {}),
-            offers: {
-              "@type": "Offer",
-              priceCurrency: "IDR",
-              price: String(Math.round(Number(it.price) || 0)),
-              availability: Number(it.stock) > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-              itemCondition: "https://schema.org/NewCondition"
-            }
-          }
+          name: it.name
         }))
       });
     }
@@ -1234,10 +1336,7 @@
         applyLoadedCatalog(fresh);
       } catch {
         try {
-          const fallback = await Promise.race([
-            fetchPublicCatalogSdkFallback(),
-            new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 10000))
-          ]);
+          const fallback = await fetchPublicCatalogSdkFallback();
           try { localStorage.setItem(CATALOG_CACHE_KEY, JSON.stringify(fallback)); } catch {}
           applyLoadedCatalog(fallback);
         } catch {
@@ -1250,25 +1349,7 @@
         }
       }
     }
-    renderProductCatalog();
     loadPublicCatalog(false);
-
-    let lastCatalogRefresh = Date.now();
-    async function refreshCatalogSilently() {
-      try {
-        const fresh = await fetchPublicCatalogRest();
-        try { localStorage.setItem(CATALOG_CACHE_KEY, JSON.stringify(fresh)); } catch {}
-        applyLoadedCatalog(fresh);
-        lastCatalogRefresh = Date.now();
-      } catch {}
-    }
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible" && Date.now() - lastCatalogRefresh > 5 * 60 * 1000) refreshCatalogSilently();
-    });
-    window.addEventListener("online", () => {
-      if (catalogLoadState !== "ready") loadPublicCatalog(true);
-      else refreshCatalogSilently();
-    });
 
     document.addEventListener("click", e => {
       const a = e.target.closest('a[href*="wa.me"]');
@@ -1292,3 +1373,5 @@
   </script>
 </body>
 </html>
+
+Displaying index.html.
