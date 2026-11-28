@@ -725,7 +725,7 @@
       const base = `https://firestore.googleapis.com/v1/projects/${EMBEDDED_FIREBASE_CONFIG.projectId}/databases/(default)/documents/publicCatalog?pageSize=200&key=${encodeURIComponent(EMBEDDED_FIREBASE_CONFIG.apiKey)}`;
       for (let page = 0; page < 5; page++) {
         const url = pageToken ? `${base}&pageToken=${encodeURIComponent(pageToken)}` : base;
-        const res = await fetchWithTimeout(url, { mode: "cors", cache: "no-store" }, 8000);
+        const res = await fetchWithTimeout(url, { mode: "cors", cache: "no-store" }, 4500);
         if (!res.ok) throw new Error("HTTP " + res.status);
         const json = await res.json();
         if (Array.isArray(json.documents)) {
@@ -861,8 +861,7 @@
           const spec = [item.size, item.color].filter(Boolean).join(" / ");
           return `${i + 1}. ${item.name}${spec ? ` [${spec}]` : ""}${item.code ? ` (${item.code})` : ""} × ${line.qty}${line.note ? ` — ${line.note}` : ""}`;
         }),
-        `Perkiraan total: ${rp(total)}. Apakah stoknya tersedia?`].join("
-");
+        `Perkiraan total: ${rp(total)}. Apakah stoknya tersedia?`].join("\n");
       link.href = CATALOG_WA + "?" + new URLSearchParams({ text });
     }
     function renderCart() {
@@ -1223,10 +1222,7 @@
         applyLoadedCatalog(fresh);
       } catch {
         try {
-          const fallback = await Promise.race([
-            fetchPublicCatalogSdkFallback(),
-            new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 10000))
-          ]);
+          const fallback = await fetchPublicCatalogSdkFallback();
           try { localStorage.setItem(CATALOG_CACHE_KEY, JSON.stringify(fallback)); } catch {}
           applyLoadedCatalog(fallback);
         } catch {
@@ -1239,7 +1235,6 @@
         }
       }
     }
-    renderProductCatalog();
     loadPublicCatalog(false);
 
     document.addEventListener("click", e => {
