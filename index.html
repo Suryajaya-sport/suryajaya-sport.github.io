@@ -725,7 +725,7 @@
       const base = `https://firestore.googleapis.com/v1/projects/${EMBEDDED_FIREBASE_CONFIG.projectId}/databases/(default)/documents/publicCatalog?pageSize=200&key=${encodeURIComponent(EMBEDDED_FIREBASE_CONFIG.apiKey)}`;
       for (let page = 0; page < 5; page++) {
         const url = pageToken ? `${base}&pageToken=${encodeURIComponent(pageToken)}` : base;
-        const res = await fetchWithTimeout(url, { mode: "cors", cache: "no-store" }, 4500);
+        const res = await fetchWithTimeout(url, { mode: "cors", cache: "no-store" }, 8000);
         if (!res.ok) throw new Error("HTTP " + res.status);
         const json = await res.json();
         if (Array.isArray(json.documents)) {
@@ -1223,7 +1223,10 @@
         applyLoadedCatalog(fresh);
       } catch {
         try {
-          const fallback = await fetchPublicCatalogSdkFallback();
+          const fallback = await Promise.race([
+            fetchPublicCatalogSdkFallback(),
+            new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 10000))
+          ]);
           try { localStorage.setItem(CATALOG_CACHE_KEY, JSON.stringify(fallback)); } catch {}
           applyLoadedCatalog(fallback);
         } catch {
@@ -1236,6 +1239,7 @@
         }
       }
     }
+    renderProductCatalog();
     loadPublicCatalog(false);
 
     document.addEventListener("click", e => {
