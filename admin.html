@@ -2501,7 +2501,8 @@
         color: #0b0e14 !important;
       }
 
-      /* === MODE PELANGGAN FULLSCREEN (90%+ LAYAR UNTUK KATALOG, SIDEBAR COLLAPSE) === */
+      /* === MODE PELANGGAN FULLSCREEN (100% IDENTIK DENGAN FRONTPAGE, TANPA SIDEBAR & TANPA HEADER ADMIN) === */
+      body.sjs-admin.sjs-customer-preview .shop-header,
       body.sjs-admin.sjs-customer-preview #mainNavigation,
       body.sjs-admin.sjs-customer-preview #adminPastelMenu,
       body.sjs-admin.sjs-customer-preview #sjsAiFab,
@@ -2510,19 +2511,12 @@
       }
       body.sjs-admin.sjs-customer-preview .shop-main {
         max-width: 82rem !important;
+        width: 100% !important;
         margin: 0 auto !important;
         padding: 1.15rem 1.15rem 5.5rem !important;
       }
-      body.sjs-admin.sjs-customer-preview .shop-links {
-        display: flex !important;
-      }
-      @media (max-width: 640px) {
-        body.sjs-admin.sjs-customer-preview .shop-links {
-          display: none !important;
-        }
-      }
 
-      /* Indikator Atas: 👁 Preview Pelanggan + Statistik Mini */
+      /* Indikator Atas: Preview Pelanggan */
       .customer-preview-banner {
         display: flex;
         flex-wrap: wrap;
@@ -2550,7 +2544,7 @@
       }
       .preview-stat-pill strong { color: var(--gold); }
 
-      /* Floating Button Pojok Kiri Bawah: ⚙ Admin + Drawer Pintasan 1-Klik */
+      /* Floating Button Pojok Kiri Bawah: Admin + Drawer Pintasan 1-Klik */
       #adminQuickDock {
         position: fixed;
         bottom: 18px;
@@ -2640,507 +2634,92 @@
       }
       .admin-fab-back:hover { filter: brightness(1.06); transform: translateY(-1px); }
 
-      /* Permukaan Kartu, Panel & Workspace Umum */
-      .workspace-heading,
-      .workspace-record,
-      .sjs-chart-card,
-      .sjs-chart-card.is-dark,
-      .sjs-ratio-card,
-      .kledo-card,
-      .bento-pastel-card,
-      .pos-catalog-pane,
-      .pos-stat-card,
-      .pos-cart-item-card,
-      .pos-fav-pro-card,
-      .catalog-toolbar,
-      .catalog-card,
-      .howto-card,
-      .shop-location,
-      .quick-cat-btn,
-      .checkout-totals,
-      body.sjs-admin .pos-cart-sticky,
-      .shop-main .bg-white,
-      dialog .bg-white,
-      .fixed .bg-white {
-        background: var(--dark-card) !important;
-        border-color: var(--dark-border) !important;
-        color: var(--dark-text) !important;
-      }
+      /* === GAYA STOREFRONT IDENTIK DENGAN INDEX.HTML UNTUK #viewCatalog === */
+      #viewCatalog .shop-button-accent { background: linear-gradient(135deg,#facc15,#eab308) !important; color: #0b0e14 !important; border: 1px solid #fde047 !important; font-weight: 800 !important; box-shadow: 0 6px 18px rgba(234, 179, 8, 0.25); }
+      #viewCatalog .shop-button-wa { background: linear-gradient(135deg,#16a34a,#15803d) !important; color: #fff !important; border: 1px solid #22c55e !important; }
+      #viewCatalog .shop-button-outline { background: rgba(255,255,255,.12) !important; color: #fff !important; border: 1.5px solid rgba(255,255,255,.32) !important; }
+      #viewCatalog .shop-button-primary { background: linear-gradient(135deg,#1d4ed8,#2563eb) !important; color: #ffffff !important; border: 1px solid #3b82f6 !important; }
+      #viewCatalog .shop-button-secondary { background: var(--dark-elev) !important; color: var(--dark-text) !important; border: 1px solid #334155 !important; }
+      #viewCatalog .shop-hero { position: relative; border-radius: 1.75rem; overflow: hidden; min-height: 320px; max-height: 380px; background: radial-gradient(circle at 80% 45%, rgba(250,204,21,0.16), transparent 44%), linear-gradient(105deg, rgba(7,16,38,.97) 0%, rgba(15,37,87,.92) 56%, rgba(29,78,216,.78) 100%) !important; color: #fff; border: 1.5px solid var(--dark-border); display: grid; grid-template-columns: minmax(0,1.25fr) minmax(0,.75fr); gap: 1.4rem; align-items: center; padding: 48px 2rem; }
+      @media (max-width: 900px) { #viewCatalog .shop-hero { grid-template-columns: 1fr; max-height: none; padding: 36px 1.25rem; } }
+      #viewCatalog .shop-hero-content { position: relative; z-index: 2; display: flex; flex-direction: column; gap: .75rem; }
+      #viewCatalog .shop-eyebrow { display: inline-flex; align-items: center; gap: .4rem; width: fit-content; padding: .28rem .75rem; border-radius: 9999px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18); font-size: .73rem; font-weight: 700; color: #fde68a; }
+      #viewCatalog .shop-hero h2 { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(2.15rem,4.5vw,3.15rem); font-weight: 800; line-height: .96; text-transform: uppercase; letter-spacing: .01em; }
+      #viewCatalog .shop-hero-accent { color: #facc15; }
+      #viewCatalog .shop-hero-actions { display: flex; flex-wrap: wrap; gap: .6rem; }
+      #viewCatalog .hero-trust-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .45rem; }
+      @media (max-width: 640px) { #viewCatalog .hero-trust-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+      #viewCatalog .hero-trust-stat { display: flex; align-items: center; gap: .38rem; padding: .4rem .6rem; border-radius: .8rem; background: rgba(11, 14, 20, 0.55); border: 1px solid rgba(250, 204, 21, 0.25); font-size: .74rem; font-weight: 800; color: #f8fafc; white-space: nowrap; }
+      #viewCatalog .hero-visual-stage { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; }
+      #viewCatalog .hero-visual-card { position: relative; width: 100%; max-width: 340px; height: 224px; border-radius: 1.35rem; overflow: hidden; border: 2px solid rgba(250, 204, 21, 0.45); box-shadow: 0 18px 36px rgba(0, 0, 0, 0.48); background: #0b1220; }
+      #viewCatalog .hero-visual-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+      #viewCatalog .hero-visual-caption { position: absolute; left: .6rem; right: .6rem; bottom: .6rem; padding: .45rem .7rem; border-radius: .8rem; background: rgba(11, 14, 20, 0.88); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.14); display: flex; align-items: center; justify-content: space-between; gap: .4rem; }
 
-      .uikit-row,
-      .bento-pill-track,
-      .pos-cash-box,
-      .pos-received-frame,
-      .shop-main .bg-slate-50,
-      .shop-main .bg-slate-50\/70,
-      .shop-main .bg-slate-50\/80,
-      .shop-main .bg-slate-100,
-      dialog .bg-slate-50,
-      dialog .bg-slate-50\/70,
-      dialog .bg-slate-50\/80,
-      dialog .bg-slate-100,
-      .fixed .bg-slate-50,
-      .fixed .bg-slate-100,
-      .item-edit-drawer {
-        background: var(--dark-elev) !important;
-        border-color: var(--dark-border) !important;
-        color: var(--dark-text) !important;
-      }
+      #viewCatalog .fun-highlights-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .7rem; }
+      @media (max-width: 900px) { #viewCatalog .fun-highlights-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+      @media (max-width: 480px) { #viewCatalog .fun-highlights-strip { grid-template-columns: 1fr; } }
+      #viewCatalog .fun-highlight-pill { background: var(--dark-card); border: 1.5px solid var(--dark-border); border-radius: 1.1rem; padding: .68rem .85rem; min-height: 76px; display: flex; align-items: center; gap: .65rem; }
+      #viewCatalog .fun-highlight-icon { width: 38px; height: 38px; border-radius: .85rem; display: inline-flex; align-items: center; justify-content: center; font-size: 1.05rem; flex-shrink: 0; }
+      #viewCatalog .fun-highlight-icon.is-blue { background: rgba(37, 99, 235, 0.2); color: #93c5fd; }
+      #viewCatalog .fun-highlight-icon.is-yellow { background: rgba(14, 165, 233, 0.18); color: #7dd3fc; }
+      #viewCatalog .fun-highlight-icon.is-green { background: rgba(16, 185, 129, 0.18); color: #34d399; }
+      #viewCatalog .fun-highlight-icon.is-navy { background: var(--dark-elev); color: #cbd5e1; border: 1px solid #334155; }
 
-      /* Panel Tint (Biru, Amber, Hijau, Merah) dalam Dark Mode */
-      .shop-main .bg-blue-50,
-      .shop-main .bg-blue-50\/40,
-      .shop-main .bg-blue-50\/60,
-      .shop-main .bg-blue-50\/70,
-      .shop-main .bg-blue-100,
-      dialog .bg-blue-50,
-      dialog .bg-blue-100 {
-        background: rgba(37, 99, 235, 0.14) !important;
-        border-color: rgba(96, 165, 250, 0.32) !important;
-        color: #dbeafe !important;
-      }
-      .shop-main .bg-amber-50,
-      .shop-main .bg-amber-50\/40,
-      .shop-main .bg-amber-100,
-      dialog .bg-amber-50,
-      dialog .bg-amber-100 {
-        background: rgba(245, 183, 0, 0.13) !important;
-        border-color: rgba(245, 183, 0, 0.38) !important;
-        color: var(--gold-soft) !important;
-      }
-      .shop-main .bg-emerald-50,
-      .shop-main .bg-emerald-100,
-      dialog .bg-emerald-50,
-      dialog .bg-emerald-100,
-      .fixed .bg-emerald-50 {
-        background: rgba(16, 185, 129, 0.14) !important;
-        border-color: rgba(52, 211, 153, 0.35) !important;
-        color: #a7f3d0 !important;
-      }
-      .shop-main .bg-rose-50,
-      .shop-main .bg-rose-50\/20,
-      .shop-main .bg-rose-50\/80,
-      .shop-main .bg-rose-100,
-      dialog .bg-rose-50,
-      dialog .bg-rose-100,
-      dialog .bg-red-50 {
-        background: rgba(225, 29, 72, 0.15) !important;
-        border-color: rgba(251, 113, 133, 0.38) !important;
-        color: #fecdd3 !important;
-      }
-      .shop-main .bg-sky-50,
-      .shop-main .bg-sky-100 {
-        background: rgba(14, 165, 233, 0.15) !important;
-        border-color: rgba(56, 189, 248, 0.35) !important;
-        color: #bae6fd !important;
-      }
-      .shop-main .bg-purple-50,
-      .shop-main .bg-purple-100 {
-        background: rgba(147, 51, 234, 0.16) !important;
-        border-color: rgba(192, 132, 252, 0.35) !important;
-        color: #e9d5ff !important;
-      }
+      #viewCatalog .quick-cat-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .6rem; }
+      @media (max-width: 1024px) { #viewCatalog .quick-cat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+      @media (max-width: 560px) { #viewCatalog .quick-cat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+      #viewCatalog .quick-cat-btn { background: var(--dark-card); border: 1.5px solid var(--dark-border); border-radius: 1rem; padding: .65rem .8rem; min-height: 82px; max-height: 98px; display: flex; align-items: center; justify-content: center; gap: .5rem; text-align: left; cursor: pointer; transition: all .15s; }
+      #viewCatalog .quick-cat-btn:hover { border-color: #60a5fa; transform: translateY(-2px); }
+      #viewCatalog .quick-cat-btn.is-active { background: linear-gradient(135deg,#1b2232,#0f172a) !important; border-color: #facc15 !important; color: #fff !important; }
+      #viewCatalog .quick-cat-btn.is-active strong { color: #facc15 !important; }
+      #viewCatalog .quick-cat-emoji { font-size: 1.35rem; line-height: 1; flex-shrink: 0; }
+      #viewCatalog .quick-cat-btn strong { font-size: .88rem; font-weight: 800; line-height: 1.2; white-space: nowrap; }
 
-      /* Tipografi & Kontras Teks */
-      .workspace-heading h2,
-      .workspace-section-title,
-      .kledo-card-val,
-      .pos-stat-val,
-      .catalog-heading h2,
-      .howto-card h3,
-      .shop-location h2,
-      .uikit-row-val,
-      .pos-fav-pro-name,
-      .sjs-chart-card.is-dark .workspace-section-title,
-      .shop-main .text-slate-950,
-      .shop-main .text-slate-900,
-      .shop-main .text-slate-800,
-      .shop-main .text-indigo-950,
-      dialog .text-slate-950,
-      dialog .text-slate-900,
-      dialog .text-slate-800,
-      .fixed .text-slate-900,
-      .fixed .text-slate-800 {
-        color: var(--dark-text) !important;
-      }
+      #viewCatalog .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(225px,1fr)); gap: .95rem; }
+      #viewCatalog .catalog-card { background: var(--dark-card); border: 1.5px solid var(--dark-border); border-radius: 1.25rem; overflow: hidden; display: flex; flex-direction: column; transition: transform .18s, box-shadow .18s, border-color .18s; }
+      #viewCatalog .catalog-card:hover { transform: translateY(-3px); border-color: #475569; box-shadow: 0 12px 24px rgba(0,0,0,.42); }
+      #viewCatalog .catalog-card-photo-wrap { position: relative; cursor: pointer; background: var(--dark-bg) !important; border-bottom: 1px solid var(--dark-border) !important; padding: 0 !important; }
+      #viewCatalog .catalog-card-photo { aspect-ratio: 4 / 5 !important; max-height: 220px !important; width: 100%; background: var(--dark-bg) !important; }
+      #viewCatalog .catalog-card-photo img { background: var(--dark-bg) !important; object-fit: cover !important; }
+      #viewCatalog .catalog-card-badge { position: absolute; top: .55rem; right: .55rem; z-index: 2; padding: .24rem .62rem; border-radius: 9999px; font-size: .7rem; font-weight: 800; letter-spacing: .01em; background: #064e3b !important; color: #ecfdf5 !important; border: 1.5px solid #34d399 !important; box-shadow: 0 4px 10px rgba(0,0,0,.45); }
+      #viewCatalog .catalog-card-badge.is-featured { background: linear-gradient(135deg,#9a3412,#ea580c) !important; color: #fff7ed !important; border-color: #fdba74 !important; }
+      #viewCatalog .catalog-card-badge.is-limited { background: #78350f !important; color: #fef3c7 !important; border-color: #facc15 !important; }
+      #viewCatalog .catalog-card-badge.is-out { background: #881337 !important; color: #ffe4e6 !important; border-color: #fb7185 !important; }
+      #viewCatalog .catalog-card-body { padding: .8rem .9rem; display: flex; flex-direction: column; flex: 1; gap: .35rem; }
+      #viewCatalog .catalog-card-title { font-size: .9rem; font-weight: 800; line-height: 1.28; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.3em; cursor: pointer; color: #f8fafc !important; }
+      #viewCatalog .senar-service-note { display: inline-flex; align-items: center; gap: .3rem; padding: .2rem .48rem; border-radius: .5rem; background: rgba(37, 99, 235, 0.14) !important; border: 1px solid rgba(96, 165, 250, 0.35) !important; color: #bfdbfe !important; font-size: .68rem; font-weight: 700; line-height: 1.25; }
+      #viewCatalog .senar-service-note i { color: #60a5fa !important; flex-shrink: 0; }
+      #viewCatalog .catalog-card-facts { margin-top: auto; padding-top: .45rem; border-top: 1px solid var(--dark-border); display: flex; align-items: center; justify-content: space-between; gap: .4rem; }
+      #viewCatalog .catalog-card-price { font-size: 1rem; font-weight: 800; color: #f8fafc !important; }
+      #viewCatalog .catalog-stock { padding: .16rem .52rem; border-radius: 9999px; font-size: .7rem; font-weight: 800; background: rgba(16, 185, 129, 0.14) !important; color: #34d399 !important; white-space: nowrap; }
+      #viewCatalog .catalog-card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; margin-top: .3rem; }
+      #viewCatalog .catalog-card-actions .shop-button { padding: .38rem .5rem; font-size: .76rem; min-height: 2.15rem; border-radius: .75rem; }
 
-      .shop-main .text-slate-700,
-      .shop-main .text-slate-600,
-      dialog .text-slate-700,
-      dialog .text-slate-600,
-      .fixed .text-slate-700,
-      .fixed .text-slate-600,
-      .uikit-row-label,
-      .sjs-ratio-legend {
-        color: #cbd5e1 !important;
-      }
+      #viewCatalog .catalog-categories label span { background: var(--dark-elev) !important; color: #cbd5e1 !important; border: 1px solid var(--dark-border); }
+      #viewCatalog .catalog-categories label input:checked + span { background: #1d4ed8 !important; color: #fff !important; border-color: #60a5fa !important; }
 
-      .shop-main .text-slate-500,
-      .shop-main .text-slate-400,
-      dialog .text-slate-500,
-      dialog .text-slate-400,
-      .kledo-card-title,
-      .kledo-card-sub,
-      .sjs-chart-sub,
-      .catalog-card-description,
-      .howto-card p,
-      .shop-location address {
-        color: var(--dark-muted) !important;
-      }
+      #viewCatalog .howto-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+      @media (max-width: 820px) { #viewCatalog .howto-grid { grid-template-columns: 1fr; } }
+      #viewCatalog .howto-icon-row { display: flex; align-items: center; gap: .65rem; }
+      #viewCatalog .howto-icon-badge { width: 42px; height: 42px; border-radius: .95rem; background: var(--dark-elev); border: 1px solid var(--dark-border); color: #93c5fd; display: inline-flex; align-items: center; justify-content: center; font-size: 1.15rem; }
 
-      .shop-main .text-blue-950,
-      .shop-main .text-blue-900,
-      .shop-main .text-blue-800,
-      .shop-main .text-blue-700,
-      dialog .text-blue-950,
-      dialog .text-blue-900,
-      dialog .text-blue-800,
-      dialog .text-blue-700 {
-        color: #93c5fd !important;
-      }
-      .shop-main .text-emerald-950,
-      .shop-main .text-emerald-900,
-      .shop-main .text-emerald-800,
-      .shop-main .text-emerald-700,
-      dialog .text-emerald-900,
-      dialog .text-emerald-800,
-      dialog .text-emerald-700 {
-        color: var(--emerald) !important;
-      }
-      .shop-main .text-amber-950,
-      .shop-main .text-amber-900,
-      .shop-main .text-amber-800,
-      .shop-main .text-amber-700,
-      dialog .text-amber-950,
-      dialog .text-amber-900 {
-        color: var(--gold) !important;
-      }
-      .shop-main .text-rose-950,
-      .shop-main .text-rose-900,
-      .shop-main .text-rose-800,
-      .shop-main .text-rose-700,
-      .shop-main .text-red-600,
-      dialog .text-rose-900,
-      dialog .text-rose-800,
-      dialog .text-rose-700,
-      dialog .text-red-600 {
-        color: var(--rose) !important;
-      }
-      .shop-main .text-sky-900,
-      .shop-main .text-sky-800 { color: #7dd3fc !important; }
-      .shop-main .text-purple-900,
-      .shop-main .text-purple-800 { color: #d8b4fe !important; }
+      #viewCatalog .shop-location { background: var(--dark-card); border: 1.5px solid var(--dark-border); border-radius: 1.6rem; padding: 1.5rem; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 1.4rem; align-items: stretch; }
+      @media (max-width: 860px) { #viewCatalog .shop-location { grid-template-columns: 1fr; } }
+      #viewCatalog .shop-map-frame { width: 100%; min-height: 260px; border: 1.5px solid var(--dark-border); border-radius: 1.2rem; overflow: hidden; background: var(--dark-bg); }
+      #viewCatalog .shop-map-frame iframe { width: 100%; height: 100%; min-height: 260px; border: 0; display: block; }
+      #viewCatalog .pay-methods-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .4rem; padding-top: .35rem; }
+      @media (max-width: 640px) { #viewCatalog .pay-methods-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+      @media (max-width: 400px) { #viewCatalog .pay-methods-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+      #viewCatalog .pay-method-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: .3rem; padding: .5rem .3rem; border-radius: .8rem; background: var(--dark-bg); border: 1px solid #334155; color: #f8fafc; }
+      #viewCatalog .pay-method-tile svg { width: 34px; height: 24px; flex-shrink: 0; border-radius: .35rem; }
+      #viewCatalog .pay-method-tile div { min-width: 0; line-height: 1.15; }
+      #viewCatalog .pay-method-tile strong { display: block; font-size: .71rem; font-weight: 800; color: #ffffff; white-space: nowrap; }
+      #viewCatalog .pay-method-tile span { display: block; font-size: .61rem; font-weight: 600; color: #94a3b8; white-space: nowrap; }
 
-      /* Border & Divider */
-      .shop-main .border-slate-100,
-      .shop-main .border-slate-200,
-      .shop-main .border-slate-300,
-      .shop-main .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
-      .shop-main .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
-      dialog .border-slate-100,
-      dialog .border-slate-200,
-      dialog .border-slate-300,
-      .fixed .border-slate-100,
-      .fixed .border-slate-200 {
-        border-color: var(--dark-border) !important;
-      }
-
-      /* Input, Select, Textarea */
-      input:not([type="checkbox"]):not([type="radio"]),
-      select,
-      textarea,
-      .pos-shopify-search,
-      .catalog-search-form input {
-        background: var(--dark-bg) !important;
-        color: var(--dark-text) !important;
-        border-color: var(--dark-border-strong) !important;
-      }
-      input::placeholder,
-      textarea::placeholder { color: #64748b !important; }
-      input:focus, select:focus, textarea:focus {
-        border-color: var(--gold) !important;
-        box-shadow: 0 0 0 3px rgba(245, 183, 0, 0.16) !important;
-      }
-      .pos-received-legend {
-        background: var(--dark-card) !important;
-        color: var(--dark-muted) !important;
-      }
-      #posCashReceivedInput {
-        background: transparent !important;
-        color: var(--dark-text) !important;
-        border: none !important;
-        box-shadow: none !important;
-      }
-      #posCashReceivedInput::placeholder { color: var(--dark-muted) !important; }
-
-      /* Tabel */
-      #viewKasir table thead th,
-      #viewInventory table thead th,
-      #viewBooks table thead th,
-      #stockCardDialog table thead th,
-      table thead tr {
-        background: var(--dark-elev) !important;
-        color: #cbd5e1 !important;
-        border-color: var(--dark-border) !important;
-      }
-      #viewKasir table tbody tr:nth-child(even),
-      #viewInventory table tbody tr:nth-child(even),
-      #viewBooks table tbody tr:nth-child(even) {
-        background: rgba(255, 255, 255, 0.02) !important;
-      }
-      #viewKasir table tbody tr:hover,
-      #viewInventory table tbody tr:hover,
-      #viewBooks table tbody tr:hover {
-        background: rgba(245, 183, 0, 0.07) !important;
-      }
-      .inv-sort-btn { color: #cbd5e1 !important; }
-      .inv-sort-btn:hover,
-      .inv-sort-btn.is-active {
-        background: rgba(245, 183, 0, 0.16) !important;
-        color: var(--gold) !important;
-      }
-
-      /* Kasir POS Khusus */
-      .pos-hdr-badge {
-        background: var(--dark-elev) !important;
-        border-color: var(--dark-border-strong) !important;
-        color: var(--dark-text) !important;
-      }
-      .pos-hdr-badge strong { color: var(--gold) !important; }
-      .pos-hdr-badge.pos-hdr-warn {
-        background: rgba(225, 29, 72, 0.18) !important;
-        border-color: rgba(251, 113, 133, 0.45) !important;
-        color: #fda4af !important;
-      }
-      .pos-fav-pro-card:hover {
-        border-color: var(--gold) !important;
-        background: var(--dark-elev) !important;
-      }
-      .pos-fav-pro-price { color: var(--gold) !important; }
-      body.sjs-admin #posTotalPayHeroBox {
-        background: linear-gradient(135deg, #0b0e14 0%, #172033 100%) !important;
-        border: 1.5px solid var(--gold) !important;
-      }
-      body.sjs-admin .pos-exact-seg .pay-option-btn {
-        background: var(--dark-elev) !important;
-        border-color: var(--dark-border-strong) !important;
-        color: var(--dark-text) !important;
-      }
-      body.sjs-admin .pos-exact-seg .pay-option-btn:hover {
-        border-color: var(--gold) !important;
-        color: var(--gold) !important;
-      }
-      body.sjs-admin .pos-exact-seg .pay-option-btn[aria-pressed="true"] {
-        background: var(--gold) !important;
-        color: #0b0e14 !important;
-        border-color: var(--gold) !important;
-      }
-      body.sjs-admin .pos-exact-numpad .pos-num-btn {
-        background: var(--dark-elev) !important;
-        border-color: var(--dark-border-strong) !important;
-        color: var(--dark-text) !important;
-      }
-      body.sjs-admin .pos-exact-numpad .pos-num-btn:hover {
-        background: var(--dark-hover) !important;
-        border-color: var(--gold) !important;
-        color: var(--gold) !important;
-      }
-      body.sjs-admin .pos-exact-numpad .pos-cash-pill {
-        background: var(--dark-surface) !important;
-        border-color: var(--dark-border-strong) !important;
-        color: #cbd5e1 !important;
-      }
-      body.sjs-admin .pos-exact-numpad .pos-cash-pill:hover {
-        background: var(--gold) !important;
-        border-color: var(--gold) !important;
-        color: #0b0e14 !important;
-      }
-      body.sjs-admin .pos-exact-numpad .pos-cash-pill[data-cash-exact] {
-        background: rgba(245, 183, 0, 0.16) !important;
-        border-color: var(--gold) !important;
-        color: var(--gold) !important;
-      }
-      body.sjs-admin #posCashChangeBox.is-idle {
-        background: var(--dark-bg) !important;
-        border-color: var(--dark-border) !important;
-      }
-      body.sjs-admin #posCashChangeBox.is-idle span { color: var(--dark-muted) !important; }
-      body.sjs-admin #posCashChangeBox.is-idle strong { color: var(--dark-text) !important; }
-      body.sjs-admin #posCashChangeBox.is-change {
-        background: rgba(16, 185, 129, 0.18) !important;
-        border-color: #10b981 !important;
-      }
-      body.sjs-admin #posCashChangeBox.is-change span { color: #6ee7b7 !important; }
-      body.sjs-admin #posCashChangeBox.is-change strong { color: #34d399 !important; }
-      body.sjs-admin #posCashChangeBox.is-short {
-        background: rgba(225, 29, 72, 0.18) !important;
-        border-color: #f43f5e !important;
-      }
-      body.sjs-admin #posCashChangeBox.is-short span { color: #fda4af !important; }
-      body.sjs-admin #posCashChangeBox.is-short strong { color: #fb7185 !important; }
-      body.sjs-admin #posSaveActionsSticky {
-        background: var(--dark-card) !important;
-        border-top-color: var(--dark-border) !important;
-      }
-      body.sjs-admin #btnSaveAndPrintTx {
-        background: var(--gold) !important;
-        color: #0b0e14 !important;
-        border-color: var(--gold) !important;
-      }
-      body.sjs-admin #btnSaveAndPrintTx i { color: #0b0e14 !important; }
-      body.sjs-admin #btnSaveTx {
-        background: var(--dark-elev) !important;
-        border-color: var(--dark-border-strong) !important;
-        color: var(--dark-text) !important;
-      }
-      body.sjs-admin #btnSaveTx:hover:not(:disabled) {
-        background: var(--dark-hover) !important;
-        border-color: var(--gold) !important;
-        color: var(--gold) !important;
-      }
-      body.sjs-admin #btnSaveTx:disabled,
-      body.sjs-admin #btnSaveTx.is-disabled {
-        background: var(--dark-surface) !important;
-        border-color: var(--dark-border) !important;
-        color: #64748b !important;
-      }
-      .pos-svc-chip {
-        background: var(--dark-card) !important;
-        border-color: var(--dark-border-strong) !important;
-        color: #e2e8f0 !important;
-      }
-      .pos-svc-chip:hover {
-        border-color: var(--gold) !important;
-        color: var(--gold) !important;
-      }
-      .btn-inline-minus, .btn-inline-plus, .btn-drawer-minus, .btn-drawer-plus {
-        background: var(--dark-elev) !important;
-        color: var(--dark-text) !important;
-      }
-      .item-inline-qty, .item-drawer-qty {
-        color: var(--dark-text) !important;
-        border-color: var(--dark-border-strong) !important;
-      }
-
-      /* Tombol Umum & Pill */
-      .shop-button-primary {
-        background: var(--gold) !important;
-        color: #0b0e14 !important;
-        border: none !important;
-        box-shadow: 0 6px 16px rgba(245, 183, 0, 0.22) !important;
-      }
-      .shop-button-secondary {
-        background: var(--dark-elev) !important;
-        color: var(--dark-text) !important;
-        border: 1px solid var(--dark-border-strong) !important;
-      }
-      .shop-button-secondary:hover:not(:disabled) {
-        background: var(--dark-hover) !important;
-        border-color: var(--gold) !important;
-      }
-      .sjs-chart-pill {
-        background: var(--dark-elev) !important;
-        border-color: var(--dark-border-strong) !important;
-        color: var(--gold) !important;
-      }
-      .uikit-bar-track,
-      .sjs-ratio-track {
-        background: var(--dark-bg) !important;
-        border-color: var(--dark-border) !important;
-      }
-      .stock-indicator {
-        background: rgba(16, 185, 129, 0.16) !important;
-        color: var(--emerald) !important;
-      }
-      .stock-indicator.is-low {
-        background: rgba(245, 183, 0, 0.16) !important;
-        color: var(--gold) !important;
-      }
-      .stock-indicator.is-empty {
-        background: rgba(225, 29, 72, 0.18) !important;
-        color: var(--rose) !important;
-      }
-
-      /* Grafik SVG agar teks & garis tetap tajam di Dark Mode */
-      .sjs-chart-card svg text[fill="#0f2557"],
-      .kledo-card svg text[fill="#0f2557"],
-      .sjs-chart-card svg text[fill="#334155"],
-      .sjs-chart-card svg text[fill="#475569"] {
-        fill: #e2e8f0 !important;
-      }
-      .sjs-chart-card svg text[fill="#64748b"],
-      .kledo-card svg text[fill="#64748b"] {
-        fill: #94a3b8 !important;
-      }
-      .sjs-chart-card svg text[fill="#1d4ed8"] {
-        fill: #60a5fa !important;
-      }
-      .sjs-chart-card svg text[fill="#b45309"] {
-        fill: #facc15 !important;
-      }
-      .sjs-chart-card svg circle[stroke="#f1f5f9"],
-      .sjs-chart-card svg path[stroke="#f1f5f9"],
-      .sjs-chart-card svg line[stroke="#e2e8f0"],
-      .sjs-chart-card svg line[stroke="#cbd5e1"],
-      .sjs-chart-card svg line[stroke="#f1f5f9"],
-      .kledo-card svg line[stroke="#e2e8f0"] {
-        stroke: #262d3d !important;
-      }
-      .sjs-chart-card svg circle[stroke="#e2e8f0"] {
-        stroke: #334155 !important;
-      }
-      .sjs-chart-card svg rect[fill="#f1f5f9"] {
-        fill: #1e2433 !important;
-      }
-
-      /* Mode Pelanggan di dalam Admin (1:1 Full-Bleed Dark Showroom) */
-      #viewCatalog .catalog-card-photo-wrap {
-        padding: 0 !important;
-        background: var(--dark-bg) !important;
-        border-bottom: 1px solid var(--dark-border) !important;
-      }
-      #viewCatalog .catalog-card-photo {
-        aspect-ratio: 1 / 1 !important;
-        border-radius: 0 !important;
-        background: var(--dark-bg) !important;
-      }
-      #viewCatalog .catalog-card-photo img {
-        background: var(--dark-bg) !important;
-        object-fit: cover !important;
-      }
-      #viewCatalog .catalog-card-meta {
-        background: var(--dark-elev) !important;
-        color: var(--dark-muted) !important;
-      }
-      #viewCatalog .catalog-card-price {
-        color: var(--gold) !important;
-      }
-      #viewCatalog .catalog-stock {
-        background: rgba(16, 185, 129, 0.15) !important;
-        color: var(--emerald) !important;
-      }
-      #viewCatalog .catalog-categories label span {
-        background: var(--dark-elev) !important;
-        color: #cbd5e1 !important;
-      }
-      #viewCatalog .catalog-categories label input:checked + span {
-        background: var(--gold) !important;
-        color: #0b0e14 !important;
-      }
-      #viewCatalog .quick-cat-btn.is-active {
-        background: linear-gradient(135deg, #1b2232, #0f172a) !important;
-        border-color: var(--gold) !important;
-      }
-      #viewCatalog .quick-cat-btn.is-active strong { color: var(--gold) !important; }
-      #viewCatalog .quick-cat-btn .quick-cat-icon {
-        background: var(--dark-elev) !important;
-        color: var(--gold) !important;
-      }
-      #viewCatalog .senar-service-note {
-        background: rgba(245, 183, 0, 0.12) !important;
-        border-color: rgba(245, 183, 0, 0.35) !important;
-        color: var(--gold-soft) !important;
-      }
+      #viewCatalog .testimonials-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
+      @media (max-width: 820px) { #viewCatalog .testimonials-grid { grid-template-columns: 1fr; } }
+      #viewCatalog .testimonial-card { background: var(--dark-card); border: 1.5px solid var(--dark-border); border-radius: 1.35rem; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between; gap: .75rem; }
+      #viewCatalog .testimonial-stars { color: #facc15; font-size: .95rem; letter-spacing: .1em; }
 
       /* Dialog, Modal & Asisten Toko */
       dialog,
@@ -3420,170 +2999,8 @@
       </div>
     </section>
 
-    <!-- KATALOG PUBLIK -->
-    <section id="viewCatalog" class="flex flex-col gap-7">
-      <div id="customerPreviewBanner" hidden class="customer-preview-banner no-print" role="region" aria-label="Indikator Pratinjau Pelanggan">
-        <div class="flex flex-wrap items-center gap-2">
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-extrabold">👁 Preview Pelanggan</span>
-          <span class="preview-stat-pill"><strong id="previewStatProducts">0</strong> Produk</span>
-          <span class="preview-stat-pill"><strong id="previewStatCart">0</strong> Keranjang</span>
-          <span class="preview-stat-pill text-amber-300">Admin View</span>
-        </div>
-        <button type="button" id="btnBannerBackToAdmin" class="shop-button shop-button-primary !min-h-9 !py-1.5 !px-3.5 !text-xs">
-          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Kembali ke Admin
-        </button>
-      </div>
-      <div class="shop-hero">
-        <div class="shop-hero-content">
-          <p class="shop-eyebrow"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Tanjung Redeb, Berau · Stok Real-Time</p>
-          <h2 id="catalogPageTitle" tabindex="-1">Perlengkapan Olahraga<br><span class="shop-hero-accent">&amp; Alat Musik</span></h2>
-          <p class="text-[15px] text-slate-200 leading-relaxed">Temukan perlengkapan badminton, futsal, bola, catur, hingga aksesori gitar dengan harga jelas dan stok langsung dari toko kami di Berau.</p>
-          <div class="hero-trust-row">
-            <span class="hero-trust-pill"><i class="fa-solid fa-circle-check" aria-hidden="true"></i> Harga &amp; stok terkini</span>
-            <span class="hero-trust-pill"><i class="fa-solid fa-bolt" aria-hidden="true"></i> Pesan cepat lewat WA</span>
-            <span class="hero-trust-pill"><i class="fa-solid fa-qrcode" aria-hidden="true"></i> Terima Tunai, QRIS, Kartu &amp; Transfer</span>
-          </div>
-          <div class="shop-hero-actions pt-1">
-            <a class="shop-button shop-button-accent" href="#publicProductCatalog">Jelajahi katalog <i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a>
-            <a class="shop-button shop-button-outline" href="#cara-pesan"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> Cara pesan</a>
-            <a class="shop-button shop-button-outline" href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp text-emerald-300" aria-hidden="true"></i> Chat WhatsApp</a>
-          </div>
-        </div>
-        <div class="hero-feature-grid" aria-label="Pilih kategori cepat">
-          <button type="button" class="hero-feature-card" data-quick-cat="badminton">
-            <i class="fa-solid fa-feather-pointed" aria-hidden="true"></i>
-            <strong>Badminton</strong>
-            <span>Raket, kok, senar &amp; grip</span>
-          </button>
-          <button type="button" class="hero-feature-card" data-quick-cat="ball">
-            <i class="fa-solid fa-futbol" aria-hidden="true"></i>
-            <strong>Futsal &amp; Bola</strong>
-            <span>Sepatu, bola &amp; pelindung</span>
-          </button>
-          <button type="button" class="hero-feature-card" data-quick-cat="chess">
-            <i class="fa-solid fa-chess-knight" aria-hidden="true"></i>
-            <strong>Catur</strong>
-            <span>Papan &amp; bidak standar</span>
-          </button>
-          <button type="button" class="hero-feature-card" data-quick-cat="music">
-            <i class="fa-solid fa-guitar" aria-hidden="true"></i>
-            <strong>Musik &amp; Gitar</strong>
-            <span>Senar, capo &amp; aksesori</span>
-          </button>
-        </div>
-      </div>
-
-      <section id="kategori-unggulan" class="flex flex-col gap-3" aria-label="Menu kategori cepat">
-        <div class="catalog-heading">
-          <h2>Pilih kategori</h2>
-          <span class="text-xs font-bold text-slate-500">Klik kategori untuk langsung menyaring produk</span>
-        </div>
-        <div class="quick-cat-grid" id="quickCatGrid">
-          <button type="button" class="quick-cat-btn is-active" data-quick-cat="all">
-            <span class="quick-cat-icon"><i class="fa-solid fa-border-all" aria-hidden="true"></i></span>
-            <div><strong>Semua Produk</strong><span>Lihat seluruh stok</span></div>
-          </button>
-          <button type="button" class="quick-cat-btn" data-quick-cat="badminton">
-            <span class="quick-cat-icon"><i class="fa-solid fa-feather-pointed" aria-hidden="true"></i></span>
-            <div><strong>Badminton</strong><span>Raket &amp; kok</span></div>
-          </button>
-          <button type="button" class="quick-cat-btn" data-quick-cat="ball">
-            <span class="quick-cat-icon"><i class="fa-solid fa-futbol" aria-hidden="true"></i></span>
-            <div><strong>Futsal &amp; Bola</strong><span>Bola &amp; sepatu</span></div>
-          </button>
-          <button type="button" class="quick-cat-btn" data-quick-cat="chess">
-            <span class="quick-cat-icon"><i class="fa-solid fa-chess" aria-hidden="true"></i></span>
-            <div><strong>Catur</strong><span>Papan &amp; set catur</span></div>
-          </button>
-          <button type="button" class="quick-cat-btn" data-quick-cat="music">
-            <span class="quick-cat-icon"><i class="fa-solid fa-music" aria-hidden="true"></i></span>
-            <div><strong>Musik</strong><span>Gitar &amp; aksesori</span></div>
-          </button>
-          <button type="button" class="quick-cat-btn" data-quick-cat="sport">
-            <span class="quick-cat-icon"><i class="fa-solid fa-dumbbell" aria-hidden="true"></i></span>
-            <div><strong>Olahraga Lainnya</strong><span>Perlengkapan umum</span></div>
-          </button>
-        </div>
-      </section>
-
-      <section id="publicProductCatalog" class="flex flex-col gap-5" aria-labelledby="productCatalogTitle">
-        <div class="catalog-heading">
-          <h2 id="productCatalogTitle">Katalog produk</h2>
-          <button type="button" id="openCatalogCart" class="shop-button shop-button-primary" aria-haspopup="dialog">
-            <i class="fa-solid fa-basket-shopping" aria-hidden="true"></i> Keranjang <span id="catalogCartCount" class="ml-1 px-2 py-0.5 rounded-full bg-white/20 text-xs font-extrabold" aria-live="polite">0</span>
-          </button>
-        </div>
-        <div class="catalog-toolbar">
-          <form id="catalogSearchForm" role="search" autocomplete="off" class="catalog-search-form">
-            <label for="catalogSearch" class="sr-only">Cari produk katalog</label>
-            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-            <input type="search" id="catalogSearch" placeholder="Cari nama produk, merek, ukuran, atau kode (mis. senar, raket, SJS-001)..." autocomplete="off" spellcheck="false">
-            <button type="button" id="btnClearCatalogSearch" class="hidden" aria-label="Hapus pencarian"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
-          </form>
-          <div class="catalog-filter-row">
-            <fieldset id="catalogCategory" class="catalog-categories">
-              <legend class="sr-only">Kategori produk</legend>
-              <label><input class="sr-only" type="radio" name="catalogCategory" value="all" checked><span>Semua</span></label>
-              <label><input class="sr-only" type="radio" name="catalogCategory" value="sport"><span>Olahraga Lainnya</span></label>
-              <label><input class="sr-only" type="radio" name="catalogCategory" value="badminton"><span>Badminton</span></label>
-              <label><input class="sr-only" type="radio" name="catalogCategory" value="ball"><span>Futsal &amp; bola</span></label>
-              <label><input class="sr-only" type="radio" name="catalogCategory" value="chess"><span>Catur</span></label>
-              <label><input class="sr-only" type="radio" name="catalogCategory" value="music"><span>Musik</span></label>
-            </fieldset>
-            <div class="flex items-center gap-2.5 ml-auto">
-              <label for="catalogSort" class="sr-only">Urutkan produk</label>
-              <select id="catalogSort" class="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-xs font-bold text-slate-700">
-                <option value="default">Urutan default</option>
-                <option value="price-asc">Harga terendah</option>
-                <option value="price-desc">Harga tertinggi</option>
-                <option value="name-asc">Nama A–Z</option>
-              </select>
-              <span id="catalogResultCount" aria-live="polite"></span>
-            </div>
-          </div>
-        </div>
-        <div id="productCatalogGrid" class="catalog-grid"><p class="catalog-empty" role="status">Katalog sedang dimuat…</p></div>
-      </section>
-
-      <section id="cara-pesan" class="flex flex-col gap-4" aria-labelledby="howToOrderTitle">
-        <div class="catalog-heading">
-          <h2 id="howToOrderTitle">Cara pesan mudah</h2>
-          <span class="text-xs font-bold text-slate-500">Tanpa perlu buat akun, langsung terhubung ke WhatsApp toko</span>
-        </div>
-        <div class="howto-grid">
-          <article class="howto-card">
-            <span class="howto-step">1</span>
-            <h3>Pilih produk di katalog</h3>
-            <p>Gunakan kotak pencarian atau menu kategori di atas untuk mengecek harga dan sisa stok barang yang tersedia.</p>
-          </article>
-          <article class="howto-card">
-            <span class="howto-step">2</span>
-            <h3>Masukkan ke keranjang</h3>
-            <p>Klik <strong>+ Keranjang</strong> untuk memilih beberapa barang sekaligus, atau klik <strong>Tanya stok</strong> untuk langsung menanyakan 1 produk.</p>
-          </article>
-          <article class="howto-card">
-            <span class="howto-step">3</span>
-            <h3>Konfirmasi &amp; ambil di toko</h3>
-            <p>Buka tombol <strong>Keranjang</strong> lalu klik <strong>Kirim daftar ke WhatsApp</strong>. Setelah kami konfirmasi, Anda bisa langsung ambil dan bayar di toko.</p>
-          </article>
-        </div>
-      </section>
-
-      <section id="lokasi-toko" class="shop-location">
-        <div class="space-y-1.5">
-          <h2 id="shopLocationTitle">Kunjungi toko kami</h2>
-          <address>
-            <strong>Jl. Ahmad Yani 37, Tanjung Redeb, Berau</strong><br>
-            Telp / WhatsApp: <a href="tel:+6282320033333" class="font-bold text-blue-700 underline">0823-200-33333</a>
-          </address>
-          <p class="text-xs font-semibold text-slate-500">Pembayaran di toko: Tunai · QRIS · Kartu · Transfer Bank</p>
-        </div>
-        <div class="flex flex-wrap gap-2.5">
-          <a class="shop-button shop-button-primary" href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Chat WhatsApp</a>
-          <a class="shop-button shop-button-accent" href="https://www.google.com/maps/search/?api=1&amp;query=Surya+Jaya+Sport+Jl.+Ahmad+Yani+37+Berau" target="_blank" rel="noopener noreferrer"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Petunjuk arah</a>
-        </div>
-      </section>
-    </section>
+    <!-- KATALOG PUBLIK (DIRENDER OTOMATIS DARI customer-view.js AGAR 100% SAMA DENGAN FRONTPAGE) -->
+    <section id="viewCatalog" class="flex flex-col gap-7"></section>
 
     <dialog id="catalogProductModal" class="m-auto max-h-[88dvh] w-11/12 max-w-lg rounded-3xl border border-slate-200 bg-white p-5 shadow-2xl">
       <div class="mb-3 flex items-center justify-between gap-3">
@@ -5037,6 +4454,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261127-3"></script>
+  <script type="module" src="./admin.js?v=20261128-1"></script>
 </body>
 </html>

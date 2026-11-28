@@ -1,3 +1,9 @@
+    import {
+      renderCustomerViewTemplate,
+      renderCustomerCatalogState,
+      openCustomerProductModal
+    } from "./customer-view.js?v=20261128-1";
+
     // ==================== KONFIGURASI ====================
     const EMBEDDED_FIREBASE_CONFIG = {
       apiKey: "AIzaSyBFtI_lwLU7cDcioDE1GpgC0AjKPZ1mHag",
@@ -2562,59 +2568,11 @@
     }
 
     function renderProductCatalog() {
-      const grid = document.getElementById("productCatalogGrid");
-      const search = document.getElementById("catalogSearch");
-      const q = search.value.trim().toLocaleLowerCase("id");
-      document.getElementById("btnClearCatalogSearch").classList.toggle("hidden", !search.value);
-      const category = document.querySelector("#catalogCategory input:checked")?.value || "all";
-      if (catalogLoadState !== "ready") {
-        grid.innerHTML = `<p class="catalog-empty" role="status">${catalogLoadState === "error" ? "Katalog gagal dimuat. Muat ulang halaman." : "Katalog sedang dimuat…"}</p>`;
-        return;
-      }
-      for (const btn of document.querySelectorAll("#quickCatGrid .quick-cat-btn")) {
-        btn.classList.toggle("is-active", btn.dataset.quickCat === category);
-      }
-      const sortMode = document.getElementById("catalogSort")?.value || "default";
-      const items = publicCatalog.filter(item => Number(item.stock) > 0);
-      const filtered = items.filter(item => {
-        const hay = [item.name, item.code, item.size, item.color, item.description].filter(Boolean).join(" ").toLocaleLowerCase("id");
-        return (!q || hay.includes(q)) && matchesCatalogCategory(item, category);
+      renderCustomerCatalogState({
+        publicCatalog,
+        catalogLoadState,
+        onRendered: () => updateCustomerPreviewStats()
       });
-      if (sortMode === "price-asc") filtered.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
-      else if (sortMode === "price-desc") filtered.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
-      else if (sortMode === "name-asc") filtered.sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "id"));
-      document.getElementById("catalogResultCount").textContent = `${filtered.length} produk`;
-      updateCustomerPreviewStats();
-      if (!filtered.length) {
-        grid.innerHTML = `<p class="catalog-empty" role="status">Produk tidak ditemukan. Coba kata kunci lain atau pilih kategori "Semua".</p>`;
-        return;
-      }
-      grid.innerHTML = filtered.map((item, index) => {
-        const stockNum = Number(item.stock || 0);
-        const limited = stockNum < LOW_STOCK_LIMIT;
-        const msg = `Halo Surya Jaya Sport, saya ingin bertanya tentang ${item.name}${item.code ? ` (${item.code})` : ""} dengan harga ${rp(item.price)}. Apakah stoknya tersedia?`;
-        return `
-        <article class="catalog-card">
-          <div class="catalog-card-photo-wrap" data-view-product="${esc(item.id)}" role="button" tabindex="0" aria-label="Lihat detail ${esc(item.name)}">
-            <span class="catalog-card-badge ${limited ? "is-limited" : ""}">${limited ? "Stok terbatas" : "Tersedia"}</span>
-            ${productImageMarkup(item, "catalog-card-photo", 560, index < 2)}
-          </div>
-          <div class="catalog-card-body">
-            <p class="catalog-card-meta">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
-            <h3 class="font-extrabold cursor-pointer hover:text-blue-700" data-view-product="${esc(item.id)}">${esc(item.name)}</h3>
-            ${item.description ? `<p class="catalog-card-description line-clamp-2">${esc(item.description)}</p>` : ""}
-            ${isSenarItem(item) ? `<p class="senar-service-note"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>${SENAR_SERVICE_NOTE}</span></p>` : ""}
-            <div class="catalog-card-facts">
-              <p class="catalog-card-price text-slate-900">${rp(item.price)}</p>
-              <span class="catalog-stock">Stok ${stockNum} pcs</span>
-            </div>
-            <div class="catalog-card-actions">
-              <button type="button" data-add-cart="${esc(item.id)}" class="shop-button shop-button-primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Keranjang</button>
-              <a href="${CATALOG_WA}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener noreferrer" class="shop-button shop-button-secondary"><i class="fa-brands fa-whatsapp text-emerald-600" aria-hidden="true"></i> Tanya stok</a>
-            </div>
-          </div>
-        </article>`;
-      }).join("");
     }
 
     // ==================== KERANJANG KATALOG ====================
@@ -6830,6 +6788,11 @@
       document.getElementById("syncStatusBadge").addEventListener("click", () => document.getElementById("cloudConfigModal").classList.remove("hidden"));
       document.getElementById("btnCloseCloudModal").addEventListener("click", () => document.getElementById("cloudConfigModal").classList.add("hidden"));
 
+      renderCustomerViewTemplate(document.getElementById("viewCatalog"), { isAdminPreview: true });
+      document.getElementById("btnBannerBackToAdmin")?.addEventListener("click", () => {
+        switchWorkspace(lastAdminWorkspace || "kasir");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
       document.getElementById("catalogSearch").addEventListener("input", renderProductCatalog);
       document.getElementById("catalogSearchForm").addEventListener("submit", e => e.preventDefault());
       document.getElementById("btnClearCatalogSearch").addEventListener("click", () => {
@@ -6837,6 +6800,7 @@
         renderProductCatalog();
       });
       document.getElementById("catalogCategory").addEventListener("change", renderProductCatalog);
+      document.getElementById("toggleShowOutOfStock")?.addEventListener("change", renderProductCatalog);
       function addToCatalogCart(id) {
         const item = publicCatalog.find(p => p.id === id);
         if (!item || Number(item.stock) <= 0) return;
@@ -6846,31 +6810,6 @@
         saveCart();
         updateCartSummary();
         showToast(`${item.name} ditambahkan ke keranjang.`);
-      }
-      function openProductDetail(id) {
-        const item = publicCatalog.find(p => p.id === id);
-        if (!item) return;
-        const msg = `Halo Surya Jaya Sport, saya ingin bertanya tentang ${item.name}${item.code ? ` (${item.code})` : ""} dengan harga ${rp(item.price)}. Apakah stoknya tersedia?`;
-        document.getElementById("catalogDetailTitle").textContent = item.name || "Detail produk";
-        document.getElementById("catalogDetailBody").innerHTML = `
-          ${productImageMarkup(item, "w-full aspect-[4/3] rounded-2xl border border-slate-200", 720, true)}
-          <p class="text-xs font-mono font-bold text-blue-700">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
-          ${item.description ? `<p class="text-sm text-slate-600 leading-relaxed">${esc(item.description)}</p>` : ""}
-          ${isSenarItem(item) ? `<p class="senar-service-note !text-xs !py-2 !px-3"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>${SENAR_SERVICE_NOTE}</span></p>` : ""}
-          <div class="flex items-center justify-between pt-2 border-t border-slate-100">
-            <p class="text-2xl font-extrabold text-slate-900">${rp(item.price)}</p>
-            <span class="catalog-stock">Stok ${Number(item.stock || 0)} pcs</span>
-          </div>
-          <div class="grid grid-cols-2 gap-2 pt-2">
-            <button type="button" data-detail-add="${esc(item.id)}" class="shop-button shop-button-primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Keranjang</button>
-            <a href="${CATALOG_WA}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener noreferrer" class="shop-button shop-button-secondary"><i class="fa-brands fa-whatsapp text-emerald-600" aria-hidden="true"></i> Tanya WA</a>
-          </div>`;
-        const dlg = document.getElementById("catalogProductModal");
-        dlg.querySelector("[data-detail-add]").addEventListener("click", () => {
-          addToCatalogCart(item.id);
-          dlg.close();
-        });
-        dlg.showModal();
       }
       document.getElementById("catalogSort")?.addEventListener("change", renderProductCatalog);
       for (const btn of document.querySelectorAll("[data-quick-cat]")) {
@@ -6882,12 +6821,24 @@
           document.getElementById("publicProductCatalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
         });
       }
-      document.getElementById("productCatalogGrid").addEventListener("click", e => {
-        const btn = e.target.closest("[data-add-cart]");
-        if (btn) return addToCatalogCart(btn.dataset.addCart);
-        const view = e.target.closest("[data-view-product]");
-        if (view) return openProductDetail(view.dataset.viewProduct);
-      });
+      function bindAdminCustomerGrid(el) {
+        if (!el) return;
+        el.addEventListener("click", e => {
+          const btn = e.target.closest("[data-add-cart]");
+          if (btn) return addToCatalogCart(btn.dataset.addCart);
+          const view = e.target.closest("[data-view-product]");
+          if (view) return openCustomerProductModal({ publicCatalog, id: view.dataset.viewProduct, onAddCart: addToCatalogCart });
+        });
+        el.addEventListener("keydown", e => {
+          if (e.key !== "Enter" && e.key !== " ") return;
+          const view = e.target.closest("[data-view-product]");
+          if (!view) return;
+          e.preventDefault();
+          openCustomerProductModal({ publicCatalog, id: view.dataset.viewProduct, onAddCart: addToCatalogCart });
+        });
+      }
+      bindAdminCustomerGrid(document.getElementById("productCatalogGrid"));
+      bindAdminCustomerGrid(document.getElementById("featuredProductsGrid"));
       document.getElementById("openCatalogCart").addEventListener("click", () => { renderCart(); document.getElementById("catalogCart").showModal(); });
       document.getElementById("catalogCartLines").addEventListener("click", e => {
         const btn = e.target.closest("[data-remove-cart]");
