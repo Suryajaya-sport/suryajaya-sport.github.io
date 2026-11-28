@@ -2,7 +2,7 @@
       renderCustomerViewTemplate,
       renderCustomerCatalogState,
       openCustomerProductModal
-    } from "./customer-view.js?v=20261128-1";
+    } from "./sjs-storefront.js?v=20261128-2";
 
     // ==================== KONFIGURASI ====================
     const EMBEDDED_FIREBASE_CONFIG = {
