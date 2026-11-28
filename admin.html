@@ -3156,7 +3156,198 @@
         background: #ffffff !important;
       }
     }
-  </style>
+  
+
+      /* === SATU TEMA GELAP TERPADU DENGAN CSS VARIABLE SEMANTIK === */
+      :root {
+        --bg: #0B1220;
+        --card: #121C30;
+        --line: #24324D;
+        --text: #F1F5F9;
+        --muted: #A9B8D0;
+        --brand: #F5B800;
+        --info: #4C8DFF;
+        --good: #22C55E;
+        --warn: #FB923C;
+        --bad: #EF4444;
+      }
+
+      body,
+      body.sjs-admin {
+        background: var(--bg) !important;
+        background-image: none !important;
+        color: var(--text) !important;
+      }
+
+      /* Semua kartu gelap (#121C30) dengan garis #24324D — hilangkan kartu putih di tema admin/laporan */
+      body.sjs-admin .sjs-chart-card,
+      body.sjs-admin .sjs-chart-card.is-dark,
+      body.sjs-admin .kledo-card,
+      body.sjs-admin .bento-pastel-card,
+      body.sjs-admin .sjs-ratio-card,
+      body.sjs-admin #inventoryCatalogPanel,
+      body.sjs-admin #viewInventory > .workspace-metrics > div,
+      body.sjs-admin #viewInventory > section,
+      body.sjs-admin #viewBooks section,
+      body.sjs-admin #viewBooks .bg-white,
+      body.sjs-admin #viewBooks .bg-slate-50,
+      body.sjs-admin #viewBooks .bg-amber-50\/40,
+      body.sjs-admin #viewBooks .bg-blue-50\/40,
+      body.sjs-admin #viewBackup .bg-white,
+      body.sjs-admin #viewBackup .bg-slate-50,
+      body.sjs-admin #salesHistoryWorkspace > section,
+      body.sjs-admin #salesHistoryWorkspace .bg-white,
+      body.sjs-admin #salesHistoryWorkspace .bg-slate-50,
+      body.sjs-admin .workspace-heading,
+      body.sjs-admin .workspace-record,
+      body.sjs-admin .uikit-row,
+      body.sjs-admin #ownerPurchaseHistory .bg-white,
+      body.sjs-admin #ownerTopExpenseTable .bg-white,
+      body.sjs-admin #booksCashCard .bg-white,
+      body.sjs-admin #booksUmkmTaxCard .bg-white {
+        background: var(--card) !important;
+        background-image: none !important;
+        border-color: var(--line) !important;
+        color: var(--text) !important;
+      }
+
+      /* Teks utama & sekunder */
+      body.sjs-admin .text-slate-900,
+      body.sjs-admin .text-slate-800,
+      body.sjs-admin .text-indigo-950,
+      body.sjs-admin .text-blue-950,
+      body.sjs-admin .text-blue-900,
+      body.sjs-admin .text-amber-950,
+      body.sjs-admin .text-emerald-900,
+      body.sjs-admin .uikit-row-label,
+      body.sjs-admin .uikit-row-val,
+      body.sjs-admin .kledo-card-val,
+      body.sjs-admin .workspace-section-title {
+        color: var(--text) !important;
+      }
+      body.sjs-admin .text-slate-700,
+      body.sjs-admin .text-slate-600,
+      body.sjs-admin .text-slate-500,
+      body.sjs-admin .text-slate-400,
+      body.sjs-admin .sjs-chart-sub,
+      body.sjs-admin .kledo-card-title,
+      body.sjs-admin .kledo-card-sub,
+      body.sjs-admin .uikit-row-head .text-slate-400,
+      body.sjs-admin .label,
+      body.sjs-admin small {
+        color: var(--muted) !important;
+      }
+
+      /* Satu warna per metrik di seluruh halaman:
+         - Omzet / Info: #4C8DFF
+         - Laba / Aman: #22C55E
+         - Modal / HPP: #94A3B8 (abu-biru)
+         - Pengeluaran / Bahaya: #EF4444
+         - Peringatan (stok menipis, belum backup, pengeluaran Rp 0): #FB923C
+         - Aksen merek: #F5B800 */
+      body.sjs-admin .kledo-kpi-grid > .kledo-card:nth-child(1) {
+        border-left: 4px solid var(--info) !important;
+      }
+      body.sjs-admin .kledo-kpi-grid > .kledo-card:nth-child(1) .kledo-card-title,
+      body.sjs-admin .kledo-kpi-grid > .kledo-card:nth-child(1) #totalOmset {
+        color: var(--info) !important;
+      }
+      body.sjs-admin .kledo-kpi-grid > .kledo-card:nth-child(2) {
+        border-left: 4px solid var(--good) !important;
+      }
+      body.sjs-admin .kledo-kpi-grid > .kledo-card:nth-child(2) .kledo-card-title,
+      body.sjs-admin .kledo-kpi-grid > .kledo-card:nth-child(2) #totalUntung {
+        color: var(--good) !important;
+      }
+      body.sjs-admin .kledo-kpi-grid > .kledo-card:nth-child(3) {
+        border-left: 4px solid #94A3B8 !important;
+      }
+      body.sjs-admin .kledo-kpi-grid > .kledo-card:nth-child(3) #totalModal {
+        color: #CBD5E1 !important;
+      }
+      body.sjs-admin .kledo-kpi-grid > .kledo-card:nth-child(4) {
+        border-left: 4px solid var(--info) !important;
+      }
+      body.sjs-admin .kledo-kpi-grid > .kledo-card:nth-child(4) #totalTerjual {
+        color: var(--info) !important;
+      }
+
+      /* Kartu metode pembayaran di Riwayat Penjualan */
+      body.sjs-admin #salesHistoryWorkspace > .workspace-metrics > div {
+        background: var(--card) !important;
+        border: 1px solid var(--line) !important;
+        color: var(--text) !important;
+      }
+      body.sjs-admin #salesHistoryWorkspace > .workspace-metrics > div:nth-child(1) {
+        border-left: 4px solid var(--good) !important;
+      }
+      body.sjs-admin #salesHistoryWorkspace > .workspace-metrics > div:nth-child(2) {
+        border-left: 4px solid var(--info) !important;
+      }
+      body.sjs-admin #salesHistoryWorkspace > .workspace-metrics > div:nth-child(3) {
+        border-left: 4px solid var(--warn) !important;
+      }
+      body.sjs-admin #salesHistoryWorkspace > .workspace-metrics > div:nth-child(4) {
+        border-left: 4px solid #A78BFA !important;
+      }
+      body.sjs-admin #salesHistoryWorkspace > .workspace-metrics p,
+      body.sjs-admin #salesHistoryWorkspace > .workspace-metrics span {
+        color: var(--text) !important;
+      }
+
+      /* Tombol utama merek (#F5B800) & aksi info (#4C8DFF) */
+      body.sjs-admin #btnAddItemRow,
+      body.sjs-admin #btnSaveAndPrintTx:not(:disabled):not(.is-disabled),
+      body.sjs-admin #btnSaveInventory,
+      body.sjs-admin #mainNavigation button[data-workspace][aria-current="page"] {
+        background: var(--brand) !important;
+        color: #0B1220 !important;
+        border-color: var(--brand) !important;
+      }
+      body.sjs-admin .shop-button-primary {
+        background: var(--info) !important;
+        border-color: var(--info) !important;
+        color: #FFFFFF !important;
+      }
+
+      /* Peringatan (#FB923C) & Bahaya (#EF4444) */
+      body.sjs-admin .pos-hdr-warn {
+        background: rgba(251, 146, 60, 0.14) !important;
+        border-color: rgba(251, 146, 60, 0.5) !important;
+        color: var(--warn) !important;
+      }
+      body.sjs-admin #listDeadStockWrap > div {
+        background: rgba(239, 68, 68, 0.12) !important;
+        border: 1px solid rgba(239, 68, 68, 0.45) !important;
+        color: #FECACA !important;
+      }
+
+      /* Tabel & input di mode gelap */
+      body.sjs-admin table,
+      body.sjs-admin table tbody,
+      body.sjs-admin table tbody tr,
+      body.sjs-admin table tbody td {
+        background: var(--card) !important;
+        border-color: var(--line) !important;
+        color: var(--text) !important;
+      }
+      body.sjs-admin table thead th {
+        background: var(--bg) !important;
+        border-color: var(--line) !important;
+        color: var(--muted) !important;
+      }
+      body.sjs-admin input[type="date"],
+      body.sjs-admin input[type="month"],
+      body.sjs-admin input[type="text"],
+      body.sjs-admin input[type="search"],
+      body.sjs-admin select {
+        background: var(--bg) !important;
+        color: var(--text) !important;
+        border-color: var(--line) !important;
+        color-scheme: dark;
+      }
+
+</style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
 

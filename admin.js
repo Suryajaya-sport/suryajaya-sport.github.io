@@ -2949,7 +2949,7 @@
           } else {
             lastEl.textContent = "⚠ Belum Pernah Backup";
             lastEl.className = "text-lg font-extrabold text-amber-200 mt-1";
-            if (lastCard) lastCard.style.cssText = "background:rgba(245,158,11,0.16);border:1.5px solid rgba(245,158,11,0.65);border-left:4px solid #f59e0b";
+            if (lastCard) lastCard.style.cssText = "background:rgba(251,146,60,0.16);border:1.5px solid rgba(251,146,60,0.65);border-left:4px solid #FB923C";
           }
         }
         const prodEl = document.getElementById("backupCardProductCount");
@@ -3954,7 +3954,7 @@
         if (prioTotEl) prioTotEl.textContent = `${lowCount + outCount} stok menipis & habis`;
 
         const chips = [
-          `<span style="background:rgba(245,158,11,0.14);border:1px solid rgba(245,158,11,0.45);color:#fde68a" class="px-3 py-1.5 rounded-xl">⚠ ${lowCount} menipis (stok 1–4)</span>`,
+          `<span style="background:rgba(251,146,60,0.16);border:1px solid rgba(251,146,60,0.55);color:#FB923C" class="px-3 py-1.5 rounded-xl">⚠ ${lowCount} menipis (stok 1–4)</span>`,
           `<span style="background:rgba(239,68,68,0.14);border:1px solid rgba(239,68,68,0.45);color:#fca5a5" class="px-3 py-1.5 rounded-xl">⛔ ${outCount} habis (stok 0)</span>`,
           `<span style="background:rgba(59,130,246,0.14);border:1px solid rgba(59,130,246,0.45);color:#93c5fd" class="px-3 py-1.5 rounded-xl">💎 ${highMarginCount} produk margin tinggi perlu restok</span>`
         ];
@@ -4703,7 +4703,7 @@
           else { statusDot = "🟠"; statusLabel = "Perlu Perhatian"; badgeCls = "bg-orange-100 text-orange-800 border-orange-300"; }
         }
         const zeroExpNote = revenue > 0 && spending === 0
-          ? `<span style="background:rgba(245,158,11,0.14);border:1px solid rgba(245,158,11,0.5);color:#fde68a" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-extrabold">⚠ Belum ada pengeluaran operasional tercatat, laba bersih belum akurat</span>`
+          ? `<span style="background:rgba(251,146,60,0.16);border:1px solid rgba(251,146,60,0.55);color:#FB923C" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-extrabold">⚠ Belum ada pengeluaran operasional tercatat, laba bersih belum akurat</span>`
           : "";
         healthEl.innerHTML = `<div class="flex flex-wrap items-center gap-2">
           <span class="font-extrabold text-slate-700">Kesehatan Bisnis:</span>
