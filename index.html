@@ -339,13 +339,15 @@
     .shop-location address { font-style: normal; font-size: .92rem; color: var(--dark-muted); line-height: 1.65; }
     .shop-map-frame { width: 100%; min-height: 260px; border: 1.5px solid var(--dark-border); border-radius: 1.2rem; overflow: hidden; background: var(--dark-bg); }
     .shop-map-frame iframe { width: 100%; height: 100%; min-height: 260px; border: 0; display: block; }
-    .pay-methods-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(112px, 1fr)); gap: .55rem; padding-top: .35rem; }
-    .pay-method-tile { display: flex; align-items: center; gap: .55rem; padding: .5rem .65rem; border-radius: .85rem; background: var(--dark-bg); border: 1px solid #334155; color: #f8fafc; transition: border-color .15s, transform .15s; }
+    .pay-methods-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .4rem; padding-top: .35rem; }
+    @media (max-width: 640px) { .pay-methods-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 400px) { .pay-methods-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .pay-method-tile { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: .3rem; padding: .5rem .3rem; border-radius: .8rem; background: var(--dark-bg); border: 1px solid #334155; color: #f8fafc; transition: border-color .15s, transform .15s; }
     .pay-method-tile:hover { border-color: #facc15; transform: translateY(-1px); }
-    .pay-method-tile svg { width: 32px; height: 24px; flex-shrink: 0; border-radius: .35rem; }
+    .pay-method-tile svg { width: 34px; height: 24px; flex-shrink: 0; border-radius: .35rem; }
     .pay-method-tile div { min-width: 0; line-height: 1.15; }
-    .pay-method-tile strong { display: block; font-size: .74rem; font-weight: 800; color: #ffffff; }
-    .pay-method-tile span { display: block; font-size: .64rem; font-weight: 600; color: #94a3b8; }
+    .pay-method-tile strong { display: block; font-size: .71rem; font-weight: 800; color: #ffffff; white-space: nowrap; }
+    .pay-method-tile span { display: block; font-size: .61rem; font-weight: 600; color: #94a3b8; white-space: nowrap; }
     .testimonials-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
     @media (max-width: 820px) { .testimonials-grid { grid-template-columns: 1fr; } }
     .testimonial-card { background: var(--dark-card); border: 1.5px solid var(--dark-border); border-radius: 1.35rem; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between; gap: .75rem; }
@@ -1179,6 +1181,7 @@
 
       const featuredSecEl = document.getElementById("produk-unggulan");
       const featuredGridEl = document.getElementById("featuredProductsGrid");
+      const featuredPrimaryIds = new Set();
       if (featuredSecEl && featuredGridEl) {
         const allAvailable = groupCatalogProducts(publicCatalog).filter(g => g.totalStock > 0);
         const withPhoto = allAvailable.filter(g => Boolean(safeHttpsUrl(g.primary.imageUrl)));
@@ -1186,9 +1189,10 @@
           .slice()
           .sort((a, b) => (Boolean(b.primary.featured) - Boolean(a.primary.featured)) || b.totalStock - a.totalStock)
           .slice(0, 8);
-        if (featuredList.length) {
+        if (featuredList.length && !q && category === "all") {
           featuredSecEl.hidden = false;
           featuredGridEl.innerHTML = featuredList.map((g, i) => buildCatalogCardHtml(g, i, true)).join("");
+          for (const g of featuredList) featuredPrimaryIds.add(g.primary.id);
         } else {
           featuredSecEl.hidden = true;
         }
@@ -1201,6 +1205,9 @@
         return (!q || hay.includes(q)) && matchesCatalogCategory(item, category);
       });
       let grouped = groupCatalogProducts(filteredRaw);
+      if (featuredPrimaryIds.size > 0 && grouped.length > featuredPrimaryIds.size) {
+        grouped = grouped.filter(g => !featuredPrimaryIds.has(g.primary.id));
+      }
       if (!showOutOfStock) {
         grouped = grouped.filter(g => g.totalStock > 0);
       }
