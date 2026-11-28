@@ -1,5 +1,4 @@
-// admin.js - Halaman Admin POS & Katalog (Surya Jaya Sport)
-// Data katalog diambil langsung dari Firestore (koleksi publicCatalog).
+// admin.js - Katalog User dengan Sidebar Brand Vertikal (AVO & Finotti terpisah + No Brand)
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
@@ -16,157 +15,231 @@ const WA_NUMBER = "6282320033333";
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Daftar brand. "match" dipakai bila field brand belum diisi di Firestore.
+// AVO dan Finotti dipisah sebagai 2 merek berbeda
 const BRANDS = [
-  { id: "yonex", name: "Yonex", cat: "Badminton", match: /\byonex\b/i },
-  { id: "lining", name: "Li-Ning", cat: "Badminton & Sport", match: /\b(li-?ning|lining)\b/i },
-  { id: "victor", name: "Victor", cat: "Badminton", match: /\bvictor\b/i },
-  { id: "hiqua", name: "Hiqua", cat: "Badminton", match: /\b(hi-?qua|hiqua)\b/i },
-  { id: "flypower", name: "Flypower", cat: "Badminton", match: /\bflypower\b/i },
-  { id: "astec", name: "Astec", cat: "Badminton", match: /\bastec\b/i },
-  { id: "rs", name: "RS", cat: "Reinforce Speed", match: /\b(rs|reinforce)\b/i },
-  { id: "butterfly", name: "Butterfly", cat: "Tenis Meja", match: /\bbutterfly\b/i },
-  { id: "dhs", name: "DHS", cat: "Double Happiness", match: /\b(dhs|double\s*happiness)\b/i },
-  { id: "nitaku", name: "Nitaku", cat: "Pingpong", match: /\b(nitaku|nittaku)\b/i },
-  { id: "donics", name: "Donics", cat: "Pingpong", match: /\b(donics?|donic)\b/i },
-  { id: "doublefish", name: "Double Fish", cat: "Tenis Meja", match: /\bdouble\s*fish\b/i },
-  { id: "specs", name: "Specs", cat: "Futsal & Bola", match: /\bspecs\b/i },
-  { id: "ortuseight", name: "Ortuseight", cat: "Futsal & Running", match: /\b(ortuseight|ortus)\b/i },
-  { id: "finotti", name: "Finotti", cat: "Sepatu & Futsal", match: /\b(finotti|avo)\b/i },
-  { id: "adidas", name: "Adidas", cat: "Sport & Futsal", match: /\badidas\b/i },
-  { id: "nike", name: "Nike", cat: "Sport & Futsal", match: /\bnike\b/i },
-  { id: "molten", name: "Molten", cat: "Bola Basket & Voli", match: /\bmolten\b/i },
-  { id: "mikasa", name: "Mikasa", cat: "Bola Voli & Sepak", match: /\bmikasa\b/i },
-  { id: "mizuno", name: "Mizuno", cat: "Badminton & Voli", match: /\bmizuno\b/i },
-  { id: "asics", name: "Asics", cat: "Sepatu & Voli", match: /\basics\b/i }
+  { id: "yonex", name: "Yonex", match: /\byonex\b/i },
+  { id: "lining", name: "Li-Ning", match: /\b(li-?ning|lining)\b/i },
+  { id: "victor", name: "Victor", match: /\bvictor\b/i },
+  { id: "hiqua", name: "Hiqua", match: /\b(hi-?qua|hiqua)\b/i },
+  { id: "flypower", name: "Flypower", match: /\bflypower\b/i },
+  { id: "astec", name: "Astec", match: /\bastec\b/i },
+  { id: "rs", name: "RS", match: /\b(rs|reinforce)\b/i },
+  { id: "hundred", name: "Hundred", match: /\bhundred\b/i },
+  { id: "powermax", name: "Powermax", match: /\bpower\s*max\b/i },
+  { id: "avo", name: "AVO", match: /\bavo\b/i },
+  { id: "finotti", name: "Finotti", match: /\bfinotti\b/i },
+  { id: "specs", name: "Specs", match: /\bspecs\b/i },
+  { id: "ortuseight", name: "Ortuseight", match: /\b(ortuseight|ortus)\b/i },
+  { id: "adidas", name: "Adidas", match: /\badidas\b/i },
+  { id: "nike", name: "Nike", match: /\bnike\b/i },
+  { id: "molten", name: "Molten", match: /\bmolten\b/i },
+  { id: "mikasa", name: "Mikasa", match: /\bmikasa\b/i },
+  { id: "mizuno", name: "Mizuno", match: /\bmizuno\b/i },
+  { id: "asics", name: "Asics", match: /\basics\b/i },
+  { id: "butterfly", name: "Butterfly", match: /\bbutterfly\b/i },
+  { id: "dhs", name: "DHS", match: /\b(dhs|double\s*happiness)\b/i },
+  { id: "nitaku", name: "Nitaku", match: /\b(nitaku|nittaku)\b/i },
+  { id: "donics", name: "Donics", match: /\b(donics?|donic)\b/i },
+  { id: "doublefish", name: "Double Fish", match: /\bdouble\s*fish\b/i },
+  { id: "yasaka", name: "Yasaka", match: /\byasaka\b/i },
+  { id: "tama", name: "TAMA", match: /\btama\b/i },
+  { id: "elixir", name: "Elixir", match: /\belixir\b/i }
 ];
-const OTHER_BRAND = { id: "none", name: "Tanpa Brand", cat: "Produk lainnya", match: null };
-const ALL_BRANDS = [...BRANDS, OTHER_BRAND];
+const NO_BRAND = { id: "no-brand", name: "No Brand", match: null };
+const ALL_BRANDS = [...BRANDS, NO_BRAND];
 
-let PRODUCTS = [];
+let RAW_PRODUCTS = [];
 let selectedBrandId = "";
+const cart = new Map();
 
 const $ = id => document.getElementById(id);
-const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({
+  "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+}[c]));
 const rp = n => "Rp " + Number(n || 0).toLocaleString("id-ID");
 
-function productBrand(p) {
-  if (p.brand) {
-    const byName = ALL_BRANDS.find(b => b.name.toLowerCase() === String(p.brand).toLowerCase());
-    if (byName) return byName.id;
+function detectBrandId(item) {
+  if (item.brand) {
+    const exact = ALL_BRANDS.find(b => b.name.toLowerCase() === String(item.brand).trim().toLowerCase());
+    if (exact) return exact.id;
   }
-  const name = p.name || "";
-  const found = BRANDS.find(b => b.match.test(name));
-  return found ? found.id : "none";
+  const text = [item.name, item.code, item.description].filter(Boolean).join(" ");
+  const found = BRANDS.find(b => b.match.test(text));
+  return found ? found.id : "no-brand";
 }
 
-function countPerBrand() {
+// Gabungkan item varian yang memiliki nama produk & harga yang sama (misal SJS-033 & SJS-033-B)
+function getGroupedProducts() {
+  const hideZero = $("chkHideOutOfStock")?.checked !== false;
+  const map = new Map();
+  for (const p of RAW_PRODUCTS) {
+    const st = Number(p.stock || 0);
+    if (hideZero && st <= 0) continue;
+    const key = String(p.name || "").trim().toLowerCase() + "::" + Number(p.price || 0);
+    if (!map.has(key)) {
+      map.set(key, {
+        ...p,
+        totalStock: st,
+        variants: [{ id: p.id, code: p.code || "", size: p.size || "", color: p.color || "", stock: st }]
+      });
+    } else {
+      const cur = map.get(key);
+      cur.totalStock += st;
+      cur.variants.push({ id: p.id, code: p.code || "", size: p.size || "", color: p.color || "", stock: st });
+      if (!cur.imageUrl && p.imageUrl) cur.imageUrl = p.imageUrl;
+    }
+  }
+  return [...map.values()];
+}
+
+function renderBrandSidebar(groupedItems) {
   const counts = {};
-  for (const p of PRODUCTS) {
-    const id = productBrand(p);
-    counts[id] = (counts[id] || 0) + 1;
+  for (const item of groupedItems) {
+    const bid = detectBrandId(item);
+    counts[bid] = (counts[bid] || 0) + 1;
   }
-  return counts;
-}
 
-function renderBrandGrid() {
-  const counts = countPerBrand();
-  $("brandTextGrid").innerHTML = ALL_BRANDS.map(b => {
-    const isSel = b.id === selectedBrandId;
-    const n = counts[b.id] || 0;
-    return `<button type="button" data-brand="${b.id}" class="p-3 rounded-xl border text-center cursor-pointer transition ${isSel ? "border-amber-400 bg-amber-400 text-slate-950 font-black" : "border-amber-400/25 bg-[#121620] text-white hover:border-amber-400 font-bold"}">
-      <span class="block text-sm">${esc(b.name)}</span>
-      <span class="block text-[11px] opacity-80">${esc(b.cat)} · ${n} produk</span>
-    </button>`;
-  }).join("");
+  $("btnResetBrandSide")?.classList.toggle("hidden", !selectedBrandId);
+
+  const allBtn = `<button type="button" data-brand="" class="brand-side-btn ${selectedBrandId === "" ? "is-active" : ""}">
+    <span>Semua Merek</span>
+    <span class="brand-count-pill">${groupedItems.length}</span>
+  </button>`;
+
+  const brandBtns = ALL_BRANDS
+    .filter(b => (counts[b.id] || 0) > 0 || b.id === "no-brand" || b.id === selectedBrandId)
+    .map(b => {
+      const active = selectedBrandId === b.id;
+      const cnt = counts[b.id] || 0;
+      return `<button type="button" data-brand="${esc(b.id)}" class="brand-side-btn ${active ? "is-active" : ""}">
+        <span class="truncate">${esc(b.name)}</span>
+        <span class="brand-count-pill">${cnt}</span>
+      </button>`;
+    }).join("");
+
+  $("brandVerticalList").innerHTML = allBtn + brandBtns;
 }
 
 function renderCatalog() {
-  const q = ($("catalogSearchInput")?.value || "").trim().toLowerCase();
-  const brand = ALL_BRANDS.find(b => b.id === selectedBrandId) || null;
+  const grouped = getGroupedProducts();
+  renderBrandSidebar(grouped);
 
-  $("btnClearBrand")?.classList.toggle("hidden", !brand);
+  const q = ($("userCatalogSearch")?.value || "").trim().toLowerCase();
+  const activeBrand = ALL_BRANDS.find(b => b.id === selectedBrandId) || null;
+
   const banner = $("brandSpecialBanner");
-  const filtered = PRODUCTS.filter(p =>
-    (!brand || productBrand(p) === brand.id) &&
-    (!q || String(p.name || "").toLowerCase().includes(q))
-  );
+  const filtered = grouped.filter(item => {
+    const matchB = !activeBrand || detectBrandId(item) === activeBrand.id;
+    const hay = [item.name, item.code, item.size, item.color, item.description].filter(Boolean).join(" ").toLowerCase();
+    const matchQ = !q || hay.includes(q);
+    return matchB && matchQ;
+  });
 
-  if (brand) {
-    banner.classList.remove("hidden");
-    $("brandSpecialTitle").textContent = `Produk ${brand.name}`;
-    $("brandSpecialCount").textContent = `${filtered.length} produk ditemukan`;
+  if (activeBrand) {
+    banner.hidden = false;
+    $("brandSpecialTitle").textContent = activeBrand.name;
+    $("brandSpecialCount").textContent = `${filtered.length} produk tersedia untuk merek ${activeBrand.name}`;
   } else {
-    banner.classList.add("hidden");
+    banner.hidden = true;
   }
 
-  renderBrandGrid();
+  $("catalogResultLabel").textContent = `${filtered.length} produk`;
 
-  $("catalogGrid").innerHTML = filtered.length
-    ? filtered.map(p => {
-        const stock = Number(p.stock || 0);
-        const stockLabel = stock > 0 ? `Stok ${stock} pcs` : "Habis";
-        const waText = encodeURIComponent(`Halo Surya Jaya Sport, tanya stok ${p.name || ""}${p.code ? " (" + p.code + ")" : ""}`);
-        const btnLabel = stock > 0 ? "Pesan WA" : "Tanya Stok";
-        return `<article class="gold-card p-4 flex flex-col justify-between gap-3 ${stock > 0 ? "" : "opacity-70"}">
+  $("userCatalogGrid").innerHTML = filtered.length
+    ? filtered.map(item => {
+        const st = Number(item.totalStock ?? item.stock ?? 0);
+        const varCount = item.variants?.length || 1;
+        const codes = item.variants?.map(v => v.code).filter(Boolean).join(" / ") || item.code || "";
+        const waMsg = encodeURIComponent(`Halo Surya Jaya Sport, saya mau tanya stok ${item.name} (${rp(item.price)})`);
+        return `<article class="sjs-card overflow-hidden flex flex-col justify-between">
           <div>
-            <span class="text-[11px] font-bold ${stock > 0 ? "text-amber-300" : "text-rose-400"}">${esc(stockLabel)}</span>
-            ${p.code ? `<span class="ml-2 text-[11px] text-zinc-400">${esc(p.code)}</span>` : ""}
-            <h3 class="font-extrabold text-sm text-white mt-1">${esc(p.name)}</h3>
+            <div class="aspect-square w-full bg-[#10141d] flex items-center justify-center overflow-hidden border-b border-zinc-800 relative">
+              ${varCount > 1 ? `<span class="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-full sjs-btn-gold text-[10px]">${varCount} Varian</span>` : ""}
+              ${item.imageUrl
+                ? `<img src="${esc(item.imageUrl)}" alt="${esc(item.name)}" loading="lazy" class="w-full h-full object-contain">`
+                : `<span class="text-xs font-extrabold text-amber-300 px-4 text-center">${esc(item.name)}</span>`}
+            </div>
+            <div class="p-3.5 space-y-1">
+              <div class="flex items-center justify-between gap-2">
+                <span class="font-mono text-[10px] text-amber-300 truncate">${esc(codes)}</span>
+                <span class="text-[11px] font-bold ${st > 0 ? "text-emerald-400" : "text-rose-400"} shrink-0">${st > 0 ? `Stok ${st} pcs` : "Habis"}</span>
+              </div>
+              <h3 class="font-extrabold text-sm text-white leading-snug">${esc(item.name)}</h3>
+            </div>
           </div>
-          <div class="pt-2 border-t border-zinc-800 flex items-center justify-between">
-            <strong class="text-sm font-black text-amber-300">${rp(p.price)}</strong>
-            <a href="https://wa.me/${WA_NUMBER}?text=${waText}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-lg gold-btn text-xs">${btnLabel}</a>
+          <div class="px-3.5 pb-3.5 pt-2.5 border-t border-zinc-800 flex items-center justify-between gap-2">
+            <strong class="text-sm font-black text-amber-300 tabular-nums">${rp(item.price)}</strong>
+            <div class="flex items-center gap-1.5">
+              <button type="button" data-add-cart="${esc(item.id)}" class="px-2.5 py-1.5 rounded-xl sjs-btn-gold text-xs cursor-pointer">+ Keranjang</button>
+              <a href="https://wa.me/${WA_NUMBER}?text=${waMsg}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 rounded-xl sjs-btn-dark text-xs">WA</a>
+            </div>
           </div>
         </article>`;
       }).join("")
-    : `<p class="col-span-full text-center text-sm text-zinc-400 py-8">Belum ada produk untuk filter ini.</p>`;
+    : `<p class="col-span-full text-center text-sm text-zinc-400 py-10">Tidak ada produk yang cocok dengan filter ini.</p>`;
 }
 
-function renderOps() {
-  const items = PRODUCTS;
-  const low = items.filter(p => Number(p.stock || 0) > 0 && Number(p.stock || 0) < 5);
-  $("opsActiveProd").textContent = String(items.filter(p => Number(p.stock || 0) > 0).length);
-  $("opsLowStock").textContent = String(low.length);
-  $("opsLowList").innerHTML = low.length
-    ? low.map(p => `<div class="flex justify-between gap-2 py-1 border-b border-zinc-800 last:border-0"><span class="truncate">${esc(p.name)}</span><strong class="text-rose-400 shrink-0">Sisa ${Number(p.stock)}</strong></div>`).join("")
-    : `<p class="text-emerald-400">Stok aman</p>`;
-  // Produk terlaris memerlukan data penjualan dari koleksi transactions (belum tersedia di halaman ini).
-  $("opsTopWeek").innerHTML = `<p class="text-zinc-400">Data penjualan mingguan belum tersedia di halaman ini.</p>`;
+function renderCartModal() {
+  const entries = [...cart.values()];
+  $("userCartBadge").textContent = String(entries.reduce((s, e) => s + e.qty, 0));
+  const total = entries.reduce((s, e) => s + e.price * e.qty, 0);
+  $("userCartTotal").textContent = `Total: ${rp(total)}`;
+  const waBtn = $("btnSendCartWa");
+  if (!entries.length) {
+    $("userCartList").innerHTML = `<p class="text-zinc-400 py-4 text-center">Keranjang masih kosong.</p>`;
+    waBtn.classList.add("hidden");
+    return;
+  }
+  $("userCartList").innerHTML = entries.map(e => `
+    <div class="flex items-center justify-between gap-2 py-2 border-b border-zinc-800">
+      <div class="min-w-0">
+        <p class="font-bold text-white truncate">${esc(e.name)}</p>
+        <span class="text-amber-300">${e.qty} × ${rp(e.price)}</span>
+      </div>
+      <button type="button" data-del-cart="${esc(e.id)}" class="px-2 py-1 rounded bg-rose-950 text-rose-300 font-bold cursor-pointer">Hapus</button>
+    </div>`).join("");
+  const lines = entries.map((e, i) => `${i + 1}. ${e.name} × ${e.qty} = ${rp(e.price * e.qty)}`);
+  const text = `Halo Surya Jaya Sport, saya mau pesan:\n${lines.join("\n")}\nPerkiraan total: ${rp(total)}`;
+  waBtn.href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`;
+  waBtn.classList.remove("hidden");
 }
 
-// Data katalog real-time dari Firestore
 onSnapshot(collection(db, "publicCatalog"), snap => {
-  PRODUCTS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-  renderOps();
+  RAW_PRODUCTS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
   renderCatalog();
 }, err => {
   console.error("Gagal memuat katalog:", err);
-  $("catalogGrid").innerHTML = `<p class="col-span-full text-center text-sm text-rose-400 py-8">Katalog gagal dimuat. Muat ulang halaman.</p>`;
+  $("userCatalogGrid").innerHTML = `<p class="col-span-full text-center text-sm text-rose-400 py-8">Katalog gagal dimuat. Muat ulang halaman.</p>`;
 });
 
-// Event handler
-$("brandTextGrid").addEventListener("click", e => {
+$("brandVerticalList").addEventListener("click", e => {
   const btn = e.target.closest("[data-brand]");
   if (!btn) return;
-  selectedBrandId = selectedBrandId === btn.dataset.brand ? "" : btn.dataset.brand;
+  const bid = btn.dataset.brand;
+  selectedBrandId = (bid === "" || selectedBrandId === bid) ? "" : bid;
   renderCatalog();
 });
-$("btnClearBrand").addEventListener("click", () => { selectedBrandId = ""; renderCatalog(); });
-$("btnBackAllCatalog").addEventListener("click", () => { selectedBrandId = ""; renderCatalog(); });
-$("catalogSearchInput").addEventListener("input", renderCatalog);
+$("btnResetBrandSide").addEventListener("click", () => { selectedBrandId = ""; renderCatalog(); });
+$("btnShowAllProducts").addEventListener("click", () => { selectedBrandId = ""; renderCatalog(); });
+$("userCatalogSearch").addEventListener("input", renderCatalog);
+$("chkHideOutOfStock").addEventListener("change", renderCatalog);
 
-$("btnViewCatalog").addEventListener("click", () => { window.location.href = "./"; });
-$("btnViewAdmin").addEventListener("click", () => {
-  $("adminSection").scrollIntoView({ behavior: "smooth" });
+$("userCatalogGrid").addEventListener("click", e => {
+  const addBtn = e.target.closest("[data-add-cart]");
+  if (!addBtn) return;
+  const item = RAW_PRODUCTS.find(p => p.id === addBtn.dataset.addCart);
+  if (!item) return;
+  const cur = cart.get(item.id) || { id: item.id, name: item.name, price: Number(item.price || 0), qty: 0 };
+  cur.qty += 1;
+  cart.set(item.id, cur);
+  renderCartModal();
 });
 
-// Aksi cepat & login pemilik: dikirim sebagai event agar modul admin utama yang menanganinya.
-document.querySelectorAll("[data-quick-action]").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.dispatchEvent(new CustomEvent("sjs:quick-action", { detail: btn.dataset.quickAction }));
-  });
-});
-$("btnFooterOwnerLogin").addEventListener("click", () => {
-  document.dispatchEvent(new CustomEvent("sjs:owner-login"));
+$("btnOpenUserCart").addEventListener("click", () => { renderCartModal(); $("userCartDialog").showModal(); });
+$("btnCloseUserCart").addEventListener("click", () => $("userCartDialog").close());
+$("userCartList").addEventListener("click", e => {
+  const del = e.target.closest("[data-del-cart]");
+  if (!del) return;
+  cart.delete(del.dataset.delCart);
+  renderCartModal();
 });
