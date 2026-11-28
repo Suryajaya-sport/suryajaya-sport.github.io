@@ -778,13 +778,11 @@
 
       const itemId = editId || doc(collection(db, ...paths("inventory"))).id;
       const oldItem = inventory.find(i => i.id === itemId);
-      const featured = Boolean(document.getElementById("invFeatured")?.checked);
       const itemData = {
         code, name,
         size: sizeVal,
         color: colorVal,
         stock, cost, price, description: autoDesc,
-        featured,
         imageUrl: oldItem?.imageUrl || "",
         imagePath: oldItem?.imagePath || "",
         updatedAt: new Date().toISOString()
@@ -818,77 +816,58 @@
           tx.set(invRef, patch, { merge: true });
           if (published.exists()) tx.set(publicRef, publicProductData(patch));
         });
-        // Simpan & perbarui varian (berlaku untuk Tambah Baru maupun Ubah Barang)
+        // Simpan varian tambahan (jika ada, khusus mode Tambah barang baru)
         let savedVariants = 0;
-        const vRows = [...document.querySelectorAll("#invVariantsList .inv-variant-row")];
-        const validVarRows = vRows.filter(vr => (vr.querySelector(".var-size")?.value.trim() || vr.querySelector(".var-color")?.value.trim()));
-        const groupId = oldItem?.variantGroup || itemId;
-        const isMainPublished = publicCatalog.some(p => p.id === itemId);
-
-        if (validVarRows.length > 0 && oldItem?.variantGroup !== groupId) {
-          await setDoc(doc(db, ...paths("inventory", itemId)), { variantGroup: groupId }, { merge: true });
-          if (isMainPublished) {
-            await setDoc(doc(db, "publicCatalog", itemId), publicProductData({ ...itemData, variantGroup: groupId }), { merge: true });
-          }
-        }
-
-        const usedCodes = new Set(inventory.map(i => String(i.code || "").trim().toLowerCase()));
-        usedCodes.add(code.toLowerCase());
-        const allocCode = (idx) => {
-          const suffix = idx < 26 ? String.fromCharCode(65 + idx) : String(idx + 1);
-          let cand = `${code}-${suffix}`;
-          let seq = 2;
-          while (usedCodes.has(cand.toLowerCase())) { cand = `${code}-${suffix}${seq++}`; }
-          usedCodes.add(cand.toLowerCase());
-          return cand;
-        };
-
-        for (let vi = 0; vi < validVarRows.length; vi++) {
-          const vr = validVarRows[vi];
-          const existingId = vr.dataset.varId || "";
-          const vId = existingId || doc(collection(db, ...paths("inventory"))).id;
-          const vCode = vr.dataset.existingCode || allocCode(vi);
-          const vSize = vr.querySelector(".var-size")?.value.trim() || "";
-          const vColor = vr.querySelector(".var-color")?.value.trim() || "";
-          const vStock = Math.max(0, Math.trunc(Number(vr.querySelector(".var-stock")?.value) || 0));
-          const vPrice = parseIdrNum(vr.querySelector(".var-price")?.value) || price;
-
-          let vImgUrl = vr.dataset.clearPhoto === "1" ? (itemData.imageUrl || "") : (vr.dataset.existingImgUrl || itemData.imageUrl || "");
-          let vImgPath = vr.dataset.clearPhoto === "1" ? (itemData.imagePath || "") : (vr.dataset.existingImgPath || itemData.imagePath || "");
-          const vFile = vr.querySelector(".var-photo-input")?.files?.[0] || null;
-          if (vFile) {
-            showToast(`Mengunggah foto varian ${vi + 1}/${validVarRows.length}...`);
-            const upVar = await uploadProductImage(vFile, vId);
-            vImgUrl = upVar.imageUrl;
-            vImgPath = upVar.imagePath;
-          }
-
-          const vData = {
-            code: vCode,
-            name,
-            size: vSize,
-            color: vColor,
-            stock: vStock,
-            cost,
-            price: vPrice,
-            description: autoDesc,
-            featured,
-            imageUrl: vImgUrl,
-            imagePath: vImgPath,
-            variantGroup: groupId,
-            updatedAt: new Date().toISOString()
+        if (!editId) {
+          const vRows = [...document.querySelectorAll("#invVariantsList .inv-variant-row")];
+          const usedCodes = new Set(inventory.map(i => String(i.code || "").trim().toLowerCase()));
+          usedCodes.add(code.toLowerCase());
+          const allocCode = (idx) => {
+            const suffix = idx < 26 ? String.fromCharCode(65 + idx) : String(idx + 1);
+            let cand = `${code}-${suffix}`;
+            let seq = 2;
+            while (usedCodes.has(cand.toLowerCase())) { cand = `${code}-${suffix}${seq++}`; }
+            usedCodes.add(cand.toLowerCase());
+            return cand;
           };
-          await setDoc(doc(db, ...paths("inventory", vId)), vData, { merge: true });
-          if (isMainPublished) {
-            await setDoc(doc(db, "publicCatalog", vId), publicProductData(vData));
+          const validVarRows = vRows.filter(vr => (vr.querySelector(".var-size")?.value.trim() || vr.querySelector(".var-color")?.value.trim()));
+          if (validVarRows.length > 0) {
+            await setDoc(doc(db, ...paths("inventory", itemId)), { variantGroup: itemId }, { merge: true });
           }
-          savedVariants++;
+          for (let vi = 0; vi < validVarRows.length; vi++) {
+            const vr = validVarRows[vi];
+            const vSize = vr.querySelector(".var-size")?.value.trim() || "";
+            const vColor = vr.querySelector(".var-color")?.value.trim() || "";
+            const vStock = Math.max(0, Math.trunc(Number(vr.querySelector(".var-stock")?.value) || 0));
+            const vPrice = parseIdrNum(vr.querySelector(".var-price")?.value) || price;
+            const vId = doc(collection(db, ...paths("inventory"))).id;
+            let vImgUrl = itemData.imageUrl || "";
+            let vImgPath = itemData.imagePath || "";
+            const vFile = vr.querySelector(".var-photo-input")?.files?.[0] || null;
+            if (vFile) {
+              showToast(`Mengunggah foto varian ${vi + 1}/${validVarRows.length}...`);
+              const upVar = await uploadProductImage(vFile, vId);
+              vImgUrl = upVar.imageUrl;
+              vImgPath = upVar.imagePath;
+            }
+            const vData = {
+              code: allocCode(vi),
+              name,
+              size: vSize,
+              color: vColor,
+              stock: vStock,
+              cost,
+              price: vPrice,
+              description: autoDesc,
+              imageUrl: vImgUrl,
+              imagePath: vImgPath,
+              variantGroup: itemId,
+              updatedAt: new Date().toISOString()
+            };
+            await setDoc(doc(db, ...paths("inventory", vId)), vData, { merge: true });
+            savedVariants++;
+          }
         }
-
-        for (const remId of removedVariantIds) {
-          await archiveOrRestore(remId, true);
-        }
-        removedVariantIds = [];
         resetInvForm();
         document.getElementById("invEntryCard").close();
         showToast(savedVariants > 0 ? `Barang & ${savedVariants} varian berhasil disimpan.` : "Barang berhasil disimpan.");
@@ -918,8 +897,7 @@
         stock: Math.max(0, Math.trunc(Number(item.stock) || 0)),
         imageUrl: productImageUrl(item).slice(0, 2048),
         description: String(item.description || "").slice(0, 400),
-        variantGroup: String(item.variantGroup || "").slice(0, 120),
-        featured: Boolean(item.featured)
+        variantGroup: String(item.variantGroup || "").slice(0, 120)
       };
     }
 
@@ -944,14 +922,12 @@
       a.download = `label-${itemObj.code || "SJS"}.png`;
       a.click();
     }
-    let removedVariantIds = [];
     function updateInvVariantCodes() {
       const base = document.getElementById("invCode")?.value.trim() || nextAutoCode();
       const rows = [...document.querySelectorAll("#invVariantsList .inv-variant-row")];
       rows.forEach((row, idx) => {
-        const existingCode = row.dataset.existingCode || "";
         const suffix = idx < 26 ? String.fromCharCode(65 + idx) : String(idx + 1);
-        const vCode = existingCode || `${base}-${suffix}`;
+        const vCode = `${base}-${suffix}`;
         row.dataset.varCode = vCode;
         const badge = row.querySelector(".var-code-badge");
         if (badge) badge.textContent = vCode;
@@ -1030,18 +1006,11 @@
       mergeList("invSizeOptions", ["24 lbs","27 lbs","30 lbs","Size 4","Size 5","38","39","40","41","42","43","44","45","S","M","L","XL","XXL","Isi 6","Isi 12","Standar"], "size");
       mergeList("invColorOptions", ["Hitam","Putih","Biru","Navy","Merah","Kuning","Hijau","Abu-abu","Oranye","Ungu","Emas"], "color");
     }
-    function addInvVariantRow(prefill = null) {
-      const data = (prefill && !(prefill instanceof Event)) ? prefill : null;
+    function addInvVariantRow() {
       const list = document.getElementById("invVariantsList");
       if (!list) return;
       const row = document.createElement("div");
       row.className = "inv-variant-row rounded-xl border border-slate-200 bg-slate-50/70 p-2.5 space-y-2";
-      row.dataset.varId = data?.id || "";
-      row.dataset.existingCode = data?.code || "";
-      row.dataset.existingImgUrl = data?.imageUrl || "";
-      row.dataset.existingImgPath = data?.imagePath || "";
-      row.dataset.clearPhoto = "0";
-      const hasExistingPhoto = Boolean(data?.imageUrl);
       row.innerHTML = `
         <div class="flex items-center justify-between gap-2">
           <span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-700">
@@ -1055,22 +1024,22 @@
           </div>
         </div>
         <div class="grid grid-cols-2 sm:grid-cols-12 gap-2">
-          <input type="text" list="invSizeOptions" maxlength="40" placeholder="Ukuran" value="${esc(data?.size || "")}" class="var-size sm:col-span-3 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-semibold">
-          <input type="text" list="invColorOptions" maxlength="60" placeholder="Warna" value="${esc(data?.color || "")}" class="var-color sm:col-span-3 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-semibold">
-          <input type="number" min="0" step="1" inputmode="numeric" value="${Number(data?.stock ?? 0)}" placeholder="Stok" class="var-stock sm:col-span-2 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-bold text-center tabular-nums">
-          <input type="text" inputmode="numeric" autocomplete="off" placeholder="Harga" value="${esc(data?.price ? fmtIdrInput(data.price) : "")}" class="var-price sm:col-span-4 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-bold tabular-nums">
+          <input type="text" list="invSizeOptions" maxlength="40" placeholder="Ukuran" class="var-size sm:col-span-3 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-semibold">
+          <input type="text" list="invColorOptions" maxlength="60" placeholder="Warna" class="var-color sm:col-span-3 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-semibold">
+          <input type="number" min="0" step="1" inputmode="numeric" value="0" placeholder="Stok" class="var-stock sm:col-span-2 px-2 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-bold text-center tabular-nums">
+          <input type="text" inputmode="numeric" autocomplete="off" placeholder="Harga" class="var-price sm:col-span-4 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-bold tabular-nums">
         </div>
         <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-200/70">
           <div class="flex items-center gap-2 min-w-0">
-            <img class="var-photo-thumb ${hasExistingPhoto ? "" : "hidden"} w-9 h-9 object-contain rounded-lg border border-slate-200 bg-white shrink-0" src="${hasExistingPhoto ? esc(data.imageUrl) : ""}" alt="Foto varian">
-            <span class="var-photo-label text-[11px] text-slate-500 truncate">${hasExistingPhoto ? "Foto varian tersimpan" : "Foto varian (opsional, ikut foto utama jika kosong)"}</span>
+            <img class="var-photo-thumb hidden w-9 h-9 object-contain rounded-lg border border-slate-200 bg-white shrink-0" alt="Foto varian">
+            <span class="var-photo-label text-[11px] text-slate-500 truncate">Foto varian (opsional, ikut foto utama jika kosong)</span>
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
             <label class="cursor-pointer px-2.5 py-1 rounded-lg bg-white hover:bg-slate-900 hover:text-white border border-slate-300 text-[11px] font-bold text-slate-700 transition inline-flex items-center gap-1">
-              <i class="fa-solid fa-camera text-[10px]" aria-hidden="true"></i><span class="var-photo-btn-txt">${hasExistingPhoto ? "Ganti" : "Foto Varian"}</span>
+              <i class="fa-solid fa-camera text-[10px]" aria-hidden="true"></i><span class="var-photo-btn-txt">Foto Varian</span>
               <input type="file" accept="image/jpeg,image/png,image/webp" class="var-photo-input sr-only">
             </label>
-            <button type="button" class="btn-var-photo-clear ${hasExistingPhoto ? "" : "hidden"} px-2 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-[11px] font-bold" title="Hapus foto varian">×</button>
+            <button type="button" class="btn-var-photo-clear hidden px-2 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 text-[11px] font-bold" title="Hapus foto varian">×</button>
           </div>
         </div>
       `;
@@ -1082,20 +1051,21 @@
       varPhotoInp?.addEventListener("change", e => {
         const f = e.target.files?.[0];
         if (f) {
-          row.dataset.clearPhoto = "0";
           if (varPhotoThumb) { varPhotoThumb.src = URL.createObjectURL(f); varPhotoThumb.classList.remove("hidden"); }
           if (varPhotoLbl) varPhotoLbl.textContent = f.name;
           if (varPhotoBtnTxt) varPhotoBtnTxt.textContent = "Ganti";
           varPhotoClear?.classList.remove("hidden");
+        } else {
+          if (varPhotoThumb) { varPhotoThumb.src = ""; varPhotoThumb.classList.add("hidden"); }
+          if (varPhotoLbl) varPhotoLbl.textContent = "Foto varian (opsional, ikut foto utama jika kosong)";
+          if (varPhotoBtnTxt) varPhotoBtnTxt.textContent = "Foto Varian";
+          varPhotoClear?.classList.add("hidden");
         }
       });
       varPhotoClear?.addEventListener("click", () => {
-        row.dataset.clearPhoto = "1";
-        row.dataset.existingImgUrl = "";
-        row.dataset.existingImgPath = "";
         if (varPhotoInp) varPhotoInp.value = "";
         if (varPhotoThumb) { varPhotoThumb.src = ""; varPhotoThumb.classList.add("hidden"); }
-        if (varPhotoLbl) varPhotoLbl.textContent = "Foto varian dihapus (akan ikut foto utama)";
+        if (varPhotoLbl) varPhotoLbl.textContent = "Foto varian (opsional, ikut foto utama jika kosong)";
         if (varPhotoBtnTxt) varPhotoBtnTxt.textContent = "Foto Varian";
         varPhotoClear.classList.add("hidden");
       });
@@ -1110,12 +1080,7 @@
         const vCost = parseIdrNum(document.getElementById("invCost")?.value);
         downloadBrandedLabelPng({ code: vCode, name: baseName, price: vPrice, cost: vCost, size: vSize, color: vColor });
       });
-      row.querySelector(".btn-rm-var")?.addEventListener("click", () => {
-        if (row.dataset.varId) removedVariantIds.push(row.dataset.varId);
-        row.remove();
-        updateInvVariantCodes();
-        updateInvVariantSummary();
-      });
+      row.querySelector(".btn-rm-var")?.addEventListener("click", () => { row.remove(); updateInvVariantCodes(); updateInvVariantSummary(); });
       list.appendChild(row);
       updateInvVariantCodes();
       updateInvVariantSummary();
@@ -1139,11 +1104,8 @@
       }
     }
     function resetInvForm() {
-      removedVariantIds = [];
       ["editInvId", "invName", "invCode", "invSize", "invColor", "invStock", "invCost", "invPrice", "invDescription"]
         .forEach(id => document.getElementById(id).value = "");
-      const featEl = document.getElementById("invFeatured");
-      if (featEl) featEl.checked = false;
       document.getElementById("invImageFile").value = "";
       pendingPosterBlob = null;
       setInvImagePreview("", "");
@@ -1176,22 +1138,12 @@
       document.getElementById("invCost").value = fmtIdrInput(item.cost || 0);
       document.getElementById("invPrice").value = fmtIdrInput(item.price || 0);
       document.getElementById("invDescription").value = item.description || "";
-      const featEl = document.getElementById("invFeatured");
-      if (featEl) featEl.checked = Boolean(item.featured);
       if (item.imageUrl) setInvImagePreview(item.imageUrl, "Foto produk tersimpan");
       document.getElementById("btnCancelInvEdit").classList.remove("hidden");
       document.getElementById("btnSaveInvText").textContent = "Simpan perubahan";
       document.getElementById("inventoryEntryTitle").textContent = "Ubah barang";
       const vSec = document.getElementById("invVariantsSection");
-      if (vSec) vSec.hidden = false;
-      const siblings = activeInventory().filter(i =>
-        i.id !== item.id && (
-          (item.variantGroup && i.variantGroup === item.variantGroup) ||
-          i.variantGroup === item.id ||
-          (!item.variantGroup && String(i.name || "").trim().toLowerCase() === String(item.name || "").trim().toLowerCase())
-        )
-      );
-      for (const sib of siblings) addInvVariantRow(sib);
+      if (vSec) vSec.hidden = true;
       updateInvQrPreview();
       updateInvProfitPreview();
       updateInvVariantSummary();
@@ -2570,55 +2522,148 @@
     }
 
     const CATALOG_BRANDS = [
-      { id: "yonex", name: "Yonex", sub: "Badminton", searchTerm: "Yonex", re: /\byonex\b/i, logo: "01-Yonex.svg" },
-      { id: "lining", name: "Li-Ning", sub: "Badminton & Sport", searchTerm: "Li-Ning", re: /\b(li-?ning|lining)\b/i, logo: "02-Li-Ning.svg", lightLogoBackground: true },
-      { id: "victor", name: "Victor", sub: "Badminton", searchTerm: "Victor", re: /\bvictor\b/i, logo: "03-Victor.png" },
-      { id: "hiqua", name: "Hiqua", sub: "Badminton", searchTerm: "Hiqua", re: /\b(hi-?qua|hiqua)\b/i, logo: "04-Hi-Qua.png" },
-      { id: "rs", name: "RS", sub: "Reinforce Speed", searchTerm: "RS", re: /\b(rs|reinforce(\s*speed)?)\b/i, logo: "05-RS-Reinforce-Speed.png" },
-      { id: "flypower", name: "Flypower", sub: "Badminton", searchTerm: "Flypower", re: /\bflypower\b/i, logo: "06-Flypower.png" },
-      { id: "astec", name: "Astec", sub: "Badminton", searchTerm: "Astec", re: /\bastec\b/i, logo: "07-Astec.svg" },
-      { id: "butterfly", name: "Butterfly", sub: "Tenis Meja", searchTerm: "Butterfly", re: /\bbutterfly\b/i, logo: "08-Butterfly.svg" },
-      { id: "dhs", name: "DHS", sub: "Double Happiness", searchTerm: "DHS", re: /\b(dhs|double\s*happiness)\b/i, logo: "09-DHS-Double-Happiness.png" },
-      { id: "nitaku", name: "Nitaku", sub: "Nittaku Pingpong", searchTerm: "Nitaku", re: /\b(nitaku|nittaku)\b/i, logo: "10-Nittaku.svg" },
-      { id: "donics", name: "Donics", sub: "Donic Pingpong", searchTerm: "Donic", re: /\b(donics?|donic)\b/i, logo: "11-DONIC.png" },
-      { id: "doublefish", name: "Double Fish", sub: "Tenis Meja", searchTerm: "Double Fish", re: /\bdouble\s*fish\b/i, logo: "12-Double-Fish.png" },
-      { id: "specs", name: "Specs", sub: "Futsal & Bola", searchTerm: "Specs", re: /\bspecs\b/i, logo: "13-Specs.svg", lightLogoBackground: true },
-      { id: "ortuseight", name: "Ortuseight", sub: "Futsal & Running", searchTerm: "Ortuseight", re: /\b(ortuseight|ortus)\b/i, logo: "14-Ortuseight.png" },
-      { id: "adidas", name: "Adidas", sub: "Sport & Futsal", searchTerm: "Adidas", re: /\badidas\b/i, logo: "15-Adidas.svg" },
-      { id: "nike", name: "Nike", sub: "Sport & Futsal", searchTerm: "Nike", re: /\bnike\b/i, logo: "16-Nike.svg", lightLogoBackground: true },
-      { id: "molten", name: "Molten", sub: "Bola Basket & Voli", searchTerm: "Molten", re: /\bmolten\b/i, logo: "17-Molten.svg", lightLogoBackground: true },
-      { id: "mikasa", name: "Mikasa", sub: "Bola Voli & Sepak", searchTerm: "Mikasa", re: /\bmikasa\b/i, logo: "18-Mikasa.svg" },
-      { id: "mizuno", name: "Mizuno", sub: "Badminton & Voli", searchTerm: "Mizuno", re: /\bmizuno\b/i, logo: "19-Mizuno.svg" },
-      { id: "asics", name: "Asics", sub: "Sepatu & Voli", searchTerm: "Asics", re: /\basics\b/i, logo: "20-ASICS.png", lightLogoBackground: true }
+      { id: "yonex", name: "Yonex", sub: "Badminton", searchTerm: "Yonex", re: /\byonex\b/i, badge: "YNX", cls: "bg-sky-50 text-sky-900 border-sky-200" },
+      { id: "lining", name: "Li-Ning", sub: "Badminton & Sport", searchTerm: "Li-Ning", re: /\b(li-?ning|lining)\b/i, badge: "LN", cls: "bg-rose-50 text-rose-900 border-rose-200" },
+      { id: "victor", name: "Victor", sub: "Badminton", searchTerm: "Victor", re: /\bvictor\b/i, badge: "VTR", cls: "bg-blue-50 text-blue-900 border-blue-200" },
+      { id: "hiqua", name: "Hiqua", sub: "Badminton", searchTerm: "Hiqua", re: /\b(hi-?qua|hiqua)\b/i, badge: "HQ", cls: "bg-amber-50 text-amber-900 border-amber-200" },
+      { id: "rs", name: "RS", sub: "Reinforce Speed", searchTerm: "RS", re: /\b(rs|reinforce(\s*speed)?)\b/i, badge: "RS", cls: "bg-red-50 text-red-900 border-red-200" },
+      { id: "flypower", name: "Flypower", sub: "Badminton", searchTerm: "Flypower", re: /\bflypower\b/i, badge: "FP", cls: "bg-orange-50 text-orange-900 border-orange-200" },
+      { id: "astec", name: "Astec", sub: "Badminton", searchTerm: "Astec", re: /\bastec\b/i, badge: "AST", cls: "bg-cyan-50 text-cyan-900 border-cyan-200" },
+      { id: "butterfly", name: "Butterfly", sub: "Tenis Meja", searchTerm: "Butterfly", re: /\bbutterfly\b/i, badge: "BFY", cls: "bg-pink-50 text-pink-900 border-pink-200" },
+      { id: "dhs", name: "DHS", sub: "Double Happiness", searchTerm: "DHS", re: /\b(dhs|double\s*happiness)\b/i, badge: "DHS", cls: "bg-rose-50 text-rose-900 border-rose-200" },
+      { id: "nitaku", name: "Nitaku", sub: "Nittaku Pingpong", searchTerm: "Nitaku", re: /\b(nitaku|nittaku)\b/i, badge: "NTK", cls: "bg-sky-50 text-sky-900 border-sky-200" },
+      { id: "donics", name: "Donics", sub: "Donic Pingpong", searchTerm: "Donic", re: /\b(donics?|donic)\b/i, badge: "DNC", cls: "bg-emerald-50 text-emerald-900 border-emerald-200" },
+      { id: "doublefish", name: "Double Fish", sub: "Tenis Meja", searchTerm: "Double Fish", re: /\bdouble\s*fish\b/i, badge: "DF", cls: "bg-indigo-50 text-indigo-900 border-indigo-200" },
+      { id: "specs", name: "Specs", sub: "Futsal & Bola", searchTerm: "Specs", re: /\bspecs\b/i, badge: "SPC", cls: "bg-yellow-50 text-yellow-900 border-yellow-200" },
+      { id: "ortuseight", name: "Ortuseight", sub: "Futsal & Running", searchTerm: "Ortuseight", re: /\b(ortuseight|ortus)\b/i, badge: "ORT", cls: "bg-orange-50 text-orange-900 border-orange-200" },
+      { id: "adidas", name: "Adidas", sub: "Sport & Futsal", searchTerm: "Adidas", re: /\badidas\b/i, badge: "ADI", cls: "bg-slate-100 text-slate-900 border-slate-300" },
+      { id: "nike", name: "Nike", sub: "Sport & Futsal", searchTerm: "Nike", re: /\bnike\b/i, badge: "NKE", cls: "bg-slate-100 text-slate-900 border-slate-300" },
+      { id: "molten", name: "Molten", sub: "Bola Basket & Voli", searchTerm: "Molten", re: /\bmolten\b/i, badge: "MLT", cls: "bg-red-50 text-red-900 border-red-200" },
+      { id: "mikasa", name: "Mikasa", sub: "Bola Voli & Sepak", searchTerm: "Mikasa", re: /\bmikasa\b/i, badge: "MKS", cls: "bg-blue-50 text-blue-900 border-blue-200" },
+      { id: "mizuno", name: "Mizuno", sub: "Badminton & Voli", searchTerm: "Mizuno", re: /\bmizuno\b/i, badge: "MIZ", cls: "bg-sky-50 text-sky-900 border-sky-200" },
+      { id: "asics", name: "Asics", sub: "Sepatu & Voli", searchTerm: "Asics", re: /\basics\b/i, badge: "ASC", cls: "bg-indigo-50 text-indigo-900 border-indigo-200" }
     ];
     let activeBrandId = "";
-    function itemHaystack(item) {
+    function itemBrandHaystack(item) {
       return [item.name, item.code, item.size, item.color, item.description].filter(Boolean).join(" ");
     }
-    function matchesBrand(item, brandObj) {
-      return !brandObj || brandObj.re.test(itemHaystack(item));
+    function matchesBrandFilter(item, brandObj) {
+      return !brandObj || brandObj.re.test(itemBrandHaystack(item));
     }
+    function renderBestSellerWeek(inStockItems) {
+      const wrap = document.getElementById("bestSellerWeekGrid");
+      if (!wrap) return;
+      const featuredFirst = inStockItems.slice().sort((a, b) => (isFeaturedProduct(b) ? 1 : 0) - (isFeaturedProduct(a) ? 1 : 0) || Number(b.stock || 0) - Number(a.stock || 0)).slice(0, 4);
+      if (!featuredFirst.length) {
+        wrap.innerHTML = `<p class="col-span-full text-xs text-slate-500 bg-white rounded-2xl border border-slate-200 p-4 text-center">Belum ada produk tersedia.</p>`;
+        return;
+      }
+      wrap.innerHTML = featuredFirst.map((item, i) => `
+        <article class="catalog-card" data-view-product="${esc(item.id)}" style="cursor:pointer">
+          <div class="catalog-card-photo-wrap">
+            <span class="catalog-card-badge">🔥 #${i + 1} Terlaris</span>
+            ${productImageMarkup(item, "catalog-card-photo", 420, i < 2)}
+          </div>
+          <div class="catalog-card-body !p-3.5 !gap-2">
+            <h3 class="font-extrabold text-sm text-slate-900 line-clamp-1">${esc(item.name)}</h3>
+            <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-100">
+              <strong class="text-sm font-black text-slate-950 tabular-nums">${rp(item.price)}</strong>
+              <span class="catalog-stock !text-[10px]">Stok ${Number(item.stock || 0)}</span>
+            </div>
+          </div>
+        </article>`).join("");
+    }
+
+    function renderOwnerCatalogStats(inStockItems) {
+      if (!isAdmin) return;
+      const pEl = document.getElementById("ownerCatStatProducts");
+      const bEl = document.getElementById("ownerCatStatBrands");
+      const lEl = document.getElementById("ownerCatStatLow");
+      const eEl = document.getElementById("ownerCatStatEmpty");
+      const fEl = document.getElementById("ownerCatStatFeatured");
+      const activeBrandsCount = CATALOG_BRANDS.filter(b => inStockItems.some(it => matchesBrandFilter(it, b))).length;
+      const lowCount = publicCatalog.filter(it => Number(it.stock || 0) > 0 && Number(it.stock || 0) < LOW_STOCK_LIMIT).length;
+      const emptyCount = publicCatalog.filter(it => Number(it.stock || 0) <= 0).length;
+      const featCount = publicCatalog.filter(it => isFeaturedProduct(it)).length;
+      if (pEl) pEl.textContent = String(publicCatalog.length);
+      if (bEl) bEl.textContent = String(activeBrandsCount);
+      if (lEl) lEl.textContent = String(lowCount);
+      if (eEl) eEl.textContent = String(emptyCount);
+      if (fEl) fEl.textContent = String(featCount);
+    }
+
     function renderBrandShowcase() {
       const grid = document.getElementById("brandLogoGrid");
       const resetBtn = document.getElementById("btnResetBrandFilter");
+      const banner = document.getElementById("brandLandingBanner");
+      const bTitle = document.getElementById("brandLandingTitle");
+      const bSub = document.getElementById("brandLandingSub");
       if (!grid) return;
       if (resetBtn) resetBtn.classList.toggle("hidden", !activeBrandId);
       const inStockItems = publicCatalog.filter(it => Number(it.stock || 0) > 0);
-      grid.innerHTML = CATALOG_BRANDS.map(b => {
-        const count = inStockItems.filter(it => matchesBrand(it, b)).length;
-        const isActive = activeBrandId === b.id;
-        return `<button type="button" data-brand-id="${esc(b.id)}" class="brand-logo-card ${isActive ? "is-active" : ""} ${count === 0 ? "is-empty-stock" : ""}" aria-pressed="${isActive}">
-          <span class="brand-count-pill ${count > 0 ? "has-stock" : ""}">${count}</span>
-          <div class="brand-emblem-box"><img class="brand-emblem-image${b.lightLogoBackground ? " has-light-background" : ""}" src="./assets/brand-logos/${esc(b.logo)}" alt="" width="112" height="34" decoding="async"></div>
-          <span class="brand-wordmark">${esc(b.name)}</span>
-          <span class="brand-sub-label">${esc(b.sub)}</span>
+      renderBestSellerWeek(inStockItems);
+      renderOwnerCatalogStats(inStockItems);
+
+      const selectedBrand = CATALOG_BRANDS.find(b => b.id === activeBrandId) || null;
+      if (banner) {
+        if (selectedBrand) {
+          const bCount = inStockItems.filter(it => matchesBrandFilter(it, selectedBrand)).length;
+          banner.classList.add("is-open");
+          if (bTitle) bTitle.textContent = `Produk ${selectedBrand.name}`;
+          if (bSub) bSub.textContent = `${bCount} produk tersedia · ${selectedBrand.sub}`;
+        } else {
+          banner.classList.remove("is-open");
+        }
+      }
+
+      const visibleBrands = CATALOG_BRANDS.filter(b => {
+        const count = inStockItems.filter(it => matchesBrandFilter(it, b)).length;
+        return count > 0 || activeBrandId === b.id;
+      });
+      grid.innerHTML = visibleBrands.map(b => {
+        const count = inStockItems.filter(it => matchesBrandFilter(it, b)).length;
+        const active = activeBrandId === b.id;
+        return `<button type="button" data-brand-id="${esc(b.id)}" aria-pressed="${active}" class="flex flex-col items-center justify-center gap-1.5 rounded-2xl border p-3 text-center transition ${active ? "border-amber-400 bg-zinc-900 text-amber-300 ring-2 ring-amber-400/50" : "border-zinc-700 bg-zinc-900/90 text-white hover:border-amber-400 hover:bg-zinc-900"}">
+          <span class="inline-flex items-center justify-center rounded-xl border px-2.5 py-1 text-xs font-black tracking-wider ${b.cls}">${esc(b.badge)}</span>
+          <span class="text-sm font-extrabold ${active ? "text-amber-300" : "text-white"} leading-tight">${esc(b.name)}</span>
+          <span class="text-[11px] font-semibold text-amber-300 leading-tight tabular-nums">${esc(b.sub)} · ${count}</span>
         </button>`;
       }).join("");
     }
 
-    const DEFAULT_FEATURED_RE = /powermax|hundred|magnite|avo/i;
-    function isAdminCatalogFeatured(item) {
-      return Boolean(item?.featured) || DEFAULT_FEATURED_RE.test(String(item?.name || ""));
+    const FEATURED_KEY = "sjs-featured-products-v1";
+    let featuredProductIds = new Set();
+    try {
+      const savedFeat = JSON.parse(localStorage.getItem(FEATURED_KEY) || "[]");
+      if (Array.isArray(savedFeat)) featuredProductIds = new Set(savedFeat.map(String));
+    } catch {}
+    function saveFeaturedProducts() {
+      try { localStorage.setItem(FEATURED_KEY, JSON.stringify([...featuredProductIds])); } catch {}
+    }
+    function isFeaturedProduct(item) {
+      return Boolean(item?.featured) || featuredProductIds.has(String(item?.id || ""));
+    }
+    async function toggleFeaturedProduct(id) {
+      if (!isAdmin || !id) return;
+      const key = String(id);
+      if (featuredProductIds.has(key)) featuredProductIds.delete(key);
+      else featuredProductIds.add(key);
+      saveFeaturedProducts();
+      renderProductCatalog();
+      showToast(featuredProductIds.has(key) ? "⭐ Ditandai sebagai Produk Unggulan (tampil di atas)." : "Status Produk Unggulan dilepas.");
+    }
+    function syncCustomerPreviewUI() {
+      const inStockCount = publicCatalog.filter(p => Number(p.stock || 0) > 0).length;
+      const cartCount = [...catalogCart.values()].reduce((s, l) => s + Number(l?.qty || 1), 0);
+      const pEl = document.getElementById("previewStatProducts");
+      const cEl = document.getElementById("previewStatCart");
+      const sEl = document.getElementById("stickyCatalogCartCount");
+      if (pEl) pEl.textContent = `${inStockCount} Produk`;
+      if (cEl) cEl.textContent = `${cartCount} Keranjang`;
+      if (sEl) sEl.textContent = String(cartCount);
+      const isPreview = isAdmin && activeWorkspace === "catalog";
+      document.body.classList.toggle("sjs-customer-preview", isPreview);
+      if (!isPreview) document.getElementById("adminQuickDrawer")?.classList.add("hidden");
     }
 
     function renderProductCatalog() {
@@ -2628,11 +2673,6 @@
       const q = search.value.trim().toLocaleLowerCase("id");
       document.getElementById("btnClearCatalogSearch").classList.toggle("hidden", !search.value);
       const category = document.querySelector("#catalogCategory input:checked")?.value || "all";
-      const brandObj = CATALOG_BRANDS.find(b => b.id === activeBrandId) || null;
-      const titleEl = document.getElementById("productCatalogTitle");
-      if (titleEl) {
-        titleEl.textContent = brandObj ? `Produk Brand: ${brandObj.name}` : "Katalog produk";
-      }
       if (catalogLoadState !== "ready") {
         grid.innerHTML = `<p class="catalog-empty" role="status">${catalogLoadState === "error" ? "Katalog gagal dimuat. Muat ulang halaman." : "Katalog sedang dimuat…"}</p>`;
         return;
@@ -2642,22 +2682,19 @@
       }
       const sortMode = document.getElementById("catalogSort")?.value || "default";
       const items = publicCatalog.filter(item => Number(item.stock) > 0);
+      const brandObj = CATALOG_BRANDS.find(b => b.id === activeBrandId) || null;
       const filtered = items.filter(item => {
-        const hay = itemHaystack(item).toLocaleLowerCase("id");
-        const matchQuery = brandObj
-          ? (matchesBrand(item, brandObj) || (q && hay.includes(q)))
+        const hay = itemBrandHaystack(item).toLocaleLowerCase("id");
+        const matchBrandOrSearch = brandObj
+          ? (matchesBrandFilter(item, brandObj) || (q && hay.includes(q)))
           : (!q || hay.includes(q));
-        return matchQuery && matchesCatalogCategory(item, category);
+        return matchBrandOrSearch && matchesCatalogCategory(item, category);
       });
       if (sortMode === "price-asc") filtered.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
       else if (sortMode === "price-desc") filtered.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
       else if (sortMode === "name-asc") filtered.sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "id"));
-      else filtered.sort((a, b) => Number(isAdminCatalogFeatured(b)) - Number(isAdminCatalogFeatured(a)));
-
-      document.getElementById("catalogResultCount").textContent = brandObj
-        ? `${filtered.length} produk ${brandObj.name}`
-        : `${filtered.length} produk`;
-      updateCustomerPreviewStats();
+      filtered.sort((a, b) => (isFeaturedProduct(b) ? 1 : 0) - (isFeaturedProduct(a) ? 1 : 0));
+      document.getElementById("catalogResultCount").textContent = `${filtered.length} produk`;
       if (!filtered.length) {
         grid.innerHTML = `<p class="catalog-empty" role="status">Produk tidak ditemukan. Coba kata kunci lain atau pilih kategori "Semua".</p>`;
         return;
@@ -2665,29 +2702,25 @@
       grid.innerHTML = filtered.map((item, index) => {
         const stockNum = Number(item.stock || 0);
         const limited = stockNum < LOW_STOCK_LIMIT;
-        const featured = isAdminCatalogFeatured(item);
-        const badgeLabel = featured ? "⭐ Unggulan" : (limited ? "Stok terbatas" : "Tersedia");
-        const badgeCls = featured ? "bg-amber-400 !text-slate-950" : (limited ? "is-limited" : "");
         const msg = `Halo Surya Jaya Sport, saya ingin bertanya tentang ${item.name}${item.code ? ` (${item.code})` : ""} dengan harga ${rp(item.price)}. Apakah stoknya tersedia?`;
-        const eid = esc(item.id);
-        const adminHoverBar = isAdmin ? `
-          <div class="admin-card-hover-bar" aria-label="Aksi cepat admin">
-            <button type="button" data-admin-card-act="edit" data-item-id="${eid}" title="Edit produk">✏ Edit</button>
-            <button type="button" data-admin-card-act="stock" data-item-id="${eid}" title="Restok / ubah stok">📦 Stok</button>
-            <button type="button" data-admin-card-act="photo" data-item-id="${eid}" title="Ganti foto">📷 Foto</button>
-            <button type="button" data-admin-card-act="price" data-item-id="${eid}" title="Ubah harga">💰 Harga</button>
-          </div>` : "";
         return `
-        <article class="catalog-card ${featured ? "!border-amber-400/60" : ""}">
-          ${adminHoverBar}
-          <div class="catalog-card-photo-wrap" data-view-product="${eid}" role="button" tabindex="0" aria-label="Lihat detail ${esc(item.name)}">
-            <span class="catalog-card-badge ${badgeCls}">${badgeLabel}</span>
+        <article class="catalog-card">
+          <div class="catalog-card-photo-wrap" data-view-product="${esc(item.id)}" role="button" tabindex="0" aria-label="Lihat detail ${esc(item.name)}">
+            <span class="catalog-card-badge ${limited ? "is-limited" : ""}">${isFeaturedProduct(item) ? "⭐ Unggulan · " : ""}${limited ? "Stok terbatas" : "Tersedia"}</span>
             ${productImageMarkup(item, "catalog-card-photo", 560, index < 2)}
+            ${isAdmin ? `<div class="catalog-card-admin-hover" onclick="event.stopPropagation()">
+              <button type="button" data-hover-edit="${esc(item.id)}">✏ Edit</button>
+              <button type="button" data-hover-stock="${esc(item.id)}">📦 Stok</button>
+              <button type="button" data-hover-price="${esc(item.id)}">💰 Harga</button>
+              <button type="button" data-hover-star="${esc(item.id)}" class="${isFeaturedProduct(item) ? "is-featured" : ""}">${isFeaturedProduct(item) ? "★ Unggulan" : "☆ Unggulan"}</button>
+            </div>` : ""}
           </div>
           <div class="catalog-card-body">
-            <p class="catalog-card-meta">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
-            <h3 class="font-extrabold cursor-pointer hover:text-blue-700" data-view-product="${eid}">${esc(item.name)}</h3>
-            <p class="text-[11px] font-bold text-emerald-400">📍 Tersedia di Toko Berau · Bisa Kirim</p>
+            <div class="flex flex-wrap items-center justify-between gap-1.5">
+              <p class="catalog-card-meta">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
+              <span class="sjs-local-store-badge">📍 Tersedia di Toko Berau</span>
+            </div>
+            <h3 class="font-extrabold cursor-pointer hover:text-blue-700" data-view-product="${esc(item.id)}">${esc(item.name)}</h3>
             ${item.description ? `<p class="catalog-card-description line-clamp-2">${esc(item.description)}</p>` : ""}
             ${isSenarItem(item) ? `<p class="senar-service-note"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>${SENAR_SERVICE_NOTE}</span></p>` : ""}
             <div class="catalog-card-facts">
@@ -2695,7 +2728,7 @@
               <span class="catalog-stock">Stok ${stockNum} pcs</span>
             </div>
             <div class="catalog-card-actions">
-              <button type="button" data-add-cart="${eid}" class="shop-button shop-button-primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Keranjang</button>
+              <button type="button" data-add-cart="${esc(item.id)}" class="shop-button shop-button-primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Keranjang</button>
               <a href="${CATALOG_WA}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener noreferrer" class="shop-button shop-button-secondary"><i class="fa-brands fa-whatsapp text-emerald-600" aria-hidden="true"></i> Tanya stok</a>
             </div>
           </div>
@@ -2724,7 +2757,7 @@
     function updateCartSummary() {
       const lines = cartProducts();
       document.getElementById("catalogCartCount").textContent = lines.length;
-      updateCustomerPreviewStats();
+      syncCustomerPreviewUI();
       const total = lines.reduce((s, { item, line }) => s + (Number(item?.price) || 0) * line.qty, 0);
       document.getElementById("catalogCartTotal").textContent = lines.length ? `Perkiraan total: ${rp(total)}` : "";
       const link = document.getElementById("catalogCartWhatsApp");
@@ -3040,6 +3073,35 @@
       if (dir === "desc") cmp = -cmp;
       if (cmp !== 0) return cmp;
       return String(a.name || "").localeCompare(String(b.name || ""), "id", { sensitivity: "base", numeric: true });
+    }
+
+    function renderBackupVolumeChart() {
+      if (!isAdmin) return;
+      const wrap = document.getElementById("svgBackupVolumeWrap");
+      const badge = document.getElementById("badgeBackupTotal");
+      const stats = [
+        { label: "Stok (SKU)", count: activeInventory().length, color: "#1d4ed8" },
+        { label: "Transaksi", count: transactions.length, color: "#059669" },
+        { label: "Pembelian", count: purchases.length, color: "#0284c7" },
+        { label: "Pengeluaran", count: books.expenses.length, color: "#eab308" },
+        { label: "Tutup Kas", count: books.cashClosings.length, color: "#0f2557" },
+        { label: "Katalog Publik", count: publicCatalog.length, color: "#7c3aed" }
+      ];
+      const total = stats.reduce((s, x) => s + Number(x.count || 0), 0);
+      if (badge) badge.textContent = `${total} Data`;
+      if (!wrap) return;
+      const mx = Math.max(1, ...stats.map(x => Number(x.count || 0)));
+      wrap.innerHTML = `<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">` + stats.map(st => {
+        const val = Number(st.count || 0);
+        const pct = val > 0 ? Math.max(10, Math.round((val / mx) * 100)) : 0;
+        return `<div class="uikit-row">
+          <div class="uikit-row-head">
+            <span class="uikit-row-label">${esc(st.label)}</span>
+            <span class="uikit-row-val">${val}</span>
+          </div>
+          <div class="uikit-bar-track"><div class="uikit-bar-fill" style="width:${pct}%;background:${st.color}"></div></div>
+        </div>`;
+      }).join("") + `</div>`;
     }
 
     function renderInventory() {
@@ -5766,50 +5828,10 @@
       backup: { btn: "tabBtnBackup", panel: "viewBackup" },
       catalog: { btn: "tabBtnCatalog", panel: "viewCatalog" }
     };
-    let lastAdminWorkspace = "kasir";
-    function updateCustomerPreviewStats() {
-      const inStockCount = publicCatalog.filter(item => Number(item.stock) > 0).length;
-      const lines = cartProducts();
-      const cartQty = lines.reduce((s, { line }) => s + Math.max(0, Number(line.qty) || 0), 0);
-      const pEl = document.getElementById("previewStatProducts");
-      const cEl = document.getElementById("previewStatCart");
-      const fCartEl = document.getElementById("previewFloatingCartCount");
-      if (pEl) pEl.textContent = String(inStockCount);
-      if (cEl) cEl.textContent = String(cartQty);
-      if (fCartEl) fCartEl.textContent = String(cartQty);
-      const sysCloud = document.getElementById("sysBarCloudText");
-      const mainCloud = document.getElementById("syncStatusText");
-      if (sysCloud && mainCloud) sysCloud.textContent = mainCloud.textContent || "Cloud Online";
-    }
-
+    let activeWorkspace = "catalog";
     function switchWorkspace(name) {
       const target = isAdmin ? (WORKSPACES[name] ? name : "kasir") : "catalog";
-      if (isAdmin && target !== "catalog") lastAdminWorkspace = target;
-      const inCustomerPreview = isAdmin && target === "catalog";
-
-      document.body.classList.toggle("sjs-customer-preview", inCustomerPreview);
-      const navEl = document.getElementById("mainNavigation");
-      if (navEl) navEl.hidden = !isAdmin || inCustomerPreview;
-      const pmEl = document.getElementById("adminPastelMenu");
-      if (pmEl) pmEl.hidden = !isAdmin || inCustomerPreview;
-      const aiFab = document.getElementById("sjsAiFab");
-      if (aiFab) aiFab.classList.toggle("hidden", !isAdmin || inCustomerPreview);
-      if (inCustomerPreview) {
-        document.getElementById("sjsAiBox")?.classList.add("hidden");
-      }
-
-      const dock = document.getElementById("adminQuickDock");
-      const qMenu = document.getElementById("adminQuickMenu");
-      const qBtn = document.getElementById("btnToggleAdminQuickDock");
-      if (dock) dock.hidden = !inCustomerPreview;
-      if (!inCustomerPreview && qMenu) {
-        qMenu.hidden = true;
-        qBtn?.setAttribute("aria-expanded", "false");
-      }
-      const banner = document.getElementById("customerPreviewBanner");
-      if (banner) banner.hidden = !inCustomerPreview;
-      updateCustomerPreviewStats();
-
+      activeWorkspace = target;
       for (const [key, cfg] of Object.entries(WORKSPACES)) {
         document.getElementById(cfg.btn).setAttribute("aria-current", key === target ? "page" : "false");
       }
@@ -5830,6 +5852,7 @@
       if (target === "reports") renderAllReportsView();
       if (target === "backup") renderBackupVolumeChart();
       if (target === "inventory") { renderInventory(); requestAnimationFrame(() => Object.values(charts).forEach(c => c.resize())); }
+      syncCustomerPreviewUI();
     }
     function openDialog(id) {
       const d = document.getElementById(id);
@@ -6058,74 +6081,6 @@
           window.scrollTo({ top: 0, behavior: "smooth" });
         });
       }
-      document.getElementById("btnToggleSystemBar")?.addEventListener("click", e => {
-        e.stopPropagation();
-        document.getElementById("systemBarWrap")?.classList.toggle("is-open");
-      });
-      document.getElementById("btnSysBarTablet")?.addEventListener("click", () => {
-        document.getElementById("btnToggleTabletMode")?.click();
-        const txt = document.getElementById("sysBarTabletText");
-        if (txt) txt.textContent = document.body.classList.contains("sjs-tablet-mode") ? "Mode Tablet: ON" : "Mode Tablet";
-      });
-      document.getElementById("btnSysBarAuthModal")?.addEventListener("click", () => {
-        document.getElementById("adminAuthModal")?.classList.remove("hidden");
-      });
-      document.getElementById("previewFloatingCartBtn")?.addEventListener("click", () => {
-        renderCart();
-        document.getElementById("catalogCart").showModal();
-      });
-      document.getElementById("productCatalogGrid")?.addEventListener("click", e => {
-        const actBtn = e.target.closest("[data-admin-card-act]");
-        if (!actBtn || !isAdmin) return;
-        e.stopPropagation();
-        const act = actBtn.dataset.adminCardAct;
-        const itemId = actBtn.dataset.itemId;
-        if (act === "stock") {
-          openRestockFor(itemId);
-          return;
-        }
-        editInventoryItem(itemId);
-        requestAnimationFrame(() => {
-          if (act === "price") {
-            const pInp = document.getElementById("invPrice");
-            if (pInp) { pInp.focus(); pInp.select(); }
-          } else if (act === "photo") {
-            document.getElementById("invImageFile")?.click();
-          }
-        });
-      });
-      document.getElementById("btnToggleAdminQuickDock")?.addEventListener("click", e => {
-        const menu = document.getElementById("adminQuickMenu");
-        if (!menu) return;
-        const willOpen = menu.hidden;
-        menu.hidden = !willOpen;
-        e.currentTarget.setAttribute("aria-expanded", String(willOpen));
-      });
-      document.getElementById("adminQuickMenu")?.addEventListener("click", e => {
-        const btn = e.target.closest("[data-quick-admin]");
-        if (!btn) return;
-        const dest = btn.classList.contains("is-return-admin") ? (lastAdminWorkspace || "kasir") : btn.dataset.quickAdmin;
-        switchWorkspace(dest);
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      });
-      const backToAdminHandler = () => {
-        switchWorkspace(lastAdminWorkspace || "kasir");
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      };
-      document.getElementById("btnQuickBackToAdmin")?.addEventListener("click", backToAdminHandler);
-      document.getElementById("btnBannerBackToAdmin")?.addEventListener("click", backToAdminHandler);
-      document.addEventListener("click", e => {
-        const dock = document.getElementById("adminQuickDock");
-        const menu = document.getElementById("adminQuickMenu");
-        if (dock && menu && !menu.hidden && !dock.contains(e.target)) {
-          menu.hidden = true;
-          document.getElementById("btnToggleAdminQuickDock")?.setAttribute("aria-expanded", "false");
-        }
-        const sysWrap = document.getElementById("systemBarWrap");
-        if (sysWrap && !sysWrap.contains(e.target)) {
-          sysWrap.classList.remove("is-open");
-        }
-      });
       for (const b of document.querySelectorAll("[data-workspace]")) {
         b.addEventListener("click", () => {
           switchWorkspace(b.dataset.workspace);
@@ -6963,8 +6918,8 @@
 
       document.getElementById("catalogSearch").addEventListener("input", e => {
         const val = e.target.value.trim().toLowerCase();
-        const matchedBrand = CATALOG_BRANDS.find(b => b.searchTerm.toLowerCase() === val || b.name.toLowerCase() === val);
-        activeBrandId = matchedBrand ? matchedBrand.id : "";
+        const m = CATALOG_BRANDS.find(b => b.searchTerm.toLowerCase() === val || b.name.toLowerCase() === val);
+        activeBrandId = m ? m.id : "";
         renderProductCatalog();
       });
       document.getElementById("catalogSearchForm").addEventListener("submit", e => e.preventDefault());
@@ -6979,24 +6934,24 @@
         const bId = btn.dataset.brandId;
         const brandObj = CATALOG_BRANDS.find(b => b.id === bId);
         if (!brandObj) return;
-        const searchInp = document.getElementById("catalogSearch");
+        const inp = document.getElementById("catalogSearch");
         if (activeBrandId === bId) {
           activeBrandId = "";
-          if (searchInp) searchInp.value = "";
+          if (inp) inp.value = "";
           renderProductCatalog();
           return;
         }
         activeBrandId = bId;
-        if (searchInp) searchInp.value = brandObj.searchTerm;
-        const allRadio = document.querySelector('#catalogCategory input[value="all"]');
-        if (allRadio) allRadio.checked = true;
+        if (inp) inp.value = brandObj.searchTerm;
+        const allR = document.querySelector('#catalogCategory input[value="all"]');
+        if (allR) allR.checked = true;
         renderProductCatalog();
         document.getElementById("publicProductCatalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
       document.getElementById("btnResetBrandFilter")?.addEventListener("click", () => {
         activeBrandId = "";
-        const searchInp = document.getElementById("catalogSearch");
-        if (searchInp) searchInp.value = "";
+        const inp = document.getElementById("catalogSearch");
+        if (inp) inp.value = "";
         renderProductCatalog();
       });
       document.getElementById("catalogCategory").addEventListener("change", renderProductCatalog);
@@ -7523,6 +7478,9 @@
         a.click();
         localStorage.setItem(MANUAL_BACKUP_LAST_KEY, new Date().toISOString());
         renderManualBackupReminder();
+        showToast("Cadangan data JSON berhasil diunduh.");
+      });
+
       let pendingRestorePayload = null;
       const restoreInput = document.getElementById("restoreBackupFile");
       const restoreBox = document.getElementById("restoreBackupPreview");
@@ -7595,8 +7553,6 @@
           btn.disabled = false;
         }
       });
-        showToast("Cadangan data JSON berhasil diunduh.");
-      });
       renderManualBackupReminder();
       document.getElementById("publishCatalog").addEventListener("click", async () => {
         if (!isAdmin || !(await sjsConfirm("Terbitkan barang aktif ke katalog publik?", "Terbitkan Katalog"))) return;
@@ -7662,6 +7618,91 @@
         }
         document.getElementById("inventoryToolDialog").showModal();
       });
+    
+      document.getElementById("btnBackToAdminFromPreview")?.addEventListener("click", () => {
+        switchWorkspace("kasir");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+      document.getElementById("btnToggleAdminDrawer")?.addEventListener("click", () => {
+        document.getElementById("adminQuickDrawer")?.classList.toggle("hidden");
+      });
+      document.querySelectorAll("[data-preview-jump]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.getElementById("adminQuickDrawer")?.classList.add("hidden");
+          switchWorkspace(btn.dataset.previewJump);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+      });
+      document.getElementById("btnStickyCatalogCart")?.addEventListener("click", () => {
+        document.getElementById("openCatalogCart")?.click();
+      });
+      document.getElementById("productCatalogGrid")?.addEventListener("click", async e => {
+        const he = e.target.closest("[data-hover-edit]");
+        if (he) {
+          switchWorkspace("inventory");
+          requestAnimationFrame(() => editInventoryItem(he.dataset.hoverEdit));
+          return;
+        }
+        const hs = e.target.closest("[data-hover-stock]");
+        if (hs) {
+          switchWorkspace("inventory");
+          requestAnimationFrame(() => openRestockFor(hs.dataset.hoverStock));
+          return;
+        }
+        const hp = e.target.closest("[data-hover-price]");
+        if (hp) {
+          switchWorkspace("inventory");
+          requestAnimationFrame(() => editInventoryItem(hp.dataset.hoverPrice));
+          return;
+        }
+        const hst = e.target.closest("[data-hover-star]");
+        if (hst) {
+          await toggleFeaturedProduct(hst.dataset.hoverStar);
+        }
+      });
+
+    
+      document.getElementById("brandLogoGrid")?.addEventListener("click", e => {
+        const btn = e.target.closest("[data-brand-id]");
+        if (!btn) return;
+        const bid = btn.dataset.brandId;
+        activeBrandId = activeBrandId === bid ? "" : bid;
+        renderProductCatalog();
+      });
+      document.getElementById("btnResetBrandFilter")?.addEventListener("click", () => {
+        activeBrandId = "";
+        renderProductCatalog();
+      });
+      document.getElementById("btnCloseBrandLanding")?.addEventListener("click", () => {
+        activeBrandId = "";
+        renderProductCatalog();
+      });
+      document.getElementById("bestSellerWeekGrid")?.addEventListener("click", e => {
+        const card = e.target.closest("[data-view-product]");
+        if (card) openCatalogProductDetail(card.dataset.viewProduct);
+      });
+
+    
+      document.getElementById("btnBackToAdminFromPreview")?.addEventListener("click", () => {
+        switchWorkspace("kasir");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+      document.getElementById("btnToggleAdminDrawer")?.addEventListener("click", () => {
+        const d = document.getElementById("adminQuickDrawer");
+        if (d) d.classList.toggle("hidden");
+      });
+      document.querySelectorAll("[data-preview-jump]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          document.getElementById("adminQuickDrawer")?.classList.add("hidden");
+          switchWorkspace(btn.dataset.previewJump);
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+      });
+      document.getElementById("btnStickyCatalogCart")?.addEventListener("click", () => {
+        const dlg = document.getElementById("catalogCart");
+        if (dlg && !dlg.open) { renderCart(); dlg.showModal(); }
+      });
+
     }
 
     async function confirmDelete() {

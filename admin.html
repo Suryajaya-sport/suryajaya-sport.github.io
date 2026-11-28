@@ -12,7 +12,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="manifest" href="/admin-manifest.webmanifest">
-  <meta name="theme-color" content="#0b0e14">
+  <meta name="theme-color" content="#0f172a">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="Surya Jaya Sport">
@@ -21,6 +21,24 @@
   <meta property="og:site_name" content="Surya Jaya Sport">
   <meta property="og:url" content="https://suryajaya-sport.github.io/">
   <meta property="og:description" content="Perlengkapan badminton, futsal, catur, dan aksesori gitar di Tanjung Redeb, Berau. Cek harga dan stok, konfirmasi lewat WhatsApp.">
+
+  <div class="sjs-admin-menu-fab no-print">
+    <div id="adminQuickDrawer" class="hidden mb-2.5 rounded-2xl bg-slate-900 border border-amber-400/70 p-2 shadow-2xl flex flex-col gap-1 min-w-[175px]">
+      <button type="button" data-preview-jump="kasir" class="w-full text-left px-3 py-2 rounded-xl text-xs font-extrabold text-white hover:bg-amber-400 hover:text-slate-950 transition"><i class="fa-solid fa-cash-register mr-2" aria-hidden="true"></i>Kasir</button>
+      <button type="button" data-preview-jump="sales" class="w-full text-left px-3 py-2 rounded-xl text-xs font-extrabold text-white hover:bg-amber-400 hover:text-slate-950 transition"><i class="fa-solid fa-chart-column mr-2" aria-hidden="true"></i>Penjualan</button>
+      <button type="button" data-preview-jump="inventory" class="w-full text-left px-3 py-2 rounded-xl text-xs font-extrabold text-white hover:bg-amber-400 hover:text-slate-950 transition"><i class="fa-solid fa-boxes-stacked mr-2" aria-hidden="true"></i>Stok</button>
+      <button type="button" data-preview-jump="books" class="w-full text-left px-3 py-2 rounded-xl text-xs font-extrabold text-white hover:bg-amber-400 hover:text-slate-950 transition"><i class="fa-solid fa-book mr-2" aria-hidden="true"></i>Pembukuan</button>
+    </div>
+    <button type="button" id="btnToggleAdminDrawer" class="px-4 py-2.5 rounded-full bg-slate-900 text-white border-2 border-amber-400 text-xs font-black shadow-xl inline-flex items-center gap-2 cursor-pointer">
+      <i class="fa-solid fa-gear text-amber-400" aria-hidden="true"></i><span>⚙ Admin</span>
+    </button>
+  </div>
+
+  <button type="button" id="btnStickyCatalogCart" class="sjs-sticky-cart-fab no-print" aria-label="Buka keranjang">
+    <i class="fa-solid fa-basket-shopping" aria-hidden="true"></i>
+    <span>🛒 Keranjang (<span id="stickyCatalogCartCount">0</span>)</span>
+  </button>
+
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"SportingGoodsStore","name":"Surya Jaya Sport","url":"https://suryajaya-sport.github.io/","telephone":"+6282320033333","image":"https://suryajaya-sport.github.io/sjs-mark.png","address":{"@type":"PostalAddress","streetAddress":"Jl. Ahmad Yani 37","addressLocality":"Tanjung Redeb","addressRegion":"Kalimantan Timur","addressCountry":"ID"}}
   </script>
@@ -76,18 +94,18 @@
     .workspace-nav-title { font-size: .7rem; font-weight: 800; text-transform: uppercase; color: #1d4ed8; padding: 0 .75rem; }
     #mainNavigation button[data-workspace] { display: inline-flex; align-items: center; gap: .5rem; padding: .65rem 1.05rem; border-radius: .95rem; font-size: .875rem; font-weight: 700; color: #1e293b; cursor: pointer; }
     #mainNavigation button[data-workspace]:hover { background: #eff6ff; color: #1d4ed8; }
-    #mainNavigation button[data-workspace][aria-current="page"] { background: linear-gradient(135deg,#1e3a8a,#2563eb); color: #fff; }
+    #mainNavigation button[data-workspace][aria-current="page"] { background: linear-gradient(135deg,#05070c,#18181b); color: #fff; }
     #navStockBadge { padding: .12rem .52rem; border-radius: 9999px; font-size: .75rem; font-weight: 800; background: #dbeafe; color: #1e3a8a; }
 
     .shop-button { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 2.75rem; padding: .62rem 1.2rem; border-radius: .9rem; font-size: .875rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: all .16s; }
     .shop-button:disabled { opacity: .48; cursor: not-allowed; }
-    .shop-button-primary { background: linear-gradient(135deg,#1d4ed8,#2563eb); color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,.24); }
+    .shop-button-primary { background: linear-gradient(135deg,#090d16,#18181b); color: #fff; box-shadow: 0 4px 12px rgba(37,99,235,.24); }
     .shop-button-secondary { background: #fff; color: #1e293b; border: 1.5px solid #cbd5e1; }
     .shop-button-secondary:hover:not(:disabled) { background: #f8fafc; }
     .shop-button-accent { background: linear-gradient(135deg,#f59e0b,#fbbf24); color: #0f172a; font-weight: 800; }
     .shop-button-outline { background: rgba(255,255,255,.14); color: #fff; border: 1.5px solid rgba(255,255,255,.35); }
 
-    .shop-hero { position: relative; border-radius: 2rem; overflow: hidden; min-height: 300px; background: linear-gradient(125deg,#091124 0%,#172f73 52%,#2563eb 100%); color: #fff; display: flex; align-items: center; }
+    .shop-hero { position: relative; border-radius: 2rem; overflow: hidden; min-height: 300px; background: linear-gradient(125deg,#05070c 0%,#0f131a 52%,#1c1f26 100%); border: 1.5px solid rgba(250,204,21,.35); color: #fff; display: flex; align-items: center; }
     .shop-hero-media { position: absolute; inset: 0; opacity: .42; pointer-events: none; }
     .shop-hero-media img { width: 100%; height: 100%; object-fit: cover; }
     .shop-hero-content { position: relative; z-index: 2; padding: 2.35rem 2rem; max-width: 40rem; display: flex; flex-direction: column; gap: .9rem; }
@@ -153,7 +171,7 @@
     .shop-footer { border-top: 1px solid #dbeafe; background: #fff; padding: 1.35rem 1rem; text-align: center; font-size: .8125rem; color: #64748b; }
 
     #sjsAiFab { position: fixed !important; bottom: 18px !important; left: 82px !important; right: auto !important; z-index: 40; }
-    #sjsAiFab button { background: linear-gradient(135deg,#1e3a8a,#2563eb); color: #fff; height: 44px; padding: 0 15px; border-radius: 9999px; border: 2px solid #fff; box-shadow: 0 10px 26px rgba(29,78,216,.35); display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; cursor: pointer; }
+    #sjsAiFab button { background: linear-gradient(135deg,#05070c,#18181b); color: #fff; height: 44px; padding: 0 15px; border-radius: 9999px; border: 2px solid #fff; box-shadow: 0 10px 26px rgba(29,78,216,.35); display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 800; cursor: pointer; }
     #sjsAiBox { position: fixed !important; bottom: 72px !important; left: 82px !important; right: auto !important; width: 400px; max-width: calc(100vw - 28px); height: 540px; max-height: calc(100vh - 108px); background: #fff; border-radius: 1.6rem; border: 1.5px solid #cbd5e1; box-shadow: 0 24px 55px rgba(15,23,42,.28); display: flex; flex-direction: column; overflow: hidden; z-index: 40; }
     #sjsAiBox.hidden { display: none !important; }
     #sjsAssistantSaleActions[hidden] { display: none !important; }
@@ -281,9 +299,10 @@
     /* Storefront Customer UI Polish */
     .shop-hero {
       background:
-        radial-gradient(circle at 85% 20%, rgba(251,191,36,.28), transparent 42%),
-        radial-gradient(circle at 15% 85%, rgba(56,189,248,.22), transparent 45%),
-        linear-gradient(125deg,#071024 0%,#132968 52%,#1d4ed8 100%);
+        radial-gradient(circle at 85% 20%, rgba(250,204,21,.22), transparent 42%),
+        radial-gradient(circle at 15% 85%, rgba(245,158,11,.12), transparent 45%),
+        linear-gradient(125deg,#05070c 0%,#0f1218 52%,#181b22 100%);
+      border: 1.5px solid rgba(250,204,21,.35);
       box-shadow: 0 18px 40px -16px rgba(15,23,42,.38);
       padding: 2.2rem 2rem;
       display: grid;
@@ -359,7 +378,7 @@
     }
     .howto-step {
       width: 2.1rem; height: 2.1rem; border-radius: .75rem;
-      background: linear-gradient(135deg,#1d4ed8,#2563eb); color: #fff;
+      background: linear-gradient(135deg,#090d16,#18181b); color: #fff;
       font-weight: 800; font-size: .9rem; display: inline-flex; align-items: center; justify-content: center;
     }
     .howto-card h3 { font-size: .95rem; font-weight: 800; color: #0f172a; }
@@ -697,7 +716,7 @@
       background: #fef3c7; color: #92400e; border: 1.5px solid #fcd34d; cursor: pointer;
     }
     body.sjs-tablet-mode .tablet-toggle-btn {
-      background: #1d4ed8; color: #fff; border-color: #1d4ed8;
+      background: #090d16; color: #facc15; border-color: #facc15;
     }
     body.sjs-tablet-mode { font-size: 17px; }
     body.sjs-tablet-mode #mainNavigation { gap: .55rem; padding: .65rem; }
@@ -732,9 +751,9 @@
 
     /* === POS TABLET PRO: GABUNGAN CLICKNSELL + SIGMA POS + PURRWEB (BIRU • PUTIH • KUNING) === */
     :root {
-      --sjs-bpk-navy: #0f2557;
-      --sjs-bpk-blue: #1d4ed8;
-      --sjs-bpk-blue-soft: #eff6ff;
+      --sjs-bpk-navy: #05070c;
+      --sjs-bpk-blue: #111827;
+      --sjs-bpk-blue-soft: #f4f4f5;
       --sjs-bpk-yellow: #facc15;
       --sjs-bpk-yellow-deep: #eab308;
       --sjs-bpk-yellow-soft: #fef9c3;
@@ -816,7 +835,7 @@
     #posCashChangeBox.is-short span { color: #9f1239 !important; font-size: .7rem !important; letter-spacing: .08em; }
     #posCashChangeBox.is-short strong { color: #be123c !important; font-size: 1.45rem !important; line-height: 1.15 !important; }
     #posTotalPayHeroBox {
-      background: linear-gradient(135deg, #0b1938 0%, #12285a 100%);
+      background: linear-gradient(135deg, #05070c 0%, #18181b 100%);
       border: 2px solid #facc15;
       border-radius: 16px;
       padding: .95rem 1.1rem;
@@ -942,7 +961,7 @@
       background: #f1f5f9;
     }
     body.sjs-admin .shop-header {
-      background: linear-gradient(90deg, #0f2557 0%, #1d4ed8 100%);
+      background: linear-gradient(90deg, #05070c 0%, #111827 100%);
       border-bottom: 3px solid #facc15;
     }
     body.sjs-admin .shop-brand h1,
@@ -978,7 +997,7 @@
         border-radius: 0 1.25rem 0 0 !important;
         border: none !important;
         border-right: 3px solid #facc15 !important;
-        background: linear-gradient(180deg, #0f2557 0%, #1e3a8a 60%, #1d4ed8 100%) !important;
+        background: linear-gradient(180deg, #05070c 0%, #0d1117 60%, #161b22 100%) !important;
         box-shadow: 6px 0 24px rgba(15, 37, 87, .22) !important;
         display: flex !important;
         flex-direction: column !important;
@@ -1104,7 +1123,7 @@
       background: #eff6ff; color: #1e3a8a; border: 1.5px solid #bfdbfe; font-weight: 800;
     }
     body.sjs-admin .pos-cat-tab.is-active {
-      background: #1d4ed8; color: #ffffff; border-color: #1d4ed8;
+      background: #090d16; color: #facc15; border-color: #facc15;
       box-shadow: 0 4px 12px rgba(29, 78, 216, .28);
     }
     body.sjs-admin .pos-card {
@@ -1140,7 +1159,7 @@
       color: #0f2557 !important;
     }
     body.sjs-admin .pay-option-btn[aria-pressed="true"] {
-      background: linear-gradient(135deg, #0f2557, #1d4ed8) !important;
+      background: linear-gradient(135deg, #05070c, #18181b) !important;
       border: 2.5px solid #facc15 !important;
       color: #ffffff !important;
       box-shadow: 0 6px 16px rgba(29, 78, 216, .32) !important;
@@ -1176,7 +1195,7 @@
       font-size: 1rem !important;
     }
     body.sjs-admin #sjsAiFab button {
-      background: linear-gradient(135deg, #0f2557, #1d4ed8) !important;
+      background: linear-gradient(135deg, #05070c, #18181b) !important;
       border: 2px solid #facc15 !important;
       color: #ffffff !important;
     }
@@ -1230,8 +1249,8 @@
       display: inline-flex; align-items: center; justify-content: center;
       font-size: 1rem; flex-shrink: 0;
     }
-    .sjs-chart-badge-icon.is-blue { background: linear-gradient(135deg, #1d4ed8, #2563eb); color: #ffffff; }
-    .sjs-chart-badge-icon.is-navy { background: linear-gradient(135deg, #0f2557, #1e3a8a); color: #facc15; }
+    .sjs-chart-badge-icon.is-blue { background: linear-gradient(135deg, #090d16, #18181b); color: #ffffff; }
+    .sjs-chart-badge-icon.is-navy { background: linear-gradient(135deg, #05070c, #18181b); color: #facc15; }
     .sjs-chart-badge-icon.is-yellow { background: linear-gradient(135deg, #facc15, #eab308); color: #0f172a; }
     .sjs-chart-sub { font-size: .74rem; font-weight: 600; color: #64748b; margin-top: .08rem; }
     .sjs-chart-pill {
@@ -1278,7 +1297,7 @@
       color: #1d4ed8;
     }
     .pos-mini-chart-details {
-      background: linear-gradient(135deg, #071433 0%, #0f2557 65%, #1d4ed8 100%);
+      background: linear-gradient(135deg, #05070c 0%, #111827 65%, #1f2937 100%);
       border: 1.5px solid #2563eb;
       border-radius: 1.35rem;
       padding: .75rem 1rem;
@@ -1370,7 +1389,7 @@
         #f1f5f9 !important;
     }
     body.sjs-admin .shop-header {
-      background: linear-gradient(90deg, rgba(15, 37, 87, 0.96) 0%, rgba(29, 78, 216, 0.95) 100%) !important;
+      background: linear-gradient(90deg, rgba(5, 7, 12, 0.97) 0%, rgba(17, 24, 39, 0.96) 100%) !important;
       backdrop-filter: blur(14px);
       -webkit-backdrop-filter: blur(14px);
       box-shadow: 0 10px 30px -10px rgba(7, 20, 51, 0.42) !important;
@@ -1562,8 +1581,8 @@
 
     /* === TEMA POS EXECUTIVE MASKULIN: NAVY DEEP + NAVY + GOLD + WHITE === */
     :root {
-      --sjs-navy-deep: #0F172A;
-      --sjs-navy: #142850;
+      --sjs-navy-deep: #05070C;
+      --sjs-navy: #111827;
       --sjs-gold: #F5B700;
       --sjs-gold-text: #C58F00;
       --sjs-success: #16A34A;
@@ -1591,12 +1610,12 @@
     }
     /* Header & Sidebar: Navy Deep -> Navy dengan aksen emas tipis */
     body.sjs-admin .shop-header {
-      background: linear-gradient(90deg, #0F172A 0%, #142850 100%) !important;
+      background: linear-gradient(90deg, #05070C 0%, #111827 100%) !important;
       border-bottom: 2px solid #F5B700 !important;
     }
     @media (min-width: 768px) {
       body.sjs-admin #mainNavigation:not([hidden]) {
-        background: linear-gradient(180deg, #0F172A 0%, #142850 100%) !important;
+        background: linear-gradient(180deg, #05070C 0%, #111827 100%) !important;
         border-right: 2px solid #F5B700 !important;
       }
     }
@@ -1656,7 +1675,7 @@
     }
     /* 1. Header TOTAL BAYAR: Navy gelap, teks putih, garis emas tipis */
     body.sjs-admin #posTotalPayHeroBox {
-      background: linear-gradient(135deg, #0F172A 0%, #142850 100%) !important;
+      background: linear-gradient(135deg, #05070C 0%, #18181B 100%) !important;
       border: 1px solid rgba(245, 183, 0, .35) !important;
       border-top: 3px solid #F5B700 !important;
       border-radius: 14px !important;
@@ -1737,12 +1756,12 @@
       transition: all .14s ease !important;
     }
     body.sjs-admin .pos-exact-seg .pay-option-btn:hover {
-      border-color: #142850 !important;
+      border-color: #F5B700 !important;
       background: #F8FAFC !important;
-      color: #142850 !important;
+      color: #090D16 !important;
     }
     body.sjs-admin .pos-exact-seg .pay-option-btn[aria-pressed="true"] {
-      background: #142850 !important;
+      background: #090D16 !important;
       color: #FFFFFF !important;
       border: 2px solid #F5B700 !important;
       box-shadow: 0 4px 12px rgba(20, 40, 80, .24) !important;
@@ -1761,8 +1780,8 @@
       transition: background-color .12s ease, color .12s ease, border-color .12s ease, transform .08s ease !important;
     }
     body.sjs-admin .pos-exact-numpad .pos-num-btn:hover {
-      background: #142850 !important;
-      border-color: #142850 !important;
+      background: #090D16 !important;
+      border-color: #F5B700 !important;
       color: #FFFFFF !important;
     }
     body.sjs-admin .pos-exact-numpad .pos-num-btn:active {
@@ -1785,15 +1804,15 @@
       border: 1px solid #CBD5E1 !important;
       border-bottom: 1px solid #CBD5E1 !important;
       background: #FFFFFF !important;
-      color: #142850 !important;
+      color: #090D16 !important;
       font-size: 12.5px !important;
       font-weight: 700 !important;
       box-shadow: 0 1px 3px rgba(15, 23, 42, .06) !important;
       transition: background-color .12s ease, color .12s ease, border-color .12s ease, transform .08s ease !important;
     }
     body.sjs-admin .pos-exact-numpad .pos-cash-pill:hover {
-      background: #142850 !important;
-      border-color: #142850 !important;
+      background: #090D16 !important;
+      border-color: #F5B700 !important;
       color: #FFFFFF !important;
     }
     body.sjs-admin .pos-exact-numpad .pos-cash-pill:active {
@@ -1824,7 +1843,7 @@
     }
     /* 6. Floating Asisten Toko: Navy Gelap (bukan biru terang) */
     body.sjs-admin #sjsAiFab button {
-      background: linear-gradient(135deg, #0F172A 0%, #142850 100%) !important;
+      background: linear-gradient(135deg, #05070C 0%, #18181B 100%) !important;
       border: 1.5px solid #F5B700 !important;
       color: #FFFFFF !important;
       box-shadow: 0 8px 22px rgba(15, 23, 42, .32) !important;
@@ -1881,7 +1900,7 @@
       transition: background-color .14s ease, transform .08s ease !important;
     }
     body.sjs-admin #btnOpenScanner:hover {
-      background: #142850 !important;
+      background: #090D16 !important;
     }
     body.sjs-admin #btnOpenScanner:active {
       transform: scale(.98) !important;
@@ -2008,7 +2027,7 @@
     }
     /* Tombol Simpan & Cetak: Navy Gelap + Aksen Emas (Hierarki Maskulin POS) */
     body.sjs-admin #btnSaveAndPrintTx {
-      background: linear-gradient(135deg, #0F172A 0%, #142850 100%) !important;
+      background: linear-gradient(135deg, #05070C 0%, #18181B 100%) !important;
       border: 1.5px solid #F5B700 !important;
       color: #FFFFFF !important;
       min-height: 52px !important;
@@ -2048,8 +2067,8 @@
     }
     .pos-svc-chip:hover {
       background: #F1F5F9 !important;
-      border-color: #142850 !important;
-      color: #142850 !important;
+      border-color: #F5B700 !important;
+      color: #090D16 !important;
     }
 
 
@@ -2177,13 +2196,13 @@
     body.sjs-admin #btnSaveTx {
       background: #FFFFFF !important;
       border: 1.5px solid #142850 !important;
-      color: #142850 !important;
+      color: #090D16 !important;
       font-weight: 700 !important;
       border-radius: 12px !important;
     }
     body.sjs-admin #btnSaveTx:hover:not(:disabled) {
-      background: #142850 !important;
-      border-color: #142850 !important;
+      background: #090D16 !important;
+      border-color: #F5B700 !important;
       color: #FFFFFF !important;
     }
     body.sjs-admin #btnSaveTx:disabled {
@@ -2238,10 +2257,10 @@
     }
     body.sjs-admin #btnAddItemRow {
       border: 1.5px solid #142850 !important;
-      color: #142850 !important;
+      color: #090D16 !important;
     }
     body.sjs-admin #btnAddItemRow:hover {
-      background: #142850 !important;
+      background: #090D16 !important;
       color: #FFFFFF !important;
     }
 
@@ -2394,7 +2413,7 @@
 
     /* === TOMBOL SIMPAN BARANG & BUAT QR: NAVY + GOLD SERAGAM === */
     body.sjs-admin #btnSaveInventory {
-      background: linear-gradient(135deg, #0F172A 0%, #142850 100%) !important;
+      background: linear-gradient(135deg, #05070C 0%, #18181B 100%) !important;
       border: 1.5px solid #F5B700 !important;
       color: #FFFFFF !important;
       font-weight: 800 !important;
@@ -2407,493 +2426,217 @@
       border-color: #FFD029 !important;
     }
 
-  </style>
-  <style id="sjs-admin-dark-v4">
-    @media screen {
-      :root {
-        --dark-bg: #0b0e14;
-        --dark-surface: #111622;
-        --dark-card: #151922;
-        --dark-elev: #1e2433;
-        --dark-hover: #252d40;
-        --dark-border: #262d3d;
-        --dark-border-strong: #364156;
-        --dark-text: #f8fafc;
-        --dark-muted: #94a3b8;
-        --gold: #f5b700;
-        --gold-soft: #fde68a;
-        --emerald: #34d399;
-        --rose: #fb7185;
-      }
 
-      body,
-      body.sjs-admin {
-        background:
-          radial-gradient(circle at 14% 0%, rgba(245, 183, 0, 0.07), transparent 36%),
-          radial-gradient(circle at 88% 12%, rgba(37, 99, 235, 0.08), transparent 34%),
-          var(--dark-bg) !important;
-        color: var(--dark-text) !important;
-      }
-
-      /* Header */
-      .shop-header,
-      body.sjs-admin .shop-header {
-        background: rgba(11, 14, 20, 0.94) !important;
-        border-bottom: 2px solid var(--gold) !important;
-        box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55) !important;
-      }
-      .shop-brand h1,
-      .shop-brand p { color: #ffffff !important; }
-      .shop-brand p { color: var(--dark-muted) !important; }
-      .shop-links { background: var(--dark-card) !important; border: 1px solid var(--dark-border); }
-      .shop-links a { color: #cbd5e1 !important; }
-      .shop-links a:hover { background: var(--dark-elev) !important; color: var(--gold) !important; }
-      .shop-status,
-      .shop-date {
-        background: var(--dark-card) !important;
-        color: var(--dark-text) !important;
-        border: 1px solid var(--dark-border-strong) !important;
-      }
-      body.sjs-admin .shop-owner-button {
-        background: rgba(16, 185, 129, 0.14) !important;
-        color: var(--emerald) !important;
-        border-color: rgba(52, 211, 153, 0.4) !important;
-      }
-      .tablet-toggle-btn {
-        background: var(--dark-elev) !important;
-        color: var(--gold) !important;
-        border-color: rgba(245, 183, 0, 0.45) !important;
-      }
-      body.sjs-admin.sjs-tablet-mode .tablet-toggle-btn {
-        background: var(--gold) !important;
-        color: #0b0e14 !important;
-        border-color: var(--gold) !important;
-      }
-
-      @media (min-width: 768px) {
-        body.sjs-admin #mainNavigation:not([hidden]) {
-          background: linear-gradient(180deg, #0b0e14 0%, #121826 100%) !important;
-          border-right: 2px solid var(--gold) !important;
-        }
-      }
-      @media (max-width: 767px) {
-        body.sjs-admin #mainNavigation:not([hidden]) {
-          background: #0b0e14 !important;
-          border-top: 2px solid var(--gold) !important;
-        }
-      }
-      body.sjs-admin #mainNavigation button[data-workspace] {
-        background: rgba(255, 255, 255, 0.04) !important;
-        color: #e2e8f0 !important;
-        border-color: rgba(255, 255, 255, 0.08) !important;
-      }
-      body.sjs-admin #mainNavigation button[data-workspace]:hover {
-        background: var(--dark-elev) !important;
-        color: #ffffff !important;
-      }
-      body.sjs-admin #mainNavigation button[data-workspace][aria-current="page"] {
-        background: var(--gold) !important;
-        color: #0b0e14 !important;
-        border-color: var(--gold) !important;
-      }
-      body.sjs-admin #mainNavigation button[data-workspace][aria-current="page"] i {
-        color: #0b0e14 !important;
-      }
-
-      /* Mode Pelanggan Fullscreen + ⚙ System Bar */
-      body.sjs-admin.sjs-customer-preview #mainNavigation,
-      body.sjs-admin.sjs-customer-preview #adminPastelMenu,
-      body.sjs-admin.sjs-customer-preview #sjsAiFab,
-      body.sjs-admin.sjs-customer-preview #sjsAiBox,
-      body.sjs-admin.sjs-customer-preview #btnToggleTabletMode,
-      body.sjs-admin.sjs-customer-preview #adminModeBadge,
-      body.sjs-admin.sjs-customer-preview #syncStatusBadge,
-      body.sjs-admin.sjs-customer-preview #currentDateBadge {
-        display: none !important;
-      }
-      body.sjs-admin.sjs-customer-preview .shop-header {
-        border-bottom: 1.5px solid var(--dark-border) !important;
-      }
-      body.sjs-admin.sjs-customer-preview .shop-main {
-        max-width: 82rem !important;
-        margin: 0 auto !important;
-        padding: 1.15rem 1.15rem 5.5rem !important;
-      }
-      body.sjs-admin.sjs-customer-preview .shop-links { display: flex !important; }
-      @media (max-width: 640px) {
-        body.sjs-admin.sjs-customer-preview .shop-links { display: none !important; }
-      }
-
-      .customer-preview-banner {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
-        gap: .65rem;
-        padding: .6rem 1rem;
-        border-radius: 1.15rem;
-        background: linear-gradient(135deg, rgba(21, 25, 34, 0.96), rgba(30, 36, 51, 0.96));
-        border: 1.5px solid rgba(245, 183, 0, 0.42);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.42);
-      }
-      .preview-stat-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: .35rem;
-        padding: .24rem .65rem;
-        border-radius: 9999px;
-        background: var(--dark-bg);
-        border: 1px solid var(--dark-border-strong);
-        font-size: .74rem;
-        font-weight: 700;
-        color: #e2e8f0;
-        font-variant-numeric: tabular-nums;
-      }
-      .preview-stat-pill strong { color: var(--gold); }
-
-      .system-bar-wrap { position: relative; display: inline-flex; align-items: center; }
-      .system-bar-trigger {
-        padding: .35rem .75rem;
-        border-radius: 9999px;
-        background: var(--dark-bg);
-        border: 1px solid var(--dark-border-strong);
-        color: #cbd5e1;
-        font-size: .74rem;
-        font-weight: 800;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: .35rem;
-      }
-      .system-bar-trigger:hover { border-color: var(--gold); color: var(--gold); }
-      .system-bar-popover {
-        position: absolute;
-        right: 0;
-        top: calc(100% + 6px);
-        z-index: 48;
-        min-width: 225px;
-        background: var(--dark-card);
-        border: 1.5px solid var(--gold);
-        border-radius: 1rem;
-        padding: .65rem;
-        box-shadow: 0 18px 40px rgba(0, 0, 0, 0.65);
-        display: none;
-        flex-direction: column;
-        gap: .45rem;
-      }
-      .system-bar-wrap:hover .system-bar-popover,
-      .system-bar-wrap.is-open .system-bar-popover { display: flex; }
-
-      /* Brand Showcase Logo Grid in Admin Customer Preview */
-      .brand-showcase-section {
-        background: linear-gradient(180deg, rgba(21, 25, 34, 0.96), rgba(14, 18, 27, 0.96));
-        border: 1.5px solid var(--dark-border);
-        border-radius: 1.45rem;
-        padding: 1.1rem;
-      }
-      .brand-logo-grid {
-        display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: .6rem;
-      }
-      @media (max-width: 1024px) { .brand-logo-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-      @media (max-width: 640px) { .brand-logo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-      .brand-logo-card {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: .35rem;
-        padding: .7rem .5rem .6rem;
-        border-radius: 1rem;
-        background: var(--dark-bg);
-        border: 1.5px solid var(--dark-border);
-        color: #f8fafc;
-        cursor: pointer;
-        text-align: center;
-        transition: transform .14s ease, border-color .14s ease, background .14s ease;
-      }
-      .brand-logo-card:hover { transform: translateY(-2px); border-color: var(--gold); background: var(--dark-elev); }
-      .brand-logo-card.is-active {
-        background: linear-gradient(135deg, rgba(245, 183, 0, 0.16), rgba(30, 36, 51, 0.98));
-        border: 2px solid var(--gold);
-      }
-      .brand-logo-card.is-empty-stock { opacity: .68; }
-      .brand-emblem-box { height: 34px; width: 100%; display: flex; align-items: center; justify-content: center; }
-      .brand-emblem-image {
-        box-sizing: border-box;
-        width: 112px;
-        max-width: calc(100% - 2rem);
-        height: 100%;
-        padding: 2px 6px;
-        object-fit: contain;
-        border-radius: .35rem;
-      }
-      .brand-emblem-image.has-light-background { background: #f8fafc; }
-      .brand-wordmark {
-        font-family: 'Barlow Condensed', sans-serif;
-        font-size: 1.02rem;
-        font-weight: 800;
-        letter-spacing: .04em;
-        text-transform: uppercase;
-        line-height: 1;
-        color: #ffffff;
-      }
-      .brand-logo-card.is-active .brand-wordmark { color: var(--gold); }
-      .brand-sub-label { font-size: .63rem; font-weight: 700; color: var(--dark-muted); }
-      .brand-count-pill {
-        position: absolute;
-        top: .38rem;
-        right: .42rem;
-        padding: .08rem .4rem;
-        border-radius: 9999px;
-        font-size: .63rem;
-        font-weight: 800;
-        background: var(--dark-elev);
-        border: 1px solid var(--dark-border);
-        color: #cbd5e1;
-      }
-      .brand-count-pill.has-stock {
-        background: rgba(245, 183, 0, 0.16);
-        border-color: rgba(245, 183, 0, 0.42);
-        color: var(--gold);
-      }
-
-      /* Floating Dock & Right Stack */
-      #adminQuickDock {
-        position: fixed; bottom: 18px; left: 18px; z-index: 46;
-        display: flex; flex-direction: column; align-items: flex-start; gap: .5rem;
-      }
-      #adminQuickDock[hidden] { display: none !important; }
-      #adminQuickMenu {
-        background: var(--dark-card); border: 1.5px solid var(--gold); border-radius: 1.25rem;
-        padding: .45rem; min-width: 205px; box-shadow: 0 18px 42px rgba(0, 0, 0, 0.65);
-        display: flex; flex-direction: column; gap: .28rem;
-      }
-      #adminQuickMenu[hidden] { display: none !important; }
-      #adminQuickMenu button {
-        width: 100%; display: flex; align-items: center; gap: .6rem; padding: .58rem .85rem;
-        border-radius: .85rem; font-size: .82rem; font-weight: 800; color: var(--dark-text); text-align: left; cursor: pointer;
-      }
-      #adminQuickMenu button:hover { background: var(--dark-elev); color: var(--gold); }
-      #adminQuickMenu button.is-return-admin { background: var(--gold); color: #0b0e14; margin-top: .15rem; }
-      .admin-fab-pill {
-        height: 44px; padding: 0 15px; border-radius: 9999px;
-        background: linear-gradient(135deg, #0b0e14 0%, #1e2433 100%);
-        border: 1.5px solid var(--gold); color: #ffffff; font-size: 13px; font-weight: 800;
-        display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
-      }
-      .admin-fab-back {
-        height: 44px; padding: 0 14px; border-radius: 9999px; background: var(--gold); border: none;
-        color: #0b0e14; font-size: 12.5px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
-      }
-
-      .preview-floating-right {
-        position: fixed; right: 18px; bottom: 18px; z-index: 46;
-        display: none; flex-direction: column; align-items: flex-end; gap: .55rem;
-      }
-      body.sjs-admin.sjs-customer-preview .preview-floating-right { display: flex; }
-      .preview-cart-fab {
-        padding: .72rem 1.15rem; border-radius: 9999px; background: var(--gold); color: #0b0e14;
-        font-size: .85rem; font-weight: 800; box-shadow: 0 12px 28px rgba(245, 183, 0, 0.35); cursor: pointer;
-      }
-      .preview-wa-fab {
-        padding: .68rem 1.1rem; border-radius: 9999px; background: #16a34a; color: #ffffff;
-        font-size: .84rem; font-weight: 800; text-decoration: none; display: inline-flex; align-items: center; gap: .45rem;
-      }
-
-      /* Admin Hover Quick Actions on Product Cards */
-      #viewCatalog .catalog-card { position: relative; }
-      .admin-card-hover-bar {
-        display: none; position: absolute; top: .6rem; left: .6rem; right: .6rem; z-index: 8;
-        background: rgba(11, 14, 20, 0.92); backdrop-filter: blur(8px);
-        border: 1.5px solid var(--gold); border-radius: .95rem; padding: .35rem;
-        grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .28rem;
-      }
-      body.sjs-admin.sjs-customer-preview #viewCatalog .catalog-card:hover .admin-card-hover-bar,
-      body.sjs-admin.sjs-customer-preview #viewCatalog .catalog-card:focus-within .admin-card-hover-bar { display: grid; }
-      .admin-card-hover-bar button {
-        padding: .38rem .2rem; border-radius: .65rem; background: var(--dark-elev);
-        color: #f8fafc; font-size: .7rem; font-weight: 800; cursor: pointer; text-align: center;
-      }
-      .admin-card-hover-bar button:hover { background: var(--gold); color: #0b0e14; }
-      @media (pointer: coarse) {
-        body.sjs-admin.sjs-customer-preview #viewCatalog .admin-card-hover-bar { display: grid; }
-      }
-
-      #viewCatalog .catalog-search-form input {
-        min-height: 52px !important;
-        font-size: 16px !important;
-        border-width: 2px !important;
-      }
-
-      /* Dark Surfaces */
-      .workspace-heading, .workspace-record, .sjs-chart-card, .sjs-chart-card.is-dark,
-      .sjs-ratio-card, .kledo-card, .bento-pastel-card, .pos-catalog-pane, .pos-stat-card,
-      .pos-cart-item-card, .pos-fav-pro-card, .catalog-toolbar, .catalog-card, .howto-card,
-      .shop-location, .quick-cat-btn, .checkout-totals, body.sjs-admin .pos-cart-sticky,
-      .shop-main .bg-white, dialog .bg-white, .fixed .bg-white {
-        background: var(--dark-card) !important;
-        border-color: var(--dark-border) !important;
-        color: var(--dark-text) !important;
-      }
-
-      .uikit-row, .bento-pill-track, .pos-cash-box, .pos-received-frame,
-      .shop-main .bg-slate-50, .shop-main .bg-slate-50\/70, .shop-main .bg-slate-50\/80, .shop-main .bg-slate-100,
-      dialog .bg-slate-50, dialog .bg-slate-50\/70, dialog .bg-slate-50\/80, dialog .bg-slate-100,
-      .fixed .bg-slate-50, .fixed .bg-slate-100, .item-edit-drawer {
-        background: var(--dark-elev) !important;
-        border-color: var(--dark-border) !important;
-        color: var(--dark-text) !important;
-      }
-
-      .shop-main .bg-blue-50, .shop-main .bg-blue-50\/40, .shop-main .bg-blue-50\/60, .shop-main .bg-blue-50\/70, .shop-main .bg-blue-100, dialog .bg-blue-50, dialog .bg-blue-100 {
-        background: rgba(37, 99, 235, 0.14) !important; border-color: rgba(96, 165, 250, 0.32) !important; color: #dbeafe !important;
-      }
-      .shop-main .bg-amber-50, .shop-main .bg-amber-50\/40, .shop-main .bg-amber-100, dialog .bg-amber-50, dialog .bg-amber-100 {
-        background: rgba(245, 183, 0, 0.13) !important; border-color: rgba(245, 183, 0, 0.38) !important; color: var(--gold-soft) !important;
-      }
-      .shop-main .bg-emerald-50, .shop-main .bg-emerald-100, dialog .bg-emerald-50, dialog .bg-emerald-100, .fixed .bg-emerald-50 {
-        background: rgba(16, 185, 129, 0.14) !important; border-color: rgba(52, 211, 153, 0.35) !important; color: #a7f3d0 !important;
-      }
-      .shop-main .bg-rose-50, .shop-main .bg-rose-50\/20, .shop-main .bg-rose-50\/80, .shop-main .bg-rose-100, dialog .bg-rose-50, dialog .bg-rose-100, dialog .bg-red-50 {
-        background: rgba(225, 29, 72, 0.15) !important; border-color: rgba(251, 113, 133, 0.38) !important; color: #fecdd3 !important;
-      }
-      .shop-main .bg-sky-50, .shop-main .bg-sky-100 { background: rgba(14, 165, 233, 0.15) !important; border-color: rgba(56, 189, 248, 0.35) !important; color: #bae6fd !important; }
-      .shop-main .bg-purple-50, .shop-main .bg-purple-100 { background: rgba(147, 51, 234, 0.16) !important; border-color: rgba(192, 132, 252, 0.35) !important; color: #e9d5ff !important; }
-
-      .workspace-heading h2, .workspace-section-title, .kledo-card-val, .pos-stat-val,
-      .catalog-heading h2, .howto-card h3, .shop-location h2, .uikit-row-val, .pos-fav-pro-name,
-      .sjs-chart-card.is-dark .workspace-section-title,
-      .shop-main .text-slate-950, .shop-main .text-slate-900, .shop-main .text-slate-800, .shop-main .text-indigo-950,
-      dialog .text-slate-950, dialog .text-slate-900, dialog .text-slate-800, .fixed .text-slate-900, .fixed .text-slate-800 {
-        color: var(--dark-text) !important;
-      }
-      .shop-main .text-slate-700, .shop-main .text-slate-600, dialog .text-slate-700, dialog .text-slate-600,
-      .fixed .text-slate-700, .fixed .text-slate-600, .uikit-row-label, .sjs-ratio-legend { color: #cbd5e1 !important; }
-      .shop-main .text-slate-500, .shop-main .text-slate-400, dialog .text-slate-500, dialog .text-slate-400,
-      .kledo-card-title, .kledo-card-sub, .sjs-chart-sub, .catalog-card-description, .howto-card p, .shop-location address {
-        color: var(--dark-muted) !important;
-      }
-      .shop-main .text-blue-950, .shop-main .text-blue-900, .shop-main .text-blue-800, .shop-main .text-blue-700,
-      dialog .text-blue-950, dialog .text-blue-900, dialog .text-blue-800, dialog .text-blue-700 { color: #93c5fd !important; }
-      .shop-main .text-emerald-950, .shop-main .text-emerald-900, .shop-main .text-emerald-800, .shop-main .text-emerald-700,
-      dialog .text-emerald-900, dialog .text-emerald-800, dialog .text-emerald-700 { color: var(--emerald) !important; }
-      .shop-main .text-amber-950, .shop-main .text-amber-900, .shop-main .text-amber-800, .shop-main .text-amber-700,
-      dialog .text-amber-950, dialog .text-amber-900 { color: var(--gold) !important; }
-      .shop-main .text-rose-950, .shop-main .text-rose-900, .shop-main .text-rose-800, .shop-main .text-rose-700,
-      .shop-main .text-red-600, dialog .text-rose-900, dialog .text-rose-800, dialog .text-rose-700, dialog .text-red-600 { color: var(--rose) !important; }
-      .shop-main .text-sky-900, .shop-main .text-sky-800 { color: #7dd3fc !important; }
-      .shop-main .text-purple-900, .shop-main .text-purple-800 { color: #d8b4fe !important; }
-
-      .shop-main .border-slate-100, .shop-main .border-slate-200, .shop-main .border-slate-300,
-      .shop-main .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
-      .shop-main .divide-slate-200 > :not([hidden]) ~ :not([hidden]),
-      dialog .border-slate-100, dialog .border-slate-200, dialog .border-slate-300,
-      .fixed .border-slate-100, .fixed .border-slate-200 { border-color: var(--dark-border) !important; }
-
-      input:not([type="checkbox"]):not([type="radio"]), select, textarea, .pos-shopify-search, .catalog-search-form input {
-        background: var(--dark-bg) !important; color: var(--dark-text) !important; border-color: var(--dark-border-strong) !important;
-      }
-      input::placeholder, textarea::placeholder { color: #64748b !important; }
-      input:focus, select:focus, textarea:focus { border-color: var(--gold) !important; box-shadow: 0 0 0 3px rgba(245, 183, 0, 0.16) !important; }
-      .pos-received-legend { background: var(--dark-card) !important; color: var(--dark-muted) !important; }
-      #posCashReceivedInput { background: transparent !important; color: var(--dark-text) !important; border: none !important; box-shadow: none !important; }
-
-      #viewKasir table thead th, #viewInventory table thead th, #viewBooks table thead th, #stockCardDialog table thead th, table thead tr {
-        background: var(--dark-elev) !important; color: #cbd5e1 !important; border-color: var(--dark-border) !important;
-      }
-      #viewKasir table tbody tr:nth-child(even), #viewInventory table tbody tr:nth-child(even), #viewBooks table tbody tr:nth-child(even) {
-        background: rgba(255, 255, 255, 0.02) !important;
-      }
-      #viewKasir table tbody tr:hover, #viewInventory table tbody tr:hover, #viewBooks table tbody tr:hover {
-        background: rgba(245, 183, 0, 0.07) !important;
-      }
-      .inv-sort-btn { color: #cbd5e1 !important; }
-      .inv-sort-btn:hover, .inv-sort-btn.is-active { background: rgba(245, 183, 0, 0.16) !important; color: var(--gold) !important; }
-
-      .pos-hdr-badge { background: var(--dark-elev) !important; border-color: var(--dark-border-strong) !important; color: var(--dark-text) !important; }
-      .pos-hdr-badge strong { color: var(--gold) !important; }
-      .pos-hdr-badge.pos-hdr-warn { background: rgba(225, 29, 72, 0.18) !important; border-color: rgba(251, 113, 133, 0.45) !important; color: #fda4af !important; }
-      .pos-fav-pro-card:hover { border-color: var(--gold) !important; background: var(--dark-elev) !important; }
-      .pos-fav-pro-price { color: var(--gold) !important; }
-      body.sjs-admin #posTotalPayHeroBox { background: linear-gradient(135deg, #0b0e14 0%, #172033 100%) !important; border: 1.5px solid var(--gold) !important; }
-      body.sjs-admin .pos-exact-seg .pay-option-btn { background: var(--dark-elev) !important; border-color: var(--dark-border-strong) !important; color: var(--dark-text) !important; }
-      body.sjs-admin .pos-exact-seg .pay-option-btn:hover { border-color: var(--gold) !important; color: var(--gold) !important; }
-      body.sjs-admin .pos-exact-seg .pay-option-btn[aria-pressed="true"] { background: var(--gold) !important; color: #0b0e14 !important; border-color: var(--gold) !important; }
-      body.sjs-admin .pos-exact-numpad .pos-num-btn { background: var(--dark-elev) !important; border-color: var(--dark-border-strong) !important; color: var(--dark-text) !important; }
-      body.sjs-admin .pos-exact-numpad .pos-num-btn:hover { background: var(--dark-hover) !important; border-color: var(--gold) !important; color: var(--gold) !important; }
-      body.sjs-admin .pos-exact-numpad .pos-cash-pill { background: var(--dark-surface) !important; border-color: var(--dark-border-strong) !important; color: #cbd5e1 !important; }
-      body.sjs-admin .pos-exact-numpad .pos-cash-pill:hover { background: var(--gold) !important; border-color: var(--gold) !important; color: #0b0e14 !important; }
-      body.sjs-admin .pos-exact-numpad .pos-cash-pill[data-cash-exact] { background: rgba(245, 183, 0, 0.16) !important; border-color: var(--gold) !important; color: var(--gold) !important; }
-      body.sjs-admin #posCashChangeBox.is-idle { background: var(--dark-bg) !important; border-color: var(--dark-border) !important; }
-      body.sjs-admin #posCashChangeBox.is-idle span { color: var(--dark-muted) !important; }
-      body.sjs-admin #posCashChangeBox.is-idle strong { color: var(--dark-text) !important; }
-      body.sjs-admin #posCashChangeBox.is-change { background: rgba(16, 185, 129, 0.18) !important; border-color: #10b981 !important; }
-      body.sjs-admin #posCashChangeBox.is-change span { color: #6ee7b7 !important; }
-      body.sjs-admin #posCashChangeBox.is-change strong { color: #34d399 !important; }
-      body.sjs-admin #posCashChangeBox.is-short { background: rgba(225, 29, 72, 0.18) !important; border-color: #f43f5e !important; }
-      body.sjs-admin #posCashChangeBox.is-short span { color: #fda4af !important; }
-      body.sjs-admin #posCashChangeBox.is-short strong { color: #fb7185 !important; }
-      body.sjs-admin #posSaveActionsSticky { background: var(--dark-card) !important; border-top-color: var(--dark-border) !important; }
-      body.sjs-admin #btnSaveAndPrintTx { background: var(--gold) !important; color: #0b0e14 !important; border-color: var(--gold) !important; }
-      body.sjs-admin #btnSaveAndPrintTx i { color: #0b0e14 !important; }
-      body.sjs-admin #btnSaveTx { background: var(--dark-elev) !important; border-color: var(--dark-border-strong) !important; color: var(--dark-text) !important; }
-      body.sjs-admin #btnSaveTx:hover:not(:disabled) { background: var(--dark-hover) !important; border-color: var(--gold) !important; color: var(--gold) !important; }
-      body.sjs-admin #btnSaveTx:disabled, body.sjs-admin #btnSaveTx.is-disabled { background: var(--dark-surface) !important; border-color: var(--dark-border) !important; color: #64748b !important; }
-      .pos-svc-chip { background: var(--dark-card) !important; border-color: var(--dark-border-strong) !important; color: #e2e8f0 !important; }
-      .pos-svc-chip:hover { border-color: var(--gold) !important; color: var(--gold) !important; }
-      .btn-inline-minus, .btn-inline-plus, .btn-drawer-minus, .btn-drawer-plus { background: var(--dark-elev) !important; color: var(--dark-text) !important; }
-      .item-inline-qty, .item-drawer-qty { color: var(--dark-text) !important; border-color: var(--dark-border-strong) !important; }
-
-      .shop-button-primary { background: var(--gold) !important; color: #0b0e14 !important; border: none !important; box-shadow: 0 6px 16px rgba(245, 183, 0, 0.22) !important; }
-      .shop-button-secondary { background: var(--dark-elev) !important; color: var(--dark-text) !important; border: 1px solid var(--dark-border-strong) !important; }
-      .shop-button-secondary:hover:not(:disabled) { background: var(--dark-hover) !important; border-color: var(--gold) !important; }
-      .sjs-chart-pill { background: var(--dark-elev) !important; border-color: var(--dark-border-strong) !important; color: var(--gold) !important; }
-      .uikit-bar-track, .sjs-ratio-track { background: var(--dark-bg) !important; border-color: var(--dark-border) !important; }
-      .stock-indicator { background: rgba(16, 185, 129, 0.16) !important; color: var(--emerald) !important; }
-      .stock-indicator.is-low { background: rgba(245, 183, 0, 0.16) !important; color: var(--gold) !important; }
-      .stock-indicator.is-empty { background: rgba(225, 29, 72, 0.18) !important; color: var(--rose) !important; }
-
-      .sjs-chart-card svg text[fill="#0f2557"], .kledo-card svg text[fill="#0f2557"],
-      .sjs-chart-card svg text[fill="#334155"], .sjs-chart-card svg text[fill="#475569"] { fill: #e2e8f0 !important; }
-      .sjs-chart-card svg text[fill="#64748b"], .kledo-card svg text[fill="#64748b"] { fill: #94a3b8 !important; }
-      .sjs-chart-card svg text[fill="#1d4ed8"] { fill: #60a5fa !important; }
-      .sjs-chart-card svg text[fill="#b45309"] { fill: #facc15 !important; }
-      .sjs-chart-card svg circle[stroke="#f1f5f9"], .sjs-chart-card svg path[stroke="#f1f5f9"],
-      .sjs-chart-card svg line[stroke="#e2e8f0"], .sjs-chart-card svg line[stroke="#cbd5e1"],
-      .sjs-chart-card svg line[stroke="#f1f5f9"], .kledo-card svg line[stroke="#e2e8f0"] { stroke: #262d3d !important; }
-      .sjs-chart-card svg circle[stroke="#e2e8f0"] { stroke: #334155 !important; }
-      .sjs-chart-card svg rect[fill="#f1f5f9"] { fill: #1e2433 !important; }
-
-      #viewCatalog .catalog-card-photo-wrap { padding: 0 !important; background: var(--dark-bg) !important; border-bottom: 1px solid var(--dark-border) !important; }
-      #viewCatalog .catalog-card-photo { aspect-ratio: 1 / 1 !important; border-radius: 0 !important; background: var(--dark-bg) !important; }
-      #viewCatalog .catalog-card-photo img { background: var(--dark-bg) !important; object-fit: cover !important; }
-      #viewCatalog .catalog-card-meta { background: var(--dark-elev) !important; color: var(--dark-muted) !important; }
-      #viewCatalog .catalog-card-price { color: var(--gold) !important; }
-      #viewCatalog .catalog-stock { background: rgba(16, 185, 129, 0.15) !important; color: var(--emerald) !important; }
-      #viewCatalog .catalog-categories label span { background: var(--dark-elev) !important; color: #cbd5e1 !important; }
-      #viewCatalog .catalog-categories label input:checked + span { background: var(--gold) !important; color: #0b0e14 !important; }
-      #viewCatalog .quick-cat-btn.is-active { background: linear-gradient(135deg, #1b2232, #0f172a) !important; border-color: var(--gold) !important; }
-      #viewCatalog .quick-cat-btn.is-active strong { color: var(--gold) !important; }
-      #viewCatalog .quick-cat-btn .quick-cat-icon { background: var(--dark-elev) !important; color: var(--gold) !important; }
-      #viewCatalog .senar-service-note { background: rgba(245, 183, 0, 0.12) !important; border-color: rgba(245, 183, 0, 0.35) !important; color: var(--gold-soft) !important; }
-
-      dialog, .workspace-dialog, #sjsAiBox { background: var(--dark-card) !important; border-color: var(--dark-border-strong) !important; color: var(--dark-text) !important; }
-      .workspace-dialog-heading, #sjsAiBox > div:first-child { background: linear-gradient(135deg, #0b0e14, #172033) !important; border-bottom: 1.5px solid var(--gold) !important; }
-      #invEntryFooter { background: var(--dark-card) !important; border-top-color: var(--dark-border) !important; }
-      #sjsAssistantShortcuts { background: var(--dark-surface) !important; border-bottom-color: var(--dark-border) !important; }
-      #sjsAiChatLog { background: var(--dark-bg) !important; }
-      #sjsAiChatLog > div.bg-white { background: var(--dark-elev) !important; border-color: var(--dark-border-strong) !important; color: var(--dark-text) !important; }
-      #sjsAssistantForm { background: var(--dark-card) !important; border-top-color: var(--dark-border) !important; }
-      #sjsAiSendBtn { background: var(--gold) !important; color: #0b0e14 !important; }
-
-      .shop-footer { background: #07090e !important; border-top-color: var(--dark-border) !important; color: var(--dark-muted) !important; }
-      .shop-footer strong { color: var(--dark-text) !important; }
-
-      #qrisCodeCanvas, #invCodeQrPreview, #niimbotPreviewCanvas { background: #ffffff !important; }
+    /* === CUSTOMER PREVIEW MODE & ADMIN QUICK ACTIONS === */
+    .sjs-preview-banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: .65rem;
+      background: linear-gradient(90deg, #0f172a 0%, #142850 100%);
+      border: 1.5px solid #f5b700;
+      border-radius: 1.25rem;
+      padding: .65rem 1rem;
+      color: #ffffff;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, .16);
     }
+    body.sjs-admin.sjs-customer-preview .sjs-preview-banner {
+      display: flex;
+    }
+    body.sjs-admin.sjs-customer-preview #mainNavigation,
+    body.sjs-admin.sjs-customer-preview #adminPastelMenu,
+    body.sjs-admin.sjs-customer-preview #sjsAiFab,
+    body.sjs-admin.sjs-customer-preview #sjsAiBox {
+      display: none !important;
+    }
+    body.sjs-admin.sjs-customer-preview .shop-main {
+      padding-left: 1.25rem !important;
+      padding-right: 1.25rem !important;
+    }
+    body.sjs-admin.sjs-customer-preview .shop-header-actions .shop-status,
+    body.sjs-admin.sjs-customer-preview .shop-header-actions .tablet-toggle-btn {
+      display: none;
+    }
+    body.sjs-admin.sjs-customer-preview .shop-header-actions:hover .shop-status,
+    body.sjs-admin.sjs-customer-preview .shop-header-actions:hover .tablet-toggle-btn {
+      display: inline-flex;
+    }
+    .sjs-admin-menu-fab {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      z-index: 42;
+    }
+    body.sjs-admin.sjs-customer-preview .sjs-admin-menu-fab {
+      display: block;
+    }
+    .sjs-sticky-cart-fab {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 41;
+      background: linear-gradient(135deg, #0f172a 0%, #142850 100%);
+      color: #ffffff;
+      border: 1.5px solid #f5b700;
+      border-radius: 9999px;
+      padding: .75rem 1.2rem;
+      font-size: .85rem;
+      font-weight: 800;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, .28);
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      cursor: pointer;
+    }
+    .sjs-sticky-cart-fab i { color: #f5b700; }
+    .catalog-card-admin-hover {
+      display: none;
+      position: absolute;
+      left: .55rem;
+      right: .55rem;
+      bottom: .55rem;
+      z-index: 4;
+      gap: .35rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      background: rgba(15, 23, 42, .88);
+      backdrop-filter: blur(4px);
+      padding: .35rem;
+      border-radius: .85rem;
+      opacity: 0;
+      transition: opacity .15s ease;
+    }
+    body.sjs-admin .catalog-card-photo-wrap:hover .catalog-card-admin-hover,
+    body.sjs-admin .catalog-card-photo-wrap:focus-within .catalog-card-admin-hover {
+      display: flex;
+      opacity: 1;
+    }
+    .catalog-card-admin-hover button {
+      padding: .28rem .5rem;
+      border-radius: .55rem;
+      font-size: .7rem;
+      font-weight: 800;
+      background: #ffffff;
+      color: #0f172a;
+      border: 0;
+      cursor: pointer;
+    }
+    .catalog-card-admin-hover button.is-featured {
+      background: #f5b700;
+      color: #0f172a;
+    }
+    .catalog-card-admin-hover button:hover {
+      background: #f5b700;
+      color: #0f172a;
+    }
+    .sjs-local-store-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .3rem;
+      font-size: .7rem;
+      font-weight: 800;
+      color: #065f46;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      border-radius: 9999px;
+      padding: .18rem .55rem;
+    }
+
+
+    /* === TEMA HITAM PEKAT & EMAS SENADA FRONTPAGE (ADMIN) === */
+    body.sjs-admin {
+      background:
+        radial-gradient(circle at 15% 0%, rgba(24, 24, 27, 0.14), transparent 40%),
+        radial-gradient(circle at 92% 8%, rgba(250, 204, 21, 0.14), transparent 30%),
+        #f4f4f5 !important;
+      color: #090d16;
+    }
+    body.sjs-admin .shop-header {
+      background: linear-gradient(90deg, #05070c 0%, #111318 100%) !important;
+      border-bottom: 2px solid #facc15 !important;
+    }
+    body.sjs-admin .shop-owner-button {
+      background: #111827 !important;
+      color: #facc15 !important;
+      border: 1.5px solid #facc15 !important;
+    }
+    body.sjs-admin .shop-status,
+    body.sjs-admin .shop-date {
+      background: #18181b !important;
+      color: #f4f4f5 !important;
+      border: 1.5px solid #3f3f46 !important;
+    }
+    @media (min-width: 768px) {
+      body.sjs-admin #mainNavigation:not([hidden]) {
+        background: linear-gradient(180deg, #05070c 0%, #0e1015 55%, #16181d 100%) !important;
+        border-right: 2px solid #facc15 !important;
+      }
+    }
+    body.sjs-admin #mainNavigation button[data-workspace][aria-current="page"] {
+      background: linear-gradient(135deg, #facc15, #eab308) !important;
+      color: #05070c !important;
+      border-color: #fef08a !important;
+    }
+    body.sjs-admin #mainNavigation button[data-workspace][aria-current="page"] i {
+      color: #05070c !important;
+    }
+    body.sjs-admin .pos-cat-tab.is-active {
+      background: #090d16 !important;
+      color: #facc15 !important;
+      border-color: #090d16 !important;
+    }
+    body.sjs-admin .pos-card-price {
+      color: #090d16 !important;
+    }
+    body.sjs-admin #posTotalPayHeroBox {
+      background: linear-gradient(135deg, #05070c 0%, #111318 100%) !important;
+      border: 1.5px solid #facc15 !important;
+    }
+    body.sjs-admin #btnSaveAndPrintTx {
+      background: linear-gradient(135deg, #05070c 0%, #18181b 100%) !important;
+      border: 1.5px solid #facc15 !important;
+      color: #facc15 !important;
+    }
+    body.sjs-admin #btnSaveAndPrintTx i {
+      color: #facc15 !important;
+    }
+
+
+    /* === FRONTPAGE HERO & KATALOG HITAM-EMAS === */
+    .quick-cat-btn.is-active {
+      background: linear-gradient(135deg,#05070c,#18181b) !important;
+      border-color: #facc15 !important;
+      color: #facc15 !important;
+    }
+    .catalog-categories label input:checked + span {
+      background: linear-gradient(135deg,#05070c,#18181b) !important;
+      color: #facc15 !important;
+    }
+
+
+    .sjs-brand-landing {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: .75rem;
+      background: linear-gradient(125deg, #05070c 0%, #111827 65%, #1f2937 100%);
+      border: 1.5px solid #facc15;
+      border-radius: 1.35rem;
+      padding: 1rem 1.25rem;
+      color: #ffffff;
+      box-shadow: 0 12px 26px rgba(5, 7, 12, .22);
+    }
+    .sjs-brand-landing.is-open { display: flex; }
+    .sjs-owner-cat-kpi {
+      display: none;
+      grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+      gap: .6rem;
+    }
+    body.sjs-admin .sjs-owner-cat-kpi { display: grid; }
+
   </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
@@ -2950,7 +2693,7 @@
       <button type="button" id="tabBtnBooks" data-workspace="books" aria-controls="viewBooks"><i class="fa-solid fa-book" aria-hidden="true"></i><span>Pembukuan</span></button>
       <button type="button" id="tabBtnAllReports" data-workspace="reports" aria-controls="viewAllReports"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i><span>Semua Laporan</span></button>
       <button type="button" id="tabBtnBackup" data-workspace="backup" aria-controls="viewBackup"><i class="fa-solid fa-database" aria-hidden="true"></i><span>Cadangan data</span></button>
-      <button type="button" id="tabBtnCatalog" data-workspace="catalog" aria-controls="viewCatalog" aria-current="page"><i class="fa-solid fa-store" aria-hidden="true"></i><span>Mode Pelanggan</span></button>
+      <button type="button" id="tabBtnCatalog" data-workspace="catalog" aria-controls="viewCatalog" aria-current="page"><i class="fa-solid fa-store" aria-hidden="true"></i><span>Lihat Tampilan User</span></button>
     </nav>
 
     <section id="adminPastelMenu" hidden class="sjs-pastel-menu-card no-print" aria-label="Menu cepat admin">
@@ -3121,36 +2864,20 @@
 
     <!-- KATALOG PUBLIK -->
     <section id="viewCatalog" class="flex flex-col gap-7">
-      <div id="customerPreviewBanner" hidden class="customer-preview-banner no-print" role="region" aria-label="Indikator Pratinjau Pelanggan">
-        <div class="flex flex-wrap items-center gap-2">
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-extrabold">👁 Preview Pelanggan</span>
-          <span class="preview-stat-pill"><strong id="previewStatProducts">0</strong> Produk</span>
-          <span class="preview-stat-pill"><strong id="previewStatCart">0</strong> Keranjang</span>
-          <span class="preview-stat-pill text-amber-300">Admin View</span>
+      <div id="customerPreviewBanner" class="sjs-preview-banner no-print" role="status">
+        <div class="flex flex-wrap items-center gap-2 text-xs font-extrabold">
+          <span class="px-2.5 py-1 rounded-full bg-amber-400 text-slate-950 font-black">👁 Tampilan User (Pelanggan)</span>
+          <span id="previewStatProducts" class="px-2.5 py-1 rounded-full bg-white/10 text-white tabular-nums">0 Produk</span>
+          <span id="previewStatCart" class="px-2.5 py-1 rounded-full bg-white/10 text-white tabular-nums">0 Keranjang</span>
+          <span class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/40">Sesi Admin Tetap Aktif</span>
         </div>
-        <div class="flex items-center gap-2">
-          <div class="system-bar-wrap" id="systemBarWrap">
-            <button type="button" id="btnToggleSystemBar" class="system-bar-trigger" aria-label="Status Sistem Admin">
-              <span>⚙ System Bar</span>
-            </button>
-            <div class="system-bar-popover" role="region" aria-label="Info Sistem">
-              <div class="flex items-center justify-between text-xs font-bold text-emerald-400">
-                <span><i class="fa-solid fa-unlock-keyhole mr-1" aria-hidden="true"></i> Admin Aktif</span>
-                <span id="sysBarCloudText" class="text-[11px] text-slate-300">Cloud Online</span>
-              </div>
-              <button type="button" id="btnSysBarTablet" class="w-full py-1.5 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-left text-xs font-bold text-amber-300">
-                <i class="fa-solid fa-tablet-screen-button mr-1.5" aria-hidden="true"></i><span id="sysBarTabletText">Mode Tablet</span>
-              </button>
-              <button type="button" id="btnSysBarAuthModal" class="w-full py-1.5 px-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-left text-xs font-bold text-slate-200">
-                <i class="fa-solid fa-key mr-1.5" aria-hidden="true"></i>Pengaturan Akun Pemilik
-              </button>
-            </div>
-          </div>
-          <button type="button" id="btnBannerBackToAdmin" class="shop-button shop-button-primary !min-h-9 !py-1.5 !px-3.5 !text-xs">
-            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Kembali ke Admin
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" id="btnBackToAdminFromPreview" class="px-3.5 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black inline-flex items-center gap-1.5 cursor-pointer">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Masuk Kembali ke Admin
           </button>
         </div>
       </div>
+
       <div class="shop-hero">
         <div class="shop-hero-content">
           <p class="shop-eyebrow"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> Tanjung Redeb, Berau · Stok Real-Time</p>
@@ -3167,7 +2894,7 @@
             <a class="shop-button shop-button-outline" href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer"><i class="fa-brands fa-whatsapp text-emerald-300" aria-hidden="true"></i> Chat WhatsApp</a>
           </div>
         </div>
-        <div class="hero-feature-grid" aria-label="Pilih kategori cepat">
+        <div class="hero-feature-grid" aria-label="Kategori Unggulan" title="Kategori Unggulan">
           <button type="button" class="hero-feature-card" data-quick-cat="badminton">
             <i class="fa-solid fa-feather-pointed" aria-hidden="true"></i>
             <strong>Badminton</strong>
@@ -3191,51 +2918,62 @@
         </div>
       </div>
 
-      <section id="brand-pilihan" class="brand-showcase-section flex flex-col gap-3.5" aria-labelledby="brandShowcaseTitle">
+            <section id="terlaris-minggu-ini" class="flex flex-col gap-3" aria-labelledby="bestSellerWeekTitle">
         <div class="catalog-heading">
-          <div>
-            <h2 id="brandShowcaseTitle">🏷️ Cari Berdasarkan Brand Resmi</h2>
-            <span class="text-xs font-bold text-slate-400">Klik logo brand untuk langsung menyaring produk merek tersebut</span>
-          </div>
-          <button type="button" id="btnResetBrandFilter" class="hidden text-xs font-extrabold text-amber-300 hover:underline">✕ Tampilkan semua brand</button>
+          <h2 id="bestSellerWeekTitle">🔥 Terlaris Minggu Ini</h2>
+          <span class="text-xs font-bold text-slate-500">4 produk pilihan &amp; terlaris minggu ini</span>
         </div>
-        <div id="brandLogoGrid" class="brand-logo-grid"></div>
+        <div id="bestSellerWeekGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5"></div>
       </section>
 
-      <section id="kategori-unggulan" class="flex flex-col gap-3" aria-label="Menu kategori cepat">
-        <div class="catalog-heading">
-          <h2>Pilih kategori</h2>
-          <span class="text-xs font-bold text-slate-500">Klik kategori untuk langsung menyaring produk</span>
+      <div id="ownerCatalogStatsStrip" class="sjs-owner-cat-kpi no-print" aria-label="Ringkasan pemilik katalog">
+        <div class="rounded-2xl bg-slate-950 text-white border border-amber-400/50 px-3.5 py-2.5">
+          <span class="block text-[10px] font-extrabold uppercase text-amber-300">Produk</span>
+          <strong id="ownerCatStatProducts" class="text-lg font-black tabular-nums">0</strong>
         </div>
-        <div class="quick-cat-grid" id="quickCatGrid">
-          <button type="button" class="quick-cat-btn is-active" data-quick-cat="all">
-            <span class="quick-cat-icon"><i class="fa-solid fa-border-all" aria-hidden="true"></i></span>
-            <div><strong>Semua Produk</strong><span>Lihat seluruh stok</span></div>
-          </button>
-          <button type="button" class="quick-cat-btn" data-quick-cat="badminton">
-            <span class="quick-cat-icon"><i class="fa-solid fa-feather-pointed" aria-hidden="true"></i></span>
-            <div><strong>Badminton</strong><span>Raket &amp; kok</span></div>
-          </button>
-          <button type="button" class="quick-cat-btn" data-quick-cat="ball">
-            <span class="quick-cat-icon"><i class="fa-solid fa-futbol" aria-hidden="true"></i></span>
-            <div><strong>Futsal &amp; Bola</strong><span>Bola &amp; sepatu</span></div>
-          </button>
-          <button type="button" class="quick-cat-btn" data-quick-cat="chess">
-            <span class="quick-cat-icon"><i class="fa-solid fa-chess" aria-hidden="true"></i></span>
-            <div><strong>Catur</strong><span>Papan &amp; set catur</span></div>
-          </button>
-          <button type="button" class="quick-cat-btn" data-quick-cat="music">
-            <span class="quick-cat-icon"><i class="fa-solid fa-music" aria-hidden="true"></i></span>
-            <div><strong>Musik</strong><span>Gitar &amp; aksesori</span></div>
-          </button>
-          <button type="button" class="quick-cat-btn" data-quick-cat="sport">
-            <span class="quick-cat-icon"><i class="fa-solid fa-dumbbell" aria-hidden="true"></i></span>
-            <div><strong>Olahraga Lainnya</strong><span>Perlengkapan umum</span></div>
-          </button>
+        <div class="rounded-2xl bg-slate-950 text-white border border-amber-400/50 px-3.5 py-2.5">
+          <span class="block text-[10px] font-extrabold uppercase text-amber-300">Brand</span>
+          <strong id="ownerCatStatBrands" class="text-lg font-black tabular-nums">0</strong>
         </div>
+        <div class="rounded-2xl bg-slate-950 text-white border border-amber-400/50 px-3.5 py-2.5">
+          <span class="block text-[10px] font-extrabold uppercase text-amber-300">Stok Menipis</span>
+          <strong id="ownerCatStatLow" class="text-lg font-black text-amber-400 tabular-nums">0</strong>
+        </div>
+        <div class="rounded-2xl bg-slate-950 text-white border border-amber-400/50 px-3.5 py-2.5">
+          <span class="block text-[10px] font-extrabold uppercase text-amber-300">Produk Kosong</span>
+          <strong id="ownerCatStatEmpty" class="text-lg font-black text-rose-400 tabular-nums">0</strong>
+        </div>
+        <div class="rounded-2xl bg-slate-950 text-white border border-amber-400/50 px-3.5 py-2.5">
+          <span class="block text-[10px] font-extrabold uppercase text-amber-300">Produk Unggulan</span>
+          <strong id="ownerCatStatFeatured" class="text-lg font-black text-emerald-400 tabular-nums">0</strong>
+        </div>
+      </div>
+
+<section id="brand-pilihan" class="rounded-2xl border border-amber-400/35 bg-[#0b0e14] p-4 space-y-3 shadow-lg" aria-labelledby="brandShowcaseTitle">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 id="brandShowcaseTitle" class="font-bold text-white">Cari Berdasarkan Brand Resmi</h2>
+            <p class="text-xs text-zinc-400">Klik logo brand untuk langsung menyaring produk merek tersebut</p>
+          </div>
+          <button type="button" id="btnResetBrandFilter" class="hidden text-xs font-extrabold text-amber-400 hover:underline">Tampilkan semua brand</button>
+        </div>
+        <div id="brandLogoGrid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-2.5"></div>
       </section>
+
+
 
       <section id="publicProductCatalog" class="flex flex-col gap-5" aria-labelledby="productCatalogTitle">
+        <div id="brandLandingBanner" class="sjs-brand-landing" role="region" aria-label="Landing Brand">
+          <div>
+            <span class="inline-block px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black uppercase">Brand Resmi</span>
+            <h3 id="brandLandingTitle" class="text-xl sm:text-2xl font-black mt-1">Produk Brand</h3>
+            <p id="brandLandingSub" class="text-xs text-zinc-300 font-semibold">0 produk tersedia</p>
+          </div>
+          <button type="button" id="btnCloseBrandLanding" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-amber-400/60 text-amber-300 text-xs font-extrabold cursor-pointer">
+            ← Semua Produk
+          </button>
+        </div>
+
         <div class="catalog-heading">
           <h2 id="productCatalogTitle">Katalog produk</h2>
           <button type="button" id="openCatalogCart" class="shop-button shop-button-primary" aria-haspopup="dialog">
@@ -3245,10 +2983,11 @@
         <div class="catalog-toolbar">
           <form id="catalogSearchForm" role="search" autocomplete="off" class="catalog-search-form">
             <label for="catalogSearch" class="sr-only">Cari produk katalog</label>
-            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-            <input type="search" id="catalogSearch" placeholder="🔍 Cari raket, senar, gitar, bola futsal, atau klik logo brand..." autocomplete="off" spellcheck="false">
+            <i class="fa-solid fa-magnifying-glass text-lg" aria-hidden="true"></i>
+            <input type="search" id="catalogSearch" placeholder="Cari Yonex, Li-Ning, senar, raket, bola futsal..." autocomplete="off" spellcheck="false" class="!py-4 !pl-12 !text-base sm:!text-lg !border-2 !border-amber-400/80 focus:!border-amber-500 !bg-white">
             <button type="button" id="btnClearCatalogSearch" class="hidden" aria-label="Hapus pencarian"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
           </form>
+
           <div class="catalog-filter-row">
             <fieldset id="catalogCategory" class="catalog-categories">
               <legend class="sr-only">Kategori produk</legend>
@@ -3270,10 +3009,11 @@
               <span id="catalogResultCount" aria-live="polite"></span>
             </div>
           </div>
+
         </div>
+        <div id="quickCatGrid" class="hidden"></div>
         <div id="productCatalogGrid" class="catalog-grid"><p class="catalog-empty" role="status">Katalog sedang dimuat…</p></div>
       </section>
-
       <section id="cara-pesan" class="flex flex-col gap-4" aria-labelledby="howToOrderTitle">
         <div class="catalog-heading">
           <h2 id="howToOrderTitle">Cara pesan mudah</h2>
@@ -4324,10 +4064,6 @@
               <label for="invDescription" class="block text-sm font-bold text-slate-800 mb-1">Deskripsi untuk pelanggan</label>
               <textarea id="invDescription" maxlength="400" rows="2" placeholder="Keterangan singkat produk yang tampil di katalog..." class="w-full rounded-xl border border-slate-300 px-3.5 py-2 placeholder:text-slate-400"></textarea>
             </div>
-            <label class="flex items-center gap-2.5 rounded-xl border border-amber-300 bg-amber-50 px-3.5 py-2.5 text-xs font-extrabold text-amber-950 cursor-pointer">
-              <input type="checkbox" id="invFeatured" class="h-4 w-4 accent-amber-500">
-              <span>⭐ Tampilkan sebagai Produk Unggulan (naik ke baris pertama katalog &amp; bagian Produk Unggulan)</span>
-            </label>
           </section>
 
           <!-- SECTION 2: MEDIA RINGKAS (PANEL PRATINJAU MUNCUL SAAT FOTO DIPILIH) -->
@@ -4710,35 +4446,6 @@
     <i class="fa-brands fa-whatsapp text-lg" aria-hidden="true"></i><span>Chat WhatsApp</span>
   </a>
 
-  <!-- FLOATING ADMIN DOCK POJOK KIRI BAWAH (SAAT MODE PELANGGAN AKTIF) -->
-  <div id="adminQuickDock" hidden class="no-print" aria-label="Menu cepat kembali ke admin">
-    <div id="adminQuickMenu" hidden role="menu">
-      <button type="button" data-quick-admin="kasir"><i class="fa-solid fa-cash-register text-amber-400 w-4 text-center" aria-hidden="true"></i><span>Kasir</span></button>
-      <button type="button" data-quick-admin="sales"><i class="fa-solid fa-chart-column text-amber-400 w-4 text-center" aria-hidden="true"></i><span>Penjualan</span></button>
-      <button type="button" data-quick-admin="inventory"><i class="fa-solid fa-boxes-stacked text-amber-400 w-4 text-center" aria-hidden="true"></i><span>Stok</span></button>
-      <button type="button" data-quick-admin="books"><i class="fa-solid fa-book text-amber-400 w-4 text-center" aria-hidden="true"></i><span>Pembukuan</span></button>
-      <button type="button" data-quick-admin="kasir" class="is-return-admin"><i class="fa-solid fa-arrow-left w-4 text-center" aria-hidden="true"></i><span>Kembali ke Admin</span></button>
-    </div>
-    <div class="flex items-center gap-2">
-      <button type="button" id="btnToggleAdminQuickDock" class="admin-fab-pill" aria-expanded="false" aria-controls="adminQuickMenu">
-        <span>⚙ Admin</span>
-      </button>
-      <button type="button" id="btnQuickBackToAdmin" class="admin-fab-back" title="Kembali ke Kasir Admin">
-        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i><span>Kembali ke Admin</span>
-      </button>
-    </div>
-  </div>
-
-  <!-- FLOATING KERANJANG & WA POJOK KANAN BAWAH (SAAT MODE PELANGGAN AKTIF) -->
-  <div class="preview-floating-right no-print">
-    <button type="button" id="previewFloatingCartBtn" class="preview-cart-fab">
-      🛒 Keranjang (<strong id="previewFloatingCartCount">0</strong>)
-    </button>
-    <a href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer" class="preview-wa-fab">
-      <i class="fa-brands fa-whatsapp text-base" aria-hidden="true"></i><span>💬 Chat WA</span>
-    </a>
-  </div>
-
   <!-- ASISTEN TOKO (LOKAL) -->
   <div id="sjsAiFab" class="no-print hidden">
     <button type="button" id="sjsAiToggleBtn" aria-label="Buka Asisten Toko" aria-expanded="false" aria-controls="sjsAiBox">
@@ -4780,6 +4487,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261128-1"></script>
+  <script type="module" src="./admin.js?v=20261128-8"></script>
 </body>
 </html>
