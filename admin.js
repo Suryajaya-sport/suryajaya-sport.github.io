@@ -1,6 +1,7 @@
-// admin.js - Katalog User dengan Sidebar Brand Vertikal (AVO & Finotti terpisah + No Brand)
+// admin.js (v2) - Halaman Admin POS & Katalog, Surya Jaya Sport
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, addDoc, updateDoc, doc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBFtI_lwLU7cDcioDE1GpgC0AjKPZ1mHag",
@@ -10,236 +11,343 @@ const firebaseConfig = {
   messagingSenderId: "501860315687",
   appId: "1:501860315687:web:3692f12c2b59a1e16d9402"
 };
+const OWNER_UID = "ijWilxxrxRabwOX7KcndkuqrBOw1";
 const WA_NUMBER = "6282320033333";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
-// AVO dan Finotti dipisah sebagai 2 merek berbeda
 const BRANDS = [
-  { id: "yonex", name: "Yonex", match: /\byonex\b/i },
-  { id: "lining", name: "Li-Ning", match: /\b(li-?ning|lining)\b/i },
-  { id: "victor", name: "Victor", match: /\bvictor\b/i },
-  { id: "hiqua", name: "Hiqua", match: /\b(hi-?qua|hiqua)\b/i },
-  { id: "flypower", name: "Flypower", match: /\bflypower\b/i },
-  { id: "astec", name: "Astec", match: /\bastec\b/i },
-  { id: "rs", name: "RS", match: /\b(rs|reinforce)\b/i },
-  { id: "hundred", name: "Hundred", match: /\bhundred\b/i },
-  { id: "powermax", name: "Powermax", match: /\bpower\s*max\b/i },
-  { id: "avo", name: "AVO", match: /\bavo\b/i },
-  { id: "finotti", name: "Finotti", match: /\bfinotti\b/i },
-  { id: "specs", name: "Specs", match: /\bspecs\b/i },
-  { id: "ortuseight", name: "Ortuseight", match: /\b(ortuseight|ortus)\b/i },
-  { id: "adidas", name: "Adidas", match: /\badidas\b/i },
-  { id: "nike", name: "Nike", match: /\bnike\b/i },
-  { id: "molten", name: "Molten", match: /\bmolten\b/i },
-  { id: "mikasa", name: "Mikasa", match: /\bmikasa\b/i },
-  { id: "mizuno", name: "Mizuno", match: /\bmizuno\b/i },
-  { id: "asics", name: "Asics", match: /\basics\b/i },
-  { id: "butterfly", name: "Butterfly", match: /\bbutterfly\b/i },
-  { id: "dhs", name: "DHS", match: /\b(dhs|double\s*happiness)\b/i },
-  { id: "nitaku", name: "Nitaku", match: /\b(nitaku|nittaku)\b/i },
-  { id: "donics", name: "Donics", match: /\b(donics?|donic)\b/i },
-  { id: "doublefish", name: "Double Fish", match: /\bdouble\s*fish\b/i },
-  { id: "yasaka", name: "Yasaka", match: /\byasaka\b/i },
-  { id: "tama", name: "TAMA", match: /\btama\b/i },
-  { id: "elixir", name: "Elixir", match: /\belixir\b/i }
+  { id: "yonex", name: "Yonex", cat: "Badminton", match: /\byonex\b/i },
+  { id: "lining", name: "Li-Ning", cat: "Badminton & Sport", match: /\b(li-?ning|lining)\b/i },
+  { id: "victor", name: "Victor", cat: "Badminton", match: /\bvictor\b/i },
+  { id: "hiqua", name: "Hiqua", cat: "Badminton", match: /\b(hi-?qua|hiqua)\b/i },
+  { id: "flypower", name: "Flypower", cat: "Badminton", match: /\bflypower\b/i },
+  { id: "astec", name: "Astec", cat: "Badminton", match: /\bastec\b/i },
+  { id: "rs", name: "RS", cat: "Reinforce Speed", match: /\b(rs|reinforce)\b/i },
+  { id: "butterfly", name: "Butterfly", cat: "Tenis Meja", match: /\bbutterfly\b/i },
+  { id: "dhs", name: "DHS", cat: "Double Happiness", match: /\b(dhs|double\s*happiness)\b/i },
+  { id: "nitaku", name: "Nitaku", cat: "Pingpong", match: /\b(nitaku|nittaku)\b/i },
+  { id: "donics", name: "Donics", cat: "Pingpong", match: /\b(donics?|donic)\b/i },
+  { id: "doublefish", name: "Double Fish", cat: "Tenis Meja", match: /\bdouble\s*fish\b/i },
+  { id: "specs", name: "Specs", cat: "Futsal & Bola", match: /\bspecs\b/i },
+  { id: "ortuseight", name: "Ortuseight", cat: "Futsal & Running", match: /\b(ortuseight|ortus)\b/i },
+  { id: "finotti", name: "Finotti", cat: "Sepatu & Futsal", match: /\b(finotti|avo)\b/i },
+  { id: "adidas", name: "Adidas", cat: "Sport & Futsal", match: /\badidas\b/i },
+  { id: "nike", name: "Nike", cat: "Sport & Futsal", match: /\bnike\b/i },
+  { id: "molten", name: "Molten", cat: "Bola Basket & Voli", match: /\bmolten\b/i },
+  { id: "mikasa", name: "Mikasa", cat: "Bola Voli & Sepak", match: /\bmikasa\b/i },
+  { id: "mizuno", name: "Mizuno", cat: "Badminton & Voli", match: /\bmizuno\b/i },
+  { id: "asics", name: "Asics", cat: "Sepatu & Voli", match: /\basics\b/i }
 ];
-const NO_BRAND = { id: "no-brand", name: "No Brand", match: null };
-const ALL_BRANDS = [...BRANDS, NO_BRAND];
+const OTHER_BRAND = { id: "none", name: "No Brand", cat: "Produk lainnya", match: null };
+const ALL_BRANDS = [...BRANDS, OTHER_BRAND];
 
-let RAW_PRODUCTS = [];
+let PRODUCTS = [];
 let selectedBrandId = "";
-const cart = new Map();
+let currentUser = null;
 
 const $ = id => document.getElementById(id);
-const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({
-  "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-}[c]));
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const rp = n => "Rp " + Number(n || 0).toLocaleString("id-ID");
 
-function detectBrandId(item) {
-  if (item.brand) {
-    const exact = ALL_BRANDS.find(b => b.name.toLowerCase() === String(item.brand).trim().toLowerCase());
-    if (exact) return exact.id;
-  }
-  const text = [item.name, item.code, item.description].filter(Boolean).join(" ");
-  const found = BRANDS.find(b => b.match.test(text));
-  return found ? found.id : "no-brand";
+// ---------- Notifikasi kecil ----------
+function toast(msg, ok = true) {
+  const t = document.createElement("div");
+  t.className = `fixed bottom-6 left-1/2 -translate-x-1/2 z-[60] px-4 py-2.5 rounded-xl text-sm font-bold shadow-lg ${ok ? "bg-amber-400 text-slate-950" : "bg-rose-600 text-white"}`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
 }
 
-// Gabungkan item varian yang memiliki nama produk & harga yang sama (misal SJS-033 & SJS-033-B)
-function getGroupedProducts() {
-  const hideZero = $("chkHideOutOfStock")?.checked !== false;
-  const map = new Map();
-  for (const p of RAW_PRODUCTS) {
-    const st = Number(p.stock || 0);
-    if (hideZero && st <= 0) continue;
-    const key = String(p.name || "").trim().toLowerCase() + "::" + Number(p.price || 0);
-    if (!map.has(key)) {
-      map.set(key, {
-        ...p,
-        totalStock: st,
-        variants: [{ id: p.id, code: p.code || "", size: p.size || "", color: p.color || "", stock: st }]
+// ---------- Modal sederhana ----------
+function openModal(title, bodyHtml, onMount) {
+  closeModal();
+  const wrap = document.createElement("div");
+  wrap.id = "sjsModal";
+  wrap.className = "fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4";
+  wrap.innerHTML = `<div class="w-full max-w-md rounded-2xl border border-amber-400/40 bg-[#0b0e14] p-5 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-black text-white">${esc(title)}</h3>
+        <button type="button" data-modal-close class="px-3 py-1.5 rounded-lg bg-zinc-800 text-xs font-bold text-white cursor-pointer">Tutup</button>
+      </div>
+      <div class="space-y-3">${bodyHtml}</div>
+    </div>`;
+  wrap.addEventListener("click", e => { if (e.target === wrap || e.target.closest("[data-modal-close]")) closeModal(); });
+  document.body.appendChild(wrap);
+  if (onMount) onMount(wrap);
+  return wrap;
+}
+function closeModal() { $("sjsModal")?.remove(); }
+
+const inputCls = "w-full rounded-xl bg-[#141821] border border-amber-400/25 px-3 py-2 text-sm text-white";
+const labelCls = "block text-xs font-bold text-amber-300 mb-1";
+const btnGold = "px-4 py-2 rounded-xl bg-amber-400 text-slate-950 text-sm font-black cursor-pointer";
+
+// ---------- Login pemilik ----------
+function openLogin() {
+  if (currentUser && currentUser.uid === OWNER_UID) {
+    toast("Anda sudah login sebagai pemilik.");
+    return;
+  }
+  openModal("Login Pemilik", `
+    <div><label class="${labelCls}">Email</label><input id="loginEmail" type="email" class="${inputCls}" autocomplete="username"></div>
+    <div><label class="${labelCls}">Kata sandi</label><input id="loginPass" type="password" class="${inputCls}" autocomplete="current-password"></div>
+    <p id="loginErr" class="text-xs text-rose-400 hidden"></p>
+    <div class="flex justify-end"><button type="button" id="btnDoLogin" class="${btnGold}">Masuk</button></div>
+  `, wrap => {
+    wrap.querySelector("#btnDoLogin").addEventListener("click", async () => {
+      const email = wrap.querySelector("#loginEmail").value.trim();
+      const pass = wrap.querySelector("#loginPass").value;
+      const err = wrap.querySelector("#loginErr");
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+        closeModal();
+        toast("Login berhasil.");
+      } catch (e) {
+        err.textContent = "Login gagal. Periksa email dan kata sandi.";
+        err.classList.remove("hidden");
+      }
+    });
+  });
+}
+
+function requireOwner(action) {
+  if (currentUser && currentUser.uid === OWNER_UID) { action(); return; }
+  toast("Login pemilik dulu untuk menggunakan fitur ini.", false);
+  openLogin();
+}
+
+// ---------- Aksi cepat ----------
+function actionAddProduct() {
+  requireOwner(() => {
+    openModal("Tambah Produk", `
+      <div><label class="${labelCls}">Nama barang *</label><input id="npName" class="${inputCls}"></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="${labelCls}">Kode</label><input id="npCode" class="${inputCls}" placeholder="SJS-xxx"></div>
+        <div><label class="${labelCls}">Brand</label>
+          <select id="npBrand" class="${inputCls}">
+            <option value="">No Brand</option>
+            ${BRANDS.map(b => `<option value="${esc(b.name)}">${esc(b.name)}</option>`).join("")}
+          </select></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="${labelCls}">Harga jual (Rp) *</label><input id="npPrice" type="number" min="0" class="${inputCls}"></div>
+        <div><label class="${labelCls}">Stok awal (pcs) *</label><input id="npStock" type="number" min="0" step="1" class="${inputCls}"></div>
+      </div>
+      <p id="npErr" class="text-xs text-rose-400 hidden"></p>
+      <div class="flex justify-end"><button type="button" id="npSave" class="${btnGold}">Simpan</button></div>
+    `, wrap => {
+      wrap.querySelector("#npSave").addEventListener("click", async () => {
+        const name = wrap.querySelector("#npName").value.trim();
+        const price = Number(wrap.querySelector("#npPrice").value);
+        const stock = Number(wrap.querySelector("#npStock").value);
+        const code = wrap.querySelector("#npCode").value.trim();
+        const brand = wrap.querySelector("#npBrand").value;
+        const err = wrap.querySelector("#npErr");
+        if (!name) return showErr(err, "Nama barang wajib diisi.");
+        if (!Number.isFinite(price) || price < 0) return showErr(err, "Harga jual harus angka 0 atau lebih.");
+        if (!Number.isInteger(stock) || stock < 0) return showErr(err, "Stok harus bilangan bulat 0 atau lebih.");
+        const data = { name, price, stock, updatedAt: serverTimestamp() };
+        if (code) data.code = code;
+        if (brand) data.brand = brand;
+        try {
+          await addDoc(collection(db, "publicCatalog"), data);
+          closeModal();
+          toast("Produk ditambahkan.");
+        } catch (e) {
+          console.error(e);
+          showErr(err, "Gagal menyimpan. Pastikan login pemilik masih aktif.");
+        }
       });
-    } else {
-      const cur = map.get(key);
-      cur.totalStock += st;
-      cur.variants.push({ id: p.id, code: p.code || "", size: p.size || "", color: p.color || "", stock: st });
-      if (!cur.imageUrl && p.imageUrl) cur.imageUrl = p.imageUrl;
-    }
-  }
-  return [...map.values()];
+    });
+  });
 }
 
-function renderBrandSidebar(groupedItems) {
-  const counts = {};
-  for (const item of groupedItems) {
-    const bid = detectBrandId(item);
-    counts[bid] = (counts[bid] || 0) + 1;
+function actionUpdateStock() {
+  requireOwner(() => {
+    openModal("Update Stok", `
+      <div><label class="${labelCls}">Cari produk</label><input id="usSearch" class="${inputCls}" placeholder="Nama atau kode"></div>
+      <div id="usList" class="max-h-48 overflow-auto space-y-1 text-xs"></div>
+      <div id="usEditor" class="hidden space-y-2">
+        <p class="text-sm font-bold text-white" id="usName"></p>
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="${labelCls}">Stok sekarang</label><input id="usCurrent" disabled class="${inputCls} opacity-70"></div>
+          <div><label class="${labelCls}">Stok baru</label><input id="usNew" type="number" min="0" step="1" class="${inputCls}"></div>
+        </div>
+        <p id="usErr" class="text-xs text-rose-400 hidden"></p>
+        <div class="flex justify-end"><button type="button" id="usSave" class="${btnGold}">Simpan stok</button></div>
+      </div>
+    `, wrap => {
+      let chosen = null;
+      const renderList = () => {
+        const q = wrap.querySelector("#usSearch").value.trim().toLowerCase();
+        const list = PRODUCTS.filter(p => !q || String(p.name || "").toLowerCase().includes(q) || String(p.code || "").toLowerCase().includes(q)).slice(0, 30);
+        wrap.querySelector("#usList").innerHTML = list.map(p =>
+          `<button type="button" data-pick="${esc(p.id)}" class="w-full text-left px-2.5 py-1.5 rounded-lg bg-[#141821] text-white hover:bg-zinc-800 cursor-pointer">${esc(p.name)} <span class="text-zinc-400">· stok ${Number(p.stock ?? 0)}</span></button>`
+        ).join("") || `<p class="text-zinc-400">Tidak ada produk.</p>`;
+      };
+      wrap.querySelector("#usSearch").addEventListener("input", renderList);
+      wrap.querySelector("#usList").addEventListener("click", e => {
+        const b = e.target.closest("[data-pick]");
+        if (!b) return;
+        chosen = PRODUCTS.find(p => p.id === b.dataset.pick);
+        wrap.querySelector("#usName").textContent = chosen.name;
+        wrap.querySelector("#usCurrent").value = Number(chosen.stock ?? 0);
+        wrap.querySelector("#usNew").value = Number(chosen.stock ?? 0);
+        wrap.querySelector("#usEditor").classList.remove("hidden");
+      });
+      wrap.querySelector("#usSave").addEventListener("click", async () => {
+        const err = wrap.querySelector("#usErr");
+        const val = Number(wrap.querySelector("#usNew").value);
+        if (!chosen) return showErr(err, "Pilih produk dulu.");
+        if (!Number.isInteger(val) || val < 0) return showErr(err, "Stok harus bilangan bulat 0 atau lebih.");
+        try {
+          await updateDoc(doc(db, "publicCatalog", chosen.id), { stock: val, updatedAt: serverTimestamp() });
+          closeModal();
+          toast("Stok diperbarui.");
+        } catch (e) {
+          console.error(e);
+          showErr(err, "Gagal menyimpan stok.");
+        }
+      });
+      renderList();
+    });
+  });
+}
+
+function showErr(el, msg) { el.textContent = msg; el.classList.remove("hidden"); }
+
+function actionBrand() {
+  $("brandTextGrid").scrollIntoView({ behavior: "smooth", block: "center" });
+  toast("Pilih brand di daftar di bawah. Untuk menambah brand baru, ubah daftar BRANDS di admin.js.");
+}
+
+function actionQr() {
+  toast("Cetak label QR tersedia di Dashboard admin utama. Halaman ini hanya menampilkan katalog.", false);
+}
+
+// ---------- Render ----------
+function productBrand(p) {
+  if (p.brand) {
+    const byName = ALL_BRANDS.find(b => b.name.toLowerCase() === String(p.brand).toLowerCase());
+    if (byName) return byName.id;
   }
+  const found = BRANDS.find(b => b.match.test(p.name || ""));
+  return found ? found.id : "none";
+}
 
-  $("btnResetBrandSide")?.classList.toggle("hidden", !selectedBrandId);
-
-  const allBtn = `<button type="button" data-brand="" class="brand-side-btn ${selectedBrandId === "" ? "is-active" : ""}">
-    <span>Semua Merek</span>
-    <span class="brand-count-pill">${groupedItems.length}</span>
-  </button>`;
-
-  const brandBtns = ALL_BRANDS
-    .filter(b => (counts[b.id] || 0) > 0 || b.id === "no-brand" || b.id === selectedBrandId)
-    .map(b => {
-      const active = selectedBrandId === b.id;
-      const cnt = counts[b.id] || 0;
-      return `<button type="button" data-brand="${esc(b.id)}" class="brand-side-btn ${active ? "is-active" : ""}">
-        <span class="truncate">${esc(b.name)}</span>
-        <span class="brand-count-pill">${cnt}</span>
-      </button>`;
-    }).join("");
-
-  $("brandVerticalList").innerHTML = allBtn + brandBtns;
+function renderBrandGrid() {
+  const counts = {};
+  for (const p of PRODUCTS) { const id = productBrand(p); counts[id] = (counts[id] || 0) + 1; }
+  $("brandTextGrid").innerHTML = ALL_BRANDS.map(b => {
+    const isSel = b.id === selectedBrandId;
+    return `<button type="button" data-brand="${b.id}" class="p-3 rounded-xl border text-center cursor-pointer transition ${isSel ? "border-amber-400 bg-amber-400 text-slate-950 font-black" : "border-amber-400/25 bg-[#121620] text-white hover:border-amber-400 font-bold"}">
+      <span class="block text-sm">${esc(b.name)}</span>
+      <span class="block text-[11px] opacity-80">${esc(b.cat)} · ${counts[b.id] || 0} produk</span>
+    </button>`;
+  }).join("");
 }
 
 function renderCatalog() {
-  const grouped = getGroupedProducts();
-  renderBrandSidebar(grouped);
-
-  const q = ($("userCatalogSearch")?.value || "").trim().toLowerCase();
-  const activeBrand = ALL_BRANDS.find(b => b.id === selectedBrandId) || null;
-
+  const q = ($("catalogSearchInput")?.value || "").trim().toLowerCase();
+  const brand = ALL_BRANDS.find(b => b.id === selectedBrandId) || null;
+  $("btnClearBrand").classList.toggle("hidden", !brand);
   const banner = $("brandSpecialBanner");
-  const filtered = grouped.filter(item => {
-    const matchB = !activeBrand || detectBrandId(item) === activeBrand.id;
-    const hay = [item.name, item.code, item.size, item.color, item.description].filter(Boolean).join(" ").toLowerCase();
-    const matchQ = !q || hay.includes(q);
-    return matchB && matchQ;
-  });
-
-  if (activeBrand) {
-    banner.hidden = false;
-    $("brandSpecialTitle").textContent = activeBrand.name;
-    $("brandSpecialCount").textContent = `${filtered.length} produk tersedia untuk merek ${activeBrand.name}`;
+  const filtered = PRODUCTS.filter(p =>
+    (!brand || productBrand(p) === brand.id) &&
+    (!q || String(p.name || "").toLowerCase().includes(q) || String(p.code || "").toLowerCase().includes(q))
+  );
+  if (brand) {
+    banner.classList.remove("hidden");
+    $("brandSpecialTitle").textContent = `Produk ${brand.name}`;
+    $("brandSpecialCount").textContent = `${filtered.length} produk ditemukan`;
   } else {
-    banner.hidden = true;
+    banner.classList.add("hidden");
   }
-
-  $("catalogResultLabel").textContent = `${filtered.length} produk`;
-
-  $("userCatalogGrid").innerHTML = filtered.length
-    ? filtered.map(item => {
-        const st = Number(item.totalStock ?? item.stock ?? 0);
-        const varCount = item.variants?.length || 1;
-        const codes = item.variants?.map(v => v.code).filter(Boolean).join(" / ") || item.code || "";
-        const waMsg = encodeURIComponent(`Halo Surya Jaya Sport, saya mau tanya stok ${item.name} (${rp(item.price)})`);
-        return `<article class="sjs-card overflow-hidden flex flex-col justify-between">
+  renderBrandGrid();
+  $("catalogGrid").innerHTML = filtered.length
+    ? filtered.map(p => {
+        const stock = Number(p.stock || 0);
+        const waText = encodeURIComponent(`Halo Surya Jaya Sport, tanya stok ${p.name || ""}${p.code ? " (" + p.code + ")" : ""}`);
+        return `<article class="gold-card p-4 flex flex-col justify-between gap-3 ${stock > 0 ? "" : "opacity-70"}">
           <div>
-            <div class="aspect-square w-full bg-[#10141d] flex items-center justify-center overflow-hidden border-b border-zinc-800 relative">
-              ${varCount > 1 ? `<span class="absolute top-2.5 right-2.5 px-2.5 py-0.5 rounded-full sjs-btn-gold text-[10px]">${varCount} Varian</span>` : ""}
-              ${item.imageUrl
-                ? `<img src="${esc(item.imageUrl)}" alt="${esc(item.name)}" loading="lazy" class="w-full h-full object-contain">`
-                : `<span class="text-xs font-extrabold text-amber-300 px-4 text-center">${esc(item.name)}</span>`}
-            </div>
-            <div class="p-3.5 space-y-1">
-              <div class="flex items-center justify-between gap-2">
-                <span class="font-mono text-[10px] text-amber-300 truncate">${esc(codes)}</span>
-                <span class="text-[11px] font-bold ${st > 0 ? "text-emerald-400" : "text-rose-400"} shrink-0">${st > 0 ? `Stok ${st} pcs` : "Habis"}</span>
-              </div>
-              <h3 class="font-extrabold text-sm text-white leading-snug">${esc(item.name)}</h3>
-            </div>
+            <span class="text-[11px] font-bold ${stock > 0 ? "text-amber-300" : "text-rose-400"}">${stock > 0 ? `Stok ${stock} pcs` : "Habis"}</span>
+            ${p.code ? `<span class="ml-2 text-[11px] text-zinc-400">${esc(p.code)}</span>` : ""}
+            <h3 class="font-extrabold text-sm text-white mt-1">${esc(p.name)}</h3>
           </div>
-          <div class="px-3.5 pb-3.5 pt-2.5 border-t border-zinc-800 flex items-center justify-between gap-2">
-            <strong class="text-sm font-black text-amber-300 tabular-nums">${rp(item.price)}</strong>
-            <div class="flex items-center gap-1.5">
-              <button type="button" data-add-cart="${esc(item.id)}" class="px-2.5 py-1.5 rounded-xl sjs-btn-gold text-xs cursor-pointer">+ Keranjang</button>
-              <a href="https://wa.me/${WA_NUMBER}?text=${waMsg}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1.5 rounded-xl sjs-btn-dark text-xs">WA</a>
-            </div>
+          <div class="pt-2 border-t border-zinc-800 flex items-center justify-between">
+            <strong class="text-sm font-black text-amber-300">${rp(p.price)}</strong>
+            <a href="https://wa.me/${WA_NUMBER}?text=${waText}" target="_blank" rel="noopener noreferrer" class="px-2.5 py-1 rounded-lg bg-amber-400 text-slate-950 text-xs font-black">${stock > 0 ? "Pesan WA" : "Tanya Stok"}</a>
           </div>
         </article>`;
       }).join("")
-    : `<p class="col-span-full text-center text-sm text-zinc-400 py-10">Tidak ada produk yang cocok dengan filter ini.</p>`;
+    : `<p class="col-span-full text-center text-sm text-zinc-400 py-8">Belum ada produk untuk filter ini.</p>`;
 }
 
-function renderCartModal() {
-  const entries = [...cart.values()];
-  $("userCartBadge").textContent = String(entries.reduce((s, e) => s + e.qty, 0));
-  const total = entries.reduce((s, e) => s + e.price * e.qty, 0);
-  $("userCartTotal").textContent = `Total: ${rp(total)}`;
-  const waBtn = $("btnSendCartWa");
-  if (!entries.length) {
-    $("userCartList").innerHTML = `<p class="text-zinc-400 py-4 text-center">Keranjang masih kosong.</p>`;
-    waBtn.classList.add("hidden");
-    return;
-  }
-  $("userCartList").innerHTML = entries.map(e => `
-    <div class="flex items-center justify-between gap-2 py-2 border-b border-zinc-800">
-      <div class="min-w-0">
-        <p class="font-bold text-white truncate">${esc(e.name)}</p>
-        <span class="text-amber-300">${e.qty} × ${rp(e.price)}</span>
-      </div>
-      <button type="button" data-del-cart="${esc(e.id)}" class="px-2 py-1 rounded bg-rose-950 text-rose-300 font-bold cursor-pointer">Hapus</button>
-    </div>`).join("");
-  const lines = entries.map((e, i) => `${i + 1}. ${e.name} × ${e.qty} = ${rp(e.price * e.qty)}`);
-  const text = `Halo Surya Jaya Sport, saya mau pesan:\n${lines.join("\n")}\nPerkiraan total: ${rp(total)}`;
-  waBtn.href = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`;
-  waBtn.classList.remove("hidden");
+function renderOps() {
+  const inStock = PRODUCTS.filter(p => Number(p.stock || 0) > 0);
+  const low = inStock.filter(p => Number(p.stock) < 5);
+  $("opsActiveProd").textContent = String(inStock.length);
+  $("opsLowStock").textContent = String(low.length);
+  $("opsLowList").innerHTML = low.length
+    ? low.map(p => `<div class="flex justify-between gap-2 py-1 border-b border-zinc-800 last:border-0"><span class="truncate">${esc(p.name)}</span><strong class="text-rose-400 shrink-0">Sisa ${Number(p.stock)}</strong></div>`).join("")
+    : `<p class="text-emerald-400">Stok aman</p>`;
 }
 
+// ---------- Data real-time ----------
 onSnapshot(collection(db, "publicCatalog"), snap => {
-  RAW_PRODUCTS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  PRODUCTS = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  renderOps();
   renderCatalog();
 }, err => {
   console.error("Gagal memuat katalog:", err);
-  $("userCatalogGrid").innerHTML = `<p class="col-span-full text-center text-sm text-rose-400 py-8">Katalog gagal dimuat. Muat ulang halaman.</p>`;
+  $("catalogGrid").innerHTML = `<p class="col-span-full text-center text-sm text-rose-400 py-8">Katalog gagal dimuat. Muat ulang halaman.</p>`;
 });
 
-$("brandVerticalList").addEventListener("click", e => {
+onAuthStateChanged(auth, user => {
+  currentUser = user;
+  const btn = $("btnFooterOwnerLogin");
+  if (btn) btn.textContent = user && user.uid === OWNER_UID ? "Keluar (Pemilik)" : "Login Pemilik";
+});
+
+// ---------- Event ----------
+$("brandTextGrid").addEventListener("click", e => {
   const btn = e.target.closest("[data-brand]");
   if (!btn) return;
-  const bid = btn.dataset.brand;
-  selectedBrandId = (bid === "" || selectedBrandId === bid) ? "" : bid;
+  selectedBrandId = selectedBrandId === btn.dataset.brand ? "" : btn.dataset.brand;
   renderCatalog();
 });
-$("btnResetBrandSide").addEventListener("click", () => { selectedBrandId = ""; renderCatalog(); });
-$("btnShowAllProducts").addEventListener("click", () => { selectedBrandId = ""; renderCatalog(); });
-$("userCatalogSearch").addEventListener("input", renderCatalog);
-$("chkHideOutOfStock").addEventListener("change", renderCatalog);
+$("btnClearBrand").addEventListener("click", () => { selectedBrandId = ""; renderCatalog(); });
+$("btnBackAllCatalog").addEventListener("click", () => { selectedBrandId = ""; renderCatalog(); });
+$("catalogSearchInput").addEventListener("input", renderCatalog);
 
-$("userCatalogGrid").addEventListener("click", e => {
-  const addBtn = e.target.closest("[data-add-cart]");
-  if (!addBtn) return;
-  const item = RAW_PRODUCTS.find(p => p.id === addBtn.dataset.addCart);
-  if (!item) return;
-  const cur = cart.get(item.id) || { id: item.id, name: item.name, price: Number(item.price || 0), qty: 0 };
-  cur.qty += 1;
-  cart.set(item.id, cur);
-  renderCartModal();
+// Katalog User: tampilkan bagian katalog di halaman ini
+$("btnViewCatalog").addEventListener("click", () => {
+  $("catalogSection").scrollIntoView({ behavior: "smooth", block: "start" });
+});
+$("btnViewAdmin").addEventListener("click", () => {
+  $("adminSection").scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
-$("btnOpenUserCart").addEventListener("click", () => { renderCartModal(); $("userCartDialog").showModal(); });
-$("btnCloseUserCart").addEventListener("click", () => $("userCartDialog").close());
-$("userCartList").addEventListener("click", e => {
-  const del = e.target.closest("[data-del-cart]");
-  if (!del) return;
-  cart.delete(del.dataset.delCart);
-  renderCartModal();
+document.querySelectorAll("[data-quick-action]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const act = btn.dataset.quickAction;
+    if (act === "produk") actionAddProduct();
+    else if (act === "stok") actionUpdateStock();
+    else if (act === "brand") actionBrand();
+    else if (act === "qr") actionQr();
+  });
 });
+
+$("btnFooterOwnerLogin").addEventListener("click", () => {
+  if (currentUser && currentUser.uid === OWNER_UID) {
+    signOut(auth).then(() => toast("Anda sudah keluar."));
+  } else {
+    openLogin();
+  }
+});
+
+renderOps();
+renderCatalog();
