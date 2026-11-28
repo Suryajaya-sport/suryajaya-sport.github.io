@@ -255,38 +255,39 @@
     .shop-button-wa { background: linear-gradient(135deg,#16a34a,#15803d); color: #fff; border: 1px solid #22c55e; }
     .shop-button-wa:hover { background: #15803d; }
 
-    .shop-hero { position: relative; border-radius: 2rem; overflow: hidden; min-height: 370px; background: radial-gradient(circle at 80% 45%, rgba(250,204,21,0.16), transparent 44%), linear-gradient(105deg, rgba(7,16,38,.97) 0%, rgba(15,37,87,.92) 56%, rgba(29,78,216,.78) 100%); color: #fff; border: 1.5px solid var(--dark-border); display: grid; grid-template-columns: minmax(0,1.22fr) minmax(0,.78fr); gap: 1.75rem; align-items: center; padding: 2.4rem 2.2rem; }
-    @media (max-width: 900px) { .shop-hero { grid-template-columns: 1fr; padding: 1.85rem 1.35rem; } }
-    .shop-hero-content { position: relative; z-index: 2; display: flex; flex-direction: column; gap: .95rem; }
-    .shop-eyebrow { display: inline-flex; align-items: center; gap: .45rem; width: fit-content; padding: .35rem .85rem; border-radius: 9999px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18); font-size: .76rem; font-weight: 700; color: #fde68a; }
-    .shop-hero h2 { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(2.4rem,5.2vw,3.7rem); font-weight: 800; line-height: .96; text-transform: uppercase; letter-spacing: .01em; }
+    .shop-hero { position: relative; border-radius: 1.75rem; overflow: hidden; min-height: 320px; max-height: 380px; background: radial-gradient(circle at 80% 45%, rgba(250,204,21,0.16), transparent 44%), linear-gradient(105deg, rgba(7,16,38,.97) 0%, rgba(15,37,87,.92) 56%, rgba(29,78,216,.78) 100%); color: #fff; border: 1.5px solid var(--dark-border); display: grid; grid-template-columns: minmax(0,1.25fr) minmax(0,.75fr); gap: 1.4rem; align-items: center; padding: 48px 2rem; }
+    @media (max-width: 900px) { .shop-hero { grid-template-columns: 1fr; max-height: none; padding: 36px 1.25rem; } }
+    .shop-hero-content { position: relative; z-index: 2; display: flex; flex-direction: column; gap: .75rem; }
+    .shop-eyebrow { display: inline-flex; align-items: center; gap: .4rem; width: fit-content; padding: .28rem .75rem; border-radius: 9999px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.18); font-size: .73rem; font-weight: 700; color: #fde68a; }
+    .shop-hero h2 { font-family: 'Barlow Condensed', sans-serif; font-size: clamp(2.15rem,4.5vw,3.15rem); font-weight: 800; line-height: .96; text-transform: uppercase; letter-spacing: .01em; }
     .shop-hero-accent { color: #facc15; }
-    .shop-hero-actions { display: flex; flex-wrap: wrap; gap: .75rem; }
-    .hero-trust-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .55rem; margin-top: .25rem; }
+    .shop-hero-actions { display: flex; flex-wrap: wrap; gap: .6rem; }
+    .hero-trust-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .45rem; }
     @media (max-width: 640px) { .hero-trust-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    .hero-trust-stat { display: flex; align-items: center; gap: .45rem; padding: .5rem .7rem; border-radius: .95rem; background: rgba(11, 14, 20, 0.55); border: 1px solid rgba(250, 204, 21, 0.28); font-size: .78rem; font-weight: 800; color: #f8fafc; }
-    .hero-visual-stage { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; min-height: 250px; }
-    .hero-visual-card { position: relative; width: 100%; max-width: 390px; aspect-ratio: 4 / 3; border-radius: 1.65rem; overflow: hidden; border: 2px solid rgba(250, 204, 21, 0.45); box-shadow: 0 22px 44px rgba(0, 0, 0, 0.5); background: #0b1220; }
+    .hero-trust-stat { display: flex; align-items: center; gap: .38rem; padding: .4rem .6rem; border-radius: .8rem; background: rgba(11, 14, 20, 0.55); border: 1px solid rgba(250, 204, 21, 0.25); font-size: .74rem; font-weight: 800; color: #f8fafc; white-space: nowrap; }
+    .hero-visual-stage { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; }
+    .hero-visual-card { position: relative; width: 100%; max-width: 340px; height: 224px; border-radius: 1.35rem; overflow: hidden; border: 2px solid rgba(250, 204, 21, 0.45); box-shadow: 0 18px 36px rgba(0, 0, 0, 0.48); background: #0b1220; }
     .hero-visual-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .hero-visual-caption { position: absolute; left: .75rem; right: .75rem; bottom: .75rem; padding: .55rem .85rem; border-radius: .95rem; background: rgba(11, 14, 20, 0.86); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.14); display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+    .hero-visual-caption { position: absolute; left: .6rem; right: .6rem; bottom: .6rem; padding: .45rem .7rem; border-radius: .8rem; background: rgba(11, 14, 20, 0.88); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.14); display: flex; align-items: center; justify-content: space-between; gap: .4rem; }
 
-    .fun-highlights-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .85rem; }
+    .fun-highlights-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .7rem; }
     @media (max-width: 900px) { .fun-highlights-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 480px) { .fun-highlights-strip { grid-template-columns: 1fr; } }
-    .fun-highlight-pill { background: var(--dark-card); border: 1.5px solid var(--dark-border); border-radius: 1.35rem; padding: .85rem 1rem; display: flex; align-items: center; gap: .75rem; }
-    .fun-highlight-icon { width: 44px; height: 44px; border-radius: 1rem; display: inline-flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
+    .fun-highlight-pill { background: var(--dark-card); border: 1.5px solid var(--dark-border); border-radius: 1.1rem; padding: .68rem .85rem; min-height: 76px; display: flex; align-items: center; gap: .65rem; }
+    .fun-highlight-icon { width: 38px; height: 38px; border-radius: .85rem; display: inline-flex; align-items: center; justify-content: center; font-size: 1.05rem; flex-shrink: 0; }
     .fun-highlight-icon.is-blue { background: rgba(37, 99, 235, 0.2); color: #93c5fd; }
     .fun-highlight-icon.is-yellow { background: rgba(14, 165, 233, 0.18); color: #7dd3fc; }
     .fun-highlight-icon.is-green { background: rgba(16, 185, 129, 0.18); color: #34d399; }
     .fun-highlight-icon.is-navy { background: var(--dark-elev); color: #cbd5e1; border: 1px solid #334155; }
 
-    .quick-cat-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .75rem; }
+    .quick-cat-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .6rem; }
     @media (max-width: 1024px) { .quick-cat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
     @media (max-width: 560px) { .quick-cat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-    .quick-cat-btn { background: var(--dark-card); border: 1.5px solid var(--dark-border); border-radius: 1.35rem; padding: .95rem .8rem; display: flex; flex-direction: column; align-items: center; text-align: center; gap: .35rem; cursor: pointer; transition: all .15s; }
+    .quick-cat-btn { background: var(--dark-card); border: 1.5px solid var(--dark-border); border-radius: 1rem; padding: .65rem .8rem; min-height: 82px; max-height: 98px; display: flex; align-items: center; justify-content: center; gap: .5rem; text-align: left; cursor: pointer; transition: all .15s; }
     .quick-cat-btn:hover { border-color: #60a5fa; transform: translateY(-2px); }
-    .quick-cat-btn.is-active { background: linear-gradient(135deg,#1b2232,#0f172a); border-color: #60a5fa; color: #fff; }
-    .quick-cat-thumb { width: 76px; height: 76px; border-radius: 1rem; object-fit: cover; border: 1.5px solid var(--dark-border); background: var(--dark-bg); }
+    .quick-cat-btn.is-active { background: linear-gradient(135deg,#1b2232,#0f172a); border-color: #facc15; color: #fff; }
+    .quick-cat-emoji { font-size: 1.35rem; line-height: 1; flex-shrink: 0; }
+    .quick-cat-btn strong { font-size: .88rem; font-weight: 800; line-height: 1.2; white-space: nowrap; }
 
     .catalog-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; }
     .catalog-heading h2 { font-family: 'Barlow Condensed', sans-serif; font-size: 1.85rem; font-weight: 800; text-transform: uppercase; color: #ffffff; }
@@ -302,27 +303,26 @@
     .catalog-categories label input:focus-visible + span, .catalog-card-photo-wrap:focus-visible, .quick-cat-btn:focus-visible, .hero-feature-card:focus-visible { outline: 2px solid #60a5fa; outline-offset: 2px; }
     #catalogResultCount { font-size: .8125rem; font-weight: 700; color: var(--dark-muted); }
 
-    .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(255px,1fr)); gap: 1.2rem; }
-    .catalog-empty { grid-column: 1 / -1; background: var(--dark-card); border: 1.5px dashed var(--dark-border); border-radius: 1.4rem; padding: 2.75rem 1.25rem; text-align: center; font-weight: 600; color: var(--dark-muted); }
-    .catalog-card { background: var(--dark-card); border: 1.5px solid var(--dark-border); border-radius: 1.5rem; overflow: hidden; display: flex; flex-direction: column; transition: transform .2s, box-shadow .2s, border-color .2s; }
-    .catalog-card:hover { transform: translateY(-4px); border-color: #475569; box-shadow: 0 14px 30px rgba(0,0,0,.45); }
+    .catalog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(225px,1fr)); gap: .95rem; }
+    .catalog-empty { grid-column: 1 / -1; background: var(--dark-card); border: 1.5px dashed var(--dark-border); border-radius: 1.3rem; padding: 2.25rem 1.25rem; text-align: center; font-weight: 600; color: var(--dark-muted); }
+    .catalog-card { background: var(--dark-card); border: 1.5px solid var(--dark-border); border-radius: 1.25rem; overflow: hidden; display: flex; flex-direction: column; transition: transform .18s, box-shadow .18s, border-color .18s; }
+    .catalog-card:hover { transform: translateY(-3px); border-color: #475569; box-shadow: 0 12px 24px rgba(0,0,0,.42); }
     .catalog-card-photo-wrap { position: relative; cursor: pointer; background: var(--dark-bg); border-bottom: 1px solid var(--dark-border); }
-    .catalog-card-photo { aspect-ratio: 1 / 1; width: 100%; background: var(--dark-bg); }
+    .catalog-card-photo { aspect-ratio: 4 / 5; max-height: 220px; width: 100%; background: var(--dark-bg); }
     .catalog-card-photo img { background: var(--dark-bg); object-fit: cover; }
-    .catalog-card-badge { position: absolute; top: .65rem; right: .65rem; z-index: 2; padding: .34rem .78rem; border-radius: 9999px; font-size: .76rem; font-weight: 800; letter-spacing: .01em; background: #064e3b; color: #ecfdf5; border: 1.5px solid #34d399; box-shadow: 0 4px 12px rgba(0,0,0,.45); }
+    .catalog-card-badge { position: absolute; top: .55rem; right: .55rem; z-index: 2; padding: .24rem .62rem; border-radius: 9999px; font-size: .7rem; font-weight: 800; letter-spacing: .01em; background: #064e3b; color: #ecfdf5; border: 1.5px solid #34d399; box-shadow: 0 4px 10px rgba(0,0,0,.45); }
     .catalog-card-badge.is-featured { background: linear-gradient(135deg,#9a3412,#ea580c); color: #fff7ed; border-color: #fdba74; }
     .catalog-card-badge.is-limited { background: #78350f; color: #fef3c7; border-color: #facc15; }
     .catalog-card-badge.is-out { background: #881337; color: #ffe4e6; border-color: #fb7185; }
-    .catalog-card-body { padding: 1.1rem; display: flex; flex-direction: column; flex: 1; gap: .5rem; }
-    .catalog-card-meta { font-family: ui-monospace, monospace; font-size: .72rem; font-weight: 700; color: #93c5fd; background: var(--dark-elev); width: fit-content; padding: .15rem .5rem; border-radius: .45rem; }
-    .catalog-card-description { font-size: .8125rem; color: var(--dark-muted); }
-    .senar-service-note { display: inline-flex; align-items: center; gap: .35rem; margin-top: .2rem; padding: .28rem .55rem; border-radius: .6rem; background: rgba(37, 99, 235, 0.14); border: 1px solid rgba(96, 165, 250, 0.35); color: #bfdbfe; font-size: .74rem; font-weight: 700; line-height: 1.3; }
+    .catalog-card-body { padding: .8rem .9rem; display: flex; flex-direction: column; flex: 1; gap: .35rem; }
+    .catalog-card-title { font-size: .9rem; font-weight: 800; line-height: 1.28; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.3em; cursor: pointer; }
+    .senar-service-note { display: inline-flex; align-items: center; gap: .3rem; padding: .2rem .48rem; border-radius: .5rem; background: rgba(37, 99, 235, 0.14); border: 1px solid rgba(96, 165, 250, 0.35); color: #bfdbfe; font-size: .68rem; font-weight: 700; line-height: 1.25; }
     .senar-service-note i { color: #60a5fa; flex-shrink: 0; }
-    .catalog-card-facts { margin-top: auto; padding-top: .7rem; border-top: 1px solid var(--dark-border); display: flex; align-items: center; justify-content: space-between; }
-    .catalog-card-price { font-size: 1.15rem; font-weight: 800; color: #f8fafc; }
-    .catalog-stock { padding: .22rem .65rem; border-radius: 9999px; font-size: .75rem; font-weight: 800; background: rgba(16, 185, 129, 0.14); color: #34d399; }
-    .catalog-card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; margin-top: .45rem; }
-    .catalog-card-actions .shop-button { padding: .5rem .65rem; font-size: .8125rem; min-height: 2.5rem; }
+    .catalog-card-facts { margin-top: auto; padding-top: .45rem; border-top: 1px solid var(--dark-border); display: flex; align-items: center; justify-content: space-between; gap: .4rem; }
+    .catalog-card-price { font-size: 1rem; font-weight: 800; color: #f8fafc; }
+    .catalog-stock { padding: .16rem .52rem; border-radius: 9999px; font-size: .7rem; font-weight: 800; background: rgba(16, 185, 129, 0.14); color: #34d399; white-space: nowrap; }
+    .catalog-card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: .4rem; margin-top: .3rem; }
+    .catalog-card-actions .shop-button { padding: .38rem .5rem; font-size: .76rem; min-height: 2.15rem; border-radius: .75rem; }
 
     .howto-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
     @media (max-width: 820px) { .howto-grid { grid-template-columns: 1fr; } }
@@ -478,46 +478,7 @@
       </div>
     </section>
 
-    <section id="kategori-unggulan" class="flex flex-col gap-3" aria-label="Menu kategori cepat">
-      <div class="catalog-heading">
-        <h2>Kategori Pilihan</h2>
-        <span class="text-xs font-bold text-slate-500">Klik kategori untuk menyaring katalog di bawah</span>
-      </div>
-      <div id="quickCatGrid" class="quick-cat-grid">
-        <button type="button" class="quick-cat-btn is-active" data-quick-cat="all">
-          <img src="sjs-mark-192.png" alt="" width="76" height="76" class="quick-cat-thumb" loading="lazy" decoding="async">
-          <strong>Semua Produk</strong>
-          <span>Lihat seluruh stok</span>
-        </button>
-        <button type="button" class="quick-cat-btn" data-quick-cat="badminton">
-          <img src="cat-badminton-150.webp" srcset="cat-badminton-150.webp 1x, cat-badminton-150.webp 2x, cat-badminton.webp 3x" alt="" width="76" height="76" class="quick-cat-thumb" loading="lazy" decoding="async">
-          <strong>Badminton</strong>
-          <span>Raket, kok, senar, grip</span>
-        </button>
-        <button type="button" class="quick-cat-btn" data-quick-cat="ball">
-          <img src="cat-futsal-bola-150.webp" srcset="cat-futsal-bola-150.webp 1x, cat-futsal-bola-150.webp 2x, cat-futsal-bola.webp 3x" alt="" width="76" height="76" class="quick-cat-thumb" loading="lazy" decoding="async">
-          <strong>Futsal &amp; Bola</strong>
-          <span>Bola, sepatu, deker</span>
-        </button>
-        <button type="button" class="quick-cat-btn" data-quick-cat="chess">
-          <img src="cat-catur-150.webp" srcset="cat-catur-150.webp 1x, cat-catur-150.webp 2x, cat-catur.webp 3x" alt="" width="76" height="76" class="quick-cat-thumb" loading="lazy" decoding="async">
-          <strong>Catur</strong>
-          <span>Papan &amp; bidak catur</span>
-        </button>
-        <button type="button" class="quick-cat-btn" data-quick-cat="music">
-          <img src="cat-musik-150.webp" srcset="cat-musik-150.webp 1x, cat-musik-150.webp 2x, cat-musik.webp 3x" alt="" width="76" height="76" class="quick-cat-thumb" loading="lazy" decoding="async">
-          <strong>Musik</strong>
-          <span>Gitar, stik drum, senar</span>
-        </button>
-        <button type="button" class="quick-cat-btn" data-quick-cat="sport">
-          <img src="cat-olahraga-lainnya-150.webp" srcset="cat-olahraga-lainnya-150.webp 1x, cat-olahraga-lainnya-150.webp 2x, cat-olahraga-lainnya.webp 3x" alt="" width="76" height="76" class="quick-cat-thumb" loading="lazy" decoding="async">
-          <strong>Olahraga Lainnya</strong>
-          <span>Pingpong, taping, piala</span>
-        </button>
-      </div>
-    </section>
-
-    <section id="produk-unggulan" class="flex flex-col gap-4" aria-labelledby="featuredProductsTitle">
+    <section id="produk-unggulan" class="flex flex-col gap-3" aria-labelledby="featuredProductsTitle">
       <div class="catalog-heading">
         <div>
           <h2 id="featuredProductsTitle">&#11088; Produk Unggulan &amp; Promo Pilihan</h2>
@@ -531,7 +492,40 @@
       </div>
     </section>
 
-    <section id="publicProductCatalog" class="flex flex-col gap-5" aria-labelledby="productCatalogTitle">
+    <section id="kategori-unggulan" class="flex flex-col gap-2.5" aria-label="Menu kategori cepat">
+      <div class="catalog-heading">
+        <h2>Kategori Pilihan</h2>
+        <span class="text-xs font-bold text-slate-500">Klik kategori untuk menyaring produk</span>
+      </div>
+      <div id="quickCatGrid" class="quick-cat-grid">
+        <button type="button" class="quick-cat-btn is-active" data-quick-cat="all">
+          <span class="quick-cat-emoji" aria-hidden="true">🏅</span>
+          <strong>Semua</strong>
+        </button>
+        <button type="button" class="quick-cat-btn" data-quick-cat="badminton">
+          <span class="quick-cat-emoji" aria-hidden="true">🏸</span>
+          <strong>Badminton</strong>
+        </button>
+        <button type="button" class="quick-cat-btn" data-quick-cat="ball">
+          <span class="quick-cat-emoji" aria-hidden="true">⚽</span>
+          <strong>Futsal</strong>
+        </button>
+        <button type="button" class="quick-cat-btn" data-quick-cat="chess">
+          <span class="quick-cat-emoji" aria-hidden="true">♟</span>
+          <strong>Catur</strong>
+        </button>
+        <button type="button" class="quick-cat-btn" data-quick-cat="music">
+          <span class="quick-cat-emoji" aria-hidden="true">🎸</span>
+          <strong>Musik</strong>
+        </button>
+        <button type="button" class="quick-cat-btn" data-quick-cat="sport">
+          <span class="quick-cat-emoji" aria-hidden="true">🏓</span>
+          <strong>Lainnya</strong>
+        </button>
+      </div>
+    </section>
+
+    <section id="publicProductCatalog" class="flex flex-col gap-4" aria-labelledby="productCatalogTitle">
       <div class="catalog-heading">
         <h2 id="productCatalogTitle">Katalog Produk</h2>
         <span class="text-xs font-bold text-slate-500">Harga dan stok dikonfirmasi oleh toko · Ketuk foto untuk melihat detail</span>
@@ -896,23 +890,23 @@
     }
     const MUSIC_RE = /\b(gitar|guitar|ukulele|bass|capo|plektrum|musik|akustik|acoustic|klasik|classic|elektrik|electric|biola|violin|drum|stik\s*drum|cajon|jimbe|harmonika|tama|sonor|zildjian|yamaha\s*f|pyramid|d'?addario|orphee|ernie\s*ball|elixir|fender|nilon|nylon|kawat)\b/i;
     const BALL_ITEM_RE = /\b(futsal|bola|sepak|basket|voli|volley|football|soccer|molten|spalding|mikasa|nassau)\b/i;
-    const BADMINTON_STRING_MODEL_RE = /\b(bg\s*\d{1,2}m?(?!\d)|nbg\s*\d{2,3}(?!\d)|exbolt|nanogy|aerobite|aerosonic|ultimax|tectonic\s*65|vbs\s*\d{2,3}(?!\d)|no\.?\s*[157]\s*boost?)\b/i;
-    const BADMINTON_BRAND_RE = /\b(badminton|bulutangkis|raket|shuttlecock|kok|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|power\s*max|tectonic|flypower|mizuno|astec|hart|ebox|eagle|prochamps|pro\s*ace|ashaway|gosen|rs\b|reinforce|kawasaki|fleet|babolat|bg\s*\d{1,2}m?(?!\d)|nbg\s*\d{2,3}(?!\d)|exbolt|nanogy|aerobite|aerosonic|ultimax|vbs\s*\d{2,3}(?!\d))\b/i;
-    const NOT_STRING_ITEM_RE = /\b(raket|racket|sepatu|baju|jersey|celana|tas|grip|kok|shuttlecock|kaos|net|piala|taping|bola|basket|futsal|voli|volley|sepak|molten|spalding|mikasa|catur|chess|pingpong|tenis|senapan|peluru|mimis|sepatu\s*roda|skate|deker|sarung\s*tangan|pompa|matras|dumbbell|barbel|skipping)\b/i;
+    const BADMINTON_STRING_MODEL_RE = /\b(bg\s*\d{1,2}m?(?!\d)|nbg\s*\d{2,3}(?!\d)|exbolt|nanogy|aerobite|aerosonic|ultimax|tectonic\s*65|vbs\s*\d{2,3}(?!\d)|jp\s*\d{2,3}|no\.?\s*[157]\s*boost?)\b/i;
+    const BADMINTON_BRAND_RE = /\b(badminton|bulutangkis|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|power\s*max|tectonic|flypower|mizuno|astec|hart|ebox|eagle|prochamps|pro\s*ace|ashaway|gosen|rs\b|reinforce|kawasaki|fleet|babolat)\b/i;
+    const NOT_STRING_ITEM_RE = /\b(raket|racket|sepatu|baju|jersey|celana|tas|grip|kok|shuttlecock|kaos|net|piala|taping|bola|basket|futsal|voli|volley|sepak|molten|spalding|mikasa|catur|chess|pingpong|tenis|senapan|peluru|mimis|sepatu\s*roda|skate|deker|sarung\s*tangan|pompa|matras|dumbbell|barbel|skipping|pemasang)\b/i;
 
     function isSenarBadminton(item) {
       const name = String(item?.name || "").trim();
-      const txt = [item?.name, item?.category, item?.description].filter(Boolean).join(" ");
+      const desc = String(item?.description || "").trim();
+      const txt = [name, item?.category, desc].filter(Boolean).join(" ");
       if (MUSIC_RE.test(txt)) return false;
       if (BALL_ITEM_RE.test(txt)) return false;
-      if (/\bsenar\s+(raket|badminton|bulutangkis)\b/i.test(name)) return true;
       if (NOT_STRING_ITEM_RE.test(name)) return false;
+      if (/\bsenar\s+(raket|badminton|bulutangkis)\b/i.test(name)) return true;
       const hasSenarWord = /\bsenar\b/i.test(name);
-      const isModelOnly = BADMINTON_STRING_MODEL_RE.test(name);
-      if (isModelOnly) return true;
-      if (hasSenarWord) {
-        return BADMINTON_BRAND_RE.test(txt) || /^senar\b/i.test(name);
-      }
+      const hasStringModel = BADMINTON_STRING_MODEL_RE.test(name);
+      const hasBadmintonBrand = BADMINTON_BRAND_RE.test(txt);
+      if (hasSenarWord && (hasStringModel || hasBadmintonBrand)) return true;
+      if (hasStringModel && !hasSenarWord && !NOT_STRING_ITEM_RE.test(name)) return true;
       return false;
     }
 
@@ -1141,22 +1135,15 @@
           ${productImageMarkup(item, "catalog-card-photo", 360, index < 2)}
         </div>
         <div class="catalog-card-body">
-          <p class="catalog-card-meta">${esc(hasVariants ? `${item.code || ""} · ${variants.length} pilihan varian` : [item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
-          <h3 class="font-extrabold cursor-pointer hover:text-blue-700" data-view-product="${esc(item.id)}">${esc(item.name)}</h3>
-          ${hasVariants ? `
-            <div class="flex items-center gap-1.5 pt-1 overflow-x-auto" aria-label="Pilihan varian">
-              ${variants.slice(0, 5).map(v => `<button type="button" data-view-product="${esc(v.id)}" title="${esc(variantShortLabel(v))} · ${rp(v.price)}" class="w-9 h-9 rounded-lg border ${v.id === item.id ? "border-blue-400 ring-1 ring-blue-400" : "border-slate-600 hover:border-blue-400"} bg-slate-900 overflow-hidden shrink-0">${productImageMarkup(v, "w-full h-full object-contain", 96, false)}</button>`).join("")}
-              ${variants.length > 5 ? `<button type="button" data-view-product="${esc(item.id)}" class="text-[11px] font-bold text-blue-300 px-1.5 shrink-0">+${variants.length - 5}</button>` : ""}
-            </div>` : ""}
-          ${item.description ? `<p class="catalog-card-description line-clamp-2">${esc(item.description)}</p>` : ""}
+          <h3 class="catalog-card-title hover:text-blue-300" data-view-product="${esc(item.id)}">${esc(item.name)}</h3>
           ${showSenarNote ? `<p class="senar-service-note"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>${SENAR_SERVICE_NOTE}</span></p>` : ""}
           <div class="catalog-card-facts">
             <p class="catalog-card-price">${priceLabel}</p>
-            <span class="catalog-stock ${outOfStock ? "!bg-rose-50 !text-rose-700" : ""}">${outOfStock ? "Stok habis" : `Stok ${totalStock} pcs`}</span>
+            <span class="catalog-stock ${outOfStock ? "!bg-rose-50 !text-rose-700" : ""}">${outOfStock ? "Habis" : `Stok ${totalStock}`}</span>
           </div>
           <div class="catalog-card-actions">
             ${primaryActionBtn}
-            <a href="${CATALOG_WA}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener noreferrer" class="shop-button shop-button-secondary"><i class="fa-brands fa-whatsapp text-emerald-600" aria-hidden="true"></i> Tanya stok</a>
+            <a href="${CATALOG_WA}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener noreferrer" class="shop-button shop-button-secondary"><i class="fa-brands fa-whatsapp text-emerald-600" aria-hidden="true"></i> Tanya WA</a>
           </div>
         </div>
       </article>`;
