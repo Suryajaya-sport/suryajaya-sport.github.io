@@ -778,11 +778,13 @@
 
       const itemId = editId || doc(collection(db, ...paths("inventory"))).id;
       const oldItem = inventory.find(i => i.id === itemId);
+      const featured = Boolean(document.getElementById("invFeatured")?.checked);
       const itemData = {
         code, name,
         size: sizeVal,
         color: colorVal,
         stock, cost, price, description: autoDesc,
+        featured,
         imageUrl: oldItem?.imageUrl || "",
         imagePath: oldItem?.imagePath || "",
         updatedAt: new Date().toISOString()
@@ -870,6 +872,7 @@
             cost,
             price: vPrice,
             description: autoDesc,
+            featured,
             imageUrl: vImgUrl,
             imagePath: vImgPath,
             variantGroup: groupId,
@@ -915,7 +918,8 @@
         stock: Math.max(0, Math.trunc(Number(item.stock) || 0)),
         imageUrl: productImageUrl(item).slice(0, 2048),
         description: String(item.description || "").slice(0, 400),
-        variantGroup: String(item.variantGroup || "").slice(0, 120)
+        variantGroup: String(item.variantGroup || "").slice(0, 120),
+        featured: Boolean(item.featured)
       };
     }
 
@@ -1053,7 +1057,7 @@
         <div class="grid grid-cols-2 sm:grid-cols-12 gap-2">
           <input type="text" list="invSizeOptions" maxlength="40" placeholder="Ukuran" value="${esc(data?.size || "")}" class="var-size sm:col-span-3 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-semibold">
           <input type="text" list="invColorOptions" maxlength="60" placeholder="Warna" value="${esc(data?.color || "")}" class="var-color sm:col-span-3 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-semibold">
-          <input type="number" min="0" step="1" inputmode="numeric" value="${Number(data?.stock ?? 0)}" placeholder="Stok" class="var-stock sm:col-span-2 px-2 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-bold text-center tabular-nums">
+          <input type="number" min="0" step="1" inputmode="numeric" value="${Number(data?.stock ?? 0)}" placeholder="Stok" class="var-stock sm:col-span-2 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-bold text-center tabular-nums">
           <input type="text" inputmode="numeric" autocomplete="off" placeholder="Harga" value="${esc(data?.price ? fmtIdrInput(data.price) : "")}" class="var-price sm:col-span-4 px-2.5 py-1.5 border border-slate-300 rounded-lg bg-white text-xs font-bold tabular-nums">
         </div>
         <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-200/70">
@@ -1138,6 +1142,8 @@
       removedVariantIds = [];
       ["editInvId", "invName", "invCode", "invSize", "invColor", "invStock", "invCost", "invPrice", "invDescription"]
         .forEach(id => document.getElementById(id).value = "");
+      const featEl = document.getElementById("invFeatured");
+      if (featEl) featEl.checked = false;
       document.getElementById("invImageFile").value = "";
       pendingPosterBlob = null;
       setInvImagePreview("", "");
@@ -1170,6 +1176,8 @@
       document.getElementById("invCost").value = fmtIdrInput(item.cost || 0);
       document.getElementById("invPrice").value = fmtIdrInput(item.price || 0);
       document.getElementById("invDescription").value = item.description || "";
+      const featEl = document.getElementById("invFeatured");
+      if (featEl) featEl.checked = Boolean(item.featured);
       if (item.imageUrl) setInvImagePreview(item.imageUrl, "Foto produk tersimpan");
       document.getElementById("btnCancelInvEdit").classList.remove("hidden");
       document.getElementById("btnSaveInvText").textContent = "Simpan perubahan";
@@ -2561,12 +2569,70 @@
       return base ? `${base} · ${SENAR_SERVICE_NOTE}` : SENAR_SERVICE_NOTE;
     }
 
+    const CATALOG_BRANDS = [
+      { id: "yonex", name: "Yonex", sub: "Badminton", searchTerm: "Yonex", re: /\byonex\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><circle cx="24" cy="11" r="4.5" fill="#0066cc"/><circle cx="38" cy="11" r="4.5" fill="#10b981"/><path d="M18 19 L31 29 L44 19 L39 19 L31 24.5 L23 19 Z" fill="#0066cc"/><path d="M26 17 L31 21 L36 17" stroke="#10b981" stroke-width="2.5" fill="none"/></svg>` },
+      { id: "lining", name: "Li-Ning", sub: "Badminton & Sport", searchTerm: "Li-Ning", re: /\b(li-?ning|lining)\b/i, svg: `<svg viewBox="0 0 84 34" class="h-7 w-auto" aria-hidden="true"><path d="M14 25 C28 22, 44 14, 68 7 C52 17, 36 24, 18 28 Z" fill="#ef4444"/><path d="M24 12 L42 18 L28 24 Z" fill="#facc15"/></svg>` },
+      { id: "victor", name: "Victor", sub: "Badminton", searchTerm: "Victor", re: /\bvictor\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M22 7 L40 28 L58 7 L49 7 L40 19 L31 7 Z" fill="#2563eb"/><path d="M33 7 L40 15 L47 7 Z" fill="#ef4444"/></svg>` },
+      { id: "hiqua", name: "Hiqua", sub: "Badminton", searchTerm: "Hiqua", re: /\b(hi-?qua|hiqua)\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><rect x="20" y="7" width="6" height="20" rx="2" fill="#f5b700"/><rect x="34" y="7" width="6" height="20" rx="2" fill="#f5b700"/><rect x="20" y="14.5" width="20" height="5" fill="#f5b700"/><circle cx="52" cy="17" r="8" stroke="#38bdf8" stroke-width="4" fill="none"/><path d="M55 21 L62 27" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/></svg>` },
+      { id: "rs", name: "RS", sub: "Reinforce Speed", searchTerm: "RS", re: /\b(rs|reinforce(\s*speed)?)\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><polygon points="18,26 26,8 42,8 38,16 29,16 25,26" fill="#ef4444"/><polygon points="42,26 46,18 58,18 62,8 46,8 42,16 53,16 49,26" fill="#facc15"/></svg>` },
+      { id: "flypower", name: "Flypower", sub: "Badminton", searchTerm: "Flypower", re: /\bflypower\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M18 24 L36 8 L44 14 L58 8 L44 26 L36 19 Z" fill="#f97316"/><circle cx="58" cy="19" r="4" fill="#facc15"/></svg>` },
+      { id: "astec", name: "Astec", sub: "Badminton", searchTerm: "Astec", re: /\bastec\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><polygon points="40,6 22,28 31,28 40,16 49,28 58,28" fill="#38bdf8"/><rect x="31" y="21" width="18" height="4" fill="#f5b700"/></svg>` },
+      { id: "butterfly", name: "Butterfly", sub: "Tenis Meja", searchTerm: "Butterfly", re: /\bbutterfly\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M38 17 C28 6, 16 9, 20 20 C22 25, 32 25, 38 19 Z" fill="#ec4899"/><path d="M42 17 C52 6, 64 9, 60 20 C58 25, 48 25, 42 19 Z" fill="#f43f5e"/><rect x="38.5" y="10" width="3" height="15" rx="1.5" fill="#facc15"/></svg>` },
+      { id: "dhs", name: "DHS", sub: "Double Happiness", searchTerm: "DHS", re: /\b(dhs|double\s*happiness)\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><circle cx="33" cy="17" r="9" stroke="#ef4444" stroke-width="3.5" fill="none"/><circle cx="47" cy="17" r="9" stroke="#facc15" stroke-width="3.5" fill="none"/></svg>` },
+      { id: "nitaku", name: "Nitaku", sub: "Nittaku Pingpong", searchTerm: "Nitaku", re: /\b(nitaku|nittaku)\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><polygon points="24,26 24,8 32,8 48,20 48,8 56,8 56,26 48,26 32,14 32,26" fill="#38bdf8"/></svg>` },
+      { id: "donics", name: "Donics", sub: "Donic Pingpong", searchTerm: "Donic", re: /\b(donics?|donic)\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M24 8 H42 C52 8, 56 12, 56 17 C56 22, 52 26, 42 26 H24 Z" stroke="#10b981" stroke-width="4" fill="none"/><circle cx="40" cy="17" r="4" fill="#facc15"/></svg>` },
+      { id: "doublefish", name: "Double Fish", sub: "Tenis Meja", searchTerm: "Double Fish", re: /\bdouble\s*fish\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M22 14 C30 8, 42 8, 50 14 L58 9 L55 14 L58 19 L50 14 C42 20, 30 20, 22 14 Z" fill="#ef4444"/><path d="M58 22 C50 16, 38 16, 30 22 L22 17 L25 22 L22 27 L30 22 C38 28, 50 28, 58 22 Z" fill="#38bdf8"/></svg>` },
+      { id: "specs", name: "Specs", sub: "Futsal & Bola", searchTerm: "Specs", re: /\bspecs\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M20 22 L38 10 L58 10 L44 18 L60 18 L38 27 L24 27 Z" fill="#f5b700"/></svg>` },
+      { id: "ortuseight", name: "Ortuseight", sub: "Futsal & Running", searchTerm: "Ortuseight", re: /\b(ortuseight|ortus)\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><circle cx="40" cy="17" r="10" stroke="#f97316" stroke-width="4" fill="none"/><path d="M28 24 L52 10" stroke="#ffffff" stroke-width="3.5" stroke-linecap="round"/></svg>` },
+      { id: "adidas", name: "Adidas", sub: "Sport & Futsal", searchTerm: "Adidas", re: /\badidas\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><polygon points="22,26 27,26 24,20 19,20" fill="#ffffff"/><polygon points="32,26 37,26 31,14 26,14" fill="#ffffff"/><polygon points="42,26 47,26 38,8 33,8" fill="#ffffff"/></svg>` },
+      { id: "nike", name: "Nike", sub: "Sport & Futsal", searchTerm: "Nike", re: /\bnike\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M22 21 C19 18, 22 12, 27 10 C25 14, 27 17, 33 16 L62 9 L31 23 C26 25, 23 23, 22 21 Z" fill="#ffffff"/></svg>` },
+      { id: "molten", name: "Molten", sub: "Bola Basket & Voli", searchTerm: "Molten", re: /\bmolten\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M22 22 C28 10, 44 8, 58 14 C48 16, 38 20, 32 26 Z" fill="#ef4444"/><path d="M28 12 C38 12, 48 16, 54 24" stroke="#facc15" stroke-width="3" fill="none"/></svg>` },
+      { id: "mikasa", name: "Mikasa", sub: "Bola Voli & Sepak", searchTerm: "Mikasa", re: /\bmikasa\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><circle cx="40" cy="17" r="10" fill="#2563eb"/><path d="M31 14 Q40 9 49 14 Q44 22 36 22 Z" fill="#facc15"/></svg>` },
+      { id: "mizuno", name: "Mizuno", sub: "Badminton & Voli", searchTerm: "Mizuno", re: /\bmizuno\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M18 23 C28 11, 44 9, 62 11 C46 15, 36 20, 28 26 Z" fill="#38bdf8"/></svg>` },
+      { id: "asics", name: "Asics", sub: "Sepatu & Voli", searchTerm: "Asics", re: /\basics\b/i, svg: `<svg viewBox="0 0 80 34" class="h-7 w-auto" aria-hidden="true"><path d="M46 9 C32 9, 24 16, 26 23 C28 27, 36 26, 44 20 L48 25 H54 L47 9 Z M34 21 C31 21, 31 16, 37 14 L41 14 L38 20 C36 21, 35 21, 34 21 Z" fill="#60a5fa"/></svg>` }
+    ];
+    let activeBrandId = "";
+    function itemHaystack(item) {
+      return [item.name, item.code, item.size, item.color, item.description].filter(Boolean).join(" ");
+    }
+    function matchesBrand(item, brandObj) {
+      return !brandObj || brandObj.re.test(itemHaystack(item));
+    }
+    function renderBrandShowcase() {
+      const grid = document.getElementById("brandLogoGrid");
+      const resetBtn = document.getElementById("btnResetBrandFilter");
+      if (!grid) return;
+      if (resetBtn) resetBtn.classList.toggle("hidden", !activeBrandId);
+      const inStockItems = publicCatalog.filter(it => Number(it.stock || 0) > 0);
+      grid.innerHTML = CATALOG_BRANDS.map(b => {
+        const count = inStockItems.filter(it => matchesBrand(it, b)).length;
+        const isActive = activeBrandId === b.id;
+        return `<button type="button" data-brand-id="${esc(b.id)}" class="brand-logo-card ${isActive ? "is-active" : ""} ${count === 0 ? "is-empty-stock" : ""}" aria-pressed="${isActive}">
+          <span class="brand-count-pill ${count > 0 ? "has-stock" : ""}">${count}</span>
+          <div class="brand-emblem-box">${b.svg}</div>
+          <span class="brand-wordmark">${esc(b.name)}</span>
+          <span class="brand-sub-label">${esc(b.sub)}</span>
+        </button>`;
+      }).join("");
+    }
+
+    const DEFAULT_FEATURED_RE = /powermax|hundred|magnite|avo/i;
+    function isAdminCatalogFeatured(item) {
+      return Boolean(item?.featured) || DEFAULT_FEATURED_RE.test(String(item?.name || ""));
+    }
+
     function renderProductCatalog() {
+      renderBrandShowcase();
       const grid = document.getElementById("productCatalogGrid");
       const search = document.getElementById("catalogSearch");
       const q = search.value.trim().toLocaleLowerCase("id");
       document.getElementById("btnClearCatalogSearch").classList.toggle("hidden", !search.value);
       const category = document.querySelector("#catalogCategory input:checked")?.value || "all";
+      const brandObj = CATALOG_BRANDS.find(b => b.id === activeBrandId) || null;
+      const titleEl = document.getElementById("productCatalogTitle");
+      if (titleEl) {
+        titleEl.textContent = brandObj ? `Produk Brand: ${brandObj.name}` : "Katalog produk";
+      }
       if (catalogLoadState !== "ready") {
         grid.innerHTML = `<p class="catalog-empty" role="status">${catalogLoadState === "error" ? "Katalog gagal dimuat. Muat ulang halaman." : "Katalog sedang dimuat…"}</p>`;
         return;
@@ -2577,13 +2643,21 @@
       const sortMode = document.getElementById("catalogSort")?.value || "default";
       const items = publicCatalog.filter(item => Number(item.stock) > 0);
       const filtered = items.filter(item => {
-        const hay = [item.name, item.code, item.size, item.color, item.description].filter(Boolean).join(" ").toLocaleLowerCase("id");
-        return (!q || hay.includes(q)) && matchesCatalogCategory(item, category);
+        const hay = itemHaystack(item).toLocaleLowerCase("id");
+        const matchQuery = brandObj
+          ? (matchesBrand(item, brandObj) || (q && hay.includes(q)))
+          : (!q || hay.includes(q));
+        return matchQuery && matchesCatalogCategory(item, category);
       });
       if (sortMode === "price-asc") filtered.sort((a, b) => Number(a.price || 0) - Number(b.price || 0));
       else if (sortMode === "price-desc") filtered.sort((a, b) => Number(b.price || 0) - Number(a.price || 0));
       else if (sortMode === "name-asc") filtered.sort((a, b) => String(a.name || "").localeCompare(String(b.name || ""), "id"));
-      document.getElementById("catalogResultCount").textContent = `${filtered.length} produk`;
+      else filtered.sort((a, b) => Number(isAdminCatalogFeatured(b)) - Number(isAdminCatalogFeatured(a)));
+
+      document.getElementById("catalogResultCount").textContent = brandObj
+        ? `${filtered.length} produk ${brandObj.name}`
+        : `${filtered.length} produk`;
+      updateCustomerPreviewStats();
       if (!filtered.length) {
         grid.innerHTML = `<p class="catalog-empty" role="status">Produk tidak ditemukan. Coba kata kunci lain atau pilih kategori "Semua".</p>`;
         return;
@@ -2591,16 +2665,29 @@
       grid.innerHTML = filtered.map((item, index) => {
         const stockNum = Number(item.stock || 0);
         const limited = stockNum < LOW_STOCK_LIMIT;
+        const featured = isAdminCatalogFeatured(item);
+        const badgeLabel = featured ? "⭐ Unggulan" : (limited ? "Stok terbatas" : "Tersedia");
+        const badgeCls = featured ? "bg-amber-400 !text-slate-950" : (limited ? "is-limited" : "");
         const msg = `Halo Surya Jaya Sport, saya ingin bertanya tentang ${item.name}${item.code ? ` (${item.code})` : ""} dengan harga ${rp(item.price)}. Apakah stoknya tersedia?`;
+        const eid = esc(item.id);
+        const adminHoverBar = isAdmin ? `
+          <div class="admin-card-hover-bar" aria-label="Aksi cepat admin">
+            <button type="button" data-admin-card-act="edit" data-item-id="${eid}" title="Edit produk">✏ Edit</button>
+            <button type="button" data-admin-card-act="stock" data-item-id="${eid}" title="Restok / ubah stok">📦 Stok</button>
+            <button type="button" data-admin-card-act="photo" data-item-id="${eid}" title="Ganti foto">📷 Foto</button>
+            <button type="button" data-admin-card-act="price" data-item-id="${eid}" title="Ubah harga">💰 Harga</button>
+          </div>` : "";
         return `
-        <article class="catalog-card">
-          <div class="catalog-card-photo-wrap" data-view-product="${esc(item.id)}" role="button" tabindex="0" aria-label="Lihat detail ${esc(item.name)}">
-            <span class="catalog-card-badge ${limited ? "is-limited" : ""}">${limited ? "Stok terbatas" : "Tersedia"}</span>
+        <article class="catalog-card ${featured ? "!border-amber-400/60" : ""}">
+          ${adminHoverBar}
+          <div class="catalog-card-photo-wrap" data-view-product="${eid}" role="button" tabindex="0" aria-label="Lihat detail ${esc(item.name)}">
+            <span class="catalog-card-badge ${badgeCls}">${badgeLabel}</span>
             ${productImageMarkup(item, "catalog-card-photo", 560, index < 2)}
           </div>
           <div class="catalog-card-body">
             <p class="catalog-card-meta">${esc([item.code, item.size, item.color].filter(Boolean).join(" · "))}</p>
-            <h3 class="font-extrabold cursor-pointer hover:text-blue-700" data-view-product="${esc(item.id)}">${esc(item.name)}</h3>
+            <h3 class="font-extrabold cursor-pointer hover:text-blue-700" data-view-product="${eid}">${esc(item.name)}</h3>
+            <p class="text-[11px] font-bold text-emerald-400">📍 Tersedia di Toko Berau · Bisa Kirim</p>
             ${item.description ? `<p class="catalog-card-description line-clamp-2">${esc(item.description)}</p>` : ""}
             ${isSenarItem(item) ? `<p class="senar-service-note"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>${SENAR_SERVICE_NOTE}</span></p>` : ""}
             <div class="catalog-card-facts">
@@ -2608,7 +2695,7 @@
               <span class="catalog-stock">Stok ${stockNum} pcs</span>
             </div>
             <div class="catalog-card-actions">
-              <button type="button" data-add-cart="${esc(item.id)}" class="shop-button shop-button-primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Keranjang</button>
+              <button type="button" data-add-cart="${eid}" class="shop-button shop-button-primary"><i class="fa-solid fa-plus" aria-hidden="true"></i> Keranjang</button>
               <a href="${CATALOG_WA}?text=${encodeURIComponent(msg)}" target="_blank" rel="noopener noreferrer" class="shop-button shop-button-secondary"><i class="fa-brands fa-whatsapp text-emerald-600" aria-hidden="true"></i> Tanya stok</a>
             </div>
           </div>
@@ -2637,6 +2724,7 @@
     function updateCartSummary() {
       const lines = cartProducts();
       document.getElementById("catalogCartCount").textContent = lines.length;
+      updateCustomerPreviewStats();
       const total = lines.reduce((s, { item, line }) => s + (Number(item?.price) || 0) * line.qty, 0);
       document.getElementById("catalogCartTotal").textContent = lines.length ? `Perkiraan total: ${rp(total)}` : "";
       const link = document.getElementById("catalogCartWhatsApp");
@@ -5678,8 +5766,50 @@
       backup: { btn: "tabBtnBackup", panel: "viewBackup" },
       catalog: { btn: "tabBtnCatalog", panel: "viewCatalog" }
     };
+    let lastAdminWorkspace = "kasir";
+    function updateCustomerPreviewStats() {
+      const inStockCount = publicCatalog.filter(item => Number(item.stock) > 0).length;
+      const lines = cartProducts();
+      const cartQty = lines.reduce((s, { line }) => s + Math.max(0, Number(line.qty) || 0), 0);
+      const pEl = document.getElementById("previewStatProducts");
+      const cEl = document.getElementById("previewStatCart");
+      const fCartEl = document.getElementById("previewFloatingCartCount");
+      if (pEl) pEl.textContent = String(inStockCount);
+      if (cEl) cEl.textContent = String(cartQty);
+      if (fCartEl) fCartEl.textContent = String(cartQty);
+      const sysCloud = document.getElementById("sysBarCloudText");
+      const mainCloud = document.getElementById("syncStatusText");
+      if (sysCloud && mainCloud) sysCloud.textContent = mainCloud.textContent || "Cloud Online";
+    }
+
     function switchWorkspace(name) {
       const target = isAdmin ? (WORKSPACES[name] ? name : "kasir") : "catalog";
+      if (isAdmin && target !== "catalog") lastAdminWorkspace = target;
+      const inCustomerPreview = isAdmin && target === "catalog";
+
+      document.body.classList.toggle("sjs-customer-preview", inCustomerPreview);
+      const navEl = document.getElementById("mainNavigation");
+      if (navEl) navEl.hidden = !isAdmin || inCustomerPreview;
+      const pmEl = document.getElementById("adminPastelMenu");
+      if (pmEl) pmEl.hidden = !isAdmin || inCustomerPreview;
+      const aiFab = document.getElementById("sjsAiFab");
+      if (aiFab) aiFab.classList.toggle("hidden", !isAdmin || inCustomerPreview);
+      if (inCustomerPreview) {
+        document.getElementById("sjsAiBox")?.classList.add("hidden");
+      }
+
+      const dock = document.getElementById("adminQuickDock");
+      const qMenu = document.getElementById("adminQuickMenu");
+      const qBtn = document.getElementById("btnToggleAdminQuickDock");
+      if (dock) dock.hidden = !inCustomerPreview;
+      if (!inCustomerPreview && qMenu) {
+        qMenu.hidden = true;
+        qBtn?.setAttribute("aria-expanded", "false");
+      }
+      const banner = document.getElementById("customerPreviewBanner");
+      if (banner) banner.hidden = !inCustomerPreview;
+      updateCustomerPreviewStats();
+
       for (const [key, cfg] of Object.entries(WORKSPACES)) {
         document.getElementById(cfg.btn).setAttribute("aria-current", key === target ? "page" : "false");
       }
@@ -5928,6 +6058,74 @@
           window.scrollTo({ top: 0, behavior: "smooth" });
         });
       }
+      document.getElementById("btnToggleSystemBar")?.addEventListener("click", e => {
+        e.stopPropagation();
+        document.getElementById("systemBarWrap")?.classList.toggle("is-open");
+      });
+      document.getElementById("btnSysBarTablet")?.addEventListener("click", () => {
+        document.getElementById("btnToggleTabletMode")?.click();
+        const txt = document.getElementById("sysBarTabletText");
+        if (txt) txt.textContent = document.body.classList.contains("sjs-tablet-mode") ? "Mode Tablet: ON" : "Mode Tablet";
+      });
+      document.getElementById("btnSysBarAuthModal")?.addEventListener("click", () => {
+        document.getElementById("adminAuthModal")?.classList.remove("hidden");
+      });
+      document.getElementById("previewFloatingCartBtn")?.addEventListener("click", () => {
+        renderCart();
+        document.getElementById("catalogCart").showModal();
+      });
+      document.getElementById("productCatalogGrid")?.addEventListener("click", e => {
+        const actBtn = e.target.closest("[data-admin-card-act]");
+        if (!actBtn || !isAdmin) return;
+        e.stopPropagation();
+        const act = actBtn.dataset.adminCardAct;
+        const itemId = actBtn.dataset.itemId;
+        if (act === "stock") {
+          openRestockFor(itemId);
+          return;
+        }
+        editInventoryItem(itemId);
+        requestAnimationFrame(() => {
+          if (act === "price") {
+            const pInp = document.getElementById("invPrice");
+            if (pInp) { pInp.focus(); pInp.select(); }
+          } else if (act === "photo") {
+            document.getElementById("invImageFile")?.click();
+          }
+        });
+      });
+      document.getElementById("btnToggleAdminQuickDock")?.addEventListener("click", e => {
+        const menu = document.getElementById("adminQuickMenu");
+        if (!menu) return;
+        const willOpen = menu.hidden;
+        menu.hidden = !willOpen;
+        e.currentTarget.setAttribute("aria-expanded", String(willOpen));
+      });
+      document.getElementById("adminQuickMenu")?.addEventListener("click", e => {
+        const btn = e.target.closest("[data-quick-admin]");
+        if (!btn) return;
+        const dest = btn.classList.contains("is-return-admin") ? (lastAdminWorkspace || "kasir") : btn.dataset.quickAdmin;
+        switchWorkspace(dest);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+      const backToAdminHandler = () => {
+        switchWorkspace(lastAdminWorkspace || "kasir");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      };
+      document.getElementById("btnQuickBackToAdmin")?.addEventListener("click", backToAdminHandler);
+      document.getElementById("btnBannerBackToAdmin")?.addEventListener("click", backToAdminHandler);
+      document.addEventListener("click", e => {
+        const dock = document.getElementById("adminQuickDock");
+        const menu = document.getElementById("adminQuickMenu");
+        if (dock && menu && !menu.hidden && !dock.contains(e.target)) {
+          menu.hidden = true;
+          document.getElementById("btnToggleAdminQuickDock")?.setAttribute("aria-expanded", "false");
+        }
+        const sysWrap = document.getElementById("systemBarWrap");
+        if (sysWrap && !sysWrap.contains(e.target)) {
+          sysWrap.classList.remove("is-open");
+        }
+      });
       for (const b of document.querySelectorAll("[data-workspace]")) {
         b.addEventListener("click", () => {
           switchWorkspace(b.dataset.workspace);
@@ -6763,10 +6961,42 @@
       document.getElementById("syncStatusBadge").addEventListener("click", () => document.getElementById("cloudConfigModal").classList.remove("hidden"));
       document.getElementById("btnCloseCloudModal").addEventListener("click", () => document.getElementById("cloudConfigModal").classList.add("hidden"));
 
-      document.getElementById("catalogSearch").addEventListener("input", renderProductCatalog);
+      document.getElementById("catalogSearch").addEventListener("input", e => {
+        const val = e.target.value.trim().toLowerCase();
+        const matchedBrand = CATALOG_BRANDS.find(b => b.searchTerm.toLowerCase() === val || b.name.toLowerCase() === val);
+        activeBrandId = matchedBrand ? matchedBrand.id : "";
+        renderProductCatalog();
+      });
       document.getElementById("catalogSearchForm").addEventListener("submit", e => e.preventDefault());
       document.getElementById("btnClearCatalogSearch").addEventListener("click", () => {
         document.getElementById("catalogSearch").value = "";
+        activeBrandId = "";
+        renderProductCatalog();
+      });
+      document.getElementById("brandLogoGrid")?.addEventListener("click", e => {
+        const btn = e.target.closest("[data-brand-id]");
+        if (!btn) return;
+        const bId = btn.dataset.brandId;
+        const brandObj = CATALOG_BRANDS.find(b => b.id === bId);
+        if (!brandObj) return;
+        const searchInp = document.getElementById("catalogSearch");
+        if (activeBrandId === bId) {
+          activeBrandId = "";
+          if (searchInp) searchInp.value = "";
+          renderProductCatalog();
+          return;
+        }
+        activeBrandId = bId;
+        if (searchInp) searchInp.value = brandObj.searchTerm;
+        const allRadio = document.querySelector('#catalogCategory input[value="all"]');
+        if (allRadio) allRadio.checked = true;
+        renderProductCatalog();
+        document.getElementById("publicProductCatalog")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+      document.getElementById("btnResetBrandFilter")?.addEventListener("click", () => {
+        activeBrandId = "";
+        const searchInp = document.getElementById("catalogSearch");
+        if (searchInp) searchInp.value = "";
         renderProductCatalog();
       });
       document.getElementById("catalogCategory").addEventListener("change", renderProductCatalog);
