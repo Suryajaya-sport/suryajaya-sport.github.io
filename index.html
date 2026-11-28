@@ -267,7 +267,7 @@
     .hero-trust-stat { display: flex; align-items: center; gap: .38rem; padding: .4rem .6rem; border-radius: .8rem; background: rgba(11, 14, 20, 0.55); border: 1px solid rgba(250, 204, 21, 0.25); font-size: .74rem; font-weight: 800; color: #f8fafc; white-space: nowrap; }
     .hero-visual-stage { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; }
     .hero-visual-card { position: relative; width: 100%; max-width: 340px; height: 224px; border-radius: 1.35rem; overflow: hidden; border: 2px solid rgba(250, 204, 21, 0.45); box-shadow: 0 18px 36px rgba(0, 0, 0, 0.48); background: #0b1220; }
-    .hero-visual-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .hero-visual-card img { width: 100%; height: 100%; object-fit: contain; display: block; }
     .hero-visual-caption { position: absolute; left: .6rem; right: .6rem; bottom: .6rem; padding: .45rem .7rem; border-radius: .8rem; background: rgba(11, 14, 20, 0.88); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.14); display: flex; align-items: center; justify-content: space-between; gap: .4rem; }
 
     .fun-highlights-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .7rem; }
@@ -308,9 +308,9 @@
     .catalog-card { background: var(--dark-card); border: 1.5px solid var(--dark-border); border-radius: 1.25rem; overflow: hidden; display: flex; flex-direction: column; transition: transform .18s, box-shadow .18s, border-color .18s; }
     .catalog-card:hover { transform: translateY(-3px); border-color: #475569; box-shadow: 0 12px 24px rgba(0,0,0,.42); }
     .catalog-card-photo-wrap { position: relative; cursor: pointer; background: var(--dark-bg); border-bottom: 1px solid var(--dark-border); }
-    .catalog-card-photo { aspect-ratio: 4 / 5; max-height: 220px; width: 100%; background: var(--dark-bg); }
-    .catalog-card-photo img { background: var(--dark-bg); object-fit: cover; }
-    .catalog-card-badge { position: absolute; top: .55rem; right: .55rem; z-index: 2; padding: .24rem .62rem; border-radius: 9999px; font-size: .7rem; font-weight: 800; letter-spacing: .01em; background: #064e3b; color: #ecfdf5; border: 1.5px solid #34d399; box-shadow: 0 4px 10px rgba(0,0,0,.45); }
+    .catalog-card-photo { aspect-ratio: 1 / 1; max-height: 235px; width: 100%; background: var(--dark-bg); }
+    .catalog-card-photo img { background: var(--dark-bg); object-fit: contain; }
+    .catalog-card-badge { display: inline-flex; align-items: center; padding: .24rem .62rem; border-radius: 9999px; font-size: .7rem; font-weight: 800; letter-spacing: .01em; background: #064e3b; color: #ecfdf5; border: 1.5px solid #34d399; box-shadow: 0 4px 10px rgba(0,0,0,.45); }
     .catalog-card-badge.is-featured { background: linear-gradient(135deg,#9a3412,#ea580c); color: #fff7ed; border-color: #fdba74; }
     .catalog-card-badge.is-limited { background: #78350f; color: #fef3c7; border-color: #facc15; }
     .catalog-card-badge.is-out { background: #881337; color: #ffe4e6; border-color: #fb7185; }
@@ -479,7 +479,7 @@
       renderCustomerViewTemplate,
       renderCustomerCatalogState,
       openCustomerProductModal
-    } from "./sjs-storefront.js?v=20261128-2";
+    } from "./sjs-storefront.js?v=20261128-6";
 
     const EMBEDDED_FIREBASE_CONFIG = {
       apiKey: "AIzaSyBFtI_lwLU7cDcioDE1GpgC0AjKPZ1mHag",

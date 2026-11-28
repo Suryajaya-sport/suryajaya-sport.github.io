@@ -29,7 +29,7 @@ export function thumbnailUrl(url, width = 360) {
 
 export const MUSIC_RE = /\b(gitar|guitar|ukulele|bass|capo|plektrum|musik|akustik|acoustic|klasik|classic|elektrik|electric|biola|violin|drum|stik\s*drum|cajon|jimbe|harmonika|tama|sonor|zildjian|yamaha\s*f|pyramid|d'?addario|orphee|ernie\s*ball|elixir|fender|nilon|nylon|kawat)\b/i;
 export const BALL_ITEM_RE = /\b(futsal|bola|sepak|basket|voli|volley|football|soccer|molten|spalding|mikasa|nassau)\b/i;
-export const BADMINTON_STRING_MODEL_RE = /\b(bg\s*\d{1,2}m?(?!\d)|nbg\s*\d{2,3}(?!\d)|exbolt|nanogy|aerobite|aerosonic|ultimax|tectonic\s*65|vbs\s*\d{2,3}(?!\d)|jp\s*\d{2,3}|no\.?\s*[157]\s*boost?)\b/i;
+export const BADMINTON_STRING_MODEL_RE = /\b(bg\s*\d{1,2}m?(?!\d)|nbg\s*\d{2,3}(?!\d)|exbolt|nanogy|aerobite|aerosonic|ultimax|tectonic\s*65|magnite\s*\d{2,3}|vbs\s*\d{2,3}(?!\d)|jp\s*\d{2,3}|no\.?\s*[157]\s*boost?)\b/i;
 export const BADMINTON_BRAND_RE = /\b(badminton|bulutangkis|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|power\s*max|tectonic|flypower|mizuno|astec|hart|ebox|eagle|prochamps|pro\s*ace|ashaway|gosen|rs\b|reinforce|kawasaki|fleet|babolat)\b/i;
 export const NOT_STRING_ITEM_RE = /\b(raket|racket|sepatu|baju|jersey|celana|tas|grip|kok|shuttlecock|kaos|net|piala|taping|bola|basket|futsal|voli|volley|sepak|molten|spalding|mikasa|catur|chess|pingpong|tenis|senapan|peluru|mimis|sepatu\s*roda|skate|deker|sarung\s*tangan|pompa|matras|dumbbell|barbel|skipping|pemasang)\b/i;
 
@@ -129,15 +129,17 @@ export function buildCatalogCardHtml({ primary: item, variants, totalStock, minP
   return `
   <article class="catalog-card ${outOfStock ? "opacity-85" : ""}">
     <div class="catalog-card-photo-wrap" data-view-product="${escHtml(item.id)}" role="button" tabindex="0" aria-label="Lihat detail ${escHtml(item.name)}">
-      <span class="catalog-card-badge ${badgeStyle}">${badgeLabel}</span>
       ${productImageMarkup(item, "catalog-card-photo", 360, index < 2)}
     </div>
     <div class="catalog-card-body">
+      <div class="flex items-center justify-between gap-1.5">
+        <span class="catalog-card-badge ${badgeStyle}">${badgeLabel}</span>
+        <span class="catalog-stock ${outOfStock ? "!bg-rose-50 !text-rose-700" : ""}">${outOfStock ? "Habis" : `Stok ${totalStock}`}</span>
+      </div>
       <h3 class="catalog-card-title hover:text-blue-300" data-view-product="${escHtml(item.id)}">${escHtml(item.name)}</h3>
       ${showSenarNote ? `<p class="senar-service-note"><i class="fa-solid fa-circle-check" aria-hidden="true"></i><span>${SENAR_SERVICE_NOTE}</span></p>` : ""}
       <div class="catalog-card-facts">
         <p class="catalog-card-price">${priceLabel}</p>
-        <span class="catalog-stock ${outOfStock ? "!bg-rose-50 !text-rose-700" : ""}">${outOfStock ? "Habis" : `Stok ${totalStock}`}</span>
       </div>
       <div class="catalog-card-actions">
         ${primaryActionBtn}
@@ -150,20 +152,36 @@ export function buildCatalogCardHtml({ primary: item, variants, totalStock, minP
 export function renderCustomerViewTemplate(container, { isAdminPreview = false } = {}) {
   if (!container) return;
   const adminBannerHtml = isAdminPreview ? `
-    <div id="customerPreviewBanner" class="customer-preview-banner no-print" role="region" aria-label="Indikator Pratinjau Pelanggan">
+    <div id="customerPreviewBanner" class="customer-preview-banner no-print" role="region" aria-label="Bar Pelanggan">
+      <div class="flex flex-wrap items-center gap-3">
+        <a href="#top" class="inline-flex items-center gap-2.5 text-white no-underline">
+          <img src="sjs-mark-192.png" alt="Logo Surya Jaya Sport" width="38" height="38" class="w-9 h-9 rounded-xl bg-white p-1 object-contain">
+          <div>
+            <strong class="block text-sm font-extrabold uppercase tracking-wide text-white leading-tight">Surya Jaya Sport</strong>
+            <span class="block text-[11px] font-semibold text-slate-300">Jl. Ahmad Yani 37, Berau · 08.00–21.00 WITA</span>
+          </div>
+        </a>
+        <nav class="hidden md:flex items-center gap-1 bg-slate-900/80 border border-slate-700/80 rounded-full px-2 py-1 text-xs font-bold text-slate-200" aria-label="Menu pelanggan">
+          <a href="#produk-unggulan" class="px-2.5 py-1 rounded-full hover:bg-slate-800 hover:text-amber-300">Unggulan</a>
+          <a href="#kategori-unggulan" class="px-2.5 py-1 rounded-full hover:bg-slate-800 hover:text-amber-300">Kategori</a>
+          <a href="#publicProductCatalog" class="px-2.5 py-1 rounded-full hover:bg-slate-800 hover:text-amber-300">Katalog</a>
+          <a href="#cara-pesan" class="px-2.5 py-1 rounded-full hover:bg-slate-800 hover:text-amber-300">Cara Pesan</a>
+          <a href="#lokasi-toko" class="px-2.5 py-1 rounded-full hover:bg-slate-800 hover:text-amber-300">Lokasi</a>
+        </nav>
+      </div>
       <div class="flex flex-wrap items-center gap-2">
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-extrabold">👁 Preview Pelanggan (Sama Persis Website Publik)</span>
-        <span class="preview-stat-pill"><strong id="previewStatProducts">0</strong> Produk</span>
-        <span class="preview-stat-pill"><strong id="previewStatCart">0</strong> Keranjang</span>
-        <button type="button" id="openCatalogCart" class="shop-button shop-button-secondary !min-h-8 !py-1 !px-3 !text-xs">
+        <button type="button" id="openCatalogCart" class="shop-button shop-button-secondary !min-h-9 !py-1.5 !px-3 !text-xs">
           <i class="fa-solid fa-basket-shopping" aria-hidden="true"></i>
           <span>Keranjang</span>
-          <span id="catalogCartCount" class="rounded-full bg-amber-400 text-slate-950 px-1.5 py-0.2 text-[11px] font-extrabold">0</span>
+          <span id="catalogCartCount" class="rounded-full bg-amber-400 text-slate-950 px-1.5 py-0.5 text-[11px] font-extrabold">0</span>
+        </button>
+        <a href="https://wa.me/6282320033333" target="_blank" rel="noopener noreferrer" class="shop-button shop-button-wa !min-h-9 !py-1.5 !px-3 !text-xs">
+          <i class="fa-brands fa-whatsapp" aria-hidden="true"></i> 0823-200-33333
+        </a>
+        <button type="button" id="btnBannerBackToAdmin" class="shop-button shop-button-accent !min-h-9 !py-1.5 !px-3.5 !text-xs">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Kembali ke Admin
         </button>
       </div>
-      <button type="button" id="btnBannerBackToAdmin" class="shop-button shop-button-primary !min-h-9 !py-1.5 !px-3.5 !text-xs">
-        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Kembali ke Admin
-      </button>
     </div>` : "";
 
   container.innerHTML = `
@@ -296,13 +314,13 @@ export function renderCustomerViewTemplate(container, { isAdminPreview = false }
           <button type="button" id="btnClearCatalogSearch" class="hidden" aria-label="Hapus pencarian"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
         </form>
         <div class="catalog-filter-row">
-          <div id="catalogCategory" class="catalog-categories" role="radiogroup" aria-label="Kategori produk">
-            <label><input type="radio" name="catalogCategory" value="all" checked class="sr-only"><span>Semua</span></label>
-            <label><input type="radio" name="catalogCategory" value="badminton" class="sr-only"><span>Badminton</span></label>
-            <label><input type="radio" name="catalogCategory" value="ball" class="sr-only"><span>Futsal &amp; Bola</span></label>
-            <label><input type="radio" name="catalogCategory" value="chess" class="sr-only"><span>Catur</span></label>
-            <label><input type="radio" name="catalogCategory" value="music" class="sr-only"><span>Musik</span></label>
-            <label><input type="radio" name="catalogCategory" value="sport" class="sr-only"><span>Olahraga Lainnya</span></label>
+          <div id="catalogCategory" class="sr-only" role="radiogroup" aria-label="Kategori produk">
+            <label><input type="radio" name="catalogCategory" value="all" checked><span>Semua</span></label>
+            <label><input type="radio" name="catalogCategory" value="badminton"><span>Badminton</span></label>
+            <label><input type="radio" name="catalogCategory" value="ball"><span>Futsal &amp; Bola</span></label>
+            <label><input type="radio" name="catalogCategory" value="chess"><span>Catur</span></label>
+            <label><input type="radio" name="catalogCategory" value="music"><span>Musik</span></label>
+            <label><input type="radio" name="catalogCategory" value="sport"><span>Olahraga Lainnya</span></label>
           </div>
           <div class="flex flex-wrap items-center gap-2.5">
             <label class="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-700 cursor-pointer select-none">

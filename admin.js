@@ -2,7 +2,7 @@
       renderCustomerViewTemplate,
       renderCustomerCatalogState,
       openCustomerProductModal
-    } from "./sjs-storefront.js?v=20261128-2";
+    } from "./sjs-storefront.js?v=20261128-6";
 
     // ==================== KONFIGURASI ====================
     const EMBEDDED_FIREBASE_CONFIG = {
@@ -5655,8 +5655,13 @@
       const inCustomerPreview = isAdmin && target === "catalog";
 
       document.body.classList.toggle("sjs-customer-preview", inCustomerPreview);
+      const hdrEl = document.querySelector("header.shop-header");
+      if (hdrEl) hdrEl.style.display = inCustomerPreview ? "none" : "";
       const navEl = document.getElementById("mainNavigation");
-      if (navEl) navEl.hidden = !isAdmin || inCustomerPreview;
+      if (navEl) {
+        navEl.hidden = !isAdmin || inCustomerPreview;
+        navEl.style.display = (!isAdmin || inCustomerPreview) ? "none" : "";
+      }
       const pmEl = document.getElementById("adminPastelMenu");
       if (pmEl) pmEl.hidden = !isAdmin || inCustomerPreview;
       const aiFab = document.getElementById("sjsAiFab");
