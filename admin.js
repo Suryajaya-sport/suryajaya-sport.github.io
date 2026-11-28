@@ -1687,18 +1687,25 @@
       const recInp = document.getElementById("posCashReceivedInput");
       if (recInp && document.activeElement !== recInp) recInp.value = cashReceivedAmount > 0 ? ("Rp " + Number(cashReceivedAmount).toLocaleString("id-ID")) : "";
       const diff = cashReceivedAmount - currentSaleTotalAmount;
+      const recFrame = document.querySelector(".pos-received-frame");
+      if (recFrame) {
+        recFrame.classList.remove("filled", "short", "enough");
+        if (cashReceivedAmount > 0) recFrame.classList.add("filled");
+      }
       if (selectedPaymentMethod !== "Cash" || currentSaleTotalAmount <= 0 || cashReceivedAmount <= 0) {
         if (lblEl) lblEl.textContent = "KEMBALIAN";
         if (chgEl) chgEl.textContent = rp(0);
         if (boxEl) { boxEl.classList.add("is-idle"); boxEl.classList.remove("is-change", "is-short"); }
       } else if (diff < 0) {
-        if (lblEl) lblEl.textContent = "⚠ KURANG";
-        if (chgEl) chgEl.textContent = rp(Math.abs(diff));
+        if (lblEl) lblEl.textContent = "STATUS PEMBAYARAN";
+        if (chgEl) chgEl.textContent = "Kurang " + rp(Math.abs(diff));
         if (boxEl) { boxEl.classList.add("is-short"); boxEl.classList.remove("is-change", "is-idle"); }
+        if (recFrame) recFrame.classList.add("short");
       } else {
-        if (lblEl) lblEl.textContent = "✓ KEMBALIAN";
+        if (lblEl) lblEl.textContent = "KEMBALIAN";
         if (chgEl) chgEl.textContent = rp(diff);
         if (boxEl) { boxEl.classList.add("is-change"); boxEl.classList.remove("is-short", "is-idle"); }
+        if (recFrame) recFrame.classList.add("enough");
       }
     }
 

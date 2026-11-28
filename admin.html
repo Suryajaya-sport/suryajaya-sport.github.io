@@ -3348,6 +3348,375 @@
       }
 
 </style>
+
+  <style id="sjs-kasir-dark-koreksi-v2">
+    @media screen {
+      /* === KOREKSI & PENYESUAIAN TEMA GELAP KASIR + KONSISTENSI HALAMAN ADMIN === */
+      /* Kuning (#facc15) khusus merek; Oranye (#FB923C) khusus peringatan; Merah (#EF4444) khusus kurang/bahaya; Hijau (#22C55E) khusus cukup/kembalian */
+
+      /* 1. Mode Pembayaran: border netral #24324D + aksen garis tipis di sisi kiri; hover warna metode; aktif latar gelap #1e3a8a + border kuning #facc15 */
+      body.sjs-admin .pos-exact-seg .pay-option-btn {
+        background: var(--card, #121C30) !important;
+        border: 1px solid var(--line, #24324D) !important;
+        border-left: 3px solid var(--c, #64748b) !important;
+        color: var(--text, #F1F5F9) !important;
+        box-shadow: none !important;
+      }
+      body.sjs-admin .pos-exact-seg .pay-option-btn[data-pay="Cash"]     { --c: #facc15; }
+      body.sjs-admin .pos-exact-seg .pay-option-btn[data-pay="QRIS"]     { --c: #22c55e; }
+      body.sjs-admin .pos-exact-seg .pay-option-btn[data-pay="Kartu"]    { --c: #3b82f6; }
+      body.sjs-admin .pos-exact-seg .pay-option-btn[data-pay="Transfer"] { --c: #8b5cf6; }
+
+      body.sjs-admin .pos-exact-seg .pay-option-btn:hover {
+        border-color: var(--c, var(--line, #24324D)) !important;
+        border-left-width: 3px !important;
+        background: #162238 !important;
+        color: #ffffff !important;
+      }
+      body.sjs-admin .pos-exact-seg .pay-option-btn[aria-pressed="true"] {
+        background: #1e3a8a !important;
+        border: 1.5px solid #facc15 !important;
+        border-left: 3px solid #facc15 !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 12px rgba(20, 40, 80, .35) !important;
+      }
+
+      /* Tombol Split, Bon, dan Tampilkan QR ikut gelap konsisten */
+      body.sjs-admin #posPaySectionBox .pay-option-btn[data-pay="Split"],
+      body.sjs-admin #posPaySectionBox .pay-option-btn[data-pay="Bon"],
+      body.sjs-admin #btnShowQrisPay {
+        background: var(--card, #121C30) !important;
+        border: 1px solid var(--line, #24324D) !important;
+        color: var(--text, #F1F5F9) !important;
+      }
+      body.sjs-admin #posPaySectionBox .pay-option-btn[data-pay="Split"]:hover,
+      body.sjs-admin #posPaySectionBox .pay-option-btn[data-pay="Bon"]:hover,
+      body.sjs-admin #btnShowQrisPay:hover {
+        border-color: #60a5fa !important;
+        background: #162238 !important;
+        color: #ffffff !important;
+      }
+      body.sjs-admin #posPaySectionBox .pay-option-btn[data-pay="Split"][aria-pressed="true"],
+      body.sjs-admin #posPaySectionBox .pay-option-btn[data-pay="Bon"][aria-pressed="true"] {
+        background: #1e3a8a !important;
+        border: 1.5px solid #facc15 !important;
+        color: #ffffff !important;
+      }
+
+      /* 2. Keranjang, Transaksi Terakhir Hari Ini, & Panel Kanan Kasir (hilangkan semua blok putih) */
+      body.sjs-admin #cashierWorkspace .bg-white,
+      body.sjs-admin #cashierWorkspace .bg-slate-50,
+      body.sjs-admin #cashierWorkspace .bg-slate-50\/80,
+      body.sjs-admin #cashierWorkspace .bg-slate-100,
+      body.sjs-admin #posLiveStatsStrip,
+      body.sjs-admin #posRecentTxCard,
+      body.sjs-admin #posCartEmptyHint,
+      body.sjs-admin .pos-cart-item-card,
+      body.sjs-admin .pos-cart-sticky,
+      body.sjs-admin #posSaveActionsSticky,
+      body.sjs-admin #posInstantDropdown {
+        background: #0f172a !important;
+        border-color: #1e293b !important;
+        color: #f1f5f9 !important;
+      }
+      body.sjs-admin .pos-cart-item-card,
+      body.sjs-admin #posCartEmptyHint {
+        background: #111827 !important;
+        border-color: #24324D !important;
+      }
+      body.sjs-admin #cashierWorkspace .item-edit-drawer {
+        background: #0b1220 !important;
+        border-color: #24324D !important;
+      }
+      body.sjs-admin #posInstantSearch {
+        background: #0f172a !important;
+        border-color: #24324D !important;
+        color: #f1f5f9 !important;
+      }
+      body.sjs-admin #posInstantSearch::placeholder {
+        color: #a9b8d0 !important;
+      }
+      body.sjs-admin #posInstantDropdown button:hover {
+        background: #1e293b !important;
+      }
+
+      /* Kontras teks kecil di Keranjang, Transaksi Terakhir, dan semua halaman Admin */
+      body.sjs-admin #cashierWorkspace .text-slate-400,
+      body.sjs-admin #cashierWorkspace .text-slate-500,
+      body.sjs-admin #cashierWorkspace .text-slate-600,
+      body.sjs-admin #posCartEmptyHint p:last-child,
+      body.sjs-admin #previewSubtotalLine,
+      body.sjs-admin #posCartCountMeta,
+      body.sjs-admin #btnResetForm,
+      body.sjs-admin #posRecentTxCard .text-slate-400,
+      body.sjs-admin #posRecentTxCard .text-slate-600 {
+        color: #a9b8d0 !important;
+      }
+      body.sjs-admin #cashierWorkspace .text-slate-700,
+      body.sjs-admin #cashierWorkspace .text-slate-800,
+      body.sjs-admin #cashierWorkspace .text-slate-900,
+      body.sjs-admin #cashierWorkspace .text-slate-950,
+      body.sjs-admin #posCartEmptyHint p:first-child,
+      body.sjs-admin #posRecentTxList .text-slate-800 {
+        color: #f1f5f9 !important;
+      }
+      body.sjs-admin #btnResetForm {
+        background: #1e293b !important;
+        border: 1px solid #334155 !important;
+      }
+      body.sjs-admin #btnResetForm:hover {
+        background: rgba(239, 68, 68, 0.16) !important;
+        border-color: #ef4444 !important;
+        color: #fca5a5 !important;
+      }
+      body.sjs-admin #btnHoldSale,
+      body.sjs-admin #btnToggleStaffPrivacy,
+      body.sjs-admin #btnPosQuickClosing,
+      body.sjs-admin #btnPosShortcutHelp {
+        background: #111827 !important;
+        border: 1px solid #24324D !important;
+        color: #e2e8f0 !important;
+      }
+      body.sjs-admin #btnHoldSale:hover,
+      body.sjs-admin #btnToggleStaffPrivacy:hover,
+      body.sjs-admin #btnPosQuickClosing:hover {
+        border-color: #facc15 !important;
+        color: #ffffff !important;
+      }
+      body.sjs-admin .pos-hdr-badge {
+        background: #111827 !important;
+        border-color: #24324D !important;
+        color: #f1f5f9 !important;
+      }
+      body.sjs-admin .pos-hdr-badge strong {
+        color: #f1f5f9 !important;
+      }
+      body.sjs-admin .pos-hdr-badge.pos-hdr-warn {
+        background: rgba(251, 146, 60, 0.14) !important;
+        border-color: rgba(251, 146, 60, 0.55) !important;
+        color: #FB923C !important;
+      }
+
+      /* 4. Favorit Cepat: kartu gelap, teks terang, harga kuning merek */
+      body.sjs-admin .pos-fav-pro-card {
+        background: #111827 !important;
+        border: 1px solid #1e293b !important;
+        color: #f1f5f9 !important;
+        box-shadow: none !important;
+      }
+      body.sjs-admin .pos-fav-pro-card .pos-fav-pro-name {
+        color: #f1f5f9 !important;
+      }
+      body.sjs-admin .pos-fav-pro-card .pos-fav-pro-price {
+        color: #facc15 !important;
+      }
+      body.sjs-admin .pos-fav-pro-card:hover {
+        border-color: #facc15 !important;
+        background: #162238 !important;
+      }
+
+      /* Tombol Nota, WA, dan Hapus di Transaksi Terakhir Hari Ini */
+      body.sjs-admin #posRecentTxList [data-pos-reprint],
+      body.sjs-admin #posRecentTxList [data-pos-wa-rcpt] {
+        background: #111827 !important;
+        border: 1px solid #24324D !important;
+        color: #f1f5f9 !important;
+      }
+      body.sjs-admin #posRecentTxList [data-pos-reprint]:hover {
+        border-color: #60a5fa !important;
+        color: #93c5fd !important;
+      }
+      body.sjs-admin #posRecentTxList [data-pos-wa-rcpt]:hover {
+        border-color: #22c55e !important;
+        color: #4ade80 !important;
+      }
+      body.sjs-admin #posRecentTxList [data-pos-void] {
+        background: rgba(239, 68, 68, 0.16) !important;
+        border: 1px solid #ef4444 !important;
+        color: #fca5a5 !important;
+      }
+      body.sjs-admin #posRecentTxList [data-pos-void]:hover {
+        background: #dc2626 !important;
+        color: #ffffff !important;
+      }
+
+      /* 3. Uang Diterima: netral + placeholder jelas; aktif/terisi -> border biru; kurang -> merah; cukup -> hijau */
+      body.sjs-admin .pos-received-frame {
+        background: var(--card, #121C30) !important;
+        border: 1px solid var(--line, #24324D) !important;
+        color: var(--text, #F1F5F9) !important;
+      }
+      body.sjs-admin .pos-received-frame:focus-within,
+      body.sjs-admin .pos-received-frame.filled {
+        background: #0b1730 !important;
+        border: 2px solid #2563eb !important;
+      }
+      body.sjs-admin .pos-received-frame.short {
+        background: rgba(239, 68, 68, 0.10) !important;
+        border: 2px solid #ef4444 !important;
+      }
+      body.sjs-admin .pos-received-frame.enough {
+        background: rgba(34, 197, 94, 0.10) !important;
+        border: 2px solid #22c55e !important;
+      }
+      body.sjs-admin .pos-received-legend {
+        background: #0f172a !important;
+        color: #a9b8d0 !important;
+      }
+      body.sjs-admin #posCashReceivedInput {
+        color: #f1f5f9 !important;
+      }
+      body.sjs-admin #posCashReceivedInput::placeholder {
+        color: #a9b8d0 !important;
+        font-size: 0.92rem !important;
+        font-weight: 600 !important;
+        opacity: 0.9 !important;
+      }
+
+      /* Kembalian & Status Pembayaran */
+      body.sjs-admin #posCashChangeBox.is-idle {
+        background: var(--card, #121C30) !important;
+        border: 1px solid var(--line, #24324D) !important;
+      }
+      body.sjs-admin #posCashChangeBox.is-idle span {
+        color: #a9b8d0 !important;
+      }
+      body.sjs-admin #posCashChangeBox.is-idle strong {
+        color: #f1f5f9 !important;
+      }
+      body.sjs-admin #posCashChangeBox.is-short {
+        background: rgba(239, 68, 68, 0.14) !important;
+        border: 1.5px solid #ef4444 !important;
+      }
+      body.sjs-admin #posCashChangeBox.is-short span,
+      body.sjs-admin #posCashChangeBox.is-short strong {
+        color: #f87171 !important;
+      }
+      body.sjs-admin #posCashChangeBox.is-change {
+        background: rgba(34, 197, 94, 0.14) !important;
+        border: 1.5px solid #22c55e !important;
+      }
+      body.sjs-admin #posCashChangeBox.is-change span,
+      body.sjs-admin #posCashChangeBox.is-change strong {
+        color: #4ade80 !important;
+      }
+
+      /* Numpad gelap konsisten */
+      body.sjs-admin .pos-exact-numpad .pos-num-btn {
+        background: #111827 !important;
+        border: 1px solid #24324D !important;
+        color: #f1f5f9 !important;
+      }
+      body.sjs-admin .pos-exact-numpad .pos-num-btn:hover {
+        background: #1e293b !important;
+        border-color: #facc15 !important;
+        color: #ffffff !important;
+      }
+      body.sjs-admin .pos-exact-numpad .pos-num-btn[data-numpad="C"] {
+        background: rgba(239, 68, 68, 0.18) !important;
+        border: 1px solid #ef4444 !important;
+        color: #fca5a5 !important;
+      }
+      body.sjs-admin .pos-exact-numpad .pos-num-btn[data-numpad="C"]:hover {
+        background: #dc2626 !important;
+        color: #ffffff !important;
+      }
+      body.sjs-admin .pos-exact-numpad .pos-cash-pill {
+        background: #121C30 !important;
+        border: 1px solid #24324D !important;
+        color: #cbd5e1 !important;
+      }
+      body.sjs-admin .pos-exact-numpad .pos-cash-pill:hover {
+        background: #1e3a8a !important;
+        border-color: #60a5fa !important;
+        color: #ffffff !important;
+      }
+      body.sjs-admin .pos-exact-numpad .pos-cash-pill[data-cash-exact] {
+        background: rgba(250, 204, 21, 0.14) !important;
+        border: 1.5px solid #facc15 !important;
+        color: #facc15 !important;
+      }
+      body.sjs-admin .pos-exact-numpad .pos-cash-pill[data-cash-exact]:hover {
+        background: #facc15 !important;
+        color: #0b1220 !important;
+      }
+
+      /* Peringatan di Kasir pakai Oranye (#FB923C), bukan Kuning */
+      body.sjs-admin #salePaymentHint {
+        background: rgba(251, 146, 60, 0.12) !important;
+        border: 1px solid rgba(251, 146, 60, 0.45) !important;
+        color: #FB923C !important;
+      }
+
+      /* Tombol SIMPAN & CETAK: Kuning merek (#facc15) saat aktif, Abu-abu (#334155) saat nonaktif */
+      body.sjs-admin #btnSaveAndPrintTx:not(:disabled):not(.is-disabled) {
+        background: #facc15 !important;
+        border: 1.5px solid #facc15 !important;
+        color: #020817 !important;
+        font-weight: 900 !important;
+        box-shadow: 0 6px 18px rgba(250, 204, 21, 0.30) !important;
+      }
+      body.sjs-admin #btnSaveAndPrintTx:not(:disabled):not(.is-disabled) i {
+        color: #020817 !important;
+      }
+      body.sjs-admin #btnSaveAndPrintTx:not(:disabled):not(.is-disabled):hover {
+        background: #fde047 !important;
+        border-color: #fde047 !important;
+      }
+      body.sjs-admin #btnSaveAndPrintTx:disabled,
+      body.sjs-admin #btnSaveAndPrintTx.is-disabled {
+        background: #334155 !important;
+        border: 1px solid #475569 !important;
+        color: #94a3b8 !important;
+        opacity: 0.8 !important;
+        box-shadow: none !important;
+        cursor: not-allowed !important;
+      }
+      body.sjs-admin #btnSaveAndPrintTx:disabled i,
+      body.sjs-admin #btnSaveAndPrintTx.is-disabled i {
+        color: #94a3b8 !important;
+      }
+
+      /* Tombol Simpan tanpa cetak (sekunder gelap) */
+      body.sjs-admin #btnSaveTx:not(:disabled):not(.is-disabled) {
+        background: #121C30 !important;
+        border: 1px solid #334155 !important;
+        color: #f1f5f9 !important;
+      }
+      body.sjs-admin #btnSaveTx:not(:disabled):not(.is-disabled):hover {
+        border-color: #60a5fa !important;
+        background: #1e293b !important;
+      }
+      body.sjs-admin #btnSaveTx:disabled,
+      body.sjs-admin #btnSaveTx.is-disabled {
+        background: #111827 !important;
+        border: 1px solid #1e293b !important;
+        color: #64748b !important;
+        opacity: 0.75 !important;
+      }
+
+      /* Konsistensi kartu terang di halaman lain (Riwayat Penjualan, Pembukuan, Stok, Cadangan) */
+      body.sjs-admin #salesHistoryWorkspace .bg-white,
+      body.sjs-admin #salesHistoryWorkspace .bg-slate-50,
+      body.sjs-admin #salesHistoryWorkspace .bg-slate-50\/70,
+      body.sjs-admin #viewBooks .bg-white,
+      body.sjs-admin #viewBooks .bg-slate-50,
+      body.sjs-admin #viewBooks .bg-slate-50\/80,
+      body.sjs-admin #viewBooks .bg-amber-50\/40,
+      body.sjs-admin #viewBooks .bg-blue-50\/40,
+      body.sjs-admin #viewInventory .bg-slate-50\/70 {
+        background: #0f172a !important;
+        border-color: #1e293b !important;
+        color: #f1f5f9 !important;
+      }
+      body.sjs-admin #salesHistoryWorkspace .text-slate-500,
+      body.sjs-admin #salesHistoryWorkspace .text-slate-600,
+      body.sjs-admin #viewBooks .text-slate-500,
+      body.sjs-admin #viewBooks .text-slate-600 {
+        color: #a9b8d0 !important;
+      }
+    }
+  </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col">
 
@@ -4046,7 +4415,7 @@
                 <div class="pos-received-frame !py-2">
                   <span class="pos-received-legend">Uang Diterima</span>
                   <div class="flex items-center justify-center gap-1.5">
-                    <input type="text" id="posCashReceivedInput" inputmode="numeric" autocomplete="off" placeholder="Rp 0" aria-label="Uang diterima" class="w-full bg-transparent border-0 focus:outline-none focus:ring-0 text-2xl sm:text-3xl font-extrabold text-center text-slate-950 tabular-nums p-0">
+                    <input type="text" id="posCashReceivedInput" inputmode="numeric" autocomplete="off" placeholder="Ketik nominal atau pilih Uang Pas" aria-label="Uang diterima" class="w-full bg-transparent border-0 focus:outline-none focus:ring-0 text-2xl sm:text-3xl font-extrabold text-center text-slate-950 tabular-nums p-0">
                     <span id="posCashFeedbackPill" class="hidden shrink-0 px-2 py-0.5 rounded-full bg-amber-200 text-amber-950 text-[10px] font-extrabold"></span>
                   </div>
                   <strong id="posCashReceivedText" class="hidden">Rp 0</strong>
@@ -5057,6 +5426,6 @@
     </form>
   </section>
 
-  <script type="module" src="./admin.js?v=20261128-6"></script>
+  <script type="module" src="./admin.js?v=20261128-7"></script>
 </body>
 </html>
