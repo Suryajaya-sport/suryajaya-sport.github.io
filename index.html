@@ -709,13 +709,23 @@
       for (const [k, val] of Object.entries(docObj.fields || {})) data[k] = decodeFsVal(val);
       return { ...data, id };
     }
+    async function fetchWithTimeout(url, options = {}, timeoutMs = 4500) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        return await fetch(url, { ...options, signal: controller.signal });
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
     async function fetchPublicCatalogRest() {
       const docs = [];
       let pageToken = "";
       const base = `https://firestore.googleapis.com/v1/projects/${EMBEDDED_FIREBASE_CONFIG.projectId}/databases/(default)/documents/publicCatalog?pageSize=200&key=${encodeURIComponent(EMBEDDED_FIREBASE_CONFIG.apiKey)}`;
       for (let page = 0; page < 5; page++) {
         const url = pageToken ? `${base}&pageToken=${encodeURIComponent(pageToken)}` : base;
-        const res = await fetch(url, { mode: "cors", cache: "no-store" });
+        const res = await fetchWithTimeout(url, { mode: "cors", cache: "no-store" }, 4500);
         if (!res.ok) throw new Error("HTTP " + res.status);
         const json = await res.json();
         if (Array.isArray(json.documents)) {
@@ -770,24 +780,24 @@
       if (!url || !url.includes("/image/upload/")) return url;
       return url.replace("/image/upload/", `/image/upload/c_limit,w_${width},q_auto:eco,f_auto/`);
     }
-    const MUSIC_RE = / (gitar|guitar|ukulele|bass|capo|plektrum|musik|akustik|acoustic|klasik|classic|elektrik|electric|biola|violin|drum|stik\s*drum|cajon|jimbe|harmonika|tama|sonor|zildjian|yamaha\s*f|pyramid|d'?addario|orphee|ernie\s*ball|elixir|fender|nilon|nylon|kawat) /i;
-    const BALL_ITEM_RE = / (futsal|bola|sepak|basket|voli|volley|football|soccer|molten|spalding|mikasa|nassau) /i;
-    const BADMINTON_STRING_MODEL_RE = / (bg\s*\d{1,2}m?(?!\d)|nbg\s*\d{2,3}(?!\d)|exbolt|nanogy|aerobite|aerosonic|ultimax|tectonic\s*65|vbs\s*\d{2,3}(?!\d)|no\.?\s*[157]\s*boost?) /i;
-    const BADMINTON_BRAND_RE = / (badminton|bulutangkis|raket|shuttlecock|kok|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|power\s*max|tectonic|flypower|mizuno|astec|hart|ebox|eagle|prochamps|pro\s*ace|ashaway|gosen|rs |reinforce|kawasaki|fleet|babolat|bg\s*\d{1,2}m?(?!\d)|nbg\s*\d{2,3}(?!\d)|exbolt|nanogy|aerobite|aerosonic|ultimax|vbs\s*\d{2,3}(?!\d)) /i;
-    const NOT_STRING_ITEM_RE = / (raket|racket|sepatu|baju|jersey|celana|tas|grip|kok|shuttlecock|kaos|net|piala|taping|bola|basket|futsal|voli|volley|sepak|molten|spalding|mikasa|catur|chess|pingpong|tenis|senapan|peluru|mimis|sepatu\s*roda|skate|deker|sarung\s*tangan|pompa|matras|dumbbell|barbel|skipping) /i;
+    const MUSIC_RE = /\b(gitar|guitar|ukulele|bass|capo|plektrum|musik|akustik|acoustic|klasik|classic|elektrik|electric|biola|violin|drum|stik\s*drum|cajon|jimbe|harmonika|tama|sonor|zildjian|yamaha\s*f|pyramid|d'?addario|orphee|ernie\s*ball|elixir|fender|nilon|nylon|kawat)\b/i;
+    const BALL_ITEM_RE = /\b(futsal|bola|sepak|basket|voli|volley|football|soccer|molten|spalding|mikasa|nassau)\b/i;
+    const BADMINTON_STRING_MODEL_RE = /\b(bg\s*\d{1,2}m?(?!\d)|nbg\s*\d{2,3}(?!\d)|exbolt|nanogy|aerobite|aerosonic|ultimax|tectonic\s*65|vbs\s*\d{2,3}(?!\d)|no\.?\s*[157]\s*boost?)\b/i;
+    const BADMINTON_BRAND_RE = /\b(badminton|bulutangkis|raket|shuttlecock|kok|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|power\s*max|tectonic|flypower|mizuno|astec|hart|ebox|eagle|prochamps|pro\s*ace|ashaway|gosen|rs\b|reinforce|kawasaki|fleet|babolat|bg\s*\d{1,2}m?(?!\d)|nbg\s*\d{2,3}(?!\d)|exbolt|nanogy|aerobite|aerosonic|ultimax|vbs\s*\d{2,3}(?!\d))\b/i;
+    const NOT_STRING_ITEM_RE = /\b(raket|racket|sepatu|baju|jersey|celana|tas|grip|kok|shuttlecock|kaos|net|piala|taping|bola|basket|futsal|voli|volley|sepak|molten|spalding|mikasa|catur|chess|pingpong|tenis|senapan|peluru|mimis|sepatu\s*roda|skate|deker|sarung\s*tangan|pompa|matras|dumbbell|barbel|skipping)\b/i;
 
     function isSenarBadminton(item) {
       const name = String(item?.name || "").trim();
       const txt = [item?.name, item?.category, item?.description].filter(Boolean).join(" ");
       if (MUSIC_RE.test(txt)) return false;
       if (BALL_ITEM_RE.test(txt)) return false;
-      if (/ senar\s+(raket|badminton|bulutangkis) /i.test(name)) return true;
+      if (/\bsenar\s+(raket|badminton|bulutangkis)\b/i.test(name)) return true;
       if (NOT_STRING_ITEM_RE.test(name)) return false;
-      const hasSenarWord = / senar /i.test(name);
+      const hasSenarWord = /\bsenar\b/i.test(name);
       const isModelOnly = BADMINTON_STRING_MODEL_RE.test(name);
       if (isModelOnly) return true;
       if (hasSenarWord) {
-        return BADMINTON_BRAND_RE.test(txt) || /^senar /i.test(name);
+        return BADMINTON_BRAND_RE.test(txt) || /^senar\b/i.test(name);
       }
       return false;
     }
@@ -795,11 +805,11 @@
     function matchesCatalogCategory(item, category) {
       if (category === "all") return true;
       const name = String(item?.name || "");
-      const isPingpong = / (pingpong|tenis\s*meja) /i.test(name);
+      const isPingpong = /\b(pingpong|tenis\s*meja)\b/i.test(name);
       const ball = !MUSIC_RE.test(name) && BALL_ITEM_RE.test(name);
-      const badminton = !isPingpong && !ball && !MUSIC_RE.test(name) && (isSenarBadminton(item) || / (badminton|bulutangkis|raket|shuttlecock|kok|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|power\s*max|tectonic|flypower|mizuno|astec|hart|ebox|prochamps|ashaway|gosen|bg\s*\d{1,2}m?(?!\d)|nbg\s*\d{2,3}(?!\d)|exbolt|nanogy) /i.test(name));
-      const music = MUSIC_RE.test(name) || (!badminton && !ball && / senar /i.test(name));
-      const chess = / (catur|chess) /i.test(name);
+      const badminton = !isPingpong && !ball && !MUSIC_RE.test(name) && (isSenarBadminton(item) || /\b(badminton|bulutangkis|raket|shuttlecock|kok|yonex|lining|li-ning|victor|felet|hi-?qua|maxbolt|hundred|kizuna|toalson|apacs|power\s*max|tectonic|flypower|mizuno|astec|hart|ebox|prochamps|ashaway|gosen|bg\s*\d{1,2}m?(?!\d)|nbg\s*\d{2,3}(?!\d)|exbolt|nanogy)\b/i.test(name));
+      const music = MUSIC_RE.test(name) || (!badminton && !ball && /\bsenar\b/i.test(name));
+      const chess = /\b(catur|chess)\b/i.test(name);
       if (category === "music") return music;
       if (category === "badminton") return badminton;
       if (category === "ball") return ball;
@@ -1046,7 +1056,10 @@
       document.getElementById("btnClearCatalogSearch").classList.toggle("hidden", !search.value);
       const category = document.querySelector("#catalogCategory input:checked")?.value || "all";
       if (catalogLoadState !== "ready") {
-        grid.innerHTML = `<p class="catalog-empty" role="status">${catalogLoadState === "error" ? "Katalog gagal dimuat. Muat ulang halaman atau hubungi WhatsApp 0823-200-33333." : "Katalog sedang dimuat…"}</p>`;
+        grid.innerHTML = catalogLoadState === "error"
+          ? `<div class="catalog-empty space-y-3" role="status"><p>Katalog gagal dimuat atau koneksi sedang lambat.</p><button type="button" id="btnRetryCatalog" class="shop-button shop-button-primary">Muat ulang katalog</button></div>`
+          : `<div class="catalog-empty space-y-3" role="status"><p>Katalog sedang dimuat…</p><button type="button" id="btnRetryCatalog" class="shop-button shop-button-secondary">Muat ulang sekarang</button></div>`;
+        document.getElementById("btnRetryCatalog")?.addEventListener("click", () => loadPublicCatalog(true));
         return;
       }
       for (const btn of document.querySelectorAll("#quickCatGrid .quick-cat-btn")) {
@@ -1194,11 +1207,16 @@
         openProductDetail(requestedProductId);
       }
     }
-    (async () => {
-      try {
-        const cached = JSON.parse(localStorage.getItem(CATALOG_CACHE_KEY) || "null");
-        if (Array.isArray(cached) && cached.length) applyLoadedCatalog(cached);
-      } catch {}
+    async function loadPublicCatalog(forceRefresh = false) {
+      if (!forceRefresh) {
+        try {
+          const cached = JSON.parse(localStorage.getItem(CATALOG_CACHE_KEY) || "null");
+          if (Array.isArray(cached) && cached.length) applyLoadedCatalog(cached);
+        } catch {}
+      } else {
+        catalogLoadState = "loading";
+        renderProductCatalog();
+      }
       try {
         const fresh = await fetchPublicCatalogRest();
         try { localStorage.setItem(CATALOG_CACHE_KEY, JSON.stringify(fresh)); } catch {}
@@ -1209,13 +1227,16 @@
           try { localStorage.setItem(CATALOG_CACHE_KEY, JSON.stringify(fallback)); } catch {}
           applyLoadedCatalog(fallback);
         } catch {
-          if (catalogLoadState !== "ready") {
+          if (!publicCatalog.length) {
             catalogLoadState = "error";
             renderProductCatalog();
+          } else {
+            showToast("Gagal memperbarui stok terbaru, menampilkan data tersimpan.");
           }
         }
       }
-    })();
+    }
+    loadPublicCatalog(false);
 
     document.addEventListener("click", e => {
       const a = e.target.closest('a[href*="wa.me"]');
