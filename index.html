@@ -725,7 +725,7 @@
       const base = `https://firestore.googleapis.com/v1/projects/${EMBEDDED_FIREBASE_CONFIG.projectId}/databases/(default)/documents/publicCatalog?pageSize=200&key=${encodeURIComponent(EMBEDDED_FIREBASE_CONFIG.apiKey)}`;
       for (let page = 0; page < 5; page++) {
         const url = pageToken ? `${base}&pageToken=${encodeURIComponent(pageToken)}` : base;
-        const res = await fetchWithTimeout(url, { mode: "cors", cache: "no-store" }, 4500);
+        const res = await fetchWithTimeout(url, { mode: "cors", cache: "no-store" }, 8000);
         if (!res.ok) throw new Error("HTTP " + res.status);
         const json = await res.json();
         if (Array.isArray(json.documents)) {
@@ -1123,7 +1123,19 @@
           "@type": "ListItem",
           position: i + 1,
           url: `https://suryajaya-sport.github.io/produk/?id=${encodeURIComponent(it.id)}`,
-          name: it.name
+          item: {
+            "@type": "Product",
+            name: it.name,
+            sku: it.code || it.id,
+            ...(safeHttpsUrl(it.imageUrl) ? { image: safeHttpsUrl(it.imageUrl) } : {}),
+            offers: {
+              "@type": "Offer",
+              priceCurrency: "IDR",
+              price: String(Math.round(Number(it.price) || 0)),
+              availability: Number(it.stock) > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+              itemCondition: "https://schema.org/NewCondition"
+            }
+          }
         }))
       });
     }
@@ -1222,7 +1234,10 @@
         applyLoadedCatalog(fresh);
       } catch {
         try {
-          const fallback = await fetchPublicCatalogSdkFallback();
+          const fallback = await Promise.race([
+            fetchPublicCatalogSdkFallback(),
+            new Promise((_, rej) => setTimeout(() => rej(new Error("timeout")), 10000))
+          ]);
           try { localStorage.setItem(CATALOG_CACHE_KEY, JSON.stringify(fallback)); } catch {}
           applyLoadedCatalog(fallback);
         } catch {
@@ -1235,7 +1250,25 @@
         }
       }
     }
+    renderProductCatalog();
     loadPublicCatalog(false);
+
+    let lastCatalogRefresh = Date.now();
+    async function refreshCatalogSilently() {
+      try {
+        const fresh = await fetchPublicCatalogRest();
+        try { localStorage.setItem(CATALOG_CACHE_KEY, JSON.stringify(fresh)); } catch {}
+        applyLoadedCatalog(fresh);
+        lastCatalogRefresh = Date.now();
+      } catch {}
+    }
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible" && Date.now() - lastCatalogRefresh > 5 * 60 * 1000) refreshCatalogSilently();
+    });
+    window.addEventListener("online", () => {
+      if (catalogLoadState !== "ready") loadPublicCatalog(true);
+      else refreshCatalogSilently();
+    });
 
     document.addEventListener("click", e => {
       const a = e.target.closest('a[href*="wa.me"]');
