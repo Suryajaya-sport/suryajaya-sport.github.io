@@ -3532,10 +3532,14 @@
         }
         const diffPct = Math.round(((curVal - prevVal) / prevVal) * 100);
         const up = diffPct >= 0;
-        if (ic) ic.className = up ? "fa-solid fa-arrow-trend-up text-emerald-600 text-3xl" : "fa-solid fa-arrow-trend-down text-rose-600 text-3xl";
+        if (ic) {
+          ic.className = up ? "fa-solid fa-arrow-trend-up text-3xl" : "fa-solid fa-arrow-trend-down text-3xl";
+          ic.style.color = up ? "#10b981" : "#ef4444";
+        }
         if (pc) {
           pc.textContent = (up ? "+" : "") + diffPct + "%";
-          pc.className = "block text-xs font-extrabold mt-0.5 " + (up ? "text-emerald-600" : "text-rose-600");
+          pc.className = "block text-xs font-extrabold mt-0.5";
+          pc.style.color = up ? "#10b981" : "#ef4444";
         }
       };
       applyTrend("kledoSalesTrendIcon", "kledoSalesTrendPct", "kledoSalesTrendVs", totalOmzetRows, prevOmzet, vsLabel);
@@ -4573,12 +4577,24 @@
       if (bLE) bLE.textContent = rp(spending);
       const isLoss = profit < 0;
       document.getElementById("ownerMonthlyReport").innerHTML = [
-        { l: "Laba Bersih Bulan Ini", v: profit, cls: isLoss ? "border-2 border-rose-300 bg-rose-50" : "border-2 border-emerald-300 bg-emerald-50", lblCls: isLoss ? "text-rose-900" : "text-emerald-900", valCls: isLoss ? "text-rose-800" : "text-emerald-900" },
-        { l: "Omzet Penjualan", v: revenue, cls: "border border-slate-200 bg-slate-50", lblCls: "text-slate-500", valCls: "text-slate-900" },
-        { l: "Laba Kotor", v: revenue - cost, cls: "border border-blue-200 bg-blue-50", lblCls: "text-blue-900", valCls: "text-blue-950" },
-        { l: "Modal Terjual (HPP)", v: cost, cls: "border border-slate-200 bg-slate-50", lblCls: "text-slate-500", valCls: "text-slate-800" },
-        { l: "Pengeluaran Toko", v: spending, cls: "border border-amber-200 bg-amber-50", lblCls: "text-amber-900", valCls: "text-amber-950" }
-      ].map(c => `<div class="rounded-2xl ${c.cls} p-3.5"><dt class="text-xs font-extrabold ${c.lblCls}">${c.l}</dt><dd class="text-lg font-extrabold mt-1 tabular-nums ${c.valCls}">${rp(c.v)}</dd></div>`).join("");
+        { l: isLoss ? "Rugi Bersih Bulan Ini" : "Laba Bersih Bulan Ini", v: profit,
+          style: isLoss
+            ? "background:rgba(239,68,68,0.14);border:1.5px solid rgba(239,68,68,0.55);border-left:4px solid #ef4444;"
+            : "background:rgba(16,185,129,0.14);border:1.5px solid rgba(16,185,129,0.55);border-left:4px solid #10b981;",
+          lblColor: isLoss ? "#fca5a5" : "#6ee7b7", valColor: isLoss ? "#ef4444" : "#10b981" },
+        { l: "Omzet Penjualan", v: revenue,
+          style: "background:rgba(59,130,246,0.14);border:1px solid rgba(59,130,246,0.45);border-left:4px solid #3b82f6;",
+          lblColor: "#93c5fd", valColor: "#60a5fa" },
+        { l: "Laba Kotor", v: revenue - cost,
+          style: "background:rgba(16,185,129,0.09);border:1px solid rgba(16,185,129,0.35);border-left:4px solid #10b981;",
+          lblColor: "#a7f3d0", valColor: "#34d399" },
+        { l: "Modal Terjual (HPP)", v: cost,
+          style: "background:rgba(100,116,139,0.16);border:1px solid rgba(148,163,184,0.35);border-left:4px solid #64748b;",
+          lblColor: "#94a3b8", valColor: "#cbd5e1" },
+        { l: "Pengeluaran Toko", v: spending,
+          style: "background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.42);border-left:4px solid #ef4444;",
+          lblColor: "#fca5a5", valColor: "#f87171" }
+      ].map(c => `<div style="${c.style}" class="rounded-2xl p-3.5"><dt style="color:${c.lblColor}" class="text-xs font-extrabold">${c.l}</dt><dd style="color:${c.valColor}" class="text-lg font-extrabold mt-1 tabular-nums">${rp(c.v)}</dd></div>`).join("");
       const healthEl = document.getElementById("booksHealthBadge");
       if (healthEl) {
         const grossPct = revenue > 0 ? Math.round((gross / revenue) * 100) : 0;

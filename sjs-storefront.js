@@ -258,7 +258,7 @@ export function renderCustomerViewTemplate(container, { isAdminPreview = false }
       <div class="catalog-heading">
         <div>
           <h2 id="featuredProductsTitle" class="!text-[#facc15]">&#11088; Produk Unggulan &amp; Promo Pilihan</h2>
-          <span class="text-xs font-bold text-slate-500">8 produk terlaris &amp; favorit pelanggan Surya Jaya Sport Berau</span>
+          <span class="text-xs font-bold text-slate-500">5 produk unggulan pilihan Surya Jaya Sport Berau</span>
         </div>
         <a href="#publicProductCatalog" class="shop-button shop-button-secondary !min-h-10 !py-2 !px-4 !text-xs">Lihat Semua Produk <i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a>
       </div>
@@ -492,7 +492,7 @@ export function renderCustomerCatalogState({ publicCatalog, catalogLoadState, on
     const sortedAvailable = (withPhoto.length ? withPhoto : allAvailable)
       .slice()
       .sort((a, b) => (Boolean(b.primary.featured) - Boolean(a.primary.featured)) || b.totalStock - a.totalStock);
-    const featuredList = sortedAvailable.slice(0, 16);
+    const featuredList = sortedAvailable.slice(0, 5);
     if (featuredList.length && !q && category === "all") {
       featuredSecEl.hidden = false;
       featuredGridEl.innerHTML = featuredList.map((g, i) => buildCatalogCardHtml(g, i, true)).join("");

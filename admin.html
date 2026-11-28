@@ -2006,25 +2006,25 @@
       line-height: 1.08 !important;
       color: #15803D !important;
     }
-    /* Tombol Simpan & Cetak: Navy Gelap + Aksen Emas (Hierarki Maskulin POS) */
-    body.sjs-admin #btnSaveAndPrintTx {
-      background: linear-gradient(135deg, #0F172A 0%, #142850 100%) !important;
-      border: 1.5px solid #F5B700 !important;
-      color: #FFFFFF !important;
+    /* Tombol Simpan & Cetak: Kuning Brand (#facc15) saat keranjang berisi barang, abu-abu saat kosong */
+    body.sjs-admin #btnSaveAndPrintTx:not(:disabled):not(.is-disabled) {
+      background: #facc15 !important;
+      border: 1.5px solid #eab308 !important;
+      color: #020817 !important;
       min-height: 52px !important;
       font-size: 14.5px !important;
-      font-weight: 800 !important;
-      letter-spacing: .05em !important;
-      box-shadow: 0 6px 18px rgba(15, 23, 42, .28) !important;
+      font-weight: 900 !important;
+      letter-spacing: .04em !important;
+      box-shadow: 0 6px 18px rgba(250, 204, 21, 0.32) !important;
       transition: transform .08s ease, box-shadow .14s ease, background .14s ease !important;
     }
-    body.sjs-admin #btnSaveAndPrintTx i {
-      color: #F5B700 !important;
+    body.sjs-admin #btnSaveAndPrintTx:not(:disabled):not(.is-disabled) i {
+      color: #020817 !important;
     }
-    body.sjs-admin #btnSaveAndPrintTx:hover:not(:disabled) {
-      background: #0F172A !important;
-      border-color: #FFD029 !important;
-      box-shadow: 0 8px 22px rgba(15, 23, 42, .38) !important;
+    body.sjs-admin #btnSaveAndPrintTx:not(:disabled):not(.is-disabled):hover {
+      background: #fde047 !important;
+      border-color: #facc15 !important;
+      box-shadow: 0 8px 22px rgba(250, 204, 21, 0.42) !important;
     }
     body.sjs-admin #btnSaveAndPrintTx:active:not(:disabled) {
       transform: scale(.985) !important;
@@ -2077,14 +2077,15 @@
     .btn-done:active { transform: scale(.97); }
     body.sjs-admin #btnSaveAndPrintTx.is-disabled,
     body.sjs-admin #btnSaveAndPrintTx:disabled {
-      background: #64748B !important;
-      border-color: transparent !important;
-      color: #F8FAFC !important;
-      opacity: .9 !important;
+      background: #334155 !important;
+      border-color: #475569 !important;
+      color: #94a3b8 !important;
+      opacity: .85 !important;
       box-shadow: none !important;
       cursor: not-allowed !important;
     }
-    body.sjs-admin #btnSaveAndPrintTx:disabled i { color: #E2E8F0 !important; }
+    body.sjs-admin #btnSaveAndPrintTx.is-disabled i,
+    body.sjs-admin #btnSaveAndPrintTx:disabled i { color: #94a3b8 !important; }
     .item-price-input.invalid {
       border-color: #DC2626 !important;
       box-shadow: 0 0 0 3px rgba(220, 38, 38, .15) !important;
@@ -2941,6 +2942,80 @@
         box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.22);
       }
 
+
+      /* === SEMANTIC KPI COLOR SYSTEM (SJS IDENTITY) === */
+      body.sjs-admin {
+        background: #020817 !important;
+      }
+      body.sjs-admin .sjs-chart-card,
+      body.sjs-admin .sjs-chart-card.is-dark,
+      body.sjs-admin .kledo-card,
+      body.sjs-admin .bento-pastel-card,
+      body.sjs-admin .sjs-ratio-card,
+      body.sjs-admin #inventoryCatalogPanel,
+      body.sjs-admin #viewInventory > .workspace-metrics > div:not(.bg-amber-50),
+      body.sjs-admin #viewInventory > section.bg-white,
+      body.sjs-admin #viewBooks .bg-white,
+      body.sjs-admin #viewBackup .bg-white,
+      body.sjs-admin #salesHistoryWorkspace > section.bg-white,
+      body.sjs-admin .workspace-heading,
+      body.sjs-admin .workspace-record {
+        background: #0f172a !important;
+        border-color: #1e293b !important;
+      }
+
+      /* 2. Penjualan KPI Cards: Omzet (Biru #3b82f6), Laba Kotor (Hijau #10b981), HPP (Abu-biru #64748b), Barang Terjual (Kuning #facc15) */
+      body.sjs-admin .kledo-kpi-grid > .kledo-card:nth-child(1) {
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.14) 0%, #0f172a 75%) !important;
+        border: 1px solid rgba(59, 130, 246, 0.45) !important;
+        border-left: 4px solid #3b82f6 !important;
+      }
+      body.sjs-admin .kledo-kpi-grid > .kledo-card:nth-child(1) .kledo-card-title,
+      body.sjs-admin .kledo-kpi-grid > .kledo-card:nth-child(1) #totalOmset {
+        color: #60a5fa !important;
+      }
+      body.sjs-admin .kledo-kpi-grid > .kledo-card:nth-child(2) {
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.14) 0%, #0f172a 75%) !important;
+        border: 1px solid rgba(16, 185, 129, 0.45) !important;
+        border-left: 4px solid #10b981 !important;
+      }
+      body.sjs-admin .kledo-kpi-grid > .kledo-card:nth-child(2) .kledo-card-title,
+      body.sjs-admin .kledo-kpi-grid > .kledo-card:nth-child(2) #totalUntung {
+        color: #10b981 !important;
+      }
+      body.sjs-admin .kledo-kpi-grid > .kledo-card:nth-child(3) {
+        background: linear-gradient(135deg, rgba(100, 116, 139, 0.16) 0%, #0f172a 75%) !important;
+        border: 1px solid rgba(148, 163, 184, 0.35) !important;
+        border-left: 4px solid #64748b !important;
+      }
+      body.sjs-admin .kledo-kpi-grid > .kledo-card:nth-child(3) #totalModal {
+        color: #cbd5e1 !important;
+      }
+      body.sjs-admin .kledo-kpi-grid > .kledo-card:nth-child(4) {
+        background: linear-gradient(135deg, rgba(250, 204, 21, 0.13) 0%, #0f172a 75%) !important;
+        border: 1px solid rgba(250, 204, 21, 0.45) !important;
+        border-left: 4px solid #facc15 !important;
+      }
+      body.sjs-admin .kledo-kpi-grid > .kledo-card:nth-child(4) .kledo-card-title,
+      body.sjs-admin .kledo-kpi-grid > .kledo-card:nth-child(4) #totalTerjual {
+        color: #facc15 !important;
+      }
+
+      /* 3. Dead Stock Card & Items: rgba(239, 68, 68, .10) & border 1px solid rgba(239, 68, 68, .35) */
+      body.sjs-admin #inventoryCharts > .sjs-chart-card:last-child {
+        background: rgba(239, 68, 68, 0.10) !important;
+        border: 1px solid rgba(239, 68, 68, 0.35) !important;
+      }
+      body.sjs-admin #listDeadStockWrap > div {
+        background: rgba(239, 68, 68, 0.10) !important;
+        border: 1px solid rgba(239, 68, 68, 0.35) !important;
+        color: #fecaca !important;
+      }
+      body.sjs-admin #listDeadStockWrap > div .text-rose-950,
+      body.sjs-admin #listDeadStockWrap > div .text-rose-800 {
+        color: #fca5a5 !important;
+      }
+
       /* Pertahankan Latar Putih Bersih pada QR, QRIS, Stiker agar mudah di-scan */
       #qrisCodeCanvas,
       #invCodeQrPreview,
@@ -3400,6 +3475,24 @@
     <!-- CADANGAN -->
     <section id="viewBackup" class="hidden no-print flex flex-col gap-4">
       <h2 class="workspace-heading text-3xl font-extrabold uppercase">Cadangan data</h2>
+      <div id="backupSummaryCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" aria-label="Ringkasan cadangan data">
+        <div style="background:#0f172a;border:1px solid #1e293b;border-left:4px solid #facc15" class="rounded-2xl p-4">
+          <span class="text-xs font-extrabold uppercase text-slate-400">Cadangan terakhir</span>
+          <p id="backupCardLastDate" class="text-xl font-extrabold text-amber-300 mt-1">Belum pernah</p>
+        </div>
+        <div style="background:#0f172a;border:1px solid #1e293b;border-left:4px solid #3b82f6" class="rounded-2xl p-4">
+          <span class="text-xs font-extrabold uppercase text-slate-400">Estimasi ukuran file</span>
+          <p id="backupCardFileSize" class="text-xl font-extrabold text-blue-400 mt-1 tabular-nums">0 KB</p>
+        </div>
+        <div style="background:#0f172a;border:1px solid #1e293b;border-left:4px solid #10b981" class="rounded-2xl p-4">
+          <span class="text-xs font-extrabold uppercase text-slate-400">Jumlah produk</span>
+          <p id="backupCardProductCount" class="text-xl font-extrabold text-emerald-400 mt-1 tabular-nums">0</p>
+        </div>
+        <div style="background:#0f172a;border:1px solid #1e293b;border-left:4px solid #3b82f6" class="rounded-2xl p-4">
+          <span class="text-xs font-extrabold uppercase text-slate-400">Jumlah transaksi</span>
+          <p id="backupCardTxCount" class="text-xl font-extrabold text-sky-400 mt-1 tabular-nums">0</p>
+        </div>
+      </div>
       <div class="grid gap-4 sm:grid-cols-2">
         <div class="bg-white rounded-3xl border border-slate-200 p-5 space-y-3">
           <h3 class="workspace-section-title">Cadangan manual</h3>
