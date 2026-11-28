@@ -3016,6 +3016,139 @@
         color: #fca5a5 !important;
       }
 
+
+      /* 1. Metode Pembayaran di Riwayat Penjualan (#salesHistoryWorkspace > .workspace-metrics) */
+      body.sjs-admin #salesHistoryWorkspace > .workspace-metrics > div {
+        background: #0f172a !important;
+        border: 1px solid #1e293b !important;
+        color: #f8fafc !important;
+      }
+      body.sjs-admin #salesHistoryWorkspace > .workspace-metrics > div:nth-child(1) {
+        border-left: 4px solid #10b981 !important;
+      }
+      body.sjs-admin #salesHistoryWorkspace > .workspace-metrics > div:nth-child(2) {
+        border-left: 4px solid #3b82f6 !important;
+      }
+      body.sjs-admin #salesHistoryWorkspace > .workspace-metrics > div:nth-child(3) {
+        border-left: 4px solid #facc15 !important;
+      }
+      body.sjs-admin #salesHistoryWorkspace > .workspace-metrics > div:nth-child(4) {
+        border-left: 4px solid #a855f7 !important;
+      }
+      body.sjs-admin #salesHistoryWorkspace > .workspace-metrics p {
+        color: #f8fafc !important;
+      }
+
+      /* 2. Kontras teks kecil di dalam kartu gelap pada Penjualan, Stok, Pembukuan, Semua Laporan, Cadangan Data */
+      body.sjs-admin #salesHistoryWorkspace .text-slate-800,
+      body.sjs-admin #salesHistoryWorkspace .text-slate-700,
+      body.sjs-admin #viewBooks .text-slate-800,
+      body.sjs-admin #viewBooks .text-slate-700,
+      body.sjs-admin #viewAllReports .text-slate-800,
+      body.sjs-admin #viewAllReports .text-slate-700,
+      body.sjs-admin #viewBackup .text-slate-800,
+      body.sjs-admin #viewBackup .text-slate-700,
+      body.sjs-admin #viewInventory .text-slate-800,
+      body.sjs-admin #viewInventory .text-slate-700 {
+        color: #e2e8f0 !important;
+      }
+      body.sjs-admin #salesHistoryWorkspace .text-slate-600,
+      body.sjs-admin #salesHistoryWorkspace .text-slate-500,
+      body.sjs-admin #viewBooks .text-slate-600,
+      body.sjs-admin #viewBooks .text-slate-500,
+      body.sjs-admin #viewAllReports .text-slate-600,
+      body.sjs-admin #viewAllReports .text-slate-500,
+      body.sjs-admin #viewBackup .text-slate-600,
+      body.sjs-admin #viewBackup .text-slate-500,
+      body.sjs-admin #viewInventory .text-slate-600,
+      body.sjs-admin #viewInventory .text-slate-500 {
+        color: #94a3b8 !important;
+      }
+      body.sjs-admin #salesHistoryWorkspace .bg-slate-100,
+      body.sjs-admin #viewBooks .bg-slate-100,
+      body.sjs-admin #viewAllReports .bg-slate-100,
+      body.sjs-admin #viewBackup .bg-slate-100,
+      body.sjs-admin #viewInventory .bg-slate-100 {
+        background: #1e293b !important;
+        color: #e2e8f0 !important;
+      }
+      body.sjs-admin #salesHistoryWorkspace .bg-slate-50,
+      body.sjs-admin #viewBooks .bg-slate-50,
+      body.sjs-admin #viewAllReports .bg-slate-50,
+      body.sjs-admin #viewBackup .bg-slate-50,
+      body.sjs-admin #viewInventory .bg-slate-50 {
+        background: #131c2e !important;
+        border-color: #1e293b !important;
+      }
+
+      /* 3. Input tanggal & bulan agar ikon kalender dan teks jelas di tema gelap */
+      body.sjs-admin input[type="date"],
+      body.sjs-admin input[type="month"],
+      body.sjs-admin select,
+      body.sjs-admin #searchInput {
+        background: #131c2e !important;
+        color: #f8fafc !important;
+        border-color: #334155 !important;
+        color-scheme: dark;
+      }
+
+
+      /* === PERBAIKAN KONTRAS TEKS DARK MODE (5. APLIKASI) === */
+      body.sjs-admin #salesHistoryWorkspace > .workspace-metrics > div,
+      body.sjs-admin #salesHistoryWorkspace > .workspace-metrics > div span,
+      body.sjs-admin #salesHistoryWorkspace > .workspace-metrics > div p {
+        color: #f8fafc !important;
+      }
+      body.sjs-admin #salesHistoryWorkspace > .workspace-metrics > div:nth-child(1) span:first-child { color: #34d399 !important; }
+      body.sjs-admin #salesHistoryWorkspace > .workspace-metrics > div:nth-child(2) span:first-child { color: #60a5fa !important; }
+      body.sjs-admin #salesHistoryWorkspace > .workspace-metrics > div:nth-child(3) span:first-child { color: #facc15 !important; }
+      body.sjs-admin #salesHistoryWorkspace > .workspace-metrics > div:nth-child(4) span:first-child { color: #c084fc !important; }
+
+      body.sjs-admin #salesHistoryWorkspace .text-slate-900,
+      body.sjs-admin #salesHistoryWorkspace .text-indigo-950,
+      body.sjs-admin #salesHistoryWorkspace .text-blue-950,
+      body.sjs-admin #salesHistoryWorkspace .text-blue-900,
+      body.sjs-admin #salesHistoryWorkspace .text-amber-950,
+      body.sjs-admin #salesHistoryWorkspace .text-emerald-900,
+      body.sjs-admin #viewBooks .text-slate-900,
+      body.sjs-admin #viewBooks .text-blue-950,
+      body.sjs-admin #viewBooks .text-blue-900,
+      body.sjs-admin #viewBooks .text-amber-950,
+      body.sjs-admin #viewAllReports .text-slate-900,
+      body.sjs-admin #viewAllReports .text-blue-950,
+      body.sjs-admin #viewAllReports .text-blue-900,
+      body.sjs-admin #viewInventory .text-slate-900,
+      body.sjs-admin #viewInventory .text-blue-950,
+      body.sjs-admin #viewInventory .text-blue-900 {
+        color: #f8fafc !important;
+      }
+      body.sjs-admin #salesHistoryWorkspace .text-emerald-700,
+      body.sjs-admin #salesHistoryWorkspace .text-emerald-800,
+      body.sjs-admin #viewBooks .text-emerald-700,
+      body.sjs-admin #viewBooks .text-emerald-800 {
+        color: #34d399 !important;
+      }
+      body.sjs-admin #salesHistoryWorkspace .text-blue-700,
+      body.sjs-admin #salesHistoryWorkspace .text-blue-800,
+      body.sjs-admin #viewBooks .text-blue-700,
+      body.sjs-admin #viewBooks .text-blue-800 {
+        color: #60a5fa !important;
+      }
+      body.sjs-admin #salesHistoryWorkspace .text-amber-700,
+      body.sjs-admin #salesHistoryWorkspace .text-amber-800,
+      body.sjs-admin #viewBooks .text-amber-700,
+      body.sjs-admin #viewBooks .text-amber-800 {
+        color: #facc15 !important;
+      }
+      body.sjs-admin #salesHistoryWorkspace table tbody td,
+      body.sjs-admin #salesHistoryWorkspace table thead th {
+        color: #e2e8f0 !important;
+        border-color: #1e293b !important;
+      }
+      body.sjs-admin #salesHistoryWorkspace table tbody tr:hover {
+        background: #182236 !important;
+      }
+
       /* Pertahankan Latar Putih Bersih pada QR, QRIS, Stiker agar mudah di-scan */
       #qrisCodeCanvas,
       #invCodeQrPreview,
@@ -4000,6 +4133,18 @@
         <div class="bg-white p-4 rounded-2xl border border-slate-200"><span class="text-xs font-extrabold uppercase text-blue-900">Jumlah stok</span><p id="invTotalUnits" class="text-2xl font-extrabold mt-1.5">0 Pcs</p></div>
         <div class="bg-white p-4 rounded-2xl border border-slate-200"><span class="text-xs font-extrabold uppercase text-emerald-900">Nilai modal stok</span><p id="invTotalAsset" class="text-2xl font-extrabold mt-1.5">Rp 0</p></div>
         <div class="bg-amber-50 p-4 rounded-2xl border-2 border-amber-300"><span class="text-xs font-extrabold uppercase text-amber-900">Stok menipis &amp; habis</span><p id="invLowStockCount" class="text-2xl font-extrabold text-amber-950 mt-1.5">0 Barang</p></div>
+      </section>
+
+      <section id="stockTodayPriorityCard" style="background:#0f172a;border:1.5px solid #334155;border-left:4px solid #facc15" class="rounded-2xl p-4 space-y-3 no-print" aria-label="Prioritas Hari Ini">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-xs font-black uppercase">Prioritas Hari Ini</span>
+            <span class="text-xs font-semibold text-slate-400">Ringkasan tindakan cepat berdasarkan kondisi stok saat ini</span>
+          </div>
+          <span id="todayPrioTotalBadge" class="text-xs font-extrabold text-amber-300">0 item perlu perhatian</span>
+        </div>
+        <div id="todayPrioSummaryList" class="flex flex-wrap gap-2 text-xs font-bold"></div>
+        <div id="todayPrioActionBtns" class="flex flex-wrap gap-2 pt-1"></div>
       </section>
 
       <section id="inventoryCharts" class="grid grid-cols-1 lg:grid-cols-3 gap-4 no-print" aria-label="Dashboard operasional stok">

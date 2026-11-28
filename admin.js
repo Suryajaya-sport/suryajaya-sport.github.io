@@ -1005,18 +1005,26 @@
       const cost = parseIdrNum(document.getElementById("invCost")?.value);
       const price = parseIdrNum(document.getElementById("invPrice")?.value);
       if (!(price > 0) || cost <= 0) {
-        el.className = "rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-600";
+        el.style.cssText = "background:#0f172a;border:1px solid #334155;color:#94a3b8";
+        el.className = "rounded-xl px-3.5 py-2 text-xs font-semibold";
         el.textContent = price > 0 ? "Laba per unit: — (isi harga modal untuk menghitung laba & margin)" : "Laba per unit: — (isi harga modal & harga jual)";
         return;
       }
       const profit = price - cost;
       const pct = Math.round((profit / price) * 100);
+      const markupPct = Math.round((profit / cost) * 100);
       if (profit < 0) {
-        el.className = "rounded-xl border border-red-300 bg-red-50 px-3.5 py-2 text-xs font-bold text-red-700";
-        el.textContent = `⚠ Harga jual lebih rendah dari modal (rugi ${rp(Math.abs(profit))}/unit)`;
+        el.style.cssText = "background:rgba(239,68,68,0.14);border:1px solid rgba(239,68,68,0.55);color:#fca5a5";
+        el.className = "rounded-xl px-3.5 py-2 text-xs font-extrabold";
+        el.textContent = `⚠ Harga jual di bawah modal (rugi ${rp(Math.abs(profit))}/unit) — periksa kembali harga!`;
+      } else if (markupPct > 300) {
+        el.style.cssText = "background:rgba(245,158,11,0.14);border:1px solid rgba(245,158,11,0.55);color:#fde68a";
+        el.className = "rounded-xl px-3.5 py-2 text-xs font-extrabold";
+        el.textContent = `⚠ Peringatan: markup di atas modal mencapai ${markupPct}% (untung ${rp(profit)}/unit, margin ${pct}%) — cek kemungkinan salah ketik nominal!`;
       } else {
-        el.className = "rounded-xl border border-emerald-200 bg-emerald-50 px-3.5 py-2 text-xs font-bold text-emerald-800";
-        el.textContent = `✓ Laba per unit: ${rp(profit)} (${pct}%)`;
+        el.style.cssText = "background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.45);color:#6ee7b7";
+        el.className = "rounded-xl px-3.5 py-2 text-xs font-bold";
+        el.textContent = `✓ Laba per unit: ${rp(profit)} (margin ${pct}%)`;
       }
     }
     function updateInvVariantSummary() {
@@ -2926,10 +2934,44 @@
       return String(a.name || "").localeCompare(String(b.name || ""), "id", { sensitivity: "base", numeric: true });
     }
 
+
+    function updateBackupSummaryCards() {
+      try {
+        const lastRaw = localStorage.getItem("sjs-last-manual-backup-at") || localStorage.getItem("sjs-last-auto-backup-at") || "";
+        const lastEl = document.getElementById("backupCardLastDate");
+        const lastCard = lastEl?.closest("div");
+        if (lastEl) {
+          if (lastRaw) {
+            const d = new Date(lastRaw);
+            lastEl.textContent = isNaN(d) ? lastRaw.slice(0, 10) : d.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
+            lastEl.className = "text-xl font-extrabold text-emerald-400 mt-1";
+            if (lastCard) lastCard.style.cssText = "background:#0f172a;border:1px solid #1e293b;border-left:4px solid #10b981";
+          } else {
+            lastEl.textContent = "⚠ Belum Pernah Backup";
+            lastEl.className = "text-lg font-extrabold text-amber-200 mt-1";
+            if (lastCard) lastCard.style.cssText = "background:rgba(245,158,11,0.16);border:1.5px solid rgba(245,158,11,0.65);border-left:4px solid #f59e0b";
+          }
+        }
+        const prodEl = document.getElementById("backupCardProductCount");
+        if (prodEl) prodEl.textContent = String(activeInventory().length || inventory.length || 0);
+        const txEl = document.getElementById("backupCardTxCount");
+        if (txEl) txEl.textContent = String(transactions.length || 0);
+        const sizeEl = document.getElementById("backupCardFileSize");
+        if (sizeEl) {
+          const approxBytes = JSON.stringify({ inventory, transactions, purchases, expenses: books.expenses, cashClosings: books.cashClosings }).length;
+          sizeEl.textContent = approxBytes > 1048576
+            ? (approxBytes / 1048576).toFixed(2).replace(".", ",") + " MB"
+            : approxBytes > 100
+              ? Math.max(1, Math.round(approxBytes / 1024)) + " KB"
+              : "0 KB";
+        }
+      } catch {}
+    }
+
     function renderInventory() {
       try { updatePosLiveStats(); } catch (e) { console.error("updatePosLiveStats", e); }
       try { renderInventoryCharts(); } catch (e) { console.error("renderInventoryCharts", e); }
-      try { renderBackupVolumeChart(); } catch (e) { console.error("renderBackupVolumeChart", e); }
+      try { updateBackupSummaryCards(); renderBackupVolumeChart(); } catch (e) { console.error("renderBackupVolumeChart", e); }
       try { updateInventorySortUI(); } catch (e) { console.error("updateInventorySortUI", e); }
       const q = document.getElementById("invSearchInput").value.trim().toLocaleLowerCase("id");
       const missingOnly = document.getElementById("invMissingPhotoOnly").checked;
@@ -3068,6 +3110,7 @@
 
     function renderTransactions() {
       updatePosLiveStats();
+      updateBackupSummaryCards();
       const rows = reportSales();
       let omset = 0, modal = 0, profit = 0, qty = 0;
       const pay = { Cash: [0, 0], QRIS: [0, 0], Kartu: [0, 0], Transfer: [0, 0] };
@@ -3889,6 +3932,62 @@
       const catBadge = document.getElementById("badgeStockCatTotal");
       if (catBadge) catBadge.textContent = `Modal ${shortRpTick(totalCost)}`;
 
+      // Panel Prioritas Hari Ini (tanpa hitungan dobel: lowCount = 1..4 pcs, outCount = 0 pcs)
+      const prioListEl = document.getElementById("todayPrioSummaryList");
+      const prioBtnsEl = document.getElementById("todayPrioActionBtns");
+      const prioTotEl = document.getElementById("todayPrioTotalBadge");
+      if (prioListEl && prioBtnsEl) {
+        const since30Prio = shiftDate(todayStr(), -29);
+        const moved30IdsP = new Set(), moved30NamesP = new Set();
+        for (const tx of transactions) {
+          if (tx.date >= since30Prio) {
+            for (const it of (tx.items || [])) {
+              if (it.productId) moved30IdsP.add(it.productId);
+              if (it.name) moved30NamesP.add(String(it.name).trim());
+            }
+          }
+        }
+        const slowMovingList = transactions.length > 0
+          ? active.filter(it => Number(it.stock || 0) >= 1 && !moved30IdsP.has(it.id) && !moved30NamesP.has(String(it.name || "").trim()))
+          : [];
+        const highMarginCount = urgentItems.filter(it => (Number(it.price || 0) - Number(it.cost || 0)) > 0).length;
+        if (prioTotEl) prioTotEl.textContent = `${lowCount + outCount} stok menipis & habis`;
+
+        const chips = [
+          `<span style="background:rgba(245,158,11,0.14);border:1px solid rgba(245,158,11,0.45);color:#fde68a" class="px-3 py-1.5 rounded-xl">⚠ ${lowCount} menipis (stok 1–4)</span>`,
+          `<span style="background:rgba(239,68,68,0.14);border:1px solid rgba(239,68,68,0.45);color:#fca5a5" class="px-3 py-1.5 rounded-xl">⛔ ${outCount} habis (stok 0)</span>`,
+          `<span style="background:rgba(59,130,246,0.14);border:1px solid rgba(59,130,246,0.45);color:#93c5fd" class="px-3 py-1.5 rounded-xl">💎 ${highMarginCount} produk margin tinggi perlu restok</span>`
+        ];
+        if (transactions.length > 0) {
+          chips.push(`<span style="background:rgba(148,163,184,0.14);border:1px solid rgba(148,163,184,0.35);color:#cbd5e1" class="px-3 py-1.5 rounded-xl">⏳ ${slowMovingList.length} barang slow moving (30 hari)</span>`);
+        }
+        prioListEl.innerHTML = chips.join("");
+
+        const firstCritical = urgentItems.slice().sort((a, b) => Number(a.stock || 0) - Number(b.stock || 0))[0];
+        const firstSlow = slowMovingList[0];
+        prioBtnsEl.innerHTML = `
+          <button type="button" id="btnPrioRestockCritical" class="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs inline-flex items-center gap-1.5"><i class="fa-solid fa-cart-plus" aria-hidden="true"></i> Restok Barang Kritis (${outCount})</button>
+          <button type="button" id="btnPrioPrintQr" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-extrabold text-xs inline-flex items-center gap-1.5"><i class="fa-solid fa-qrcode text-amber-400" aria-hidden="true"></i> Cetak QR</button>
+          ${transactions.length > 0 ? `<button type="button" id="btnPrioPromoSlow" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs inline-flex items-center gap-1.5"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> Promo Slow Moving (${slowMovingList.length})</button>` : ""}
+        `;
+        document.getElementById("btnPrioRestockCritical")?.addEventListener("click", () => {
+          openRestockFor(firstCritical?.id || "");
+        });
+        document.getElementById("btnPrioPrintQr")?.addEventListener("click", () => {
+          if (firstCritical?.id) openProductQrModal(firstCritical.id);
+          else document.getElementById("inventoryTableBody")?.scrollIntoView({ behavior: "smooth" });
+        });
+        document.getElementById("btnPrioPromoSlow")?.addEventListener("click", () => {
+          if (firstSlow?.id) {
+            const btnWa = document.querySelector(`[data-share-wa="${CSS.escape(firstSlow.id)}"]`);
+            if (btnWa) btnWa.click();
+            else document.getElementById("listSlowMovingWrap")?.scrollIntoView({ behavior: "smooth" });
+          } else {
+            document.getElementById("listSlowMovingWrap")?.scrollIntoView({ behavior: "smooth" });
+          }
+        });
+      }
+
       // Baris 2 Kiri: Status Stok per Kategori (Stacked Bar: Aman / Menipis / Habis + Modal)
       const okPct = active.length > 0 ? Math.round((okCount / active.length) * 100) : 0;
       const catWrap = document.getElementById("svgStockCatWrap");
@@ -4163,12 +4262,9 @@
     function renderProfitTrendHtml(profitPts) {
       const active = (profitPts || []).filter(p => Number(p.value || 0) !== 0);
       if (active.length < 2) {
-        const detail = active.length === 1
-          ? `Baru tersedia 1 bulan data (${esc(active[0].label)}: ${rp(active[0].value)}). Grafik tren otomatis tampil setelah minimal 2 bulan tercatat.`
-          : "Belum ada transaksi laba yang tercatat dalam 6 bulan terakhir.";
-        return `<div class="w-full rounded-2xl border border-dashed border-slate-300 bg-slate-50/80 px-4 py-6 text-center space-y-1.5">
-          <p class="text-sm font-extrabold text-slate-700"><i class="fa-solid fa-chart-line text-slate-400 mr-1.5" aria-hidden="true"></i>Data historis belum cukup untuk analisis tren 6 bulan.</p>
-          <p class="text-xs font-semibold text-slate-500">${detail}</p>
+        return `<div style="background:#0f172a;border:1px dashed #334155" class="w-full rounded-2xl px-4 py-6 text-center space-y-1">
+          <p class="text-xs font-extrabold text-slate-300">Data belum cukup (baru 1 bulan data tercatat).</p>
+          <p class="text-[11px] font-semibold text-slate-400">Tren 6 bulan tampil otomatis mulai bulan ke-2.</p>
         </div>`;
       }
       return buildSvgAreaTrend(profitPts);
@@ -4607,7 +4703,7 @@
           else { statusDot = "🟠"; statusLabel = "Perlu Perhatian"; badgeCls = "bg-orange-100 text-orange-800 border-orange-300"; }
         }
         const zeroExpNote = revenue > 0 && spending === 0
-          ? `<span class="text-[11px] font-semibold text-slate-500">Biaya operasional (listrik, gaji, sewa) masih Rp 0 &mdash; catat di Uang Keluar agar laba bersih akurat.</span>`
+          ? `<span style="background:rgba(245,158,11,0.14);border:1px solid rgba(245,158,11,0.5);color:#fde68a" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-extrabold">⚠ Belum ada pengeluaran operasional tercatat, laba bersih belum akurat</span>`
           : "";
         healthEl.innerHTML = `<div class="flex flex-wrap items-center gap-2">
           <span class="font-extrabold text-slate-700">Kesehatan Bisnis:</span>
