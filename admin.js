@@ -2522,26 +2522,26 @@
     }
 
     const CATALOG_BRANDS = [
-      { id: "yonex", name: "Yonex", sub: "Badminton", searchTerm: "Yonex", re: /\byonex\b/i, badge: "YNX", cls: "bg-sky-50 text-sky-900 border-sky-200" },
-      { id: "lining", name: "Li-Ning", sub: "Badminton & Sport", searchTerm: "Li-Ning", re: /\b(li-?ning|lining)\b/i, badge: "LN", cls: "bg-rose-50 text-rose-900 border-rose-200" },
-      { id: "victor", name: "Victor", sub: "Badminton", searchTerm: "Victor", re: /\bvictor\b/i, badge: "VTR", cls: "bg-blue-50 text-blue-900 border-blue-200" },
-      { id: "hiqua", name: "Hiqua", sub: "Badminton", searchTerm: "Hiqua", re: /\b(hi-?qua|hiqua)\b/i, badge: "HQ", cls: "bg-amber-50 text-amber-900 border-amber-200" },
-      { id: "rs", name: "RS", sub: "Reinforce Speed", searchTerm: "RS", re: /\b(rs|reinforce(\s*speed)?)\b/i, badge: "RS", cls: "bg-red-50 text-red-900 border-red-200" },
-      { id: "flypower", name: "Flypower", sub: "Badminton", searchTerm: "Flypower", re: /\bflypower\b/i, badge: "FP", cls: "bg-orange-50 text-orange-900 border-orange-200" },
-      { id: "astec", name: "Astec", sub: "Badminton", searchTerm: "Astec", re: /\bastec\b/i, badge: "AST", cls: "bg-cyan-50 text-cyan-900 border-cyan-200" },
-      { id: "butterfly", name: "Butterfly", sub: "Tenis Meja", searchTerm: "Butterfly", re: /\bbutterfly\b/i, badge: "BFY", cls: "bg-pink-50 text-pink-900 border-pink-200" },
-      { id: "dhs", name: "DHS", sub: "Double Happiness", searchTerm: "DHS", re: /\b(dhs|double\s*happiness)\b/i, badge: "DHS", cls: "bg-rose-50 text-rose-900 border-rose-200" },
-      { id: "nitaku", name: "Nitaku", sub: "Nittaku Pingpong", searchTerm: "Nitaku", re: /\b(nitaku|nittaku)\b/i, badge: "NTK", cls: "bg-sky-50 text-sky-900 border-sky-200" },
-      { id: "donics", name: "Donics", sub: "Donic Pingpong", searchTerm: "Donic", re: /\b(donics?|donic)\b/i, badge: "DNC", cls: "bg-emerald-50 text-emerald-900 border-emerald-200" },
-      { id: "doublefish", name: "Double Fish", sub: "Tenis Meja", searchTerm: "Double Fish", re: /\bdouble\s*fish\b/i, badge: "DF", cls: "bg-indigo-50 text-indigo-900 border-indigo-200" },
-      { id: "specs", name: "Specs", sub: "Futsal & Bola", searchTerm: "Specs", re: /\bspecs\b/i, badge: "SPC", cls: "bg-yellow-50 text-yellow-900 border-yellow-200" },
-      { id: "ortuseight", name: "Ortuseight", sub: "Futsal & Running", searchTerm: "Ortuseight", re: /\b(ortuseight|ortus)\b/i, badge: "ORT", cls: "bg-orange-50 text-orange-900 border-orange-200" },
-      { id: "adidas", name: "Adidas", sub: "Sport & Futsal", searchTerm: "Adidas", re: /\badidas\b/i, badge: "ADI", cls: "bg-slate-100 text-slate-900 border-slate-300" },
-      { id: "nike", name: "Nike", sub: "Sport & Futsal", searchTerm: "Nike", re: /\bnike\b/i, badge: "NKE", cls: "bg-slate-100 text-slate-900 border-slate-300" },
-      { id: "molten", name: "Molten", sub: "Bola Basket & Voli", searchTerm: "Molten", re: /\bmolten\b/i, badge: "MLT", cls: "bg-red-50 text-red-900 border-red-200" },
-      { id: "mikasa", name: "Mikasa", sub: "Bola Voli & Sepak", searchTerm: "Mikasa", re: /\bmikasa\b/i, badge: "MKS", cls: "bg-blue-50 text-blue-900 border-blue-200" },
-      { id: "mizuno", name: "Mizuno", sub: "Badminton & Voli", searchTerm: "Mizuno", re: /\bmizuno\b/i, badge: "MIZ", cls: "bg-sky-50 text-sky-900 border-sky-200" },
-      { id: "asics", name: "Asics", sub: "Sepatu & Voli", searchTerm: "Asics", re: /\basics\b/i, badge: "ASC", cls: "bg-indigo-50 text-indigo-900 border-indigo-200" }
+      { id: "yonex", name: "Yonex", sub: "Badminton", searchTerm: "Yonex", re: /\byonex\b/i, logo: "brands/yonex.png", badge: "YNX", cls: "bg-zinc-900 text-amber-300 border-amber-400/50" },
+      { id: "lining", name: "Li-Ning", sub: "Badminton & Sport", searchTerm: "Li-Ning", re: /\b(li-?ning|lining)\b/i, logo: "brands/lining.png", badge: "LN", cls: "bg-zinc-900 text-amber-300 border-amber-400/50" },
+      { id: "victor", name: "Victor", sub: "Badminton", searchTerm: "Victor", re: /\bvictor\b/i, logo: "brands/victor.png", badge: "VTR", cls: "bg-zinc-900 text-amber-300 border-amber-400/50" },
+      { id: "hiqua", name: "Hiqua", sub: "Badminton", searchTerm: "Hiqua", re: /\b(hi-?qua|hiqua)\b/i, logo: "brands/hiqua.png", badge: "HQ", cls: "bg-zinc-900 text-amber-300 border-amber-400/50" },
+      { id: "rs", name: "RS", sub: "Reinforce Speed", searchTerm: "RS", re: /\b(rs|reinforce(\s*speed)?)\b/i, logo: "brands/rs.png", badge: "RS", cls: "bg-zinc-900 text-amber-300 border-amber-400/50" },
+      { id: "flypower", name: "Flypower", sub: "Badminton", searchTerm: "Flypower", re: /\bflypower\b/i, logo: "brands/flypower.png", badge: "FP", cls: "bg-zinc-900 text-amber-300 border-amber-400/50" },
+      { id: "astec", name: "Astec", sub: "Badminton", searchTerm: "Astec", re: /\bastec\b/i, logo: "brands/astec.png", badge: "AST", cls: "bg-zinc-900 text-amber-300 border-amber-400/50" },
+      { id: "butterfly", name: "Butterfly", sub: "Tenis Meja", searchTerm: "Butterfly", re: /\bbutterfly\b/i, logo: "brands/butterfly.png", badge: "BFY", cls: "bg-zinc-900 text-amber-300 border-amber-400/50" },
+      { id: "dhs", name: "DHS", sub: "Double Happiness", searchTerm: "DHS", re: /\b(dhs|double\s*happiness)\b/i, logo: "brands/dhs.png", badge: "DHS", cls: "bg-zinc-900 text-amber-300 border-amber-400/50" },
+      { id: "nitaku", name: "Nitaku", sub: "Nittaku Pingpong", searchTerm: "Nitaku", re: /\b(nitaku|nittaku)\b/i, logo: "brands/nitaku.png", badge: "NTK", cls: "bg-zinc-900 text-amber-300 border-amber-400/50" },
+      { id: "donics", name: "Donics", sub: "Donic Pingpong", searchTerm: "Donic", re: /\b(donics?|donic)\b/i, logo: "brands/donics.png", badge: "DNC", cls: "bg-zinc-900 text-amber-300 border-amber-400/50" },
+      { id: "doublefish", name: "Double Fish", sub: "Tenis Meja", searchTerm: "Double Fish", re: /\bdouble\s*fish\b/i, logo: "brands/doublefish.png", badge: "DF", cls: "bg-zinc-900 text-amber-300 border-amber-400/50" },
+      { id: "specs", name: "Specs", sub: "Futsal & Bola", searchTerm: "Specs", re: /\bspecs\b/i, logo: "brands/specs.png", badge: "SPC", cls: "bg-zinc-900 text-amber-300 border-amber-400/50" },
+      { id: "ortuseight", name: "Ortuseight", sub: "Futsal & Running", searchTerm: "Ortuseight", re: /\b(ortuseight|ortus)\b/i, logo: "brands/ortuseight.png", badge: "ORT", cls: "bg-zinc-900 text-amber-300 border-amber-400/50" },
+      { id: "adidas", name: "Adidas", sub: "Sport & Futsal", searchTerm: "Adidas", re: /\badidas\b/i, logo: "brands/adidas.png", badge: "ADI", cls: "bg-zinc-900 text-amber-300 border-amber-400/50" },
+      { id: "nike", name: "Nike", sub: "Sport & Futsal", searchTerm: "Nike", re: /\bnike\b/i, logo: "brands/nike.png", badge: "NKE", cls: "bg-zinc-900 text-amber-300 border-amber-400/50" },
+      { id: "molten", name: "Molten", sub: "Bola Basket & Voli", searchTerm: "Molten", re: /\bmolten\b/i, logo: "brands/molten.png", badge: "MLT", cls: "bg-zinc-900 text-amber-300 border-amber-400/50" },
+      { id: "mikasa", name: "Mikasa", sub: "Bola Voli & Sepak", searchTerm: "Mikasa", re: /\bmikasa\b/i, logo: "brands/mikasa.png", badge: "MKS", cls: "bg-zinc-900 text-amber-300 border-amber-400/50" },
+      { id: "mizuno", name: "Mizuno", sub: "Badminton & Voli", searchTerm: "Mizuno", re: /\bmizuno\b/i, logo: "brands/mizuno.png", badge: "MIZ", cls: "bg-zinc-900 text-amber-300 border-amber-400/50" },
+      { id: "asics", name: "Asics", sub: "Sepatu & Voli", searchTerm: "Asics", re: /\basics\b/i, logo: "brands/asics.png", badge: "ASC", cls: "bg-zinc-900 text-amber-300 border-amber-400/50" }
     ];
     let activeBrandId = "";
     function itemBrandHaystack(item) {
@@ -2623,8 +2623,11 @@
       grid.innerHTML = visibleBrands.map(b => {
         const count = inStockItems.filter(it => matchesBrandFilter(it, b)).length;
         const active = activeBrandId === b.id;
-        return `<button type="button" data-brand-id="${esc(b.id)}" aria-pressed="${active}" class="flex flex-col items-center justify-center gap-1.5 rounded-2xl border p-3 text-center transition ${active ? "border-amber-400 bg-zinc-900 text-amber-300 ring-2 ring-amber-400/50" : "border-zinc-700 bg-zinc-900/90 text-white hover:border-amber-400 hover:bg-zinc-900"}">
-          <span class="inline-flex items-center justify-center rounded-xl border px-2.5 py-1 text-xs font-black tracking-wider ${b.cls}">${esc(b.badge)}</span>
+        return `<button type="button" data-brand-id="${esc(b.id)}" aria-pressed="${active}" class="flex flex-col items-center justify-center gap-1.5 rounded-2xl border p-3 text-center transition ${active ? "border-amber-400 bg-zinc-950 text-amber-300 ring-2 ring-amber-400/60" : "border-amber-400/25 bg-zinc-900/95 text-white hover:border-amber-400 hover:bg-zinc-950"}">
+          <div class="sjs-brand-img-wrap">
+            <img src="${esc(b.logo || "")}" alt="${esc(b.name)}" loading="lazy" class="sjs-brand-img" onerror="this.style.display='none';const fb=this.nextElementSibling;if(fb)fb.style.display='inline-flex';">
+            <span class="sjs-brand-missing-tag" style="display:none">${esc(b.badge)} · Logo Belum Ada</span>
+          </div>
           <span class="text-sm font-extrabold ${active ? "text-amber-300" : "text-white"} leading-tight">${esc(b.name)}</span>
           <span class="text-[11px] font-semibold text-amber-300 leading-tight tabular-nums">${esc(b.sub)} · ${count}</span>
         </button>`;
